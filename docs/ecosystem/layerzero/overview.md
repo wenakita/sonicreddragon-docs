@@ -69,5 +69,5 @@ Sonic Red Dragon currently supports the following chains:
 ## Next Steps
 
 1. Read the [LayerZero Integration Guide](./integration.md)
-2. Review the [Smart Contracts Overview](../contracts/overview.md)
+2. Review the [Smart Contracts Overview](../../smart-contracts/token.md)
 3. Check out our [Example Projects](https://github.com/wenakita/omnidragon-examples) 

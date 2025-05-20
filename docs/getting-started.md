@@ -199,7 +199,7 @@ The dRAND integration provides verifiable randomness:
 
 ## Next Steps
 
-1. Review the [Smart Contracts Overview](./contracts/overview.md)
+1. Review the [Smart Contracts Overview](./smart-contracts/token.md)
 2. Learn about [dRAND Integration](./ecosystem/drand-network.md)
 3. Check out our [Example Projects](https://github.com/wenakita/omnidragon-examples)
 4. Join our [Discord Community](https://discord.gg/sonicreddragon) 
