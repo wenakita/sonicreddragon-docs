@@ -48,6 +48,62 @@ The fee percentages are:
 - **2.41%** directed to ve69LP holders as staking rewards
 - **0.69%** permanently burned, reducing total supply
 
+## Lottery Entry Mechanism
+
+The OmniDragon contract integrates directly with the jackpot system through the SwapTriggerOracle:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant LP as Liquidity Pool
+    participant Token as OmniDragon
+    participant Oracle as SwapTriggerOracle
+    participant JackpotSystem
+    
+    User->>LP: Buy DRAGON tokens
+    LP->>Token: Transfer tokens to user
+    Token->>Token: Detect buy transaction from LP
+    Token->>Oracle: _tryProcessLotteryEntry(user, amount)
+    Oracle->>Oracle: Calculate win probability
+    Oracle->>Oracle: Record entry
+    
+    alt If winning entry
+        Oracle->>JackpotSystem: Trigger jackpot
+        JackpotSystem->>User: Distribute reward
+    end
+```
+
+The implementation in code:
+
+```solidity
+// From OmniDragon.sol
+function _transfer(
+    address from,
+    address to,
+    uint256 amount
+) internal override {
+    // ... other transfer logic ...
+    
+    // Process lottery entry ONLY for buys (from liquidity pool to user)
+    if (swapTrigger != address(0) && (isPairFrom || isPartnerPoolFrom)) {
+        _tryProcessLotteryEntry(to, amount);
+    }
+}
+
+function _tryProcessLotteryEntry(address user, uint256 amount) private {
+    try IOmniDragonSwapTriggerOracle(swapTrigger).onSwap(user, amount) {
+        // Lottery entry successful - no action needed
+    } catch {
+        // Ignore failures - no action needed
+    }
+}
+```
+
+This mechanism ensures that:
+1. Only buy transactions generate lottery entries
+2. Each buy has a chance to win the jackpot
+3. Larger buys get higher chances of winning (as calculated by SwapTriggerOracle)
+
 ## Cross-Chain Functionality
 
 The OmniDragon token implements the LayerZero V2 messaging protocol for secure cross-chain transfers:
@@ -134,6 +190,41 @@ function registerPartnerPool(address pool) external onlyOwner
 
 // Remove a partner pool
 function removePartnerPool(address pool) external onlyOwner
+```
+
+## Fee Management Implementation
+
+The OmniDragon contract swaps accumulated token fees for wrapped native tokens (WETH, WBNB, etc.) and distributes them:
+
+```solidity
+// From OmniDragon.sol
+function swapTokensForWrappedNative(uint256 tokenAmount) private lockTheSwap {
+    // ... swap logic ...
+    
+    // Calculate fee distribution using cached variables for gas efficiency
+    uint256 totalFeeBasis = buyFees.jackpot + buyFees.ve69LP;
+    
+    // Avoid division by zero
+    if (totalFeeBasis == 0) return;
+    
+    uint256 jackpotShare = (wrappedNativeReceived * buyFees.jackpot) / totalFeeBasis;
+    uint256 ve69Share = wrappedNativeReceived - jackpotShare; // Optimized to avoid additional math
+    
+    // Distribute fees
+    _distributeFees(jackpotShare, ve69Share);
+}
+
+function _distributeFees(uint256 jackpotAmount, uint256 ve69Amount) internal {
+    // ... distribution logic ...
+    
+    if (jackpotAmount > 0 && vault != address(0)) {
+        IERC20(wrappedToken).safeTransfer(vault, jackpotAmount);
+        IDragonJackpotVault(vault).addToJackpot(jackpotAmount);
+        emit FeeTransferred(vault, jackpotAmount, "Jackpot");
+    }
+    
+    // ... other fee distributions ...
+}
 ```
 
 ## Integration Examples

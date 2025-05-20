@@ -4,169 +4,216 @@ sidebar_position: 3
 
 # Tokenomics
 
-Sonic Red Dragon implements a carefully designed tokenomic model that balances sustainable growth, community rewards, and long-term value creation.
+The Sonic Red Dragon token economy is designed for long-term sustainability, fair distribution, and value accrual through multiple mechanisms.
 
 ## Token Overview
 
-- **Name**: Sonic Red Dragon
-- **Symbol**: SRD
-- **Decimals**: 18
-- **Chain of Origin**: Ethereum
-- **Type**: ERC-20 compatible, cross-chain enabled
+The DRAGON token is the native token of the Sonic Red Dragon ecosystem:
+
+| Parameter | Value |
+|-----------|-------|
+| Token Name | Sonic Red Dragon |
+| Token Symbol | DRAGON |
+| Decimals | 18 |
+| Total Supply | 6,942,000 DRAGON |
+| Token Type | ERC-20 (Cross-Chain) |
+| Supply Model | Fixed Supply |
 
 ## Token Distribution
 
-The total supply of SRD tokens is distributed across several key allocations:
+The initial distribution of DRAGON tokens is designed to ensure fair participation across various stakeholders:
 
 ```mermaid
-pie
-    title "SRD Token Distribution"
-    "Public Sale" : 30
-    "Treasury" : 20
-    "Team" : 15
-    "Ecosystem & Partnerships" : 15
-    "Liquidity Provision" : 10
-    "Strategic Investors" : 10
+pie title Initial DRAGON Token Distribution
+    "Public Sale" : 40
+    "Development Fund" : 15
+    "Liquidity" : 20
+    "Team & Advisors" : 10
+    "Treasury" : 10
+    "Airdrop & Marketing" : 5
 ```
 
-| Allocation | Percentage | Vesting |
-|------------|------------|---------|
-| Public Sale | 30% | No lock-up |
-| Treasury | 20% | Linear vesting over 36 months |
-| Team | 15% | 1-year cliff, then linear vesting over 24 months |
-| Ecosystem & Partnerships | 15% | Linear vesting over 24 months |
-| Liquidity Provision | 10% | Locked in LP pools |
-| Strategic Investors | 10% | 6-month cliff, then linear vesting over 18 months |
+| Allocation | Percentage | Tokens | Vesting |
+|------------|------------|--------|---------|
+| Public Sale | 40% | 2,776,800 | None (Immediate) |
+| Development Fund | 15% | 1,041,300 | 2 years (linear) |
+| Liquidity | 20% | 1,388,400 | Locked for 3 years |
+| Team & Advisors | 10% | 694,200 | 2 years (6-month cliff) |
+| Treasury | 10% | 694,200 | 3 years (linear) |
+| Airdrop & Marketing | 5% | 347,100 | 1 year (linear) |
 
-## Economic Model
+## Fee Structure
 
-Sonic Red Dragon implements a unique economic model that combines several mechanisms to create value and distribute rewards.
+One of the unique aspects of the DRAGON token is its built-in fee structure that automatically distributes value across the ecosystem:
 
 ```mermaid
 flowchart TD
-    subgraph "Token Economics"
-        Transactions["Token Transactions"]
-        Fees["Transaction Fees"]
-        TreasuryFees["Treasury"]
-        StakingRewards["Staking Rewards"]
-        JackpotPool["Jackpot Pool"]
-    end
+    Transaction["Token Transaction"]
+    Fees["Transaction Fees (10%)"]
+    JackpotPool["Jackpot Pool (6.9%)"]
+    ve69LP["ve69LP Holders (2.41%)"]
+    Burn["Token Burn (0.69%)"]
     
-    subgraph "Governance"
-        ve69LP["ve69LP Tokens"]
-        Voting["Governance Voting"]
-        Proposals["Improvement Proposals"]
-    end
+    Transaction -->|"Generates"| Fees
+    Fees -->|"Distributes"| JackpotPool
+    Fees -->|"Distributes"| ve69LP
+    Fees -->|"Distributes"| Burn
     
-    subgraph "Cross-Chain"
-        BridgeFees["Bridge Fees"]
-        CrossChainLiquidity["Cross-Chain Liquidity"]
-    end
+    JackpotPool -->|"Random Distribution"| Winners["Lucky Winners"]
+    ve69LP -->|"Proportional Distribution"| Stakers["ve69LP Stakers"]
+    Burn -->|"Permanent Removal"| Supply["Circulating Supply"]
     
-    Transactions -->|"Generate"| Fees
-    Fees -->|"30%"| TreasuryFees
-    Fees -->|"40%"| StakingRewards
-    Fees -->|"30%"| JackpotPool
-    JackpotPool -->|"Random Distribution"| Users["Token Holders"]
-    BridgeFees -->|"Contribute to"| TreasuryFees
-    Users -->|"Provide Liquidity"| LiquidityPools["Liquidity Pools"]
-    LiquidityPools -->|"Lock LP Tokens"| ve69LP
-    ve69LP -->|"Voting Power"| Voting
-    Voting -->|"Approve/Reject"| Proposals
-    ve69LP -->|"Boost"| StakingRewards
-    
-    class Fees,JackpotPool,ve69LP highlight
+    class Fees,JackpotPool highlight
 ```
 
-### Fee Structure
+### Fee Breakdown
 
-Every token transaction includes a small fee that is distributed as follows:
+The total transaction fee of 10% is distributed as follows:
 
-- **30%** to the Treasury for long-term development and operations
-- **40%** to Staking Rewards for liquidity providers and stakers
-- **30%** to the Jackpot Pool for random distribution to token holders
+- **6.9% to Jackpot**: Accumulated in the jackpot pool for random distribution
+- **2.41% to ve69LP Holders**: Distributed to users who have locked LP tokens
+- **0.69% to Burn**: Permanently removed from circulation, creating deflationary pressure
 
-### Jackpot Mechanism
+### Fee Types
 
-The Jackpot is a unique feature of Sonic Red Dragon that distributes accumulated fees to random token holders:
+Different transaction types may have different fee structures:
 
-1. **Accumulation**: Fees accumulate in the Jackpot Pool over time
-2. **Randomness**: The dRAND network provides verifiable randomness for winner selection
-3. **Distribution**: Jackpots are distributed on a regular schedule (daily, weekly, monthly)
-4. **Eligibility**: All active wallets holding a minimum amount of SRD are eligible
+| Transaction Type | Total Fee | Jackpot | ve69LP | Burn |
+|------------------|-----------|---------|--------|------|
+| Buy | 10% | 6.9% | 2.41% | 0.69% |
+| Sell | 10% | 6.9% | 2.41% | 0.69% |
+| Transfer | 5% | 3.45% | 1.205% | 0.345% |
+| Cross-Chain | 0.5% | 0.345% | 0.1205% | 0.0345% |
+
+## Value Accrual Mechanisms
+
+The DRAGON token economics include multiple mechanisms for value accrual:
+
+### 1. Deflationary Pressure
+
+The burn mechanism creates continuous deflationary pressure on the token supply:
 
 ```mermaid
-sequenceDiagram
-    participant User
-    participant Token
-    participant Jackpot
-    participant Randomness
-    
-    User->>Token: Make Transaction
-    Token->>Jackpot: Contribute Fee (30%)
-    Note over Jackpot: Accumulate funds
-    
-    Jackpot->>Randomness: Request Random Number
-    Randomness->>Jackpot: Provide Verifiable Random Value
-    
-    Jackpot->>Jackpot: Select Winner
-    Jackpot->>User: Distribute Jackpot
+graph LR
+    Transactions["Transaction Volume"] -->|"Generates Fees"| BurnAmount["Burn Amount"]
+    BurnAmount -->|"Reduces"| Supply["Circulating Supply"]
+    Supply -->|"With Constant Demand"| Price["Token Price"]
 ```
 
-### ve69LP Governance Model
+### 2. Jackpot Incentive
 
-The governance system uses vote-escrowed liquidity provider tokens (ve69LP) to determine voting power:
+The jackpot system incentivizes holding and trading DRAGON:
 
-1. **Liquidity Provision**: Users provide liquidity to SRD pools
-2. **LP Token Locking**: LP tokens can be locked for up to 4 years
-3. **ve69LP Generation**: Locked LP tokens generate ve69LP tokens
-4. **Voting Power**: ve69LP represents voting power and decays linearly over time
-5. **Rewards Boost**: ve69LP holders receive boosted staking rewards
+- **Holding**: Increases chances of winning jackpots
+- **Trading**: Generates more fees for the jackpot pool
+- **Staking**: Provides additional jackpot entries
 
-## Deflationary Mechanics
+### 3. Governance Rights
 
-Sonic Red Dragon implements several deflationary mechanisms:
+DRAGON token holders can participate in governance through the ve69LP mechanism:
 
-1. **Fee Burning**: A portion of the fees collected is burned, reducing the circulating supply
-2. **Buyback and Burn**: Treasury funds are used periodically to buy back and burn tokens
-3. **Jackpot Burns**: A percentage of each jackpot is burned before distribution
+- **LP Provision**: Users provide liquidity with DRAGON
+- **LP Locking**: LP tokens are locked to receive ve69LP
+- **Governance**: ve69LP grants voting power proportional to amount and lock time
 
-## Cross-Chain Economics
+## Token Utility
 
-The token's cross-chain capability introduces additional economic considerations:
+The DRAGON token has multiple utilities within the ecosystem:
 
-1. **Bridge Fees**: Cross-chain transfers incur a small fee that contributes to the Treasury
-2. **Chain-Specific Liquidity**: Native liquidity is maintained on each supported chain
-3. **Supply Consistency**: The total supply is maintained consistently across all chains
+1. **Medium of Exchange**: Used for transactions within the ecosystem
+2. **Governance**: Liquidity provision + locking for governance rights
+3. **Fee Sharing**: ve69LP holders receive a share of transaction fees
+4. **Jackpot Participation**: Token holders are eligible for jackpot winnings
+5. **Cross-Chain Bridging**: Enables transfer of value across supported chains
+
+## Economic Flywheel
+
+The Sonic Red Dragon tokenomics create a self-reinforcing economic flywheel:
+
+```mermaid
+flowchart TD
+    Transactions["Transaction Volume"]
+    Fees["Transaction Fees"]
+    Jackpot["Jackpot Pool"]
+    Staking["ve69LP Staking"]
+    Burn["Token Burns"]
+    Price["Token Price"]
+    
+    Transactions -->|"Generate"| Fees
+    Fees -->|"Fund"| Jackpot
+    Fees -->|"Reward"| Staking
+    Fees -->|"Fuel"| Burn
+    
+    Jackpot -->|"Attracts"| Users["Users & Liquidity"]
+    Staking -->|"Locks"| Liquidity["Liquidity"]
+    Burn -->|"Reduces"| Supply["Circulating Supply"]
+    
+    Users -->|"Increase"| Transactions
+    Liquidity -->|"Improves"| TradingExperience["Trading Experience"]
+    Supply -->|"With Growing Demand"| Price
+    
+    TradingExperience -->|"Encourages"| Transactions
+    Price -->|"Attracts"| Users
+    
+    class Transactions,Fees,Jackpot highlight
+```
 
 ## Long-Term Sustainability
 
-Several mechanisms ensure the long-term sustainability of the Sonic Red Dragon ecosystem:
+The Sonic Red Dragon tokenomics model is designed for long-term sustainability through:
 
-1. **Treasury Growth**: The Treasury accumulates funds for ongoing development
-2. **Governance Participation**: ve69LP incentivizes long-term commitment and participation
-3. **Strategic Partnerships**: Ecosystem funds are used to develop strategic partnerships
-4. **Fee Adjustability**: Fee parameters can be adjusted through governance to respond to market conditions
+1. **Fixed Supply**: No inflation, with deflationary pressure from burns
+2. **Fee Distribution**: Revenue sharing with token holders
+3. **Governance Incentives**: Long-term alignment through time-weighted voting
+4. **Cross-Chain Strategy**: Expansion to multiple chains for wider adoption
+5. **Partner Ecosystem**: Integration with partner protocols for expanded utility
 
-## Usage Example
+## Emission Schedule
 
-Here's an example of how a user might interact with the ve69LP system:
+The token emission schedule follows a predetermined vesting period for each allocation:
 
-```solidity
-// Lock LP tokens to get ve69LP
-function lockLPTokens(uint256 amount, uint256 lockDuration) external {
-    // Transfer LP tokens from user
-    lpToken.transferFrom(msg.sender, address(this), amount);
+```mermaid
+gantt
+    title DRAGON Token Emission Schedule
+    dateFormat  YYYY-MM
+    axisFormat %Y-%m
     
-    // Calculate ve69LP amount based on amount and lock duration
-    uint256 ve69lpAmount = calculateVe69LP(amount, lockDuration);
+    section Public Sale
+    Available Immediately :done, ps, 2023-10, 0d
     
-    // Mint ve69LP tokens to user
-    ve69LP.mint(msg.sender, ve69lpAmount);
+    section Development Fund
+    Linear Vesting (2 Years) :df, 2023-10, 2023-10-01, 24m
     
-    // Record the lock expiry
-    lockExpiry[msg.sender] = block.timestamp + lockDuration;
-}
+    section Liquidity
+    Locked (3 Years) :liq, 2023-10, 36m
+    
+    section Team & Advisors
+    Cliff (6 Months) :team_cliff, 2023-10, 6m
+    Linear Vesting (18 Months) :team_vest, after team_cliff, 18m
+    
+    section Treasury
+    Linear Vesting (3 Years) :treasury, 2023-10, 36m
+    
+    section Airdrop & Marketing
+    Linear Vesting (1 Year) :airdrop, 2023-10, 12m
 ```
 
-The Sonic Red Dragon tokenomics are designed to create a balanced ecosystem that rewards participation, encourages long-term holding, and maintains value through deflationary mechanisms.
+## Cross-Chain Economics
+
+The cross-chain dimension adds unique economic considerations:
+
+1. **Unified Supply**: Total token supply remains constant across all chains
+2. **Chain-Specific Liquidity**: Each chain maintains its own liquidity pools
+3. **Chain-Specific Fees**: Fee parameters can be optimized per chain
+4. **Bridge Incentives**: Additional rewards for cross-chain activity
+5. **Multi-Chain Governance**: Governance decisions apply across all chains
+
+## Market Stabilization Mechanisms
+
+To maintain price stability, several mechanisms are in place:
+
+1. **Liquidity Bootstrapping**: Initial liquidity provision with long-term locks
+2. **Dynamic Fee Adjustment**: Governance can adjust fees based on market conditions
+3. **Buyback and Burn**: Treasury may conduct periodic buybacks and burns
+4. **Jackpot Frequency Control**: Adjusting jackpot triggers to optimize market impact
+5. **Staking Incentives**: Encouraging long-term holding through staking rewards

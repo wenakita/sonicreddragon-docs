@@ -4,163 +4,261 @@ sidebar_position: 2
 
 # Jackpot Distributor
 
-The DragonJackpotDistributor is a core component of the Sonic Red Dragon ecosystem that manages the distribution of jackpot rewards to lucky winners based on verifiable randomness.
+The DragonJackpotDistributor is a core component of the Sonic Red Dragon ecosystem that manages the distribution of jackpot rewards based on the lottery system implemented in OmniDragonSwapTriggerOracle.
 
-## Overview
+## Lottery System Overview
 
-The DragonJackpotDistributor contract works in conjunction with the DragonJackpotVault to handle the entire jackpot system flow:
-
-1. Collect fees from token transactions
-2. Securely store accumulated rewards
-3. Trigger jackpot draws based on configurable conditions
-4. Select winners using verifiable randomness
-5. Distribute rewards to winners
-
-## Jackpot Mechanism
-
-The jackpot distribution mechanism uses a weighted random selection algorithm based on user activity and token holdings:
+The jackpot system operates through a coordinated flow of three primary contracts:
 
 ```mermaid
-flowchart TD
-    subgraph "Jackpot Trigger"
-        TimeCondition["Time-based Condition"]
-        PoolSizeCondition["Pool Size Condition"]
-        ExternalTrigger["Manual/External Trigger"]
-    end
+graph TD
+    OmniDragon["OmniDragon.sol"] -->|"Collects Fees"| JackpotVault["DragonJackpotVault.sol"]
+    OmniDragon -->|"Triggers Lottery Entry"| SwapTrigger["OmniDragonSwapTriggerOracle.sol"]
+    SwapTrigger -->|"Winner Selection"| JackpotDistributor["DragonJackpotDistributor.sol"]
+    JackpotVault -->|"Provides Funds"| JackpotDistributor
+    JackpotDistributor -->|"Rewards"| Winner["Winner Address"]
     
-    subgraph "Randomness Sources"
-        DrandSource["dRAND Network"]
-        ChainlinkSource["Chainlink VRF"]
-        ArbitrumSource["Arbitrum VRF"]
-    end
-    
-    subgraph "Winner Selection"
-        RandomnessOracle["Randomness Oracle"]
-        WeightCalculator["Weight Calculator"]
-        WinnerSelector["Winner Selector"]
-    end
-    
-    subgraph "Reward Distribution"
-        RewardCalculator["Reward Calculator"]
-        Transfer["Transfer Function"]
-        EventEmitter["Event Emitter"]
-    end
-    
-    TimeCondition --> TriggerDecision{"Trigger Decision"}
-    PoolSizeCondition --> TriggerDecision
-    ExternalTrigger --> TriggerDecision
-    
-    TriggerDecision -->|"Triggered"| RandomnessOracle
-    DrandSource --> RandomnessOracle
-    ChainlinkSource --> RandomnessOracle
-    ArbitrumSource --> RandomnessOracle
-    
-    RandomnessOracle --> WinnerSelector
-    WeightCalculator --> WinnerSelector
-    WinnerSelector --> RewardCalculator
-    RewardCalculator --> Transfer
-    Transfer --> EventEmitter
-    
-    class WinnerSelector,RandomnessOracle highlight
+    class SwapTrigger,JackpotDistributor highlight
 ```
 
-## Jackpot Types
+1. **Fee Collection**: The OmniDragon token collects a 10% fee on transactions with 6.9% allocated to the jackpot vault
+2. **Swap Detection**: Buy transactions (from liquidity pools to users) trigger lottery entries
+3. **Probability Calculation**: Each swap's win probability is calculated based on amount and market conditions
+4. **Distribution**: Winners receive rewards from the accumulated jackpot pool
 
-The DragonJackpotDistributor supports multiple jackpot types with different reward structures:
+## Swap Trigger Implementation
 
-| Jackpot Type | Description | Trigger Condition | Reward Structure |
-|--------------|-------------|-------------------|------------------|
-| Daily Jackpot | Smaller rewards distributed daily | Time-based (24h) | 20% of daily pool |
-| Weekly Jackpot | Medium rewards distributed weekly | Time-based (7d) | 30% of weekly pool |
-| Mega Jackpot | Large rewards distributed monthly | Time-based (30d) | 50% of monthly pool |
-| Flash Jackpot | Surprise jackpots triggered randomly | Random or manual | Variable |
-| Partner Jackpot | Special jackpots for partner integrations | Partner-defined | Partner-defined |
-
-## Jackpot Ticket System
-
-Users receive jackpot tickets through various interactions with the ecosystem:
-
-- **Token Purchases**: Buying tokens generates tickets proportional to purchase amount
-- **Staking Duration**: Longer staking periods earn more tickets
-- **Lottery Entries**: Specific actions can earn additional entries
-- **Partner Interactions**: Activities with ecosystem partners can reward tickets
-
-Each ticket increases the user's chance of winning proportional to the total ticket supply.
-
-## Core Functions
-
-### Jackpot Management
+The OmniDragonSwapTriggerOracle contract powers the lottery system with these key features from the code:
 
 ```solidity
-// Trigger a jackpot distribution
-function triggerJackpot(uint256 jackpotId) external
+// From OmniDragonSwapTriggerOracle.sol
+function onSwap(address user, uint256 amount) external override onlyOmniDragon nonReentrant {
+    require(user != address(0), "Zero user");
+    require(amount >= minSwapAmount, "Swap too small");
+    require(block.timestamp >= lastEntry[user] + cooldownPeriod, "Cooldown active");
 
-// Add tickets to a user
-function addTickets(address user, uint256 amount) external onlyAuthorized
+    // Calculate win probability for this swap
+    uint256 probability = calculateWinProbability(amount);
+    
+    // Update user's recorded probability
+    userWinProbability[user] = probability;
+    
+    // Update statistics for future calculations
+    _updateSwapStatistics(amount);
+    
+    // Record entry time
+    lastEntry[user] = block.timestamp;
 
-// Calculate user's winning chance
-function getUserWinningChance(address user) external view returns (uint256)
+    emit LotteryEntry(user, amount, block.timestamp, probability);
+}
 ```
 
-### Randomness Integration
+## Probability Calculation
+
+The win probability is calculated using a sophisticated formula that considers:
+
+1. **Swap Amount**: Larger swaps receive higher probability (with diminishing returns)
+2. **Market Data**: Price information from multiple oracles
+3. **Relative Size**: Comparison to the average swap amount
+4. **Logarithmic Scaling**: Prevents extremely large swaps from dominating
 
 ```solidity
-// Request randomness from oracle
-function requestRandomness() internal returns (bytes32 requestId)
-
-// Fulfill randomness request (callback)
-function fulfillRandomness(bytes32 requestId, uint256 randomness) internal
+// Actual probability calculation from the code
+function calculateWinProbability(uint256 amount) public view returns (uint256) {
+    // If we don't have enough data yet, return base probability
+    if (swapCount < 10 || averageSwapAmount == 0) {
+        return baseWinProbability;
+    }
+    
+    // Get aggregated price from oracles
+    (int256 price, bool priceSuccess) = getAggregatedPrice();
+    
+    // If price aggregation failed, use base probability
+    if (!priceSuccess || price <= 0) {
+        return baseWinProbability;
+    }
+    
+    // Calculate ratio of this swap to average (scaled by 10000)
+    uint256 swapRatio = (amount * 10000) / averageSwapAmount;
+    
+    // Calculate probability with logarithmic scaling
+    uint256 probability;
+    
+    if (swapRatio <= 10000) {
+        // For swaps below average, linear scale between base and 2x base
+        probability = baseWinProbability + ((baseWinProbability * swapRatio) / 10000);
+    } else {
+        // For swaps above average, logarithmic scale with diminishing returns
+        uint256 logFactor = 10000 * (1 + _log2(swapRatio / 10000));
+        probability = baseWinProbability + (baseWinProbability * logFactor) / 10000;
+    }
+    
+    // Cap at maximum probability
+    return probability > maxWinProbability ? maxWinProbability : probability;
+}
 ```
 
-### Reward Distribution
+This creates a system where:
+- Base probability: 1% (100 basis points)
+- Maximum probability: 10% (1000 basis points)
+- Small swaps get close to base probability
+- Larger swaps get higher probability but with diminishing returns
+
+## Oracle Price Integration
+
+The system uses multiple price oracles for reliability:
+
+```mermaid
+flowchart LR
+    Chainlink["Chainlink Oracle"] -->|"Price Data"| OracleAggregator
+    API3["API3 Oracle"] -->|"Price Data"| OracleAggregator
+    Band["Band Protocol"] -->|"Price Data"| OracleAggregator
+    Pyth["Pyth Network"] -->|"Price Data"| OracleAggregator
+    Stork["Stork Oracle"] -->|"Price Data"| OracleAggregator
+    
+    OracleAggregator -->|"Median Price"| ProbabilityCalculator
+    ProbabilityCalculator -->|"Win Probability"| LotteryEntry
+```
+
+The contract aggregates prices using a median calculation to prevent manipulation:
 
 ```solidity
-// Distribute rewards to winner
-function distributeReward(address winner, uint256 amount) internal
-
-// Calculate reward amount based on jackpot type
-function calculateReward(uint256 jackpotId) internal view returns (uint256)
+// From OmniDragonSwapTriggerOracle.sol
+function getAggregatedPrice() public view returns (int256 aggregatedPrice, bool success) {
+    int256[] memory prices = new int256[](activeOracleCount);
+    uint8 validPrices = 0;
+    
+    // Collect prices from all active oracles
+    for (uint8 i = 0; i < 10; i++) {
+        if (oracleSources[i].isActive) {
+            (int256 price, bool priceSuccess) = getPriceFromOracle(i);
+            
+            if (priceSuccess && price > 0) {
+                prices[validPrices] = price;
+                validPrices++;
+            }
+        }
+    }
+    
+    // Check if we have enough valid prices
+    if (validPrices < minimumOracleResponses) {
+        return (0, false);
+    }
+    
+    // Sort prices to find median
+    // ... [sorting code] ...
+    
+    // Calculate median price
+    if (validPrices % 2 == 0) {
+        aggregatedPrice = (prices[validPrices / 2 - 1] + prices[validPrices / 2]) / 2;
+    } else {
+        aggregatedPrice = prices[validPrices / 2];
+    }
+    
+    return (aggregatedPrice, true);
+}
 ```
 
-## Security Considerations
+## Fee Collection and Distribution
 
-The DragonJackpotDistributor implements several security measures:
+The jackpot vault receives fees in wrapped native tokens (WETH, WBNB, etc.) rather than DRAGON tokens:
 
-- **Randomness Verification**: Multiple layers of randomness validation
-- **Time-locks**: Cooldown periods between jackpot draws
-- **Anti-Snipe Mechanisms**: Prevents last-minute ticket purchases
-- **Access Controls**: Restricted functions for authorized roles only
-- **Emergency Pause**: Ability to pause distribution in case of issues
+```solidity
+// From OmniDragon.sol
+function _distributeFees(uint256 jackpotAmount, uint256 ve69Amount) internal {
+    // Cache token and vault addresses for gas optimization
+    address wrappedToken = wrappedNativeToken;
+    address vault = jackpotVault;
+    
+    // Process jackpot fee if non-zero and vault exists
+    if (jackpotAmount > 0 && vault != address(0)) {
+        IERC20(wrappedToken).safeTransfer(vault, jackpotAmount);
+        IDragonJackpotVault(vault).addToJackpot(jackpotAmount);
+        emit FeeTransferred(vault, jackpotAmount, "Jackpot");
+    }
+    
+    // Process other fees...
+}
+```
+
+## User Protection Features
+
+The system implements several protections:
+
+1. **Minimum Swap Amount**: Prevents spam from tiny transactions
+   ```solidity
+   require(amount >= minSwapAmount, "Swap too small");
+   ```
+
+2. **Cooldown Period**: Limits how frequently users can enter
+   ```solidity
+   require(block.timestamp >= lastEntry[user] + cooldownPeriod, "Cooldown active");
+   ```
+
+3. **Oracle Redundancy**: Uses multiple price sources for reliable data
+   ```solidity
+   if (validPrices < minimumOracleResponses) {
+       return (0, false);
+   }
+   ```
+
+4. **Maximum Probability Cap**: Prevents excessive win probability
+   ```solidity
+   return probability > maxWinProbability ? maxWinProbability : probability;
+   ```
+
+5. **Reentrancy Protection**: Prevents exploits from contract callbacks
+   ```solidity
+   modifier nonReentrant() {
+       // Implementation from ReentrancyGuard
+   }
+   ```
+
+## Partner Integration
+
+The system supports special partner-specific lottery entries:
+
+```solidity
+// From OmniDragon.sol
+function processPartnerJackpotEntry(address _user, uint256 _amount) external {
+    // Only partner pools can call this
+    if (!isPartnerPool[msg.sender]) revert NotPartnerPool();
+    
+    if (_user == address(0)) revert ZeroAddress();
+    if (_amount == 0) revert ZeroAmount();
+    
+    // Process lottery entry if swap trigger is set
+    if (swapTrigger != address(0)) {
+        _tryProcessLotteryEntry(_user, _amount);
+    }
+    
+    emit PartnerJackpotTriggered(_user, msg.sender, _amount);
+}
+```
+
+## Configuration Parameters
+
+The system has several configurable parameters:
+
+| Parameter | Description | Default Value |
+|-----------|-------------|---------------|
+| `baseWinProbability` | Baseline chance of winning | 100 (1%) |
+| `maxWinProbability` | Maximum possible win chance | 1000 (10%) |
+| `cooldownPeriod` | Time between entries for a user | Configurable |
+| `minSwapAmount` | Minimum swap to qualify | Configurable |
+| `minimumOracleResponses` | Required oracle responses | 1 (configurable) |
 
 ## Events
 
-The contract emits the following events for tracking jackpot distributions:
+The contracts emit events to track lottery entries and winners:
 
 ```solidity
-// Emitted when a jackpot is triggered
-event JackpotTriggered(uint256 indexed jackpotId, address indexed triggeredBy);
+// From OmniDragonSwapTriggerOracle.sol
+event LotteryEntry(address indexed user, uint256 amount, uint256 timestamp, uint256 winProbability);
 
-// Emitted when a winner is selected
+// From DragonJackpotDistributor.sol
 event WinnerSelected(uint256 indexed jackpotId, address indexed winner, uint256 amount);
 
-// Emitted when tickets are added to a user
-event TicketsAdded(address indexed user, uint256 amount, uint256 totalTickets);
-
-// Emitted when a jackpot is created
-event JackpotCreated(uint256 indexed jackpotId, uint256 startTime, uint256 endTime);
-```
-
-## Integration Example
-
-```solidity
-// Get instance of the jackpot distributor
-DragonJackpotDistributor jackpotDistributor = DragonJackpotDistributor(jackpotDistributorAddress);
-
-// Check user's winning chance
-uint256 winningChance = jackpotDistributor.getUserWinningChance(userAddress);
-
-// Trigger a jackpot (if authorized)
-if (jackpotDistributor.canTriggerJackpot(jackpotId)) {
-    jackpotDistributor.triggerJackpot(jackpotId);
-}
+// From OmniDragon.sol
+event PartnerJackpotTriggered(address indexed user, address indexed partnerPool, uint256 amount);
 ```
