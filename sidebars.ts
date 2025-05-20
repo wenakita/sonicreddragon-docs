@@ -33,22 +33,6 @@ const sidebars: SidebarsConfig = {
           id: 'contracts/overview',
           label: 'Overview',
         },
-        {
-          type: 'category',
-          label: 'Guides',
-          items: [
-            {
-              type: 'doc',
-              id: 'contracts/guides/integration',
-              label: 'Integration Guide',
-            },
-            {
-              type: 'doc',
-              id: 'contracts/guides/security',
-              label: 'Security Best Practices',
-            },
-          ],
-        },
       ],
     },
     {
