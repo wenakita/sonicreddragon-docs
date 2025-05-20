@@ -97,7 +97,6 @@ const config: Config = {
         },
       ],
       style: 'dark',
-      hideableSidebar: true,
     },
 
     // Modern footer configuration
@@ -220,18 +219,18 @@ const config: Config = {
     '@docusaurus/theme-classic',
   ],
 
-  // Add modern features
-  plugins: [
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'api',
-        path: 'api',
-        routeBasePath: 'api',
-        sidebarPath: require.resolve('./sidebarsApi.js'),
-      },
-    ],
-  ],
+  // Remove the API plugin configuration since we're not using it yet
+  // plugins: [
+  //   [
+  //     '@docusaurus/plugin-content-docs',
+  //     {
+  //       id: 'api',
+  //       path: 'api',
+  //       routeBasePath: 'api',
+  //       sidebarPath: require.resolve('./sidebarsApi.js'),
+  //     },
+  //   ],
+  // ],
 };
 
 export default config;
