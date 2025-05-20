@@ -10,10 +10,9 @@ const config: Config = {
   favicon: '/img/favicon-32x32.png',
 
   // Set the production url of your site here
-  url: 'https://wenakita.github.io',
-  // NOTE: For production (GitHub Pages), use baseUrl: '/sonicreddragon-docs/'.
-  // For local development, set baseUrl: '/'
-  baseUrl: '/sonicreddragon-docs/',
+  url: 'https://docs.sonicreddragon.io',
+  // For custom domain with GitHub Pages, use baseUrl: '/'
+  baseUrl: '/',
   // Remove trailing slash for GitHub Pages
   trailingSlash: false,
 
@@ -239,7 +238,7 @@ const config: Config = {
     // Modern announcement bar
     announcementBar: {
       id: 'support_us',
-      content: '🚀 Sonic Red Dragon is now live on mainnet! Join our <a href="https://discord.gg/sonicreddragon">Discord</a> for updates.',
+      content: '🚀 Sonic Red Dragon is now live on mainnet! Join our <a href="https://discord.gg/w75vaxDXuE">Discord</a> for updates.',
       backgroundColor: '#1e3c72',
       textColor: '#fff',
       isCloseable: true,
