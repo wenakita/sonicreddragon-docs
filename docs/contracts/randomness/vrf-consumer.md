@@ -5,270 +5,179 @@ sidebar_position: 1
 
 # OmniDragon VRF Consumer
 
-The OmniDragon VRF Consumer (`OmniDragonVRFConsumer.sol`) is the central contract responsible for obtaining verifiable randomness from multiple sources and providing it to various components in the OmniDragon ecosystem.
+The OmniDragon VRF Consumer (`OmniDragonVRFConsumer.sol`) is responsible for aggregating verifiable randomness from multiple sources for use in the OmniDragon ecosystem.
 
 ## Contract Overview
 
-The VRF Consumer serves as the randomness hub for the OmniDragon protocol, with key features including:
+The VRF Consumer serves as the randomness hub for the OmniDragon protocol, with features including:
 
-- Verifiable randomness from dRand and Chainlink
-- Multi-source randomness aggregation
-- Fallback randomness sources
-- Secure randomness verification
-- Cross-chain randomness consistency
+- **Multi-source randomness**: Ability to aggregate randomness from multiple source networks
+- **Weighted aggregation**: Combines randomness using configurable weights
+- **Consumer authorization**: Controls which contracts can request randomness
+- **Failover support**: Continues operating if some randomness sources fail
+
+## Actual Implementation
+
+The OmniDragonVRFConsumer contract is implemented with the following structure:
+
+```solidity
+// OmniDragonVRFConsumer.sol
+contract OmniDragonVRFConsumer is Ownable, ReentrancyGuard, IOmniDragonVRFConsumer {
+    // Network tracking
+    struct NetworkInfo {
+        address integrator;
+        bool active;
+        uint256 weight;
+        uint256 lastUpdate;
+        uint256 lastValue;
+        uint256 lastRound;
+    }
+    
+    // Network storage
+    mapping(bytes32 => NetworkInfo) public networks;
+    bytes32[] public networkIds;
+    
+    // Randomness state
+    uint256 public aggregatedRandomness;
+    uint256 public lastAggregationTimestamp;
+    uint256 public aggregationCounter;
+    
+    // Consumer tracking
+    mapping(address => bool) public authorizedConsumers;
+}
+```
 
 ## Key Functions
 
+The VRF Consumer implements several core functions for randomness aggregation and distribution:
+
 ```solidity
-// Request randomness from the primary source
-function requestRandomness() external returns (uint256 requestId);
+// Add a new randomness network
+function addNetwork(bytes32 _networkId, address _integrator, uint256 _weight) external onlyOwner;
 
-// Request randomness with a specific callback
-function requestRandomness(address _consumer) external returns (uint256 requestId);
+// Update an existing network
+function updateNetwork(
+    bytes32 _networkId, 
+    address _integrator, 
+    uint256 _weight, 
+    bool _active
+) external onlyOwner;
 
-// Fulfill randomness request with verified random value
-function fulfillRandomness(
-    uint256 _requestId,
-    uint256 _randomness
-) external;
+// Authorize a consumer to request randomness
+function setAuthorizedConsumer(address _consumer, bool _authorized) external onlyOwner;
 
-// Get the latest verified random value
-function getLatestRandomValue() external view returns (uint256);
+// Aggregate randomness from all active networks
+function aggregateRandomness() public;
 
-// Check if a request is pending
-function isRequestPending(uint256 _requestId) external view returns (bool);
+// Fulfill a randomness request for a consumer
+function fulfillRandomness(address _consumer, uint256 _requestId) external override nonReentrant;
 
-// Set fallback randomness sources
-function setFallbackSource(address _source, bool _enabled) external onlyOwner;
-
-// Set consumer permissions
-function setConsumerPermission(address _consumer, bool _allowed) external onlyOwner;
+// Request randomness (helper function for consumers)
+function requestRandomness(address _consumer, uint256 _requestId) external override;
 ```
 
-## Architecture Diagram
+## Randomness Aggregation Process
+
+The VRF Consumer aggregates randomness using the following approach:
+
+1. Starts with an initial seed value (previous aggregated randomness)
+2. Collects randomness from all active network integrators
+3. Combines values with weights using keccak256 hashing
+4. Further mixes with block data and an incrementing counter
+5. Produces a final random value that is unpredictable and well-distributed
 
 ```mermaid
 flowchart TB
-    %% Main VRF Consumer contract
-    OmniDragonVRF["OmniDragon VRF Consumer"]:::main
+    classDef primary fill:#4a80d1,stroke:#355899,color:#ffffff,font-weight:bold
+    classDef secondary fill:#43a047,stroke:#2e7d32,color:#ffffff
     
-    %% Randomness sources
-    subgraph Sources ["Randomness Sources"]
-        direction TB
-        DRAND["dRand Network<br><small>(Primary Source)</small>"]:::source
-        Chainlink["Chainlink VRF<br><small>(Secondary Source)</small>"]:::source
-        ArbitrumVRF["Arbitrum VRF<br><small>(Chain-Specific Source)</small>"]:::source
-        Fallback["Fallback Source<br><small>(Emergency Only)</small>"]:::source
-    end
+    VRFConsumer["OmniDragon VRF Consumer"]:::primary
     
-    %% VRF components
-    subgraph Components ["Core Components"]
-        direction TB
-        RequestManager["Request Manager"]:::component
-        VerificationEngine["Verification Engine"]:::component
-        ResponseHandler["Response Handler"]:::component
-        FallbackSystem["Fallback System"]:::component
-    end
+    Network1["Network 1<br>Integrator"]:::secondary
+    Network2["Network 2<br>Integrator"]:::secondary
+    NetworkN["Network N<br>Integrator"]:::secondary
     
-    %% Consumers of randomness
-    subgraph Consumers ["Randomness Consumers"]
-        direction TB
-        JackpotSystem["Jackpot System"]:::consumer
-        RaffleSystem["Raffle System"]:::consumer
-        LootboxSystem["Lootbox System"]:::consumer
-        GameSystem["Game Mechanics"]:::consumer
-    end
+    Applications["Consumer<br>Applications"]:::secondary
     
-    %% Connect components
-    Sources -->|"Provides<br>randomness"| OmniDragonVRF
-    OmniDragonVRF -->|"Delivers<br>verified<br>randomness"| Consumers
-    Components -->|"Powers"| OmniDragonVRF
+    Network1 -->|"Randomness"| VRFConsumer
+    Network2 -->|"Randomness"| VRFConsumer
+    NetworkN -->|"Randomness"| VRFConsumer
     
-    %% Connect randomness flow
-    Consumers -->|"Request<br>randomness"| RequestManager
-    RequestManager -->|"Sends<br>request"| DRAND
-    DRAND -->|"Returns<br>proof"| VerificationEngine
-    VerificationEngine -->|"Verifies<br>proof"| ResponseHandler
-    ResponseHandler -->|"Delivers<br>randomness"| Consumers
-    
-    %% Connect fallback flow
-    FallbackSystem -->|"Monitors"| RequestManager
-    FallbackSystem -->|"Activates<br>when needed"| Chainlink
-    FallbackSystem -->|"Activates<br>when needed"| ArbitrumVRF
-    FallbackSystem -->|"Last resort"| Fallback
-    
-    %% Styling
-    classDef main fill:#4a80d1;stroke:#355899;color:#ffffff;font-weight:bold
-    classDef source fill:#43a047;stroke:#2e7d32;color:#ffffff
-    classDef component fill:#ff9800;stroke:#f57c00;color:#ffffff
-    classDef consumer fill:#9c27b0;stroke:#7b1fa2;color:#ffffff
-    
-    %% Subgraph styling
-    style Sources fill:rgba(76,175,80,0.1);stroke:#c8e6c9;color:#2e7d32
-    style Components fill:rgba(255,152,0,0.1);stroke:#ffecb3;color:#ff8f00
-    style Consumers fill:rgba(156,39,176,0.1);stroke:#e1bee7;color:#6a1b9a
+    VRFConsumer -->|"Aggregated<br>Randomness"| Applications
+    Applications -->|"Request<br>Randomness"| VRFConsumer
 ```
 
-## Randomness Request Flow
+## Integrator Interface
 
-The process for requesting and receiving randomness follows a robust sequence:
-
-```mermaid
-sequenceDiagram
-    participant Consumer
-    participant VRFConsumer as OmniDragon VRF
-    participant Integrator as dRand Integrator
-    participant Network as dRand Network
-    
-    Consumer->>VRFConsumer: requestRandomness()
-    
-    VRFConsumer->>VRFConsumer: verifyConsumerPermission()
-    VRFConsumer->>VRFConsumer: createRequest(consumer)
-    VRFConsumer->>Integrator: requestRandomBeacon()
-    
-    Integrator->>Network: requestRandomBeacon()
-    
-    Note over Network: Generates verifiable<br>random beacon
-    
-    Network-->>Integrator: randomBeacon
-    Integrator->>Integrator: verifyBeacon(randomBeacon)
-    Integrator->>VRFConsumer: fulfillRandomness(requestId, randomValue)
-    
-    VRFConsumer->>VRFConsumer: validateResponse(requestId)
-    VRFConsumer->>VRFConsumer: storeRandomValue(randomValue)
-    VRFConsumer->>Consumer: consumeRandomness(requestId, randomValue)
-    
-    alt Timeout occurs
-        VRFConsumer->>VRFConsumer: activateFallback(requestId)
-        VRFConsumer->>Integrator: cancelRequest(requestId)
-        VRFConsumer->>VRFConsumer: requestFromFallback(requestId)
-    end
-```
-
-## Multi-Source Randomness
-
-The VRF Consumer can aggregate randomness from multiple sources for enhanced security:
-
-```mermaid
-flowchart LR
-    %% Sources
-    DRAND[("dRand<br>Network")]:::primary
-    CHAINLINK[("Chainlink<br>VRF")]:::secondary
-    ARBITRUM[("Arbitrum<br>VRF")]:::secondary
-    
-    %% Aggregation
-    subgraph AggregationProcess ["Randomness Aggregation"]
-        direction TB
-        Source1["Source 1<br>Random Value"]:::value
-        Source2["Source 2<br>Random Value"]:::value
-        Source3["Source 3<br>Random Value"]:::value
-        
-        Combine{"Combine<br>Values"}:::process
-        
-        Hashing["Keccak256<br>Hashing"]:::process
-        FinalValue["Final<br>Randomness"]:::result
-    end
-    
-    %% Connect the sources to values
-    DRAND -.->|"Provides"| Source1
-    CHAINLINK -.->|"Provides"| Source2
-    ARBITRUM -.->|"Provides"| Source3
-    
-    %% Show aggregation process
-    Source1 --> Combine
-    Source2 --> Combine
-    Source3 --> Combine
-    
-    Combine -->|"Combined<br>Value"| Hashing
-    Hashing -->|"Produces"| FinalValue
-    
-    %% Connect to consumers
-    FinalValue -->|"Used by"| Jackpot["Jackpot<br>System"]:::consumer
-    FinalValue -->|"Used by"| Raffle["Raffle<br>System"]:::consumer
-    FinalValue -->|"Used by"| Games["Game<br>Mechanics"]:::consumer
-    
-    %% Styling
-    classDef primary fill:#43a047;stroke:#2e7d32;color:#ffffff;font-weight:bold
-    classDef secondary fill:#5c6bc0;stroke:#3949ab;color:#ffffff
-    classDef value fill:#ff9800;stroke:#f57c00;color:#ffffff
-    classDef process fill:#9c27b0;stroke:#7b1fa2;color:#ffffff
-    classDef result fill:#e91e63;stroke:#c2185b;color:#ffffff;font-weight:bold
-    classDef consumer fill:#607d8b;stroke:#455a64;color:#ffffff
-    
-    %% Subgraph styling
-    style AggregationProcess fill:rgba(255,152,0,0.1);stroke:#ffecb3;color:#ff8f00
-```
-
-## Security Features
-
-The OmniDragon VRF Consumer implements multiple security measures:
-
-- **Request Validation**: Each request is validated for proper origin and permissions
-- **Response Verification**: All random values are cryptographically verified
-- **Timeout Handling**: Automatic fallback if primary source doesn't respond
-- **Replay Protection**: Prevents reuse of random values
-- **Access Control**: Only authorized consumers can request randomness
-- **Secure Storage**: Random values are securely stored with access controls
-
-## Integration Example
-
-Here's how to integrate a contract with the OmniDragon VRF Consumer:
+Each network integrator implements the `IDragonVRFIntegrator` interface:
 
 ```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+interface IDragonVRFIntegrator {
+    // Get the latest randomness
+    function getLatestRandomness() external view returns (uint256 randomness, uint256 round);
+}
+```
 
-import "@omnidragon/contracts/interfaces/IOmniDragonVRFConsumer.sol";
-import "@omnidragon/contracts/interfaces/IDragonVRFConsumer.sol";
+## Consumer Usage
 
+Contracts that wish to consume randomness should implement:
+
+```solidity
+interface IDragonVRFConsumer {
+    // Fulfill randomness callback
+    function fulfillRandomness(
+        uint256 requestId, 
+        uint256 randomness,
+        uint256 round
+    ) external;
+}
+```
+
+## Security Considerations
+
+The VRF Consumer includes several security features:
+
+1. **Authorization Controls**: Only authorized contracts can request randomness
+2. **Reentrancy Protection**: Prevents reentrancy attacks during randomness fulfillment
+3. **Owner-Only Administration**: Only the owner can add or modify randomness networks
+4. **Fault Tolerance**: Continues operating even if some randomness sources fail
+
+## Example Integration
+
+Here's how to integrate with the OmniDragon VRF Consumer:
+
+```solidity
+// Example consumer contract
 contract RandomnessConsumer is IDragonVRFConsumer {
     IOmniDragonVRFConsumer public vrfConsumer;
+    uint256 public latestRandomValue;
+    uint256 private requestCounter;
     
-    // The request ID of the current pending request
-    uint256 public currentRequestId;
-    
-    // The most recently received random value
-    uint256 public randomResult;
-    
-    // Whether we have a pending request
-    bool public hasPendingRequest;
-    
-    constructor(address _vrfConsumer) {
-        vrfConsumer = IOmniDragonVRFConsumer(_vrfConsumer);
+    constructor(address _vrfConsumerAddress) {
+        vrfConsumer = IOmniDragonVRFConsumer(_vrfConsumerAddress);
     }
     
-    // Request randomness from the VRF consumer
-    function requestRandomValue() external returns (uint256) {
-        require(!hasPendingRequest, "Request already pending");
-        
-        // Request randomness and store the request ID
-        currentRequestId = vrfConsumer.requestRandomness(address(this));
-        hasPendingRequest = true;
-        
-        return currentRequestId;
+    // Request randomness
+    function getRandomNumber() external returns (uint256 requestId) {
+        requestId = ++requestCounter;
+        vrfConsumer.requestRandomness(address(this), requestId);
+        return requestId;
     }
     
-    // Called by VRF Consumer when randomness is ready
-    function consumeRandomness(uint256 _requestId, uint256 _randomness) external override {
-        // Verify caller is our VRF consumer
-        require(msg.sender == address(vrfConsumer), "Caller is not VRF consumer");
+    // Receive randomness
+    function fulfillRandomness(
+        uint256 requestId, 
+        uint256 randomness,
+        uint256 roundNumber
+    ) external override {
+        // Verify caller
+        require(msg.sender == address(vrfConsumer), "Unauthorized");
         
-        // Verify this is the request we're expecting
-        require(_requestId == currentRequestId, "Request ID mismatch");
+        // Store randomness
+        latestRandomValue = randomness;
         
-        // Store the random result
-        randomResult = _randomness;
-        hasPendingRequest = false;
-        
-        // Use the randomness (implementation specific)
-        useRandomness(_randomness);
-    }
-    
-    // Example function to use the randomness
-    function useRandomness(uint256 _randomness) internal {
-        // For example, select a winner from a list of participants
-        // uint256 winnerIndex = _randomness % participants.length;
-        // Winner logic implementation...
+        // Use the randomness for your application
+        // ...
     }
 }
 ```

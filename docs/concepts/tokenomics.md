@@ -12,7 +12,7 @@ The DRAGON token is the native token of the OmniDragon ecosystem:
 
 | Parameter | Value |
 |-----------|-------|
-| Token Name | OmniDragon |
+| Token Name | Dragon |
 | Token Symbol | DRAGON |
 | Decimals | 18 |
 | Total Supply | 6,942,000 DRAGON |

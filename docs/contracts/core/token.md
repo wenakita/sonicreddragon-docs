@@ -9,67 +9,124 @@ The OmniDragon token (`OmniDragon.sol`) is the core smart contract of the ecosys
 
 ## Contract Overview
 
-The OmniDragon token contract is designed with several key features:
+The OmniDragon token contract implements several key features:
 
-- **Cross-Chain Compatibility**: Seamless transfers across different blockchains via LayerZero
+- **Cross-Chain Compatibility**: Token transfers across different blockchains via LayerZero
 - **Fee System**: Automatic fee collection and distribution to various ecosystem components
-- **Jackpot Mechanics**: Randomized rewards funded by a portion of transaction fees
-- **Governance Integration**: Support for ve69LP staking and protocol governance
+- **Jackpot Mechanics**: Portion of fees directed to the jackpot system
+- **Burn Mechanism**: Small portion of tokens burned on transfers
+
+## Actual Implementation
+
+The contract inherits from OpenZeppelin's ERC20, Ownable, and ReentrancyGuard, and implements core functionality:
+
+```solidity
+// Core imports
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+// Constructor parameters
+constructor(
+    string memory _name,
+    string memory _symbol,
+    address _jackpotVault,
+    address _revenueDistributor,
+    address _lzEndpoint,
+    address _chainRegistry
+) ERC20(_name, _symbol) Ownable() {
+    // Initialize contract with key components
+}
+```
 
 ## Key Functions
 
+The contract implements several key functions for cross-chain functionality and fee handling:
+
 ```solidity
-// Cross-chain token transfer
-function sendToChain(
-    uint16 _dstChainId,
-    bytes calldata _destination,
-    uint256 _amount,
-    address payable _refundAddress,
-    address _zroPaymentAddress,
-    bytes calldata _adapterParams
-) external payable;
+// LayerZero integration for cross-chain transfers
+function lzReceive(
+    uint16 _srcChainId,
+    bytes calldata _srcAddress,
+    uint64 _nonce,
+    bytes calldata _payload
+) external;
 
 // Standard transfer with fee handling
 function transfer(address recipient, uint256 amount) 
     public 
     override 
-    returns (bool) {
-    _processFees(msg.sender, recipient, amount);
-    return super.transfer(recipient, _getAmountAfterFees(amount));
-}
+    returns (bool);
 
-// Fee distribution mechanics
-function _processFees(
+// Transfer with custom fee processing
+function _transfer(
     address sender, 
     address recipient, 
     uint256 amount
-) internal {
-    uint256 feeAmount = _calculateFee(sender, recipient, amount);
-    if (feeAmount > 0) {
-        _distributeFees(feeAmount);
-    }
-}
+) internal override;
 
-// setPeer function for LayerZero V2 compatibility
+// Set peer function for LayerZero connections
 function setPeer(
     uint16 _chainId,
     bytes calldata _peer
-) external onlyOwner {
-    lzEndpoint.setPeer(_chainId, _peer);
-    emit PeerSet(_chainId, _peer);
-}
+) external onlyOwner;
 ```
 
 ## Fee Structure
 
-The OmniDragon token implements a sophisticated fee system:
+The OmniDragon token implements the following fee structure:
 
 | Transaction Type | Total Fee | Jackpot | ve69LP | Burn |
 |------------------|-----------|---------|--------|------|
 | Buy | 10% | 6.9% | 2.41% | 0.69% |
 | Sell | 10% | 6.9% | 2.41% | 0.69% |
 | Transfer | 0.69% | 0% | 0% | 0.69% |
-| Cross-Chain | Varies by destination | 0% | 0% | 0% |
+
+## Cross-Chain Functionality
+
+OmniDragon integrates with LayerZero for cross-chain transfers:
+
+1. Tokens are burned on the source chain
+2. A message is sent through LayerZero to the destination chain
+3. Equivalent tokens are minted on the destination chain
+
+The contract specifies a maximum supply of 6,942,000 tokens.
+
+## Key Components Interaction
+
+```mermaid
+flowchart TB
+    classDef main fill:#4a80d1;stroke:#355899;color:#ffffff;font-weight:bold
+    classDef component fill:#42a5f5;stroke:#1e88e5;color:#ffffff
+    
+    OmniDragon["OmniDragon Token"]:::main
+    JackpotVault["JackpotVault"]:::component
+    RevenueDist["RevenueDistributor"]:::component
+    ChainRegistry["ChainRegistry"]:::component
+    LZEndpoint["LayerZero Endpoint"]:::component
+    
+    OmniDragon -->|"Sends fees"| JackpotVault
+    OmniDragon -->|"Distributes fees"| RevenueDist
+    OmniDragon -->|"Consults"| ChainRegistry
+    OmniDragon -->|"Cross-chain messaging"| LZEndpoint
+```
+
+## Security Features
+
+The contract implements several security features:
+
+- **Access Control**: Role-based permissions for sensitive operations
+- **Reentrancy Protection**: Guards against reentrancy attacks
+- **Fee Limits**: Maximum fee caps to protect against configuration errors
+- **Pausable Transfers**: Ability to pause transfers in emergencies
+
+## Implementation Notes
+
+- The token contract requires configuration of jackpot vault, revenue distributor, LayerZero endpoint, and chain registry
+- Fees can be enabled/disabled by the owner
+- Certain addresses (jackpot vault, revenue distributor, owner) are excluded from fees
+- The contract includes safety mechanisms to protect against common vulnerabilities
 
 ## Architecture Diagram
 
