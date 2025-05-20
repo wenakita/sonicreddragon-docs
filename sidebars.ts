@@ -17,11 +17,6 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Core Concepts',
-      link: {
-        type: 'generated-index',
-        title: 'Core Concepts',
-        description: 'Learn about the fundamental concepts behind Sonic Red Dragon',
-      },
       items: [
         'concepts/overview',
         'concepts/architecture',
@@ -37,11 +32,6 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Getting Started',
-      link: {
-        type: 'generated-index',
-        title: 'Getting Started',
-        description: 'Start your journey with Sonic Red Dragon',
-      },
       items: [
         'guides/quickstart',
         'guides/installation',
@@ -52,17 +42,12 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'User Guides',
-      link: {
-        type: 'generated-index',
-        title: 'User Guides',
-        description: 'Learn how to use Sonic Red Dragon features',
-      },
       items: [
-        'guides/using-token',
-        'guides/bridging',
-        'guides/staking',
-        'guides/governance',
-        'guides/jackpot',
+        'guides/user/using-token',
+        'guides/user/bridging',
+        'guides/user/staking',
+        'guides/user/governance',
+        'guides/user/jackpot',
       ],
     },
   ],
@@ -71,11 +56,6 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Smart Contracts',
-      link: {
-        type: 'generated-index',
-        title: 'Smart Contracts',
-        description: 'Explore Sonic Red Dragon smart contracts',
-      },
       items: [
         {
           type: 'category',
@@ -131,11 +111,6 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Integrations',
-      link: {
-        type: 'generated-index',
-        title: 'Integrations',
-        description: 'Learn how to integrate with Sonic Red Dragon',
-      },
       items: [
         {
           type: 'category',
@@ -181,11 +156,6 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Reference',
-      link: {
-        type: 'generated-index',
-        title: 'Reference',
-        description: 'Technical reference for Sonic Red Dragon',
-      },
       items: [
         {
           type: 'category',
