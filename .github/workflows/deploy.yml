@@ -30,8 +30,11 @@ jobs:
           node-version: 18
           cache: 'npm'
       
-      - name: Install dependencies
-        run: npm ci
+      - name: Clean install dependencies
+        run: |
+          rm -rf node_modules
+          rm -f package-lock.json
+          npm install
       
       - name: Build with Docusaurus
         run: npm run build
