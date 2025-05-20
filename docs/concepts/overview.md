@@ -38,9 +38,9 @@ Sonic Red Dragon's architecture is built on three main pillars:
 To start using Sonic Red Dragon:
 
 1. Read the [Installation Guide](/guides/installation)
-2. Learn about [Token Usage](/guides/using-token)
-3. Explore [Cross-Chain Features](/guides/bridging)
-4. Understand [Governance](/guides/governance)
+2. Learn about [Token Usage](/guides/user/using-token)
+3. Explore [Cross-Chain Features](/guides/user/bridging)
+4. Understand [Governance](/guides/user/governance)
 
 ## Technical Stack
 

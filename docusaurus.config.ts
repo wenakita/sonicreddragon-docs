@@ -7,7 +7,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'Sonic Red Dragon',
   tagline: 'LayerZero V2 Compatible Token',
-  favicon: 'img/logo.svg',
+  favicon: '/img/favicon-32x32.png',
 
   // Set the production url of your site here
   url: 'https://wenakita.github.io',
@@ -64,8 +64,7 @@ const config: Config = {
       title: 'Sonic Red Dragon',
       logo: {
         alt: 'Sonic Red Dragon Logo',
-        src: 'img/logo.svg',
-        srcDark: 'img/logo-dark.svg',
+        src: '/img/logo.svg',
       },
       items: [
         {
