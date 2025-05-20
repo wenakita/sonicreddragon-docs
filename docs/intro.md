@@ -4,7 +4,11 @@ sidebar_position: 1
 
 # Introduction
 
-Welcome to the Sonic Red Dragon documentation! Sonic Red Dragon is a LayerZero V2 compatible token that brings unique features and capabilities to the cross-chain ecosystem.
+Welcome to Sonic Red Dragon documentation!
+
+*Last updated: Added workflow automation for documentation deployment*
+
+Sonic Red Dragon is a LayerZero V2 compatible token that brings unique features and capabilities to the cross-chain ecosystem.
 
 ## What is Sonic Red Dragon?
 
