@@ -1,31 +1,54 @@
 import React from 'react';
 import MDXComponents from '@theme-original/MDXComponents';
-import MermaidDiagram from '@site/src/components/MermaidDiagram';
-
-// Custom mermaid code block renderer
-function MermaidWrapper({children}) {
-  // Extract the mermaid diagram code from the children
-  const mermaidCode = React.Children.toArray(children)
-    .filter(child => typeof child === 'string')
-    .join('\n');
-
-  return <MermaidDiagram chart={mermaidCode} />;
-}
+import StandardMermaid from '@site/src/components/StandardMermaid';
+import EnhancedMermaid from '@site/src/components/EnhancedMermaid';
+import AnimatedCard from '@site/src/components/AnimatedCard';
+import MermaidWrapper from '@site/src/components/MermaidWrapper';
 
 export default {
+  // Re-export the default MDXComponents
   ...MDXComponents,
-  // Override the default mermaid code block with our custom component
+  // Register our custom components for global use in MDX
+  StandardMermaid,
+  EnhancedMermaid,
+  AnimatedCard,
+  MermaidWrapper,
+  
+  // Override code blocks to make sure Mermaid gets processed correctly
   code: (props) => {
     const {children, className} = props;
     
-    // Check if this is a mermaid code block
-    const isMermaid = className?.includes('language-mermaid');
-    
-    if (isMermaid) {
-      return <MermaidWrapper>{children}</MermaidWrapper>;
+    // Directly handle Mermaid code blocks
+    if (className === 'language-mermaid') {
+      return (
+        <div className="mermaid-container">
+          <div className="mermaid">
+            {children}
+          </div>
+        </div>
+      );
     }
     
-    // Fall back to the default code block for other languages
+    // Use default for all other code blocks
     return <MDXComponents.code {...props} />;
   },
+  
+  // Also handle pre blocks for backward compatibility
+  pre: (props) => {
+    const { children, ...rest } = props;
+    
+    // Check if this is a mermaid code block
+    if (
+      children &&
+      children.props &&
+      children.props.mdxType === 'code' &&
+      children.props.className === 'language-mermaid'
+    ) {
+      const mermaidCode = children.props.children.trim();
+      return <StandardMermaid chart={mermaidCode} />;
+    }
+    
+    // Otherwise, render the normal pre
+    return <MDXComponents.pre {...rest}>{children}</MDXComponents.pre>;
+  }
 }; 

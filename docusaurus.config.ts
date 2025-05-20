@@ -1,7 +1,6 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
-import path from 'path';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -32,24 +31,19 @@ const config: Config = {
     locales: ['en'],
   },
 
-  // Add plugins array with custom mermaid plugin
-  plugins: [
-    // Custom plugin to properly process mermaid diagrams
-    function mermaidPlugin(context, options) {
-      return {
-        name: 'custom-mermaid-plugin',
-        configureWebpack() {
-          return {
-            resolve: {
-              alias: {
-                // Create an alias for our mermaid component
-                '@mermaid': path.resolve(__dirname, 'src/components/MermaidDiagram'),
-              },
-            },
-          };
-        },
-      };
-    },
+  // Enable mermaid diagrams
+  markdown: {
+    mermaid: true,
+  },
+
+  // Add the theme for mermaid
+  themes: ['@docusaurus/theme-mermaid'],
+
+  // Configure client modules for browser execution
+  clientModules: [
+    require.resolve('./src/clientModules/mermaidInit.js'),
+    require.resolve('./src/clientModules/animeInitializer.js'),
+    require.resolve('./src/js/mermaid-enhancements.js'),
   ],
 
   presets: [
@@ -65,7 +59,7 @@ const config: Config = {
           routeBasePath: '/',
           // Add custom remark plugins for mermaid processing
           remarkPlugins: [
-            [require('./src/plugins/mermaid-plugin'), {}],
+            require('./src/plugins/mermaid-plugin'),
           ],
         },
         blog: false,
@@ -224,13 +218,6 @@ const config: Config = {
       theme: prismThemes.oneDark,
       darkTheme: prismThemes.oneDark,
       additionalLanguages: ['solidity'],
-      magicComments: [
-        {
-          className: 'theme-code-block-highlighted-line',
-          line: 'highlight-next-line',
-          block: {start: 'highlight-start', end: 'highlight-end'},
-        },
-      ],
     },
 
     // Mermaid diagram configuration
@@ -247,21 +234,6 @@ const config: Config = {
           lineColor: '#999',
           secondaryColor: '#cc5a2b',
           tertiaryColor: '#1e293b',
-        },
-        flowchart: {
-          curve: 'basis',
-          nodeSpacing: 60,
-          rankSpacing: 80,
-          padding: 20,
-          useMaxWidth: true,
-        },
-        sequence: {
-          mirrorActors: false,
-          bottomMarginAdj: 10,
-          boxMargin: 10,
-          noteMargin: 10,
-          messageMargin: 35,
-          boxTextMargin: 15,
         },
       },
     },
@@ -288,11 +260,6 @@ const config: Config = {
       isCloseable: true,
     },
   } satisfies Preset.ThemeConfig,
-
-  // Add modern plugins
-  themes: [
-    '@docusaurus/theme-mermaid',
-  ],
 };
 
 export default config;

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import anime from 'animejs/lib/anime.es.js';
+import anime from 'animejs';
 import styles from './styles.module.css';
 
 export default function CubeRootAnimation() {

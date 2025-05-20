@@ -1,283 +1,286 @@
 ---
-sidebar_position: 6
+title: Randomness System
+sidebar_position: 3
 ---
 
-# Randomness System
+# OmniDragon Randomness System
 
-The Sonic Red Dragon ecosystem implements a secure, verifiable multi-source randomness system that powers the jackpot mechanism and other random-dependent features.
+The OmniDragon protocol leverages multiple sources of verifiable randomness to power its jackpot system and other applications requiring secure randomness.
 
-## Overview
+## System Overview
 
-Randomness is a critical component of the Sonic Red Dragon ecosystem, powering the jackpot system and ensuring fair distribution of rewards. The project uses a multi-layered approach to randomness generation and verification, combining several sources to create a robust, tamper-resistant system.
-
-## Multi-Source Randomness Architecture
-
-The OmniDragon randomness system uses a unique approach of combining multiple independent randomness sources:
+The following diagram illustrates the high-level architecture of our randomness system:
 
 ```mermaid
 flowchart TB
-    subgraph "External Randomness Sources"
-        drand["dRAND Network"]
-        chainlink["Chainlink VRF"]
-        arbitrum["Arbitrum VRF"]
-        evmnet["EVMnet"]
-        quicknet["Quicknet"]
+    %% Define the layers with clear visual hierarchy
+    subgraph External ["External Randomness Sources"]
+        direction LR
+        DRAND["dRAND Network"]:::source
+        CHAIN["Chainlink VRF"]:::source
+        ARB["Arbitrum VRF"]:::source
     end
     
-    subgraph "On-Chain Verification"
-        drandIntegrator["DragonVRFIntegrator"]
-        chainlinkIntegrator["ChainlinkVRFIntegrator"]
-        arbitrumIntegrator["ArbitrumVRFIntegrator"]
-        evmnetIntegrator["EVMnetIntegrator"]
-        quicknetIntegrator["QuicknetIntegrator"]
+    subgraph Verification ["On-Chain Verification Layer"]
+        direction LR
+        DI["dRAND Integrator"]:::verify
+        CI["Chainlink Integrator"]:::verify
+        AI["Arbitrum Integrator"]:::verify
     end
     
-    subgraph "Aggregation Layer"
-        omniConsumer["OmniDragonVRFConsumer"]
-        randomBuffer["Randomness Buffer"]
-        weighted["Weighted Combination"]
+    subgraph Core ["Core Aggregation Layer"]
+        direction TB
+        VC["VRF Consumer"]:::core
+        RB["Randomness Buffer"]:::core
+        WC["Weighted Combiner"]:::core
     end
     
-    subgraph "Consumer Applications"
-        jackpotSystem["Jackpot System"]
-        games["Games & Applications"]
-        governance["Governance Decisions"]
+    subgraph Applications ["Consumer Applications"]
+        direction LR
+        JP["Jackpot System"]:::app
+        GAME["Games"]:::app
+        GOV["Governance"]:::app
     end
     
-    drand --> drandIntegrator
-    chainlink --> chainlinkIntegrator
-    arbitrum --> arbitrumIntegrator
-    evmnet --> evmnetIntegrator
-    quicknet --> quicknetIntegrator
+    %% Connect the components
+    DRAND --> DI
+    CHAIN --> CI
+    ARB --> AI
     
-    drandIntegrator --> omniConsumer
-    chainlinkIntegrator --> omniConsumer
-    arbitrumIntegrator --> omniConsumer
-    evmnetIntegrator --> omniConsumer
-    quicknetIntegrator --> omniConsumer
+    DI --> VC
+    CI --> VC
+    AI --> VC
     
-    omniConsumer --> randomBuffer
-    randomBuffer --> weighted
-    weighted --> jackpotSystem
-    weighted --> games
-    weighted --> governance
+    VC --> RB
+    RB --> WC
     
-    class omniConsumer,randomBuffer,weighted highlight
+    WC --> JP
+    WC --> GAME
+    WC --> GOV
+    
+    %% Apply styling
+    classDef source fill:#f8f9fa,stroke:#6c757d,color:#343a40
+    classDef verify fill:#e9ecef,stroke:#495057,color:#212529
+    classDef core fill:#e7f5ff,stroke:#339af0,color:#1864ab
+    classDef app fill:#ebfbee,stroke:#37b24d,color:#2b8a3e
+    
+    %% Style subgraphs
+    style External fill:#f8f9fa,stroke:#dee2e6,color:#495057
+    style Verification fill:#e9ecef,stroke:#ced4da,color:#495057
+    style Core fill:#e7f5ff,stroke:#74c0fc,color:#1864ab
+    style Applications fill:#ebfbee,stroke:#8ce99a,color:#2b8a3e
 ```
 
-### Key Security Features
+## Randomness Request Flow
 
-Our multi-source approach offers several significant advantages over traditional single-source randomness:
-
-1. **Source Diversity**: By combining multiple independent sources, we eliminate single points of failure
-2. **Network Diversity**: Each source uses different cryptographic schemes and operator sets
-3. **Weighted Aggregation**: Sources can be assigned different weights based on reliability
-4. **Randomness Buffer**: Each source maintains a buffer of recent values for enhanced unpredictability
-5. **Meta-Randomness Selection**: Selection from buffers uses block data that cannot be predicted in advance
-
-## Randomness Buffer System
-
-A key security innovation is our buffered randomness approach:
-
-```mermaid
-flowchart LR
-    Sources["Randomness Sources"] -->|"Feed values"| Buffers["Source Buffers"]
-    
-    subgraph "drand Buffer (10 values)"
-        drand1["Round N"]
-        drand2["Round N-1"]
-        drand3["Round N-2"]
-        drandDots["..."]
-        drand10["Round N-9"]
-    end
-    
-    subgraph "Chainlink Buffer (10 values)"
-        cl1["Request N"]
-        cl2["Request N-1"]
-        cl3["Request N-2"]
-        clDots["..."]
-        cl10["Request N-9"]
-    end
-    
-    subgraph "Other Buffers"
-        otherBuffers["Additional source buffers..."]
-    end
-    
-    Buffers --> drand1
-    Buffers --> drand2
-    Buffers --> drand3
-    Buffers --> drandDots
-    Buffers --> drand10
-    
-    Buffers --> cl1
-    Buffers --> cl2
-    Buffers --> cl3
-    Buffers --> clDots
-    Buffers --> cl10
-    
-    Buffers --> otherBuffers
-    
-    Request["Randomness Request"] -->|"Generate meta-randomness"| MetaRandom["Meta-Randomness"]
-    MetaRandom -->|"Select values from buffers"| Selected["Selected Values"]
-    Selected -->|"Weighted combination"| Final["Final Random Value"]
-    
-    class Selected,Final highlight
-```
-
-This design provides significantly stronger guarantees than using only the latest randomness values because:
-   - Even if an attacker knows all current buffer values, they cannot predict which will be selected
-   - The selection mechanism depends on future block data, making front-running difficult
-   - Each source has 10 possible values, creating 10^4 = 10,000 possible combinations
-
-## drand Network Integration
-
-The drand network is a core component of our randomness system:
-
-### What is drand?
-
-[drand](https://drand.love) is a distributed randomness beacon that provides publicly verifiable, unpredictable and unbiasable random values at regular intervals. The randomness is generated in a distributed way by a set of nodes operated by research institutions and companies from around the world, collectively known as the League of Entropy.
-
-### Supported drand Networks
-
-The OmniDragon system integrates with multiple drand networks:
-
-1. **League of Entropy Mainnet**
-   - Period: 30 seconds
-   - Public Key: `868f005eb8e6e4ca0a47c8a77ceaa5309a47978a7c71bc5cce96366b5d7a569937c529eeda66c7293784a9402801af31`
-
-2. **Quicknet**
-   - Period: 3 seconds
-   - Optimized for higher frequency randomness needs
-
-3. **EVMnet**
-   - Period: 3 seconds
-   - Uses BLS-BN254 cryptographic curve with native support in Ethereum and other EVM chains
-   - Designed specifically for on-chain verification with lower gas costs
-
-## On-Chain Request and Fulfillment Flow
-
-The following sequence diagram illustrates how randomness is requested and fulfilled:
+The sequence diagram below shows how randomness is requested and fulfilled:
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Consumer as OmniDragonVRFConsumer
-    participant Integrator as DragonVRFIntegrator
-    participant drand as drand Network
+    participant App as Consumer App
+    participant VRF as VRF Consumer
+    participant Sources as Randomness Sources
+    participant Buffer as Randomness Buffer
     
-    App->>Consumer: requestRandomness()
-    Consumer->>Consumer: Record request & requestId
-    Consumer->>Consumer: Aggregate from buffers
-    
-    par For each randomness source
-        Consumer->>Integrator: getLatestRandomness()
-        Integrator->>drand: Query latest randomness
-        drand-->>Integrator: Provide latest round data
-        Integrator-->>Consumer: Return randomness & round
+    rect rgb(240, 244, 248)
+    note over App: Initiates request
     end
     
-    Consumer->>Consumer: Buffer & aggregate values
-    Consumer->>Consumer: Apply weighting
-    Consumer->>App: fulfillRandomness(requestId, randomValue)
-```
-
-## Core Contract Components
-
-The randomness system consists of several specialized contracts:
-
-### DragonVRFLib
-
-A utility library that provides helper functions for deploying and managing VRF consumer contracts:
-- Deploy upgradeable VRF consumer contracts
-- Configure VRF parameters
-- Manage consumer-coordinator relationships
-
-### DragonVRFIntegrator
-
-Bridge contract that connects external randomness sources to the OmniDragon ecosystem:
-- Receives and verifies randomness from a specific source (e.g., drand, Chainlink)
-- Maintains the latest randomness values from that source
-- Provides a standard interface for consumers to request randomness
-
-### OmniDragonVRFConsumer
-
-Advanced aggregator that combines randomness from multiple sources:
-- Maintains connections to multiple integrator contracts
-- Buffers randomness values from each source
-- Applies weighted combination algorithms
-- Distributes the final randomness to consumer applications
-
-## Integration Examples
-
-### Basic Usage with Single Source
-
-```solidity
-// Import the DragonVRFConsumer
-import "../drand/DragonVRFConsumer.sol";
-
-contract MyRandomApp is DragonVRFConsumer {
-    // Request ID tracking
-    uint256 private requestId;
+    App->>+VRF: requestRandomness()
+    VRF->>VRF: Generate request ID
+    VRF-->>App: Return request ID
     
-    // Constructor
-    constructor(address _vrfIntegrator) DragonVRFConsumer(_vrfIntegrator) {}
+    rect rgb(235, 241, 245)
+    note over VRF,Sources: External verification
+    end
     
-    // Request randomness
-    function getRandomNumber() external {
-        requestId = requestRandomness();
-    }
-    
-    // Receive randomness
-    function _fulfillRandomness(uint256 _requestId, uint256 _randomness) internal override {
-        // Use randomness here
-    }
-}
-```
-
-### Advanced Usage with OmniDragonVRFConsumer
-
-```solidity
-// Import the OmniDragonVRFConsumer interface
-import "../drand/interfaces/IOmniDragonVRFConsumer.sol";
-
-contract SecureRandomApp {
-    // OmniDragonVRFConsumer reference
-    IOmniDragonVRFConsumer public omniConsumer;
-    
-    // Request tracking
-    mapping(uint256 => bool) public pendingRequests;
-    uint256 public lastRandomValue;
-    
-    // Constructor
-    constructor(address _omniConsumer) {
-        omniConsumer = IOmniDragonVRFConsumer(_omniConsumer);
-    }
-    
-    // Request aggregated randomness
-    function getSecureRandomNumber() external {
-        uint256 requestId = omniConsumer.requestRandomness(address(this));
-        pendingRequests[requestId] = true;
-    }
-    
-    // Callback function for randomness fulfillment
-    function fulfillRandomness(uint256 _requestId, uint256 _randomness) external {
-        require(msg.sender == address(omniConsumer), "Only OmniConsumer can fulfill");
-        require(pendingRequests[_requestId], "Request not found");
+    par Request from multiple sources
+        VRF->>+Sources: Request from dRAND
+        Sources-->>-VRF: Return dRAND proof
         
-        lastRandomValue = _randomness;
-        delete pendingRequests[_requestId];
+        VRF->>+Sources: Request from Chainlink
+        Sources-->>-VRF: Return Chainlink proof
         
-        // Use randomness here
-    }
-}
+        VRF->>+Sources: Request from Arbitrum
+        Sources-->>-VRF: Return Arbitrum proof
+    end
+    
+    rect rgb(231, 245, 255)
+    note over VRF,Buffer: Aggregation
+    end
+    
+    VRF->>+Buffer: Store verified randomness
+    Buffer-->>-VRF: Confirm storage
+    Buffer->>Buffer: Combine randomness
+    Buffer->>+App: fulfillRandomness(requestId, result)
+    
+    rect rgb(235, 251, 238)
+    note over App: Process result
+    end
+    
+    App->>App: Process randomness
+    App-->>-Buffer: Acknowledge receipt
 ```
 
-## Security Considerations
+## Multi-Chain Randomness Architecture
 
-When using randomness in blockchain applications:
+Our system works across multiple chains with secure cross-chain verification:
 
-1. **Public Nature**: All randomness values are public and known once published
-2. **Timing Considerations**: There is a small delay between randomness generation and availability
-3. **Front-Running Protection**: The buffer system helps mitigate front-running attacks
-4. **Source Diversity**: Using multiple sources significantly enhances security
-5. **High-Value Applications**: For high-value applications, consider additional security layers
+```mermaid
+flowchart LR
+    %% Define chain-specific components
+    subgraph Ethereum ["Ethereum"]
+        direction TB
+        ETH_DRAND["dRAND Verifier"]:::eth
+        ETH_CHAIN["Chainlink VRF"]:::eth
+        ETH_CONSUMER["ETH VRF Consumer"]:::eth
+    end
+    
+    subgraph Arbitrum ["Arbitrum"]
+        direction TB
+        ARB_VRF["Arbitrum VRF"]:::arb
+        ARB_CONSUMER["ARB VRF Consumer"]:::arb
+    end
+    
+    subgraph Optimism ["Optimism"]
+        direction TB
+        OPT_CONSUMER["OPT VRF Consumer"]:::opt
+    end
+    
+    subgraph LayerZero ["Cross-Chain Messaging"]
+        LZ["LayerZero"]:::lz
+    end
+    
+    %% Connect components
+    ETH_DRAND --> ETH_CONSUMER
+    ETH_CHAIN --> ETH_CONSUMER
+    ARB_VRF --> ARB_CONSUMER
+    
+    ETH_CONSUMER <--> LZ
+    ARB_CONSUMER <--> LZ
+    OPT_CONSUMER <--> LZ
+    
+    LZ --> ETH_CONSUMER
+    LZ --> ARB_CONSUMER
+    LZ --> OPT_CONSUMER
+    
+    %% Apply styling
+    classDef eth fill:#eceff1,stroke:#546e7a,color:#263238
+    classDef arb fill:#ede7f6,stroke:#7e57c2,color:#311b92
+    classDef opt fill:#e3f2fd,stroke:#42a5f5,color:#0d47a1
+    classDef lz fill:#e8f5e9,stroke:#66bb6a,color:#1b5e20
+    
+    %% Style subgraphs
+    style Ethereum fill:#eceff1,stroke:#cfd8dc,color:#263238
+    style Arbitrum fill:#ede7f6,stroke:#d1c4e9,color:#311b92
+    style Optimism fill:#e3f2fd,stroke:#bbdefb,color:#0d47a1
+    style LayerZero fill:#e8f5e9,stroke:#c8e6c9,color:#1b5e20
+```
+
+## Security Model
+
+The diagram below illustrates our multi-layered security approach:
+
+```mermaid
+flowchart TB
+    %% Security layers
+    subgraph InputSecurity ["Input Security"]
+        direction LR
+        MULTI["Multiple Sources"]:::sec1
+        THRESH["Threshold Security"]:::sec1
+        COMMIT["Commit-Reveal"]:::sec1
+    end
+    
+    subgraph VerificationSecurity ["Verification Security"]
+        direction LR
+        SIG["Signature Verification"]:::sec2
+        HASH["Hash Verification"]:::sec2
+        PROOF["Zero-Knowledge Proofs"]:::sec2
+    end
+    
+    subgraph OutputSecurity ["Output Security"]
+        direction LR
+        BUFFER["Randomness Buffer"]:::sec3
+        COMBINE["Weighted Combination"]:::sec3
+        DELAY["Time-Delayed Release"]:::sec3
+    end
+    
+    %% Connect security layers
+    InputSecurity --> VerificationSecurity
+    VerificationSecurity --> OutputSecurity
+    
+    %% Apply styling
+    classDef sec1 fill:#ffebee,stroke:#ef5350,color:#b71c1c
+    classDef sec2 fill:#e8eaf6,stroke:#7986cb,color:#1a237e
+    classDef sec3 fill:#e0f2f1,stroke:#4db6ac,color:#004d40
+    
+    %% Style subgraphs
+    style InputSecurity fill:#ffebee,stroke:#ffcdd2,color:#b71c1c
+    style VerificationSecurity fill:#e8eaf6,stroke:#c5cae9,color:#1a237e
+    style OutputSecurity fill:#e0f2f1,stroke:#b2dfdb,color:#004d40
+```
+
+## Implementation Components
+
+The following class diagram shows the main components of our randomness system:
+
+```mermaid
+classDiagram
+    %% Define main classes
+    class IRandomnessProvider {
+        <<interface>>
+        +requestRandomness(bytes32 seed) bytes32
+        +verifyRandomness(bytes proof) bool
+    }
+    
+    class DragonVRFConsumer {
+        -mapping providers
+        -mapping requests
+        -uint256 threshold
+        +addProvider(address provider)
+        +removeProvider(address provider)
+        +requestRandomness() bytes32
+        +fulfillRandomness(bytes32 requestId, uint256 randomness)
+    }
+    
+    class RandomnessBuffer {
+        -mapping values
+        -uint256 capacity
+        +addRandomness(uint256 value)
+        +getRandomness() uint256
+        +getRandomInRange(uint256 min, uint256 max) uint256
+    }
+    
+    class dRANDIntegrator {
+        -bytes publicKey
+        +verifyRandomness(bytes signature, bytes message) bool
+        +fetchLatestRandomness() bytes32
+    }
+    
+    class ChainlinkVRFIntegrator {
+        -address coordinator
+        -bytes32 keyHash
+        +requestRandomness() bytes32
+        +fulfillRandomWords(bytes32 requestId, uint256[] randomWords)
+    }
+    
+    %% Define relationships
+    IRandomnessProvider <|-- dRANDIntegrator
+    IRandomnessProvider <|-- ChainlinkVRFIntegrator
+    DragonVRFConsumer --> IRandomnessProvider
+    DragonVRFConsumer --> RandomnessBuffer
+    
+    %% Apply styling
+    classDef interface fill:#e3f2fd,stroke:#2196f3,color:#0d47a1
+    classDef consumer fill:#f3e5f5,stroke:#9c27b0,color:#4a148c
+    classDef provider fill:#e8f5e9,stroke:#4caf50,color:#1b5e20
+    classDef utility fill:#fff3e0,stroke:#ff9800,color:#e65100
+    
+    class IRandomnessProvider interface
+    class DragonVRFConsumer consumer
+    class RandomnessBuffer utility
+    class dRANDIntegrator provider
+    class ChainlinkVRFIntegrator provider
+```
+
+By integrating multiple sources of randomness and utilizing a secure aggregation mechanism, OmniDragon achieves a highly secure and reliable source of randomness that is resistant to manipulation and single points of failure.

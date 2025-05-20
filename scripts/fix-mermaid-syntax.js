@@ -7,88 +7,70 @@
 
 const fs = require('fs');
 const path = require('path');
-const { promisify } = require('util');
+const glob = require('glob');
 
-const readdir = promisify(fs.readdir);
-const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
-const stat = promisify(fs.stat);
+// Find all markdown files in the docs directory
+const docFiles = glob.sync('docs/**/*.md', { cwd: path.resolve(__dirname, '..') });
 
-// Function to walk through directory recursively
-async function walkDir(dir, fileList = []) {
-  const files = await readdir(dir);
-  
-  for (const file of files) {
-    const filePath = path.join(dir, file);
-    const stats = await stat(filePath);
-    
-    if (stats.isDirectory() && !file.startsWith('.') && file !== 'node_modules') {
-      fileList = await walkDir(filePath, fileList);
-    } else if (stats.isFile() && (file.endsWith('.md') || file.endsWith('.mdx'))) {
-      fileList.push(filePath);
-    }
-  }
-  
-  return fileList;
-}
+// Count of fixes made
+let fixesCount = 0;
+let filesFixed = 0;
 
-// Function to update mermaid syntax in a file
-async function updateMermaidInFile(filePath) {
-  let content = await readFile(filePath, 'utf8');
-  let originalContent = content;
+// Process each file
+docFiles.forEach(file => {
+  const filePath = path.resolve(__dirname, '..', file);
+  let content = fs.readFileSync(filePath, 'utf8');
   
-  // Check if file contains mermaid code blocks
-  if (content.includes('```mermaid')) {
-    console.log(`Processing ${filePath}...`);
-    
-    // Regular expression to match mermaid code blocks that start with "graph"
-    const mermaidBlockRegex = /```mermaid\s+(graph\s+[A-Z]+)/g;
-    
-    // Replace "graph XX" with "flowchart XX"
-    content = content.replace(mermaidBlockRegex, (match, graphDeclaration) => {
-      const flowchartDeclaration = graphDeclaration.replace('graph', 'flowchart');
-      console.log(`  Replaced "${graphDeclaration}" with "${flowchartDeclaration}"`);
-      return `\`\`\`mermaid\n${flowchartDeclaration}`;
+  // Find mermaid code blocks with 'graph' syntax
+  const mermaidRegex = /```mermaid\s+([\s\S]*?)```/g;
+  let match;
+  let fileChanged = false;
+  
+  // Store matches and their positions to process in reverse order 
+  // (to avoid position changes when replacing)
+  const matches = [];
+  
+  while ((match = mermaidRegex.exec(content)) !== null) {
+    matches.push({
+      index: match.index,
+      length: match[0].length,
+      fullMatch: match[0],
+      diagramCode: match[1]
     });
+  }
+  
+  // Process matches in reverse order
+  for (let i = matches.length - 1; i >= 0; i--) {
+    const m = matches[i];
+    const diagramCode = m.diagramCode;
     
-    // Only write to file if changes were made
-    if (content !== originalContent) {
-      await writeFile(filePath, content, 'utf8');
-      console.log(`  Updated ${filePath}`);
-      return true;
+    // Check if the diagram starts with 'graph '
+    if (diagramCode.trim().startsWith('graph ')) {
+      // Replace 'graph ' with 'flowchart '
+      const fixedDiagramCode = diagramCode.replace(/^(\s*)graph(\s+)/m, '$1flowchart$2');
+      
+      // Construct the fixed mermaid block
+      const fixedBlock = "```mermaid\n" + fixedDiagramCode + "```";
+      
+      // Replace the old block with the fixed one
+      content = content.substring(0, m.index) + 
+                fixedBlock + 
+                content.substring(m.index + m.length);
+      
+      fileChanged = true;
+      fixesCount++;
     }
   }
   
-  return false;
-}
-
-// Main function
-async function main() {
-  try {
-    console.log('Updating mermaid syntax in markdown files...');
-    
-    // Get all markdown files
-    const docsDir = path.join(__dirname, '..', 'docs');
-    const files = await walkDir(docsDir);
-    
-    let changedFiles = 0;
-    
-    // Process each file
-    for (const file of files) {
-      const changed = await updateMermaidInFile(file);
-      if (changed) changedFiles++;
-    }
-    
-    console.log('\nSummary:');
-    console.log(`Total files processed: ${files.length}`);
-    console.log(`Files updated: ${changedFiles}`);
-    console.log('Done!');
-    
-  } catch (error) {
-    console.error('Error:', error);
-    process.exit(1);
+  // Save the file if changes were made
+  if (fileChanged) {
+    fs.writeFileSync(filePath, content, 'utf8');
+    console.log(`Fixed ${file}`);
+    filesFixed++;
   }
-}
+});
 
-// Run the script
-main(); 
+console.log(`\nComplete! Fixed ${fixesCount} mermaid diagrams in ${filesFixed} files.`);
+if (fixesCount > 0) {
+  console.log("Please rebuild your site to see the changes.");
+} 

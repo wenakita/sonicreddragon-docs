@@ -1,0 +1,259 @@
+---
+title: Elegant Interactive Diagrams 
+description: Learn how to create elegant, animated diagrams using Mermaid and Anime.js
+sidebar_position: 3
+---
+
+import EnhancedMermaid from '@site/src/components/EnhancedMermaid';
+import StandardMermaid from '@site/src/components/StandardMermaid';
+
+# Creating Elegant Interactive Diagrams
+
+This guide demonstrates how to create beautiful, animated diagrams in your documentation using Mermaid and Anime.js.
+
+## Basic Mermaid Diagram
+
+Let's start with a basic flowchart that automatically animates:
+
+<StandardMermaid
+  chart={`
+flowchart LR
+    A[Start] --> B{Is it working?}
+    B -->|Yes| C[Great!]
+    B -->|No| D[Debug]
+    D --> B
+    C --> E[Deploy]
+  `}
+/>
+
+## Enhanced Mermaid with Animations
+
+The enhanced component provides more elegant styling and smoother animations:
+
+<EnhancedMermaid
+  title="OmniDragon Token Flow"
+  caption="Visualization of the token flow across chains"
+  chart={`
+flowchart LR
+    subgraph Ethereum
+      TokenE[OmniDragon Token]
+      BridgeE[LayerZero Bridge]
+    end
+    
+    subgraph Arbitrum
+      TokenA[OmniDragon Token]
+      BridgeA[LayerZero Bridge]
+    end
+    
+    subgraph BSC
+      TokenB[OmniDragon Token]
+      BridgeB[LayerZero Bridge]
+    end
+    
+    TokenE <-->|Transfer| BridgeE
+    TokenA <-->|Transfer| BridgeA
+    TokenB <-->|Transfer| BridgeB
+    
+    BridgeE <-->|Message| BridgeA
+    BridgeE <-->|Message| BridgeB
+    BridgeA <-->|Message| BridgeB
+  `}
+/>
+
+## Sequence Diagram
+
+Sequence diagrams also benefit from the elegant animations:
+
+<EnhancedMermaid
+  title="Cross-Chain Transfer Flow"
+  chart={`
+sequenceDiagram
+    participant User
+    participant SourceChain
+    participant LayerZero
+    participant DestChain
+    
+    User->>SourceChain: Initiate Transfer
+    SourceChain->>SourceChain: Lock Tokens
+    SourceChain->>LayerZero: Send Message
+    LayerZero->>LayerZero: Verify Proof
+    LayerZero->>DestChain: Deliver Message
+    DestChain->>DestChain: Mint Tokens
+    DestChain->>User: Complete Transfer
+  `}
+/>
+
+## Class Diagram
+
+Class diagrams help visualize smart contract relationships:
+
+<EnhancedMermaid
+  title="OmniDragon Contract Structure"
+  chart={`
+classDiagram
+    class OmniDragonToken {
+      +string name
+      +string symbol
+      +uint256 totalSupply
+      +mapping balances
+      +transfer(address, uint256)
+      +approve(address, uint256)
+      +transferFrom(address, address, uint256)
+    }
+    
+    class DragonOFT {
+      +bytes32 chainId
+      +send(uint16, bytes, uint256)
+      +receiveFrom(uint16, bytes, uint256)
+    }
+    
+    class LayerZeroEndpoint {
+      +send(uint16, bytes, bytes, address)
+      +receive(uint16, bytes, bytes)
+    }
+    
+    OmniDragonToken <|-- DragonOFT
+    DragonOFT --> LayerZeroEndpoint
+  `}
+/>
+
+## State Diagram
+
+State diagrams show token status changes:
+
+<EnhancedMermaid
+  title="Token Lifecycle"
+  chart={`
+stateDiagram-v2
+    [*] --> Minted
+    Minted --> Transferred: transfer()
+    Transferred --> Burned: burn()
+    Burned --> [*]
+    
+    Minted --> Locked: bridge()
+    Locked --> Minted: cancel()
+    
+    state CrossChain {
+        [*] --> Requested
+        Requested --> InTransit
+        InTransit --> Completed
+        InTransit --> Failed
+        Failed --> Requested: retry()
+        Completed --> [*]
+    }
+    
+    Locked --> CrossChain: initiate()
+    CrossChain --> Minted: rollback()
+  `}
+/>
+
+## Entity Relationship Diagram
+
+ER diagrams help understand data relationships:
+
+<EnhancedMermaid
+  title="Token Data Model"
+  chart={`
+erDiagram
+    TOKEN ||--o{ TRANSFER : records
+    TOKEN {
+        string name
+        string symbol
+        uint256 supply
+    }
+    TRANSFER {
+        address from
+        address to
+        uint256 amount
+        uint256 timestamp
+    }
+    TOKEN ||--o{ HOLDER : owns
+    HOLDER {
+        address wallet
+        uint256 balance
+        uint256 lastUpdate
+    }
+  `}
+/>
+
+## Gantt Chart
+
+Gantt charts are useful for project timelines:
+
+<EnhancedMermaid
+  title="OmniDragon Development Roadmap"
+  chart={`
+gantt
+    title OmniDragon Development Timeline
+    dateFormat  YYYY-MM-DD
+    
+    section Planning
+    Research           :done,    des1, 2023-01-01, 2023-01-15
+    Architecture       :done,    des2, 2023-01-16, 2023-01-31
+    
+    section Development
+    Smart Contracts    :done,    dev1, 2023-02-01, 2023-03-15
+    Frontend           :active,  dev2, 2023-02-15, 2023-04-30
+    Backend            :active,  dev3, 2023-02-15, 2023-04-15
+    
+    section Auditing
+    Internal Review    :crit,    rev1, 2023-04-01, 2023-04-15
+    External Audit     :crit,    rev2, 2023-04-16, 2023-05-15
+    
+    section Launch
+    Testnet            :         launch1, 2023-05-16, 2023-06-15
+    Mainnet            :         launch2, 2023-06-16, 2023-06-30
+  `}
+/>
+
+## Using the EnhancedMermaid Component
+
+To use the enhanced component in your MDX files:
+
+```jsx
+import EnhancedMermaid from '@site/src/components/EnhancedMermaid';
+
+<EnhancedMermaid
+  title="My Diagram"
+  caption="Optional caption text"
+  chart={`
+    flowchart LR
+      A --> B
+      B --> C
+  `}
+/>
+```
+
+## Customizing Animations
+
+For custom animations, you can pass animation options:
+
+```jsx
+<EnhancedMermaid
+  animated={true}
+  pulseSelector=".important-node"
+  animationOptions={{
+    delay: 1500,
+    duration: 1000
+  }}
+  chart={`...`}
+/>
+```
+
+## Using the StandardMermaid Component
+
+If you're having issues with the standard Mermaid code blocks (using triple backticks), you can use the StandardMermaid component as a reliable alternative:
+
+```jsx
+import StandardMermaid from '@site/src/components/StandardMermaid';
+
+<StandardMermaid
+  chart={`
+    flowchart LR
+      A --> B
+      B --> C
+  `}
+/>
+```
+
+With these components and techniques, you can create beautiful, interactive diagrams that enhance your documentation with elegant animations and visual appeal. 

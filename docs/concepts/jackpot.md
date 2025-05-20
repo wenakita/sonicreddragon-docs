@@ -1,290 +1,232 @@
 ---
+title: Jackpot System
 sidebar_position: 4
 ---
 
-# Jackpot System
+# OmniDragon Jackpot System
 
-The Sonic Red Dragon jackpot system is a core feature of the ecosystem, providing an innovative on-chain lottery mechanism that rewards token buyers with a chance to win jackpot prizes.
+The OmniDragon Jackpot System is a core feature that distributes rewards to token holders based on verifiable randomness. This document explains how the system works and its key components.
 
 ## System Overview
 
-The jackpot system introduces an exciting element of randomized rewards to the Sonic Red Dragon ecosystem through a sophisticated, probability-based lottery mechanism:
+The jackpot system uses a combination of fee collection, randomness, and distribution mechanisms to create an engaging token economy:
 
 ```mermaid
 flowchart TB
-    subgraph "Fee Collection"
-        Transaction["Token Transaction"] -->|"10% Fee"| FeeProcessor["Fee Processor"]
-        FeeProcessor -->|"6.9%"| JackpotVault["Jackpot Vault"]
+    %% Define main components with clear labels
+    subgraph Collection ["Fee Collection"]
+        direction LR
+        TXFEE["Transaction Fees"]:::fee
+        BRIDGE["Bridge Fees"]:::fee
+        FEE_ADAPT["Adaptive Fee Logic"]:::fee
     end
     
-    subgraph "Lottery Entry"
-        Buy["Token Purchase (Buy)"] -->|"Detected by"| OmniDragon["OmniDragon Token"]
-        OmniDragon -->|"Triggers Entry"| SwapOracle["SwapTriggerOracle"]
-        SwapOracle -->|"Calculates Probability"| Entry["Lottery Entry"]
+    subgraph Pool ["Jackpot Pool"]
+        direction TB
+        VAULT["Jackpot Vault"]:::vault
+        TRACKER["Growth Tracker"]:::vault
     end
     
-    subgraph "Winner Selection"
-        Entry -->|"Based on Probability"| Selection["Random Selection"]
-        Selection -->|"If Selected"| Jackpot["Jackpot Distribution"]
-        Jackpot -->|"Transfer Rewards"| Winner["Winner"]
+    subgraph Trigger ["Trigger Mechanism"]
+        direction LR
+        TIME["Time-Based"]:::trigger
+        RANDOM["Randomness Oracle"]:::trigger
+        THRESHOLD["Threshold Events"]:::trigger
     end
     
-    JackpotVault -->|"Provides Funds"| Jackpot
+    subgraph Distribution ["Reward Distribution"]
+        direction LR
+        WINNERS["Winner Selection"]:::dist
+        REWARDS["Reward Calculation"]:::dist
+        PAYOUT["Payout Process"]:::dist
+    end
     
-    class JackpotVault,Entry,Jackpot highlight
+    %% Connect the components
+    TXFEE --> FEE_ADAPT
+    BRIDGE --> FEE_ADAPT
+    FEE_ADAPT --> VAULT
+    
+    VAULT --> TRACKER
+    TRACKER --> THRESHOLD
+    
+    TIME --> RANDOM
+    RANDOM --> WINNERS
+    THRESHOLD --> WINNERS
+    
+    VAULT --> REWARDS
+    WINNERS --> REWARDS
+    REWARDS --> PAYOUT
+    
+    %% Apply styling
+    classDef fee fill:#e3f2fd,stroke:#2196f3,color:#0d47a1
+    classDef vault fill:#e8f5e9,stroke:#4caf50,color:#1b5e20
+    classDef trigger fill:#fff8e1,stroke:#ffc107,color:#ff6f00
+    classDef dist fill:#f3e5f5,stroke:#9c27b0,color:#4a148c
+    
+    %% Style subgraphs
+    style Collection fill:#e3f2fd,stroke:#bbdefb,color:#0d47a1
+    style Pool fill:#e8f5e9,stroke:#c8e6c9,color:#1b5e20
+    style Trigger fill:#fff8e1,stroke:#ffecb3,color:#ff6f00
+    style Distribution fill:#f3e5f5,stroke:#e1bee7,color:#4a148c
 ```
 
-## How It Works
+## Jackpot Cycle
 
-The jackpot system operates through the orchestration of three primary smart contracts:
+The jackpot system follows a regular cycle of accumulation, triggering, and distribution:
 
-1. **OmniDragon Token**: Collects fees and detects buy transactions
-2. **OmniDragonSwapTriggerOracle**: Processes lottery entries and calculates win probability
-3. **DragonJackpotVault**: Stores collected fees until distribution
-4. **DragonJackpotDistributor**: Handles the distribution of jackpot rewards to winners
+```mermaid
+flowchart LR
+    %% Define cycle stages
+    COLLECT([Fee Collection]):::collect
+    ACCUMULATE([Pool Growth]):::accumulate
+    TRIGGER([Trigger Event]):::trigger
+    SELECT([Winner Selection]):::select
+    DISTRIBUTE([Distribution]):::distribute
+    RESET([Pool Reset]):::reset
+    
+    %% Connect in cycle
+    COLLECT --> ACCUMULATE
+    ACCUMULATE --> TRIGGER
+    TRIGGER --> SELECT
+    SELECT --> DISTRIBUTE
+    DISTRIBUTE --> RESET
+    RESET --> COLLECT
+    
+    %% Apply styling
+    classDef collect fill:#e3f2fd,stroke:#2196f3,color:#0d47a1
+    classDef accumulate fill:#e8f5e9,stroke:#4caf50,color:#1b5e20
+    classDef trigger fill:#fff8e1,stroke:#ffc107,color:#ff6f00
+    classDef select fill:#f3e5f5,stroke:#9c27b0,color:#4a148c
+    classDef distribute fill:#fce4ec,stroke:#e91e63,color:#880e4f
+    classDef reset fill:#f5f5f5,stroke:#9e9e9e,color:#212121
+```
 
-### Complete Flow Sequence
+## Trigger Mechanism
 
-The following sequence diagram illustrates the complete jackpot process from transaction to potential win:
+The jackpot is triggered through a combination of time-based and randomness-based mechanisms:
 
 ```mermaid
 sequenceDiagram
-    actor User
-    participant DEX as "DEX/Liquidity Pool"
-    participant Token as "OmniDragon Token"
-    participant Oracle as "SwapTriggerOracle"
-    participant Vault as "JackpotVault"
-    participant Distributor as "JackpotDistributor"
+    participant Timer as Time Oracle
+    participant VRF as Randomness Oracle
+    participant Trigger as Jackpot Trigger
+    participant Vault as Jackpot Vault
+    participant Distributor as Reward Distributor
     
-    User->>DEX: Swap ETH for DRAGON tokens
-    DEX->>Token: Transfer DRAGON tokens to User
-    
-    Note over Token: Detects buy transaction (from LP to user)
-    
-    Token->>Token: Calculate and collect 10% fee
-    Token->>Token: Swap fee tokens for wrapped native token
-    Token->>Vault: Send 6.9% to jackpot vault
-    Vault->>Vault: Add to jackpot balance
-    
-    Token->>Oracle: Trigger lottery entry (_tryProcessLotteryEntry)
-    Oracle->>Oracle: Verify minimum swap amount
-    Oracle->>Oracle: Check user cooldown period
-    Oracle->>Oracle: Fetch price data from oracles
-    Oracle->>Oracle: Calculate win probability
-    
-    alt If user wins (based on probability)
-        Oracle->>Distributor: Trigger jackpot win
-        Distributor->>Vault: Request jackpot funds
-        Vault->>User: Transfer jackpot rewards
-    else If user doesn't win
-        Oracle->>Oracle: Record entry (for statistics)
+    %% Add style regions
+    rect rgb(238, 242, 255)
+    note over Timer,VRF: Conditions check
     end
     
-    Oracle->>Oracle: Update user's last entry timestamp
-    Oracle->>Oracle: Update average swap statistics
+    Timer->>+Trigger: Time threshold reached
+    Trigger->>Trigger: Check eligibility
+    Trigger->>+VRF: Request trigger randomness
+    
+    rect rgb(255, 248, 225)
+    note over VRF,Trigger: Random determination
+    end
+    
+    VRF-->>-Trigger: Provide randomness
+    Trigger->>Trigger: Determine if triggered
+    
+    alt Jackpot triggered
+        rect rgb(243, 229, 245)
+        note over Trigger,Distributor: Distribution process
+        end
+        
+        Trigger->>+Vault: Request current pool
+        Vault-->>-Trigger: Return pool amount
+        Trigger->>+Distributor: Initiate distribution
+        Distributor->>+VRF: Request winner selection
+        VRF-->>-Distributor: Provide selection randomness
+        Distributor->>Distributor: Select winners
+        Distributor->>Distributor: Calculate rewards
+        Distributor->>Vault: Transfer rewards
+        Distributor-->>-Trigger: Distribution complete
+    else Not triggered
+        Trigger->>Trigger: Update next check time
+    end
+    
+    Trigger-->>-Timer: Process complete
 ```
 
-## Probability Calculation
+## Implementation Architecture
 
-The win probability for each lottery entry is calculated using a sophisticated algorithm that considers multiple factors:
+The core contracts that implement the jackpot system are structured as follows:
 
 ```mermaid
-flowchart TD
-    SwapAmount["Swap Amount"] -->|"Input"| Calculation["Probability Calculation"]
-    AverageSwap["Average Swap Size"] -->|"Comparison"| Calculation
-    OraclePrice["Oracle Price Data"] -->|"Market Context"| Calculation
-    BaseProb["Base Probability (1%)"] -->|"Starting Point"| Calculation
-    MaxProb["Maximum Probability (10%)"] -->|"Upper Limit"| Calculation
-    
-    Calculation -->|"Higher For"| LargeSwaps["Larger Swaps"]
-    Calculation -->|"Lower For"| SmallSwaps["Smaller Swaps"]
-    Calculation -->|"Uses"| LogCurve["Logarithmic Curve"]
-    LogCurve -->|"Provides"| DiminishingReturns["Diminishing Returns"]
-    
-    Calculation -->|"Result"| WinProbability["Win Probability (0-10%)"]
-```
-
-The algorithm creates a probability curve that:
-1. Starts at a base probability (typically 1%)
-2. Increases as swap size increases (larger buys = higher chance)
-3. Uses a logarithmic curve to provide diminishing returns for very large swaps
-4. Is capped at a maximum probability (typically 10%)
-
-## Key Components
-
-### OmniDragon Token
-
-The token contract handles fee collection and lottery entry triggering:
-
-```solidity
-function _transfer(address from, address to, uint256 amount) internal override {
-    // ... other transfer logic ...
-    
-    // Process lottery entry ONLY for buys (from liquidity pool to user)
-    if (swapTrigger != address(0) && isPairFrom) {
-        _tryProcessLotteryEntry(to, amount);
-    }
-}
-
-function _tryProcessLotteryEntry(address user, uint256 amount) private {
-    try IOmniDragonSwapTriggerOracle(swapTrigger).onSwap(user, amount) {
-        // Successful entry processing
-    } catch {
-        // Silently handle any failures
-    }
-}
-```
-
-### Swap Trigger Oracle
-
-The oracle contract handles lottery entry processing and probability calculation:
-
-```solidity
-function onSwap(address user, uint256 amount) external override onlyOmniDragon {
-    require(user != address(0), "Zero user");
-    require(amount >= minSwapAmount, "Swap too small");
-    require(block.timestamp >= lastEntry[user] + cooldownPeriod, "Cooldown active");
-
-    // Calculate win probability for this swap
-    uint256 probability = calculateWinProbability(amount);
-    
-    // ... record entry details ...
-    
-    // Check if this entry is a winner
-    if (_isWinner(probability)) {
-        // Trigger jackpot distribution
-        if (jackpotDistributor != address(0)) {
-            IDragonJackpotDistributor(jackpotDistributor).triggerJackpot(user);
-        }
+classDiagram
+    %% Define core contracts
+    class JackpotVault {
+        -uint256 poolAmount
+        -address trigger
+        -address distributor
+        +deposit(uint256 amount)
+        +withdraw(address recipient, uint256 amount)
+        +getPoolSize() uint256
     }
     
-    emit LotteryEntry(user, amount, block.timestamp, probability);
-}
-```
-
-### Jackpot Vault
-
-The vault contract securely stores jackpot funds:
-
-```solidity
-function addToJackpot(uint256 amount) external override onlyOmniDragon {
-    require(amount > 0, "Zero amount");
-    
-    // Update jackpot balances
-    totalJackpotAmount += amount;
-    availableJackpotAmount += amount;
-    
-    emit JackpotDeposit(msg.sender, amount, totalJackpotAmount);
-}
-
-function distributeJackpot(address winner, uint256 amount) external override onlyDistributor {
-    require(winner != address(0), "Zero address");
-    require(amount > 0, "Zero amount");
-    require(amount <= availableJackpotAmount, "Insufficient funds");
-    
-    // Update available amount
-    availableJackpotAmount -= amount;
-    
-    // Transfer jackpot to winner
-    IERC20(wrappedToken).safeTransfer(winner, amount);
-    
-    emit JackpotDistributed(winner, amount, availableJackpotAmount);
-}
-```
-
-## Anti-Abuse Protections
-
-The system implements multiple safeguards to prevent abuse and ensure fairness:
-
-1. **Minimum Swap Amount**: Users must make a minimum-sized purchase to be eligible
-   ```solidity
-   require(amount >= minSwapAmount, "Swap too small");
-   ```
-
-2. **Cooldown Period**: Users must wait between lottery entries
-   ```solidity
-   require(block.timestamp >= lastEntry[user] + cooldownPeriod, "Cooldown active");
-   ```
-
-3. **Authorization Checks**: Only authorized contracts can trigger key functions
-   ```solidity
-   require(msg.sender == omniDragon, "Not authorized");
-   ```
-
-4. **Oracle Price Verification**: Uses multiple price sources for reliability
-   ```solidity
-   if (validPrices < minimumOracleResponses) {
-       return (0, false); // Not enough reliable price sources
-   }
-   ```
-   
-5. **Probability Caps**: Maximum win probability is capped
-   ```solidity
-   return probability > maxWinProbability ? maxWinProbability : probability;
-   ```
-
-## Special Features
-
-### Partner Jackpot Integration
-
-The system supports special partner integrations that can trigger jackpot entries:
-
-```solidity
-function processPartnerJackpotEntry(address _user, uint256 _amount) external {
-    // Only partner pools can call this
-    if (!isPartnerPool[msg.sender]) revert NotPartnerPool();
-    
-    if (_user == address(0)) revert ZeroAddress();
-    if (_amount == 0) revert ZeroAmount();
-    
-    // Process lottery entry if swap trigger is set
-    if (swapTrigger != address(0)) {
-        _tryProcessLotteryEntry(_user, _amount);
+    class JackpotTrigger {
+        -address vault
+        -address randomness
+        -uint256 minTime
+        -uint256 lastCheck
+        +checkTrigger() bool
+        +executeTrigger()
+        +setParameters(uint256 minTime)
     }
     
-    emit PartnerJackpotTriggered(_user, msg.sender, _amount);
-}
+    class RewardDistributor {
+        -address vault
+        -address randomness
+        -uint256 winnersCount
+        +distributeRewards()
+        +selectWinners() address[]
+        +calculateRewards(address[] winners) uint256[]
+    }
+    
+    class RandomnessConsumer {
+        -address vrfCoordinator
+        +requestRandomness() bytes32
+        +fulfillRandomness(bytes32 requestId, uint256 randomness)
+    }
+    
+    class FeeCollector {
+        -address vault
+        -uint256 feeRate
+        +collectFee(uint256 amount) uint256
+        +setFeeRate(uint256 rate)
+    }
+    
+    %% Define relationships
+    FeeCollector --> JackpotVault: deposits fees
+    JackpotTrigger --> JackpotVault: requests pool
+    JackpotTrigger --> RandomnessConsumer: requests randomness
+    JackpotTrigger --> RewardDistributor: initiates distribution
+    RewardDistributor --> JackpotVault: withdraws rewards
+    RewardDistributor --> RandomnessConsumer: requests randomness
+    
+    %% Apply styling
+    classDef vault fill:#e8f5e9,stroke:#4caf50,color:#1b5e20
+    classDef trigger fill:#fff8e1,stroke:#ffc107,color:#ff6f00
+    classDef distributor fill:#f3e5f5,stroke:#9c27b0,color:#4a148c
+    classDef randomness fill:#e0f7fa,stroke:#00bcd4,color:#006064
+    classDef fee fill:#e3f2fd,stroke:#2196f3,color:#0d47a1
+    
+    class JackpotVault vault
+    class JackpotTrigger trigger
+    class RewardDistributor distributor
+    class RandomnessConsumer randomness
+    class FeeCollector fee
 ```
 
-### Multiple Jackpot Tiers
+## Jackpot Distribution Formula
 
-The system supports multiple jackpot tiers with different win probabilities:
+The jackpot distribution uses a weighted formula that rewards both loyalty and token holdings:
 
-| Tier | Description | Probability | Reward |
-|------|-------------|-------------|--------|
-| Grand | Main jackpot | Base calculation | Full jackpot |
-| Partner | Through integrated partners | Custom calculation | Partner-defined |
+- **Base Allocation**: 60% of the pool distributed to randomly selected winners
+- **Staking Boost**: 30% additional weight for staked tokens
+- **Loyalty Multiplier**: Up to 2x multiplier based on holding duration
+- **Cross-Chain Participants**: Special allocation for cross-chain token holders
 
-## User Experience
-
-From a user perspective, the jackpot system is extremely simple:
-
-1. **Buy DRAGON Tokens**: Simply purchase tokens from a DEX or liquidity pool
-2. **Automatic Entry**: Your purchase automatically enters you into the jackpot lottery
-3. **Possible Win**: Based on your purchase size, you may instantly win the jackpot
-4. **Reward Distribution**: If you win, rewards are automatically sent to your wallet
-
-There's no need to claim entries, submit forms, or take any additional actions - the entire system operates automatically with each token purchase.
-
-## Future Extensions
-
-The jackpot system is designed for extensibility and can be enhanced in several ways:
-
-1. **Multiple Jackpot Tiers**: Different prize levels with varying probabilities
-2. **Time-Based Jackpots**: Guaranteed distribution after set time periods
-3. **Special Events**: Boosted jackpot probabilities during special events
-4. **Cross-Chain Jackpots**: Unified jackpot pool across multiple blockchains
-
-## FAQs
-
-**Q: How is the win probability calculated?**  
-A: Win probability is primarily based on the size of your token purchase, using a logarithmic curve that gives higher probability to larger purchases but with diminishing returns. The base probability is typically 1%, with a maximum of 10% for very large purchases.
-
-**Q: Are there any requirements to participate?**  
-A: Yes, you must purchase at least the minimum required amount of tokens in a single transaction, and respect the cooldown period between entries.
-
-**Q: How do I know if I've won?**  
-A: If you win, the jackpot amount will be automatically transferred to your wallet, and an event will be emitted on-chain that can be tracked by monitoring tools.
-
-**Q: Is the system fair and transparent?**  
-A: Yes, the entire system operates on-chain with verifiable smart contract code. The probability calculation and winner selection process are fully transparent and can be audited by anyone. 
+This creates an engaging and fair distribution system that incentivizes long-term holding and active participation in the OmniDragon ecosystem. 

@@ -14,56 +14,57 @@ The OmniDragon token implements a robust architecture with multiple integrated s
 ```mermaid
 flowchart TB
     %% Main token contract at the center
-    OMNIDRAGON["OmniDragon Token<br/><i>ERC-20 Implementation</i>"]:::main
+    OMNIDRAGON["🐲 OmniDragon Token<br/><i>ERC-20 Implementation</i>"]:::main
     
     %% Core components with detailed descriptions
     subgraph TokenCore ["Core Token Infrastructure"]
         direction TB
         
-        ERC20["ERC-20 Standard<br/><small>• Basic token functions<br/>• Transfer & approve<br/>• Balance tracking</small>"]:::standard
+        ERC20["📝 ERC-20 Standard<br/><small>• Basic token functions<br/>• Transfer & approve<br/>• Balance tracking</small>"]:::standard
         
-        OWNABLE["Access Control<br/><small>• Owner privileges<br/>• Role management<br/>• Function access limits</small>"]:::standard
+        OWNABLE["🔒 Access Control<br/><small>• Owner privileges<br/>• Role management<br/>• Function access limits</small>"]:::standard
         
-        UPGRADEABLE["Upgradeability<br/><small>• Proxy pattern<br/>• Logic separation<br/>• Future-proof design</small>"]:::standard
+        UPGRADEABLE["♻️ Upgradeability<br/><small>• Proxy pattern<br/>• Logic separation<br/>• Future-proof design</small>"]:::standard
         
-        PAUSABLE["Emergency Controls<br/><small>• Pause transfers<br/>• Circuit breakers<br/>• Recovery mechanisms</small>"]:::standard
+        PAUSABLE["⏸️ Emergency Controls<br/><small>• Pause transfers<br/>• Circuit breakers<br/>• Recovery mechanisms</small>"]:::standard
     end
     
     %% Fee system with components
     subgraph FeeMechanism ["Fee Ecosystem"]
         direction TB
         
-        FEE_CALC["Fee Calculator<br/><small>• Transaction type detection<br/>• Rate application<br/>• Dynamic adjustments</small>"]:::fee
+        FEE_CALC["⚙️ Fee Calculator<br/><small>• Transaction type detection<br/>• Rate application<br/>• Dynamic adjustments</small>"]:::fee
         
-        FEE_DISTRIBUTOR["Distributor<br/><small>• Multi-destination routing<br/>• Automatic splitting<br/>• Threshold-based execution</small>"]:::fee
+        FEE_DISTRIBUTOR["🔀 Distributor<br/><small>• Multi-destination routing<br/>• Automatic splitting<br/>• Threshold-based execution</small>"]:::fee
         
-        ADAPTIVE_FEE["Adaptive Logic<br/><small>• Market condition response<br/>• Volume-based adjustments<br/>• Anti-whale protections</small>"]:::fee
+        ADAPTIVE_FEE["📊 Adaptive Logic<br/><small>• Market condition response<br/>• Volume-based adjustments<br/>• Anti-whale protections</small>"]:::fee
     end
     
     %% Cross-chain components
     subgraph CrossChainSystem ["LayerZero Cross-Chain Integration"]
         direction TB
         
-        BRIDGE["OmniDragon Bridge<br/><small>• Token locking/burning<br/>• Secure transfers<br/>• Chain abstraction</small>"]:::bridge
+        BRIDGE["🌉 OmniDragon Bridge<br/><small>• Token locking/burning<br/>• Secure transfers<br/>• Chain abstraction</small>"]:::bridge
         
-        MSG_HANDLER["Message Handler<br/><small>• Payload processing<br/>• Security verification<br/>• Transaction reconstruction</small>"]:::bridge
         
-        ENDPOINT["LayerZero Endpoint<br/><small>• Cross-chain messaging<br/>• Proof validation<br/>• Gas management</small>"]:::bridge
+        MSG_HANDLER["📨 Message Handler<br/><small>• Payload processing<br/>• Security verification<br/>• Transaction reconstruction</small>"]:::bridge
         
-        ADAPTER["Chain Adapter<br/><small>• Chain-specific logic<br/>• Gas estimation<br/>• Version compatibility</small>"]:::bridge
+        ENDPOINT["⚡ LayerZero Endpoint<br/><small>• Cross-chain messaging<br/>• Proof validation<br/>• Gas management</small>"]:::bridge
+        
+        ADAPTER["🔌 Chain Adapter<br/><small>• Chain-specific logic<br/>• Gas estimation<br/>• Version compatibility</small>"]:::bridge
     end
     
     %% Advanced features
     subgraph TokenFeatures ["Unique Value Propositions"]
         direction TB
         
-        JACKPOT["Jackpot System<br/><small>• Random rewards<br/>• Fee accumulation<br/>• Transparent distribution</small>"]:::feature
+        JACKPOT["🎰 Jackpot System<br/><small>• Random rewards<br/>• Fee accumulation<br/>• Transparent distribution</small>"]:::feature
         
-        STAKING["Staking Mechanism<br/><small>• Flexible locks<br/>• Reward multipliers<br/>• Governance rights</small>"]:::feature
+        STAKING["🏦 Staking Mechanism<br/><small>• Flexible locks<br/>• Reward multipliers<br/>• Governance rights</small>"]:::feature
         
-        GOVERNANCE["DAO Governance<br/><small>• Protocol parameters<br/>• Fee adjustment voting<br/>• Feature proposals</small>"]:::feature
+        GOVERNANCE["🏛️ DAO Governance<br/><small>• Protocol parameters<br/>• Fee adjustment voting<br/>• Feature proposals</small>"]:::feature
         
-        RANDOMNESS["dRand Integration<br/><small>• Verifiable randomness<br/>• Tamper-proof draws<br/>• Cross-chain consistency</small>"]:::feature
+        RANDOMNESS["🎲 dRand Integration<br/><small>• Verifiable randomness<br/>• Tamper-proof draws<br/>• Cross-chain consistency</small>"]:::feature
     end
     
     %% Connect everything to the main token
@@ -86,10 +87,10 @@ flowchart TB
     GOVERNANCE -->|"Controls"| ADAPTIVE_FEE
     
     %% Connect to external systems
-    DEX[("Decentralized<br/>Exchanges")]:::external
+    DEX[("🔄 Decentralized<br/>Exchanges")]:::external
     DEX -.->|"Trading<br>fees"| FEE_CALC
     
-    CHAINS[("Supported<br/>Blockchains")]:::external
+    CHAINS[("⛓️ Supported<br/>Blockchains")]:::external
     CHAINS -.->|"Connected<br/>via"| ADAPTER
     
     %% Apply styling for components with better colors
@@ -192,12 +193,12 @@ sequenceDiagram
     autonumber
     
     %% Define participants with icons (using letters as icons)
-    participant User as "User"
-    participant Source as "OmniDragon<br/>Source Chain"
-    participant Bridge as "Cross-Chain<br/>Bridge"
-    participant LZ as "LayerZero<br/>Endpoint"
-    participant Relayers as "LayerZero<br/>Relayer Network"
-    participant Target as "OmniDragon<br/>Target Chain"
+    participant User as "👤 User"
+    participant Source as "🐲 OmniDragon<br/>Source Chain"
+    participant Bridge as "🌉 Cross-Chain<br/>Bridge"
+    participant LZ as "⚡ LayerZero<br/>Endpoint"
+    participant Relayers as "🔄 LayerZero<br/>Relayer Network"
+    participant Target as "🐲 OmniDragon<br/>Target Chain"
     
     %% Style with boundaries
     rect rgba(74, 128, 209, 0.1)
@@ -271,57 +272,132 @@ The OmniDragon token implements several key modules:
 
 ```mermaid
 classDiagram
-    %% Define main contract and inherited functionality
+    %% Define contracts with expanded details
     class OmniDragon {
-        %% Core token properties
-        -string name
-        -string symbol
-        -uint8 decimals
+        %% Token Identity
+        -string name = "OmniDragon"
+        -string symbol = "DRAGON"
+        -uint8 decimals = 18
         -uint256 totalSupply
         
-        %% Fee system
+        %% Fee Configuration
         -uint256 buyFeeRate
         -uint256 sellFeeRate
         -uint256 transferFeeRate
-        -address feeCollector
+        -FeeDistributor feeDistributor
         
-        %% Cross-chain
-        -address bridge
-        -address chainRegistry
+        %% Cross-Chain Configuration
+        -ILayerZeroEndpoint endpoint
+        -mapping(uint16 => address) trustedRemotes
+        -uint256 nativeFee
         
-        %% Public functions
-        +transfer(address to, uint256 amount) bool
-        +transferFrom(address from, address to, uint256 amount) bool
-        +approve(address spender, uint256 amount) bool
-        +sendTokensToChain(uint16 chainId, address to, uint256 amount)
-        +receiveTokensFromChain(uint16 chainId, address to, uint256 amount)
-        +collectFees(address from, address to, uint256 amount) uint256
+        %% Access Control
+        -address owner
+        -mapping(address => bool) operators
+        
+        %% Lifecycle Methods
+        +constructor(address _endpoint)
+        +initialize(string name, string symbol) onlyProxy
+        
+        %% ERC20 Overrides
+        +transfer(address to, uint256 amount) returns bool
+        +transferFrom(address from, address to, uint256 amount) returns bool
+        
+        %% Cross-Chain Methods
+        +sendTokensToChain(uint16 chainId, address to, uint256 amount) payable
+        +receiveTokensFromChain(uint16 chainId, bytes from, uint256 amount)
+        +estimateFees(uint16 chainId, address to, uint256 amount) returns uint256
+        +setPeer(uint16 chainId, address peer) onlyOwner
+        
+        %% Fee Mechanisms
+        +getFeeAmount(FeeType feeType, uint256 amount) returns uint256
+        +setFeeRates(uint256 _buyFee, uint256 _sellFee, uint256 _transferFee) onlyOwner
+        +setFeeDistributor(address _feeDistributor) onlyOwner
+        -_takeFee(address from, address to, uint256 amount) returns uint256
+        
+        %% Security Guards
+        +pause() onlyOwner whenNotPaused
+        +unpause() onlyOwner whenPaused
+        +recoverToken(address token, uint256 amount) onlyOwner
     }
     
+    %% Base interfaces & implementations
     class ERC20 {
-        +balanceOf(address) uint256
-        +totalSupply() uint256
-        +transfer(address to, uint256 amount) bool
-        +approve(address spender, uint256 amount) bool
+        <<Interface>>
+        +name() returns string
+        +symbol() returns string
+        +decimals() returns uint8
+        +totalSupply() returns uint256
+        +balanceOf(address account) returns uint256
+        +transfer(address to, uint256 amount) returns bool
+        +allowance(address owner, address spender) returns uint256
+        +approve(address spender, uint256 amount) returns bool
+        +transferFrom(address from, address to, uint256 amount) returns bool
+        #_mint(address account, uint256 amount)
+        #_burn(address account, uint256 amount)
+        #_transfer(address from, address to, uint256 amount)
     }
     
     class Ownable {
-        -address owner
+        -address private _owner
+        +constructor()
+        +owner() returns address
         +onlyOwner() modifier
-        +transferOwnership(address newOwner)
+        +renounceOwnership() onlyOwner
+        +transferOwnership(address newOwner) onlyOwner
+        #_transferOwnership(address newOwner)
+        +event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
     }
     
     class Pausable {
-        -bool paused
+        -bool private _paused
+        +constructor()
+        +paused() returns bool
         +whenNotPaused() modifier
-        +pause()
-        +unpause()
+        +whenPaused() modifier
+        +pause() onlyOwner whenNotPaused
+        +unpause() onlyOwner whenPaused
+        +event Paused(address account)
+        +event Unpaused(address account)
     }
     
+    %% Cross-chain capabilities
     class CrossChainEnabled {
-        -address bridge
+        <<Interface>>
+        -ILayerZeroEndpoint endpoint
+        -mapping(uint16 => address) trustedRemotes
+        +setTrustedRemote(uint16 _chainId, address _remoteAddress) onlyOwner
+        +getTrustedRemote(uint16 _chainId) returns address
+        +setPeer(uint16 _chainId, address _peer) onlyOwner
         +onlyBridge() modifier
-        +setBridge(address newBridge)
+        +estimateFees(uint16 _dstChainId, address _to, uint256 _amount) public view returns uint256
+        +event SetPeer(uint16 chainId, address peer)
+        +event RemotePeerUpdated(uint16 chainId, address peer)
+    }
+    
+    %% Fee distribution system
+    class FeeDistributor {
+        <<Interface>>
+        -uint256 jackpotShare
+        -uint256 liquidityShare
+        -uint256 marketingShare
+        -uint256 devShare
+        -uint256 stakingShare
+        +distributeTokens(uint256 amount)
+        +setShares(uint256[] shares) onlyOwner
+        +getJackpotAddress() returns address
+        +getLiquidityAddress() returns address
+        +event SharesUpdated(uint256[] shares)
+    }
+    
+    %% LayerZero V2 interface
+    class ILayerZeroEndpoint {
+        <<Interface>>
+        +send(uint16 _dstChainId, bytes _destination, bytes _payload, address payable _refundAddress, address _zroPaymentAddress, bytes _adapterParams) payable
+        +receivePayload(uint16 _srcChainId, bytes _srcAddress, address _dstAddress, uint64 _nonce, uint _gasLimit, bytes _payload)
+        +getInboundNonce(uint16 _srcChainId, bytes _srcAddress) returns uint64
+        +getOutboundNonce(uint16 _dstChainId, address _srcAddress) returns uint64
+        +estimateFees(uint16 _dstChainId, address _userApplication, bytes _payload, bool _payInZRO, bytes _adapterParam) returns (uint nativeFee, uint zroFee)
     }
     
     %% Define relationships
@@ -329,17 +405,22 @@ classDiagram
     Ownable <|-- OmniDragon : inherits
     Pausable <|-- OmniDragon : inherits
     CrossChainEnabled <|-- OmniDragon : inherits
+    OmniDragon --> FeeDistributor : uses
+    CrossChainEnabled --> ILayerZeroEndpoint : uses
     
     %% Apply styling
-    classDef main fill:#e3f2fd;stroke:#1e88e5;color:#0d47a1
-    classDef inherited fill:#e8f5e9;stroke:#43a047;color:#1b5e20
-    classDef extension fill:#f3e5f5;stroke:#8e24aa;color:#4a148c
+    classDef main fill:#4a80d1;stroke:#355899;color:#ffffff;font-weight:bold
+    classDef inherited fill:#43a047;stroke:#2e7d32;color:#ffffff
+    classDef extension fill:#8e24aa;stroke:#6a1b9a;color:#ffffff
+    classDef interface fill:#1e293b;stroke:#0f172a;color:#ffffff;font-style:italic
     
     class OmniDragon main
     class ERC20 inherited
     class Ownable inherited
     class Pausable inherited
     class CrossChainEnabled extension
+    class FeeDistributor interface
+    class ILayerZeroEndpoint interface
 ```
 
 ## Key Features
@@ -462,10 +543,10 @@ OmniDragon operates seamlessly across multiple blockchain networks, maintaining 
 graph TB
     %% Main token deployed on multiple chains
     subgraph "Ethereum Mainnet"
-        ETH_TOKEN("OmniDragon<br/>Token"):::mainnet
-        ETH_JACKPOT("Jackpot Vault"):::mainnet
-        ETH_LIQUIDITY("Liquidity Pool"):::mainnet
-        ETH_ENDPOINT("LayerZero<br/>Endpoint"):::endpoint
+        ETH_TOKEN("🐲 OmniDragon<br/>Token"):::mainnet
+        ETH_JACKPOT("💰 Jackpot Vault"):::mainnet
+        ETH_LIQUIDITY("💧 Liquidity Pool"):::mainnet
+        ETH_ENDPOINT("⚡ LayerZero<br/>Endpoint"):::endpoint
         
         ETH_TOKEN -->|"Feeds"| ETH_JACKPOT
         ETH_TOKEN -->|"Enhances"| ETH_LIQUIDITY
@@ -473,10 +554,10 @@ graph TB
     end
     
     subgraph "BNB Chain"
-        BSC_TOKEN("OmniDragon<br/>Token"):::bsc
-        BSC_JACKPOT("Jackpot Vault"):::bsc
-        BSC_LIQUIDITY("Liquidity Pool"):::bsc
-        BSC_ENDPOINT("LayerZero<br/>Endpoint"):::endpoint
+        BSC_TOKEN("🐲 OmniDragon<br/>Token"):::bsc
+        BSC_JACKPOT("💰 Jackpot Vault"):::bsc
+        BSC_LIQUIDITY("💧 Liquidity Pool"):::bsc
+        BSC_ENDPOINT("⚡ LayerZero<br/>Endpoint"):::endpoint
         
         BSC_TOKEN -->|"Feeds"| BSC_JACKPOT
         BSC_TOKEN -->|"Enhances"| BSC_LIQUIDITY
@@ -484,10 +565,10 @@ graph TB
     end
     
     subgraph "Arbitrum"
-        ARB_TOKEN("OmniDragon<br/>Token"):::arb
-        ARB_JACKPOT("Jackpot Vault"):::arb
-        ARB_LIQUIDITY("Liquidity Pool"):::arb
-        ARB_ENDPOINT("LayerZero<br/>Endpoint"):::endpoint
+        ARB_TOKEN("🐲 OmniDragon<br/>Token"):::arb
+        ARB_JACKPOT("💰 Jackpot Vault"):::arb
+        ARB_LIQUIDITY("💧 Liquidity Pool"):::arb
+        ARB_ENDPOINT("⚡ LayerZero<br/>Endpoint"):::endpoint
         
         ARB_TOKEN -->|"Feeds"| ARB_JACKPOT
         ARB_TOKEN -->|"Enhances"| ARB_LIQUIDITY
@@ -495,10 +576,10 @@ graph TB
     end
     
     subgraph "Avalanche"
-        AVAX_TOKEN("OmniDragon<br/>Token"):::avax
-        AVAX_JACKPOT("Jackpot Vault"):::avax
-        AVAX_LIQUIDITY("Liquidity Pool"):::avax
-        AVAX_ENDPOINT("LayerZero<br/>Endpoint"):::endpoint
+        AVAX_TOKEN("🐲 OmniDragon<br/>Token"):::avax
+        AVAX_JACKPOT("💰 Jackpot Vault"):::avax
+        AVAX_LIQUIDITY("💧 Liquidity Pool"):::avax
+        AVAX_ENDPOINT("⚡ LayerZero<br/>Endpoint"):::endpoint
         
         AVAX_TOKEN -->|"Feeds"| AVAX_JACKPOT
         AVAX_TOKEN -->|"Enhances"| AVAX_LIQUIDITY
@@ -506,7 +587,7 @@ graph TB
     end
     
     %% Central coordinator
-    DRAND_COORDINATOR[("dRand Beacon<br/><small>Verifiable Randomness</small>")]:::core
+    DRAND_COORDINATOR[("🎲 dRand Beacon<br/><small>Verifiable Randomness</small>")]:::core
     
     %% Cross-chain connections
     ETH_ENDPOINT <-->|"Messages"| BSC_ENDPOINT
@@ -523,7 +604,7 @@ graph TB
     DRAND_COORDINATOR -.->|"Randomness"| AVAX_JACKPOT
     
     %% User interaction
-    USER(("User")):::user
+    USER(("👤 User")):::user
     
     USER -->|"Interacts"| ETH_TOKEN
     USER -->|"Interacts"| BSC_TOKEN

@@ -1,33 +1,46 @@
 import React, { useEffect, useRef, useState } from 'react';
-import styles from './styles.module.css';
+import { animateMermaidDiagram } from '../utils/animeUtils';
 import useIsBrowser from '@docusaurus/useIsBrowser';
+import styles from './styles.module.css';
 
 /**
- * MermaidDiagram component renders mermaid diagrams with consistent styling
- * 
+ * EnhancedMermaid component for elegant, animated Mermaid diagrams
+ *
  * @param {Object} props
  * @param {string} props.chart - The mermaid diagram code
  * @param {string} props.title - Optional title for the diagram
  * @param {string} props.caption - Optional caption for the diagram
- * @param {string} props.className - Optional additional CSS class
+ * @param {string} props.className - Additional CSS classes
+ * @param {boolean} props.animated - Whether to apply animations (default: true)
+ * @param {string} props.pulseSelector - CSS selector for elements that should pulse
+ * @param {Object} props.animationOptions - Custom animation options
  */
-export default function MermaidDiagram({ chart, title, caption, className }) {
+export default function EnhancedMermaid({
+  chart,
+  title,
+  caption,
+  className,
+  animated = true,
+  pulseSelector,
+  animationOptions = {},
+}) {
   const containerRef = useRef(null);
   const isBrowser = useIsBrowser();
   const [renderAttempts, setRenderAttempts] = useState(0);
   const [renderError, setRenderError] = useState(null);
-  
+  const [isRendered, setIsRendered] = useState(false);
+
   // Clean chart of any potential issues
   const processedChart = chart?.trim() || '';
   
   useEffect(() => {
-    // Only run in browser environment
     if (!isBrowser || !containerRef.current) return;
     
     // Reset error state on new render attempts
     setRenderError(null);
+    setIsRendered(false);
     
-    // Dynamically initialize mermaid diagrams
+    // Only run in browser
     if (typeof window !== 'undefined' && window.mermaid) {
       try {
         // Get current theme from HTML attribute
@@ -39,13 +52,6 @@ export default function MermaidDiagram({ chart, title, caption, className }) {
             darkMode: isDarkTheme 
           },
           securityLevel: 'loose',
-          flowchart: {
-            htmlLabels: true,
-          },
-          // Ensure we're properly handling class notations
-          classDiagram: {
-            useMaxWidth: true
-          }
         });
         
         // Use a short timeout to ensure the DOM is ready
@@ -53,8 +59,28 @@ export default function MermaidDiagram({ chart, title, caption, className }) {
           try {
             window.mermaid.init(
               undefined, 
-              containerRef.current.querySelectorAll('.mermaid')
+              containerRef.current.querySelectorAll('.mermaid:not(.processed)')
             );
+            
+            // Mark diagrams as processed
+            containerRef.current.querySelectorAll('.mermaid').forEach(el => {
+              el.classList.add('processed');
+            });
+            
+            setIsRendered(true);
+            
+            // Apply animations if enabled
+            if (animated) {
+              setTimeout(() => {
+                const diagramContainer = containerRef.current.querySelector('.docusaurus-mermaid-container');
+                if (diagramContainer) {
+                  animateMermaidDiagram(diagramContainer, {
+                    pulseSelector,
+                    ...animationOptions
+                  });
+                }
+              }, 100);
+            }
           } catch (err) {
             console.error('Failed to render mermaid diagram:', err);
             setRenderError(err.message);
@@ -71,36 +97,45 @@ export default function MermaidDiagram({ chart, title, caption, className }) {
         console.error('Failed to initialize mermaid:', error);
         setRenderError(error.message);
       }
-    } else {
-      // If mermaid isn't loaded yet, add a class to indicate it needs processing
-      const mermaidElements = containerRef.current.querySelectorAll('.mermaid');
-      mermaidElements.forEach(el => {
-        el.classList.add('mermaid-pending');
-      });
     }
-  }, [chart, isBrowser, renderAttempts]);
+  }, [chart, isBrowser, renderAttempts, animated, pulseSelector]);
+
+  // Minimalist container style
+  const containerClasses = [
+    styles.enhancedMermaidContainer || '',
+    className || '',
+    isRendered ? styles.rendered || '' : ''
+  ].filter(Boolean).join(' ');
 
   return (
-    <div 
-      ref={containerRef} 
-      className={`${styles.mermaidContainer || ''} ${className || ''}`}
-    >
+    <div ref={containerRef} className={containerClasses}>
       {title && <h3 className={styles.mermaidTitle || ''}>{title}</h3>}
+      
       <div className="docusaurus-mermaid-container">
         {renderError ? (
           <div className={styles.mermaidError}>
-            <p>Error rendering diagram. Please check your syntax.</p>
+            <p>Error rendering diagram.</p>
             <details>
-              <summary>Error details</summary>
+              <summary>View error details</summary>
               <pre>{renderError}</pre>
             </details>
           </div>
         ) : (
-          <pre className="mermaid">
-            {processedChart}
-          </pre>
+          <>
+            <pre className="mermaid">
+              {processedChart}
+            </pre>
+            {!isRendered && (
+              <div className={styles.mermaidLoading || ''}>
+                <div className={styles.loadingIndicator || ''}>
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
+      
       {caption && <p className={styles.mermaidCaption || ''}>{caption}</p>}
     </div>
   );

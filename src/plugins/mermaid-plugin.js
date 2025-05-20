@@ -1,29 +1,26 @@
-const remarkMermaid = (options = {}) => {
-  const transformer = async (ast) => {
-    const { visit } = await import('unist-util-visit');
-    
-    visit(ast, 'code', (node) => {
-      const { lang, value } = node;
+// Simple plugin to transform mermaid code blocks
+module.exports = function mermaidPlugin() {
+  return function transformer(ast) {
+    // Create a properly defined visit function for traversing the AST
+    function visitNodes(node, visitor) {
+      // Apply visitor to current node
+      visitor(node);
       
-      // Only process mermaid code blocks
-      if (lang !== 'mermaid') {
-        return;
+      // Visit children recursively if they exist
+      if (node.children && Array.isArray(node.children)) {
+        for (const child of node.children) {
+          visitNodes(child, visitor);
+        }
       }
-      
-      // Add metadata to mermaid code blocks for our components to use
-      node.data = node.data || {};
-      node.data.hProperties = node.data.hProperties || {};
-      node.data.hChildren = node.data.hChildren || [];
-      
-      // Add class to identify mermaid blocks
-      node.data.hProperties.className = (node.data.hProperties.className || '') + ' mermaid-wrapper';
-      
-      // Store original code as attribute for our component to access
-      node.data.hProperties.mermaidCode = value;
+    }
+    
+    // Find and process all mermaid code blocks
+    visitNodes(ast, (node) => {
+      if (node.type === 'code' && node.lang === 'mermaid') {
+        // Convert to direct HTML rendering
+        node.type = 'html';
+        node.value = `<div class="mermaid">${node.value}</div>`;
+      }
     });
   };
-  
-  return transformer;
-};
-
-module.exports = remarkMermaid; 
+}; 

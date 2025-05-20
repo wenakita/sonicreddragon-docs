@@ -1,249 +1,246 @@
 ---
+title: Cross-Chain Architecture
 sidebar_position: 5
 ---
 
-# Cross-Chain Functionality
+# OmniDragon Cross-Chain Architecture
 
-Sonic Red Dragon is designed from the ground up to be a truly cross-chain token, enabling seamless asset transfers across multiple blockchain networks while maintaining a unified token economy.
+OmniDragon is built from the ground up as a cross-chain token system, enabling seamless operations across multiple blockchains while maintaining coherent state and security.
 
-## Overview
+## System Architecture
 
-The cross-chain functionality of Sonic Red Dragon is powered by LayerZero V2, an omnichain interoperability protocol that provides secure and trustless messaging between blockchains. This integration allows users to transfer DRAGON tokens between supported chains with minimal friction while maintaining the token's unique features across all networks.
-
-## Cross-Chain Architecture
+The diagram below illustrates the high-level architecture of OmniDragon's cross-chain functionality:
 
 ```mermaid
 flowchart TB
-    subgraph "Source Chain"
-        UserSource["User (Source)"]
-        TokenSource["DRAGON Token"]
-        EndpointSource["LZ Endpoint"]
+    %% Define main components with clear visual hierarchy
+    subgraph Core ["Core Protocol"]
+        direction TB
+        TOKEN["OmniDragon Token"]:::core
+        BRIDGE["OmniDragon Bridge"]:::core
+        ROUTER["Message Router"]:::core
     end
     
-    subgraph "LayerZero Network"
-        Relayers["Oracle/Relayer Network"]
-        Verifiers["Verifier Network"]
-        Executors["Executor Network"]
-        DVN["Default Verifier Network"]
+    subgraph LZ ["LayerZero Protocol"]
+        direction TB
+        LZ_EP["LayerZero Endpoint"]:::lz
+        LZ_R["LayerZero Relayer"]:::lz
+        LZ_O["LayerZero Oracle"]:::lz
     end
     
-    subgraph "Destination Chain"
-        UserDest["User (Destination)"]
-        TokenDest["DRAGON Token"]
-        EndpointDest["LZ Endpoint"]
-        ChainRegistry["Chain Registry"]
+    subgraph Networks ["Blockchain Networks"]
+        direction LR
+        ETH["Ethereum"]:::eth
+        ARB["Arbitrum"]:::arb
+        OPT["Optimism"]:::opt
+        BSC["BNB Chain"]:::bsc
+        AVAX["Avalanche"]:::avax
     end
     
-    UserSource -->|"1. Initiate Transfer"| TokenSource
-    TokenSource -->|"2. Burn Tokens"| TokenSource
-    TokenSource -->|"3. Send Message"| EndpointSource
-    EndpointSource -->|"4. Relay Message"| Relayers
-    Relayers -->|"5. Submit Proof"| Verifiers
-    Verifiers -->|"6. Verify Proof"| DVN
-    DVN -->|"7. Execute Message"| Executors
-    Executors -->|"8. Deliver Message"| EndpointDest
-    EndpointDest -->|"9. Authenticate Source"| ChainRegistry
-    EndpointDest -->|"10. Process Message"| TokenDest
-    TokenDest -->|"11. Mint Tokens"| TokenDest
-    TokenDest -->|"12. Transfer Tokens"| UserDest
+    %% Connect components
+    TOKEN -->|Uses| BRIDGE
+    BRIDGE -->|Uses| ROUTER
+    ROUTER -->|Sends via| LZ_EP
+    LZ_EP -->|Relayed by| LZ_R
+    LZ_EP -->|Verified by| LZ_O
     
-    class TokenSource,TokenDest,EndpointSource,EndpointDest highlight
+    %% Connect networks to protocol
+    ETH --- LZ_EP
+    ARB --- LZ_EP
+    OPT --- LZ_EP
+    BSC --- LZ_EP
+    AVAX --- LZ_EP
+    
+    %% Apply styling
+    classDef core fill:#e3f2fd,stroke:#2196f3,color:#0d47a1
+    classDef lz fill:#e8f5e9,stroke:#4caf50,color:#1b5e20
+    classDef eth fill:#eceff1,stroke:#607d8b,color:#263238
+    classDef arb fill:#ede7f6,stroke:#7e57c2,color:#311b92
+    classDef opt fill:#e8eaf6,stroke:#5c6bc0,color:#1a237e
+    classDef bsc fill:#fff8e1,stroke:#ffc107,color:#ff6f00
+    classDef avax fill:#ffebee,stroke:#f44336,color:#b71c1c
+    
+    %% Style subgraphs
+    style Core fill:#e3f2fd,stroke:#bbdefb,color:#0d47a1
+    style LZ fill:#e8f5e9,stroke:#c8e6c9,color:#1b5e20
+    style Networks fill:#f5f5f5,stroke:#e0e0e0,color:#424242
 ```
 
-## How Cross-Chain Transfers Work
+## Message Flow Sequence
 
-The DRAGON token employs a burn-and-mint model for cross-chain transfers:
-
-1. **Source Chain Actions**:
-   - User initiates a transfer on the source chain
-   - Tokens are burned on the source chain
-   - A message is sent to the destination chain via LayerZero
-   
-2. **Cross-Chain Messaging**:
-   - LayerZero relayers and validators submit proofs to destination chain
-   - Default Verifier Network (DVN) verifies the authenticity of the message
-   
-3. **Destination Chain Actions**:
-   - Message is received and authenticated by the Chain Registry
-   - Equivalent tokens are minted on the destination chain
-   - Tokens are transferred to the recipient address
-
-### Detailed Flow
+The sequence diagram below demonstrates how messages and tokens flow between chains:
 
 ```mermaid
 sequenceDiagram
     participant User
-    participant SourceDragon as DRAGON (Source)
-    participant SourceEndpoint as LZ Endpoint (Source)
-    participant Network as LayerZero Network
-    participant DestEndpoint as LZ Endpoint (Dest)
-    participant Registry as Chain Registry
-    participant DestDragon as DRAGON (Dest)
+    participant Source as Source Chain
+    participant Bridge as LayerZero Bridge
+    participant Dest as Destination Chain
     
-    User->>SourceDragon: sendTokensToChain(destChainId, recipient, amount)
-    SourceDragon->>SourceDragon: Burn 'amount' tokens
-    SourceDragon->>SourceEndpoint: send() with payload containing recipient and amount
-    SourceEndpoint->>Network: Relay message with proofs
-    Network->>DestEndpoint: Deliver message with verification
-    DestEndpoint->>Registry: Verify source chain ID
-    Registry->>Registry: Authenticate source endpoint
-    Registry->>DestDragon: Forward verified message
-    DestDragon->>DestDragon: Decode payload (recipient, amount)
-    DestDragon->>DestDragon: Mint 'amount' tokens
-    DestDragon->>User: Transfer tokens to recipient
-    DestDragon->>DestDragon: Apply appropriate fees if configured
-```
-
-## Chain Registry
-
-The Chain Registry is a critical component of the cross-chain architecture, responsible for:
-
-1. **Chain Configuration**: Manages supported chains and their LayerZero endpoint addresses
-2. **Security Verification**: Ensures messages come from authenticated sources
-3. **Parameter Management**: Stores and manages chain-specific parameters
-4. **Gas Estimation**: Provides estimated gas requirements for cross-chain operations
-
-```solidity
-interface IChainRegistry {
-    function getEndpoint(uint16 chainId) external view returns (address);
-    function isRegisteredChain(uint16 chainId) external view returns (bool);
-    function addChain(uint16 chainId, address endpoint, bytes calldata path) external;
-    function removeChain(uint16 chainId) external;
-    function estimateGasForTransfer(uint16 chainId, uint256 amount) external view returns (uint256);
-}
-```
-
-## Supported Chains
-
-Sonic Red Dragon supports cross-chain functionality on the following networks:
-
-| Chain | Chain ID | Status |
-|-------|----------|--------|
-| Ethereum | 101 | Active |
-| BNB Chain | 102 | Active |
-| Avalanche | 106 | Active |
-| Arbitrum | 110 | Active |
-| Base | 184 | Active |
-| Optimism | 111 | Coming Soon |
-| Polygon | 109 | Coming Soon |
-
-## Cross-Chain Fee Structure
-
-When transferring DRAGON tokens cross-chain, users need to be aware of two types of fees:
-
-1. **LayerZero Fees**: Native gas fees for message relaying and execution
-2. **Protocol Fees**: Optional DRAGON token fees for cross-chain transfers
-
-### Fee Calculation
-
-The total cost for a cross-chain transfer consists of:
-
-```
-Total Cost = Native Gas Fee + Protocol Fee
-```
-
-Where:
-- **Native Gas Fee**: Paid in the source chain's native token (ETH, BNB, etc.)
-- **Protocol Fee**: Paid in DRAGON tokens (if enabled)
-
-## Security Considerations
-
-The cross-chain system implements several security measures:
-
-1. **Trusted Remote Verification**: Only registered source chains can trigger token minting
-2. **Message Authentication**: Cryptographic verification of message sources
-3. **Rate Limiting**: Protection against excessive minting on destination chains
-4. **Emergency Pause**: Ability to pause cross-chain transfers in case of security concerns
-
-## User Experience
-
-From a user perspective, cross-chain transfers are designed to be simple and straightforward:
-
-1. **Initiation**: User selects destination chain, recipient address, and amount
-2. **Gas Estimation**: System provides an estimate of required gas fees
-3. **Confirmation**: User confirms the transaction and pays the required fees
-4. **Tracking**: User can track the status of the cross-chain transfer
-5. **Receipt**: Tokens are received on the destination chain (typically within minutes)
-
-## Integration Example
-
-```solidity
-// Example of initiating a cross-chain transfer
-function transferCrossChain(
-    uint16 destinationChainId,
-    address recipient,
-    uint256 amount
-) external payable {
-    // Convert recipient address to bytes
-    bytes memory recipientBytes = abi.encodePacked(recipient);
+    %% Add styling to different sections
+    rect rgb(238, 242, 255)
+    note over User,Source: Transaction initiation
+    end
     
-    // Estimate required gas
-    uint256 nativeFee = dragonToken.estimateSendFee(
-        destinationChainId,
-        recipientBytes,
-        amount,
-        false,
-        bytes("")
-    );
+    User->>+Source: Send tokens to destination chain
+    Source->>Source: Lock or burn tokens
+    Source->>+Bridge: Send cross-chain message
     
-    // Ensure sufficient gas is provided
-    require(msg.value >= nativeFee, "Insufficient gas for cross-chain transfer");
+    rect rgb(239, 246, 239)
+    note over Bridge: Cross-chain verification
+    end
     
-    // Initiate cross-chain transfer
-    dragonToken.sendTokensToChain{value: nativeFee}(
-        destinationChainId,
-        recipientBytes,
-        amount,
-        payable(msg.sender), // refund address
-        address(0), // zero payment address
-        bytes("") // adapter parameters
-    );
-}
+    Bridge->>Bridge: Validate message
+    Bridge->>Bridge: Generate and verify proofs
+    Bridge->>+Dest: Deliver verified message
+    
+    rect rgb(240, 244, 248)
+    note over Dest,User: Transaction completion
+    end
+    
+    Dest->>Dest: Process message
+    Dest->>Dest: Mint or unlock tokens
+    Dest->>-User: Credit tokens on destination
+    
+    Bridge-->>-Source: Confirm message processed
+    Source-->>-User: Transaction complete
 ```
 
-## Advanced Features
+## Token Consistency Model
 
-### 1. Adaptive Fee Scaling
-
-The cross-chain system can dynamically adjust protocol fees based on network conditions:
+OmniDragon maintains token supply consistency across chains using a hybrid lock/mint model:
 
 ```mermaid
 flowchart LR
-    NetworkCongestion["Network Congestion"] -->|"Influences"| FeeCalculator
-    TransferVolume["Transfer Volume"] -->|"Influences"| FeeCalculator
-    GasPrice["Gas Price"] -->|"Influences"| FeeCalculator
-    FeeCalculator -->|"Determines"| ProtocolFee["Protocol Fee"]
-    ProtocolFee -->|"Applied to"| CrossChainTransfer["Cross-Chain Transfer"]
+    %% Define the consistency model
+    subgraph Home ["Home Chain (Ethereum)"]
+        direction TB
+        MASTER["Master Supply"]:::primary
+        LOCKED["Locked Tokens"]:::primary
+    end
+    
+    subgraph Remote ["Remote Chains"]
+        direction TB
+        subgraph Chain1 ["Arbitrum"]
+            ARB_SUPPLY["Local Supply"]:::secondary
+        end
+        
+        subgraph Chain2 ["Optimism"]
+            OPT_SUPPLY["Local Supply"]:::secondary
+        end
+        
+        subgraph Chain3 ["BNB Chain"]
+            BSC_SUPPLY["Local Supply"]:::secondary
+        end
+    end
+    
+    %% Define token flow
+    MASTER -->|"Lock"| LOCKED
+    LOCKED -->|"Unlock on return"| MASTER
+    
+    LOCKED -->|"Mint equivalent"| ARB_SUPPLY
+    LOCKED -->|"Mint equivalent"| OPT_SUPPLY
+    LOCKED -->|"Mint equivalent"| BSC_SUPPLY
+    
+    ARB_SUPPLY -->|"Burn on exit"| LOCKED
+    OPT_SUPPLY -->|"Burn on exit"| LOCKED
+    BSC_SUPPLY -->|"Burn on exit"| LOCKED
+    
+    %% Apply styling
+    classDef primary fill:#e3f2fd,stroke:#2196f3,color:#0d47a1
+    classDef secondary fill:#f3e5f5,stroke:#9c27b0,color:#4a148c
+    
+    %% Style subgraphs
+    style Home fill:#e3f2fd,stroke:#bbdefb,color:#0d47a1
+    style Remote fill:#f3e5f5,stroke:#e1bee7,color:#4a148c
+    style Chain1 fill:#ede7f6,stroke:#d1c4e9,color:#311b92
+    style Chain2 fill:#e8eaf6,stroke:#c5cae9,color:#1a237e
+    style Chain3 fill:#fff8e1,stroke:#ffecb3,color:#ff6f00
 ```
 
-### 2. Batched Transfers
+## Contract Architecture
 
-For efficiency, multiple transfers can be batched into a single cross-chain message:
+The following class diagram shows the key contracts that enable cross-chain functionality:
 
-```solidity
-function batchSendTokensToChain(
-    uint16 destinationChainId,
-    bytes[] memory recipients,
-    uint256[] memory amounts,
-    address payable refundAddress,
-    address zroPaymentAddress,
-    bytes memory adapterParams
-) external payable;
+```mermaid
+classDiagram
+    %% Define key interfaces
+    class IOmniDragonToken {
+        <<interface>>
+        +mint(address, uint256)
+        +burn(address, uint256)
+        +transferFrom(address, address, uint256)
+    }
+    
+    class IOmniDragonBridge {
+        <<interface>>
+        +sendTokens(uint16 chainId, address to, uint256 amount)
+        +receiveTokens(uint16 chainId, address to, uint256 amount)
+    }
+    
+    class ILayerZeroEndpoint {
+        <<interface>>
+        +send(uint16 dstChainId, bytes payload, address payable refundAddress)
+        +receivePayload(uint16 srcChainId, bytes srcAddress, bytes payload)
+    }
+    
+    %% Define implementation classes
+    class OmniDragonToken {
+        -mapping balances
+        -uint256 totalSupply
+        -address bridge
+        +mint(address, uint256)
+        +burn(address, uint256)
+        +transferFrom(address, address, uint256)
+    }
+    
+    class OmniDragonBridge {
+        -address token
+        -address lzEndpoint
+        -mapping remoteTokens
+        -mapping remoteChains
+        +sendTokens(uint16 chainId, address to, uint256 amount)
+        +receiveTokens(uint16 chainId, address to, uint256 amount)
+        +lzReceive(uint16 srcChainId, bytes srcAddress, bytes payload)
+    }
+    
+    class LayerZeroEndpoint {
+        -address relayer
+        -address oracle
+        +send(uint16 dstChainId, bytes payload, address payable refundAddress)
+        +receivePayload(uint16 srcChainId, bytes srcAddress, bytes payload)
+    }
+    
+    %% Define relationships
+    IOmniDragonToken <|-- OmniDragonToken
+    IOmniDragonBridge <|-- OmniDragonBridge
+    ILayerZeroEndpoint <|-- LayerZeroEndpoint
+    
+    OmniDragonBridge --> OmniDragonToken
+    OmniDragonBridge --> LayerZeroEndpoint
+    
+    %% Apply styling
+    classDef interface fill:#e3f2fd,stroke:#2196f3,color:#0d47a1
+    classDef token fill:#e8f5e9,stroke:#4caf50,color:#1b5e20
+    classDef bridge fill:#f3e5f5,stroke:#9c27b0,color:#4a148c
+    classDef lz fill:#fff8e1,stroke:#ffc107,color:#ff6f00
+    
+    class IOmniDragonToken interface
+    class IOmniDragonBridge interface
+    class ILayerZeroEndpoint interface
+    class OmniDragonToken token
+    class OmniDragonBridge bridge
+    class LayerZeroEndpoint lz
 ```
 
-### 3. Advanced Message Passing
+## Security Features
 
-Beyond simple token transfers, the cross-chain infrastructure supports arbitrary message passing:
+OmniDragon's cross-chain system implements multiple security measures:
 
-```solidity
-function sendMessage(
-    uint16 destinationChainId,
-    bytes memory destination,
-    bytes memory message,
-    address payable refundAddress,
-    address zroPaymentAddress,
-    bytes memory adapterParams
-) external payable;
-```
+1. **Message Verification**: All cross-chain messages are cryptographically verified
+2. **Oracle Validation**: Independent oracle networks verify cross-chain state
+3. **Consistency Checks**: Built-in checks ensure token supply consistency across chains
+4. **Relayer Redundancy**: Multiple relayers ensure message delivery
+5. **Timeout Handling**: Automatic handling of timeout conditions with recovery mechanisms
 
-This enables complex cross-chain functionality such as governance votes, jackpot triggers, and other advanced features.
+By leveraging LayerZero's secure cross-chain messaging infrastructure and adding OmniDragon-specific security measures, the system ensures reliable and secure token movement across blockchain networks.

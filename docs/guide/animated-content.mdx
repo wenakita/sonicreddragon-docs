@@ -1,0 +1,119 @@
+---
+title: Elegant Animated Content
+description: Create immersive animated content using Anime.js
+sidebar_position: 4
+---
+
+import AnimatedCard from '@site/src/components/AnimatedCard';
+
+# Creating Immersive Animated Content
+
+This guide demonstrates how to use Anime.js to create beautiful, animated content for your documentation.
+
+## Animated Cards
+
+The AnimatedCard component provides an elegant way to highlight important information:
+
+<div className="row">
+  <div className="col col--6">
+    <AnimatedCard
+      title="Cross-Chain Support"
+      icon="network"
+      color="primary"
+    >
+      <p>OmniDragon leverages LayerZero V2 to provide seamless cross-chain transfers across all major EVM-compatible networks.</p>
+      <p>Users can transfer tokens between chains with minimal gas fees and maximum security.</p>
+    </AnimatedCard>
+  </div>
+  <div className="col col--6">
+    <AnimatedCard
+      title="Economic Security"
+      icon="security"
+      color="success"
+    >
+      <p>Our protocol is designed with robust security mechanisms to protect user funds and ensure economic stability.</p>
+      <p>Regular audits and formal verification ensure the highest standards of security.</p>
+    </AnimatedCard>
+  </div>
+</div>
+
+<div className="row">
+  <div className="col col--6">
+    <AnimatedCard
+      title="Token Economics"
+      icon="token"
+      color="warning"
+    >
+      <p>The OmniDragon token (OMNI) features a deflationary mechanism with a portion of each transaction fee used for token burns.</p>
+      <p>This creates sustainable value for long-term holders while supporting ecosystem growth.</p>
+    </AnimatedCard>
+  </div>
+  <div className="col col--6">
+    <AnimatedCard
+      title="Developer Resources"
+      color="danger"
+    >
+      <p>Comprehensive documentation, SDKs, and code examples make it easy to integrate OmniDragon into your applications.</p>
+      <p>Our developer community provides support and guidance for all implementation needs.</p>
+    </AnimatedCard>
+  </div>
+</div>
+
+## Using the AnimatedCard Component
+
+To use the animated card component in your MDX files:
+
+```jsx
+import AnimatedCard from '@site/src/components/AnimatedCard';
+
+<AnimatedCard
+  title="My Card Title"
+  icon="network" // Optional: network, security, token
+  color="primary" // Optional: primary, success, warning, danger
+  withHover={true} // Optional: enables hover animations
+>
+  <p>Card content goes here...</p>
+</AnimatedCard>
+```
+
+## Creating Custom Animations
+
+You can create custom animations using Anime.js directly in your components. Here's an example of how to set up a basic animation:
+
+```jsx
+import React, { useEffect, useRef } from 'react';
+import anime from 'animejs/lib/anime.es.js';
+
+function MyAnimatedComponent() {
+  const elementRef = useRef(null);
+  
+  useEffect(() => {
+    // Simple animation
+    anime({
+      targets: elementRef.current,
+      translateY: [20, 0],
+      opacity: [0, 1],
+      duration: 800,
+      easing: 'easeOutElastic(1, .8)'
+    });
+  }, []);
+  
+  return (
+    <div ref={elementRef} style={{ opacity: 0 }}>
+      This content will animate in
+    </div>
+  );
+}
+```
+
+## Animation Best Practices
+
+For the most elegant and immersive documentation experience, follow these animation best practices:
+
+1. **Subtlety is key** - Use gentle animations that enhance rather than distract
+2. **Consistent timing** - Maintain consistent animation durations throughout your documentation
+3. **Purpose-driven** - Only animate elements when it serves a purpose (highlighting, revealing, etc.)
+4. **Performance** - Animate properties that trigger fewer repaints (transform, opacity)
+5. **Accessibility** - Respect user preferences for reduced motion
+
+By following these guidelines, you can create an elegant, immersive documentation experience that enhances understanding without overwhelming users. 

@@ -1,0 +1,59 @@
+.mermaidContainer {
+  background: var(--ifm-card-background-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 2rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.mermaidContainer:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Enhanced SVG styling */
+.enhancedDiagram {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* Fix for dark mode diagram colors */
+[data-theme='dark'] .enhancedDiagram .node rect,
+[data-theme='dark'] .enhancedDiagram .node circle,
+[data-theme='dark'] .enhancedDiagram .node ellipse {
+  fill: rgba(45, 55, 72, 0.9) !important;
+  stroke: #4a5568 !important;
+}
+
+[data-theme='dark'] .enhancedDiagram .label {
+  color: #e2e8f0 !important;
+  fill: #e2e8f0 !important;
+}
+
+[data-theme='dark'] .enhancedDiagram .cluster rect {
+  fill: rgba(30, 41, 59, 0.4) !important;
+  stroke: #4a5568 !important;
+}
+
+/* Enhanced flowchart styling */
+.enhancedDiagram .flowchart-link {
+  stroke-width: 2px !important;
+}
+
+.enhancedDiagram .marker {
+  fill: var(--ifm-color-primary) !important;
+}
+
+/* Better sequence diagrams */
+.enhancedDiagram .actor {
+  stroke: var(--ifm-color-primary) !important;
+  fill: var(--ifm-background-surface-color) !important;
+}
+
+.enhancedDiagram .messageLine0 {
+  stroke-width: 1.5 !important;
+  stroke: var(--ifm-color-primary-darker) !important;
+} 
