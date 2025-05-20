@@ -4,15 +4,15 @@ sidebar_position: 3
 
 # Tokenomics
 
-The Sonic Red Dragon token economy is designed for long-term sustainability, fair distribution, and value accrual through multiple mechanisms.
+The OmniDragon token economy is designed for long-term sustainability, fair distribution, and value accrual through multiple mechanisms.
 
 ## Token Overview
 
-The DRAGON token is the native token of the Sonic Red Dragon ecosystem:
+The DRAGON token is the native token of the OmniDragon ecosystem:
 
 | Parameter | Value |
 |-----------|-------|
-| Token Name | Sonic Red Dragon |
+| Token Name | OmniDragon |
 | Token Symbol | DRAGON |
 | Decimals | 18 |
 | Total Supply | 6,942,000 DRAGON |
@@ -68,7 +68,7 @@ flowchart TD
 
 ### Fee Breakdown
 
-The total transaction fee of 10% is distributed as follows:
+The total transaction fee is distributed as follows:
 
 - **6.9% to Jackpot**: Accumulated in the jackpot pool for random distribution
 - **2.41% to ve69LP Holders**: Distributed to users who have locked LP tokens
@@ -76,14 +76,14 @@ The total transaction fee of 10% is distributed as follows:
 
 ### Fee Types
 
-Different transaction types may have different fee structures:
+Different transaction types have different fee structures, based on the contracts:
 
 | Transaction Type | Total Fee | Jackpot | ve69LP | Burn |
 |------------------|-----------|---------|--------|------|
 | Buy | 10% | 6.9% | 2.41% | 0.69% |
 | Sell | 10% | 6.9% | 2.41% | 0.69% |
-| Transfer | 5% | 3.45% | 1.205% | 0.345% |
-| Cross-Chain | 0.5% | 0.345% | 0.1205% | 0.0345% |
+| Transfer | 0.69% | 0% | 0% | 0.69% |
+| Cross-Chain | Varies by destination | 0% | 0% | 0% |
 
 ## Value Accrual Mechanisms
 
@@ -94,7 +94,7 @@ The DRAGON token economics include multiple mechanisms for value accrual:
 The burn mechanism creates continuous deflationary pressure on the token supply:
 
 ```mermaid
-graph LR
+flowchart LR
     Transactions["Transaction Volume"] -->|"Generates Fees"| BurnAmount["Burn Amount"]
     BurnAmount -->|"Reduces"| Supply["Circulating Supply"]
     Supply -->|"With Constant Demand"| Price["Token Price"]
@@ -128,7 +128,7 @@ The DRAGON token has multiple utilities within the ecosystem:
 
 ## Economic Flywheel
 
-The Sonic Red Dragon tokenomics create a self-reinforcing economic flywheel:
+The OmniDragon tokenomics create a self-reinforcing economic flywheel:
 
 ```mermaid
 flowchart TD
@@ -160,7 +160,7 @@ flowchart TD
 
 ## Long-Term Sustainability
 
-The Sonic Red Dragon tokenomics model is designed for long-term sustainability through:
+The OmniDragon tokenomics model is designed for long-term sustainability through:
 
 1. **Fixed Supply**: No inflation, with deflationary pressure from burns
 2. **Fee Distribution**: Revenue sharing with token holders
@@ -202,10 +202,10 @@ gantt
 
 The cross-chain dimension adds unique economic considerations:
 
-1. **Unified Supply**: Total token supply remains constant across all chains
+1. **Unified Supply**: Total token supply remains constant across all chains (6,942,000 DRAGON)
 2. **Chain-Specific Liquidity**: Each chain maintains its own liquidity pools
-3. **Chain-Specific Fees**: Fee parameters can be optimized per chain
-4. **Bridge Incentives**: Additional rewards for cross-chain activity
+3. **Chain-Specific Fees**: LayerZero gas fees apply to cross-chain transfers
+4. **Bridge Mechanism**: Tokens are burned on source chain and minted on destination chain
 5. **Multi-Chain Governance**: Governance decisions apply across all chains
 
 ## Market Stabilization Mechanisms

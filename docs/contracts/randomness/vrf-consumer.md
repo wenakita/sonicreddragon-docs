@@ -11,7 +11,7 @@ The OmniDragonVRFConsumer is a sophisticated verifiable random function (VRF) co
 OmniDragonVRFConsumer serves as the central randomness aggregator, combining data from various VRF providers to create a secure and manipulation-resistant source of entropy.
 
 ```mermaid
-graph TD
+flowchart TD
     A[OmniDragonVRFConsumer] --> B[Chainlink VRF]
     A --> C[drand Network]
     A --> D[Stork Network]

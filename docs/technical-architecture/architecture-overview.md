@@ -5,7 +5,7 @@ This document provides a high-level overview of the Sonic Red Dragon ecosystem a
 ## System Components
 
 ```mermaid
-graph TD
+flowchart TD
     A[Sonic Red Dragon Token] --> B[LayerZero V2]
     A --> C[dRAND Network]
     A --> D[Bridge Contract]
@@ -85,7 +85,7 @@ sequenceDiagram
 The system maintains consistency across chains through:
 
 ```mermaid
-graph TD
+flowchart TD
     A[Main Chain Token] -->|LayerZero V2| B[Chain A Token]
     A -->|LayerZero V2| C[Chain B Token]
     A -->|LayerZero V2| D[Chain C Token]

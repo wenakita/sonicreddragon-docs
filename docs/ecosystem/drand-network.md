@@ -4,18 +4,18 @@ sidebar_position: 1
 
 # dRAND Network Integration
 
-Sonic Red Dragon integrates with the dRAND network to provide verifiable randomness for various operations. This integration ensures fair and transparent random number generation across all supported chains.
+OmniDragon integrates with the dRAND network to provide verifiable randomness for various operations. This integration ensures fair and transparent random number generation across all supported chains.
 
 ## What is dRAND?
 
-dRAND (Distributed Random Number Generation) is a public randomness beacon that provides cryptographically secure random numbers. It's operated by a network of independent participants and provides:
+dRAND (Distributed Random Beacon) is a public randomness service that provides cryptographically secure random numbers. It's operated by a network of independent participants and provides:
 
 - Verifiable randomness
 - Regular beacon rounds (every 3-30 seconds)
 - Cross-chain compatibility
-- High security guarantees
+- High security guarantees through threshold cryptography
 
-## How Sonic Red Dragon Uses dRAND
+## How OmniDragon Uses dRAND
 
 Our integration with dRAND serves several purposes:
 
@@ -26,21 +26,111 @@ Our integration with dRAND serves several purposes:
 
 ## Technical Implementation
 
+OmniDragon implements multiple layers of randomness integration through a set of specialized contracts:
+
+1. **DragonVRFIntegrator**: Direct interface to the dRAND network
+2. **DragonVRFConsumer**: Base contract for consuming randomness
+3. **OmniDragonVRFConsumer**: Advanced consumer with multi-source aggregation
+
 ### Randomness Request Flow
 
 1. **Request Initiation**
    ```solidity
    function requestRandomness() external returns (uint256 requestId) {
-       // Implementation details
+       requestIdCounter++;
+       uint256 requestId = requestIdCounter;
+       
+       requests[requestId] = Request({
+           fulfilled: false,
+           randomness: 0,
+           round: 0
+       });
+       
+       emit RandomnessRequested(requestId);
+       return requestId;
    }
    ```
 
 2. **Callback Processing**
    ```solidity
-   function fulfillRandomness(uint256 requestId, uint256 randomness) external {
-       // Implementation details
+   function fulfillRandomness(
+       uint256 _requestId, 
+       uint256 _randomness,
+       uint256 _round
+   ) external override {
+       require(msg.sender == vrfIntegrator, "Invalid caller");
+       require(!requests[_requestId].fulfilled, "Already fulfilled");
+       
+       requests[_requestId].fulfilled = true;
+       requests[_requestId].randomness = _randomness;
+       requests[_requestId].round = _round;
+       
+       emit RandomnessFulfilled(_requestId, _randomness, _round);
+       
+       _fulfillRandomness(_requestId, _randomness);
    }
    ```
+
+### Multi-Source Aggregation
+
+OmniDragon can aggregate randomness from multiple dRAND networks:
+
+```solidity
+function aggregateRandomness() public {
+    require(networkIds.length > 0, "No networks configured");
+    
+    // Seed with previous value
+    uint256 randomSeed = aggregatedRandomness;
+    uint256 totalWeight = 0;
+    uint256 activeNetworks = 0;
+    
+    // Go through each network
+    for (uint256 i = 0; i < networkIds.length; i++) {
+        NetworkInfo storage network = networks[networkIds[i]];
+        
+        if (!network.active) continue;
+        
+        try IDragonVRFIntegrator(network.integrator).getLatestRandomness() returns (uint256 randomness, uint256 round) {
+            // Only use if this is new randomness
+            if (round > network.lastRound) {
+                // Apply weighted randomness
+                randomSeed = uint256(keccak256(abi.encodePacked(
+                    randomSeed, 
+                    randomness, 
+                    round, 
+                    network.weight
+                )));
+                
+                // Update network info
+                network.lastValue = randomness;
+                network.lastRound = round;
+                network.lastUpdate = block.timestamp;
+                
+                totalWeight += network.weight;
+                activeNetworks++;
+            }
+        } catch {
+            // Skip networks that fail
+        }
+    }
+    
+    // Final aggregation with unique counter
+    if (activeNetworks > 0) {
+        aggregationCounter++;
+        aggregatedRandomness = uint256(keccak256(abi.encodePacked(
+            randomSeed, 
+            block.timestamp, 
+            block.difficulty, 
+            totalWeight,
+            aggregationCounter
+        )));
+        
+        lastAggregationTimestamp = block.timestamp;
+        
+        emit RandomnessAggregated(block.timestamp, aggregatedRandomness);
+    }
+}
+```
 
 ### Integration Points
 
@@ -53,53 +143,51 @@ Our integration with dRAND serves several purposes:
 
 Our dRAND integration includes several security measures:
 
-- Multiple randomness sources
+- Multiple randomness sources with weighted aggregation
 - Verification of randomness proofs
-- Fallback mechanisms
+- Fallback mechanisms when networks are unavailable
 - Rate limiting and access control
+- Regular re-aggregation (every 30 seconds maximum)
 
 ## Usage Examples
 
 ### Basic Randomness Request
 
 ```solidity
-    // Request randomness
-uint256 requestId = sonicRedDragonRandomness.requestRandomness();
+// Request randomness
+DragonVRFConsumer consumer = DragonVRFConsumer(consumerAddress);
+uint256 requestId = consumer.requestRandomness();
 
-// Handle the callback
-function fulfillRandomness(uint256 requestId, uint256 randomness) external {
+// Handle the callback (override in derived contract)
+function _fulfillRandomness(uint256 _requestId, uint256 _randomness) internal override {
     // Use the randomness value
-    uint256 randomNumber = randomness % maxValue;
+    uint256 randomNumber = _randomness % maxValue;
     // Process the random number
 }
 ```
 
-### Cross-Chain Randomness
+### Accessing Aggregated Randomness
 
 ```solidity
-// Request randomness on another chain
-function requestCrossChainRandomness(uint16 targetChain) external {
-    // Implementation details
-}
+// Get the latest aggregated randomness
+OmniDragonVRFConsumer omniConsumer = OmniDragonVRFConsumer(omniConsumerAddress);
+uint256 latestRandomness = omniConsumer.aggregatedRandomness();
 
-// Receive randomness from another chain
-function receiveCrossChainRandomness(
-    uint16 sourceChain,
-    bytes memory payload
-) external {
-    // Implementation details
-}
+// Force aggregation to get fresh randomness
+omniConsumer.aggregateRandomness();
+uint256 freshRandomness = omniConsumer.aggregatedRandomness();
 ```
 
 ## Best Practices
 
-When using Sonic Red Dragon's randomness system:
+When using OmniDragon's randomness system:
 
 1. Always verify the source of randomness
 2. Implement proper fallback mechanisms
 3. Use appropriate access controls
-4. Consider gas costs for cross-chain operations
+4. Consider gas costs when requesting randomness
 5. Test thoroughly with different network conditions
+6. Don't rely on a single randomness source for critical operations
 
 ## Monitoring and Maintenance
 
@@ -116,6 +204,6 @@ Our system includes:
 For help with dRAND integration:
 
 - [dRAND Documentation](https://drand.love)
-- [Sonic Red Dragon GitHub](https://github.com/wenakita/omnidragon)
-- [Discord Support](https://discord.gg/sonicreddragon)
-- [Technical Support](mailto:support@sonicreddragon.io) 
+- [OmniDragon GitHub](https://github.com/wenakita/omnidragon)
+- [Discord Support](https://discord.gg/omnidragon)
+- [Technical Support](mailto:support@omnidragon.io) 

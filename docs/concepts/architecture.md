@@ -11,7 +11,7 @@ The Sonic Red Dragon ecosystem is built on a modular, extensible architecture de
 At a high level, the Sonic Red Dragon architecture consists of several interconnected components:
 
 ```mermaid
-graph TD
+flowchart TD
     Token["OmniDragon Token"] --> LZ["LayerZero V2"]
     Token --> Governance["ve69LP Governance"]
     Token --> JackpotSystem["Jackpot System"]
@@ -96,7 +96,7 @@ sequenceDiagram
 The governance system is based on the ve69LP (vote-escrowed) model:
 
 ```mermaid
-graph TD
+flowchart TD
     LP["LP Tokens"] -->|"Lock"| ve69LP["ve69LP Tokens"]
     ve69LP -->|"Grant"| Voting["Voting Power"]
     ve69LP -->|"Receive"| FeeRewards["Fee Rewards"]
@@ -114,7 +114,7 @@ graph TD
 The jackpot system provides on-chain lottery functionality:
 
 ```mermaid
-graph TD
+flowchart TD
     Buy["Token Purchase"] -->|"Detected by"| OmniDragon["OmniDragon Token"]
     OmniDragon -->|"Collect Fees"| FeeProcessor["Fee Processor"]
     FeeProcessor -->|"6.9% to Jackpot"| JackpotVault["Jackpot Vault"]

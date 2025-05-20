@@ -11,7 +11,7 @@ The ChainlinkVRFImplementations library provides a collection of utility functio
 This library offers a set of helper functions that simplify common operations when working with random numbers, such as generating numbers within specific ranges, creating multiple random numbers from a single seed, selecting random indices, and shuffling arrays.
 
 ```mermaid
-graph TD
+flowchart TD
     A[Random Seed] --> B[ChainlinkVRFImplementations]
     B --> C[getRandomInRange]
     B --> D[getMultipleRandomNumbers]

@@ -1,0 +1,604 @@
+/* Animation Components Styling */
+.animationContainer {
+  margin: 2rem 0;
+  padding: 2rem;
+  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  transition: all 0.3s ease;
+}
+
+.animationContainer:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.animationTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--ifm-color-primary);
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+
+.animationDescription {
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--ifm-color-emphasis-700);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.animationError {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--ifm-color-danger-lightest, rgba(255, 0, 0, 0.05));
+  border: 1px solid var(--ifm-color-danger-light, rgba(255, 0, 0, 0.2));
+  border-radius: 8px;
+  color: var(--ifm-color-danger-darker, #a50000);
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.animationError p {
+  margin: 0.5rem 0;
+}
+
+/* Voting Power Animation */
+.votingPowerContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.timelineLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-700);
+  font-weight: 500;
+}
+
+.votingPowerTrack {
+  height: 36px;
+  background-color: var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.votingPowerTrack .voting-power-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background-color: var(--ifm-color-primary);
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-size: 30px 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Partner Boost Animation */
+.partnerBoostContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.partner {
+  display: flex;
+  align-items: center;
+  background: var(--ifm-color-emphasis-100);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.partner:hover {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.partnerName {
+  flex: 0 0 120px;
+  font-weight: 600;
+  z-index: 2;
+  color: var(--ifm-font-color-base);
+}
+
+.boostTrack {
+  flex-grow: 1;
+  height: 28px;
+  background: var(--ifm-color-emphasis-200);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.boostTrack .boost-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background-color: var(--ifm-color-primary);
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.1) 75%, transparent 75%, transparent);
+  background-size: 28px 28px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.percentage {
+  margin-left: 16px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  min-width: 50px;
+  text-align: right;
+  color: var(--ifm-color-emphasis-900);
+  transition: all 0.3s ease;
+}
+
+.totalAllocation {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.totalLabel {
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--ifm-color-primary-darker);
+  text-align: center;
+}
+
+.totalBar {
+  height: 8px;
+  background-color: var(--ifm-color-emphasis-300);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.totalBar:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6.9%;
+  height: 100%;
+  background-color: var(--ifm-color-primary-darker);
+  border-radius: 4px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Cube Root Visualization */
+.calculationContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.5rem;
+  background: var(--ifm-color-emphasis-100);
+  border-radius: 10px;
+}
+
+.inputSide, .resultSide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  position: relative;
+}
+
+.arrowRight {
+  position: relative;
+  width: 60px;
+  height: 20px;
+}
+
+.arrowRight:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background-color: var(--ifm-color-emphasis-600);
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.arrowRight:before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid var(--ifm-color-emphasis-600);
+  border-right: 2px solid var(--ifm-color-emphasis-600);
+}
+
+.processingText {
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-800);
+  margin: 0 1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.input-cube, .result-cube {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(45deg, var(--ifm-color-primary), var(--ifm-color-primary-lighter));
+  border-radius: 12px;
+  opacity: 0;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.result-cube {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(45deg, var(--ifm-color-success), var(--ifm-color-success-light, #4CAF50));
+}
+
+.input-value, .result-value {
+  font-weight: 700;
+  opacity: 0;
+  font-size: 1.1rem;
+  color: var(--ifm-font-color-base);
+}
+
+/* Mermaid Diagram Enhancement */
+:global(.docusaurus-mermaid-container) {
+  background-color: var(--card-bg);
+  padding: 2rem;
+  border-radius: var(--ifm-global-radius);
+  margin: 2rem 0;
+  border: 1px solid var(--ifm-toc-border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  max-width: 100%;
+  overflow: auto;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+:global(.docusaurus-mermaid-container:hover) {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .calculationContainer {
+    flex-direction: column;
+    height: auto;
+    gap: 2rem;
+    padding: 1rem;
+  }
+  
+  .processingText {
+    margin: 1rem 0;
+  }
+  
+  .arrowRight {
+    transform: rotate(90deg);
+    margin: 0.5rem 0;
+  }
+  
+  .partner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .partnerName {
+    flex: none;
+    margin-bottom: 0.5rem;
+  }
+  
+  .boostTrack {
+    width: 100%;
+  }
+  
+  .percentage {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+}
+
+/* Cross Chain Randomness Animation */
+.crossChainContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.5rem;
+  background: var(--ifm-color-emphasis-100);
+  border-radius: 10px;
+  position: relative;
+}
+
+.chainBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  width: 200px;
+  height: 100px;
+  background: linear-gradient(135deg, #334155, #1e293b);
+  border-radius: 8px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  position: relative;
+  margin: 0.5rem 0;
+}
+
+.chainLabel {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
+
+.nodeBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  width: 150px;
+  height: 80px;
+  background: #2A58DA;
+  border-radius: 8px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  position: relative;
+  margin: 0.5rem 0;
+  transition: all 0.3s ease;
+}
+
+.nodeLabel {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.arrowSvg {
+  margin: 0;
+  padding: 0;
+}
+
+/* Responsive styles for cross-chain animation */
+@media (max-width: 768px) {
+  .crossChainContainer {
+    padding: 1rem;
+    width: 100%;
+  }
+  
+  .chainBox, .nodeBox {
+    width: 160px;
+    height: 80px;
+    padding: 0.75rem;
+  }
+  
+  .chainLabel, .nodeLabel {
+    font-size: 0.8rem;
+  }
+}
+
+/* MermaidDiagram component styling */
+.mermaidContainer {
+  margin: 2rem 0;
+  padding: 1rem;
+  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  transition: all 0.3s ease;
+}
+
+.mermaidContainer:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.mermaidTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--ifm-color-primary);
+  text-align: center;
+}
+
+.mermaidCaption {
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-700);
+  margin-top: 1rem;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Custom styling for the mermaid diagrams inside our component */
+.mermaidContainer :global(.mermaid-diagram) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+  padding: 1rem 0;
+}
+
+.mermaidContainer :global(.mermaid-diagram svg) {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Token Fee Animation Styles */
+.feeSystemContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.5rem;
+  background: var(--ifm-color-emphasis-100);
+  border-radius: 10px;
+  position: relative;
+}
+
+.tokenSwapNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  width: 180px;
+  height: 90px;
+  background: linear-gradient(135deg, #334155, #1e293b);
+  border-radius: 8px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  position: relative;
+  margin: 0.5rem 0;
+}
+
+.feePoolNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  width: 140px;
+  height: 70px;
+  background: #388E3C;
+  border-radius: 8px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  position: relative;
+  margin: 0.5rem 0;
+  transition: all 0.3s ease;
+}
+
+.feeDistributionContainer {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
+.feeDestinationsContainer {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin: 0.5rem 0;
+}
+
+.feeDestinationNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  width: 120px;
+  height: 80px;
+  border-radius: 8px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.jackpot-node {
+  background: #E19A00;
+}
+
+.ve69lp-node {
+  background: #3F51B5;
+}
+
+.burn-node {
+  background: #D32F2F;
+}
+
+.percentTag {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #E91E63;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Media queries for token fee animation */
+@media (max-width: 768px) {
+  .feeDestinationsContainer {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+  
+  .feeDistributionContainer {
+    display: none;
+  }
+  
+  .percentTag {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-top: 0.5rem;
+  }
+}
+
+/* MermaidDiagram error state */
+.mermaidError {
+  padding: 1rem;
+  border-radius: 6px;
+  background-color: var(--ifm-color-danger-lightest, rgba(255, 0, 0, 0.05));
+  color: var(--ifm-color-danger-darker, #a50000);
+  text-align: center;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  border: 1px solid var(--ifm-color-danger-light, rgba(255, 0, 0, 0.2));
+}
+
+.mermaidLoading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.9rem;
+  font-style: italic;
+} 

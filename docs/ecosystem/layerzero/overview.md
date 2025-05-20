@@ -18,7 +18,7 @@ LayerZero V2 is a cross-chain messaging protocol that enables secure and efficie
 ## Architecture
 
 ```mermaid
-graph TD
+flowchart TD
     A[Sonic Red Dragon] --> B[LayerZero V2]
     B --> C[Ethereum]
     B --> D[Arbitrum]

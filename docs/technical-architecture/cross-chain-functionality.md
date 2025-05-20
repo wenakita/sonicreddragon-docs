@@ -7,7 +7,7 @@ This document details how Sonic Red Dragon implements cross-chain functionality 
 Sonic Red Dragon leverages LayerZero V2 for cross-chain operations, providing enhanced security and gas optimization:
 
 ```mermaid
-graph TD
+flowchart TD
     A[Sonic Red Dragon on Chain A] -->|send| B[LayerZero V2 Endpoint A]
     B -->|message| C[LayerZero V2 Endpoint B]
     C -->|receive| D[Sonic Red Dragon on Chain B]
@@ -35,7 +35,7 @@ Sonic Red Dragon maintains consistency across chains through several mechanisms:
 ### Global Supply Management
 
 ```mermaid
-graph LR
+flowchart LR
     A[Chain A Supply] --> E[Global Supply Tracker]
     B[Chain B Supply] --> E
     C[Chain C Supply] --> E

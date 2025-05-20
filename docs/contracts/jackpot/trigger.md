@@ -11,7 +11,7 @@ The OmniDragonSwapTriggerOracle is a critical component of the Sonic Red Dragon 
 The SwapTriggerOracle serves as the bridge between token transactions and the jackpot lottery system:
 
 ```mermaid
-graph TB
+flowchart TB
     OmniDragon["OmniDragon Token"] -->|"Calls onSwap()"| SwapTrigger["OmniDragonSwapTriggerOracle"]
     SwapTrigger -->|"Entry Processing"| Lottery["Lottery System"]
     PriceFeeds["Oracle Price Feeds"] -->|"Market Data"| SwapTrigger

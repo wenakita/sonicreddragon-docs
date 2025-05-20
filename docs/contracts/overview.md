@@ -4,16 +4,16 @@ sidebar_position: 1
 
 # Smart Contracts Overview
 
-Sonic Red Dragon's smart contract system is built on LayerZero V2, providing a robust foundation for cross-chain operations and verifiable randomness.
+OmniDragon's smart contract system is built on LayerZero, providing a robust foundation for cross-chain operations and verifiable randomness.
 
 ## System Architecture
 
 ```mermaid
-graph TD
-    A[SonicRedDragonToken] --> B[LayerZero V2]
-    A --> C[dRAND Network]
-    D[SonicRedDragonBridge] --> B
-    E[SonicRedDragonRandomness] --> C
+flowchart TD
+    A[OmniDragon] --> B[LayerZero]
+    A --> C[VRF Network]
+    D[ChainRegistry] --> B
+    E[OmniDragonVRFConsumer] --> C
     E --> B
     F[Applications] --> A
     F --> D
@@ -22,21 +22,22 @@ graph TD
 
 ## Core Contracts
 
-### SonicRedDragonToken
+### OmniDragon
 
-The main token contract that implements the ERC-20 standard with LayerZero V2 compatibility. Key features include:
+The main token contract that implements the ERC-20 standard with LayerZero compatibility. Key features include:
 
 - Cross-chain token transfers
 - Secure minting and burning mechanisms
 - Access control for administrative functions
-- Integration with dRAND for randomness
+- Integration with VRF providers for randomness
+- Built-in jackpot mechanics and fee structure
 
 #### Key Functions
 ```solidity
 // Cross-chain transfer
-function sendTokens(
+function sendToChain(
     uint16 _dstChainId,
-    bytes calldata _destination,
+    bytes calldata _toAddress,
     uint256 _amount,
     address payable _refundAddress,
     address _zroPaymentAddress,
@@ -44,60 +45,53 @@ function sendTokens(
 ) external payable;
 
 // Minting (restricted)
-function mint(address to, uint256 amount) external onlyMinter;
+function mint(address to, uint256 amount) external onlyOwner;
 
 // Burning
 function burn(uint256 amount) external;
 ```
 
-### SonicRedDragonBridge
+### ChainRegistry & ChainSpecificEndpoint
 
 Handles cross-chain messaging and token bridging operations:
 
-- LayerZero V2 message passing
+- LayerZero message passing
 - Bridge security and validation
 - Cross-chain state synchronization
 - Gas optimization for cross-chain operations
 
 #### Key Functions
 ```solidity
-// Bridge tokens to another chain
-function bridgeTokens(
-    uint16 _dstChainId,
-    bytes calldata _destination,
-    uint256 _amount,
-    bytes calldata _payload
-) external payable;
+// Register a new chain
+function registerChain(
+    uint16 _chainId, 
+    bytes calldata _endpoint,
+    bool _isActive
+) external onlyOwner;
 
-// Receive bridged tokens
-function receiveTokens(
-    uint16 _srcChainId,
-    bytes calldata _srcAddress,
-    uint64 _nonce,
-    bytes calldata _payload
-) external;
+// Get chain endpoint
+function getChainEndpoint(uint16 _chainId) external view returns (bytes memory);
 ```
 
-### SonicRedDragonRandomness
+### OmniDragonVRFConsumer
 
-Manages the integration with dRAND network for verifiable randomness:
+Manages the integration with verifiable randomness providers:
 
-- dRAND beacon integration
+- Multiple VRF source integration
 - Randomness verification
 - Request and callback mechanisms
 - Fallback randomness sources
 
 #### Key Functions
 ```solidity
-// Request randomness
-function requestRandomness() external returns (uint256);
+// Aggregate randomness from multiple sources
+function aggregateRandomness() public;
 
-// Verify randomness
-function verifyRandomness(
-    uint256 _round,
-    bytes calldata _randomness,
-    bytes calldata _proof
-) external view returns (bool);
+// Get latest random value
+function getLatestRandomness() external view returns (uint256);
+
+// Fulfill randomness request
+function fulfillRandomness(address _consumer, uint256 _requestId) external;
 ```
 
 ## Security Features
@@ -112,52 +106,50 @@ Our contracts implement several security measures:
 
 ### Access Control
 ```solidity
-// Role definitions
-bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-bytes32 public constant BRIDGE_ROLE = keccak256("BRIDGE_ROLE");
-bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-
-// Role checks
-modifier onlyRole(bytes32 role) {
-    require(hasRole(role, msg.sender), "Caller does not have role");
+// Role-based access through Ownable pattern
+modifier onlyOwner() {
+    require(owner() == msg.sender, "Caller is not the owner");
     _;
 }
+
+// Authorization for consumers
+function setAuthorizedConsumer(address _consumer, bool _authorized) external onlyOwner;
 ```
 
 ## Integration Guide
 
-To integrate Sonic Red Dragon into your project:
+To integrate OmniDragon into your project:
 
 1. **Token Integration**
    ```solidity
-   import "@sonicreddragon/contracts/SonicRedDragonToken.sol";
+   import "@omnidragon/contracts/OmniDragon.sol";
    ```
 
-2. **Bridge Integration**
+2. **Chain Registry Integration**
    ```solidity
-   import "@sonicreddragon/contracts/SonicRedDragonBridge.sol";
+   import "@omnidragon/contracts/ChainRegistry.sol";
    ```
 
 3. **Randomness Integration**
    ```solidity
-   import "@sonicreddragon/contracts/SonicRedDragonRandomness.sol";
+   import "@omnidragon/contracts/drand/OmniDragonVRFConsumer.sol";
    ```
 
 ## Contract Addresses
 
 ### Mainnet
-- SonicRedDragonToken: `0x...` (Coming Soon)
-- SonicRedDragonBridge: `0x...` (Coming Soon)
-- SonicRedDragonRandomness: `0x...` (Coming Soon)
+- OmniDragon: `0x...` (Coming Soon)
+- ChainRegistry: `0x...` (Coming Soon)
+- OmniDragonVRFConsumer: `0x...` (Coming Soon)
 
 ### Testnet
-- SonicRedDragonToken: `0x...` (Coming Soon)
-- SonicRedDragonBridge: `0x...` (Coming Soon)
-- SonicRedDragonRandomness: `0x...` (Coming Soon)
+- OmniDragon: `0x...` (Coming Soon)
+- ChainRegistry: `0x...` (Coming Soon)
+- OmniDragonVRFConsumer: `0x...` (Coming Soon)
 
 ## Development
 
-For developers looking to contribute or build on Sonic Red Dragon:
+For developers looking to contribute or build on OmniDragon:
 
 1. Clone our repository:
    ```bash
@@ -176,7 +168,7 @@ For developers looking to contribute or build on Sonic Red Dragon:
 
 ## Security
 
-Security is our top priority. Our contracts have undergone multiple audits and are continuously monitored. If you discover any security issues, please report them to security@sonicreddragon.io.
+Security is our top priority. Our contracts have undergone multiple audits and are continuously monitored. If you discover any security issues, please report them to security@omnidragon.io.
 
 ### Security Best Practices
 
@@ -195,11 +187,50 @@ Security is our top priority. Our contracts have undergone multiple audits and a
    - Verify randomness proofs
    - Implement fallback mechanisms
    - Use appropriate timeouts
-   - Monitor dRAND network status
+   - Monitor VRF network status
 
 ## Support
 
 For technical support or questions about contract integration:
-- Join our [Discord](https://discord.gg/sonicreddragon)
+- Join our [Discord](https://discord.gg/omnidragon)
 - Open an issue on [GitHub](https://github.com/wenakita/omnidragon)
-- Contact us at support@sonicreddragon.io 
+- Contact us at support@omnidragon.io
+
+## Contract Categories
+
+The OmniDragon contracts are organized into the following categories:
+
+### Core
+- [OmniDragon.sol](./core/omni-dragon): Main token contract with cross-chain capabilities
+- [OmniDragonPeriphery.sol](./core/periphery): Helper contract for managing token integrations
+- [ChainRegistry.sol](./core/chain-registry): Manages endpoints across supported chains
+- [ChainSpecificEndpoint.sol](./core/chain-endpoint): Chain-specific configurations
+
+### Jackpot
+- [DragonJackpotDistributor.sol](./jackpot/distributor): Distributes jackpot winnings to winners
+- [DragonJackpotVault.sol](./jackpot/vault): Securely stores jackpot funds
+- [OmniDragonSwapTriggerOracle.sol](./jackpot/trigger-oracle): Creates lottery entries from swaps
+
+### Math
+- [DragonMathLib.sol](./math/dragon-math-lib): Core mathematical utilities
+- [HermesMath.sol](./math/hermes-math): Jackpot distribution mathematics
+- [DragonDateTimeLib.sol](./math/date-time-lib): Time-related calculations
+- [ve69LPMath.sol](./math/ve69lp-math): veToken staking mathematics
+- [VotingPowerCalculator.sol](./math/voting-power): Governance voting power calculations
+- [DragonAdaptiveFeeManager.sol](./math/adaptive-fee): Dynamic fee adjustment system
+- [MarketConditionOracle.sol](./math/market-oracle): Market condition monitoring for adaptations
+
+### Randomness
+- [OmniDragonVRFConsumer.sol](./randomness/vrf-consumer): Main verifiable randomness consumer
+- [DragonVRFIntegrator.sol](./randomness/vrf-integrator): External randomness integration
+- [DragonVRFConsumer.sol](./randomness/vrf-consumer-base): Base randomness consumer contract
+
+### Governance
+- [OmniDragonGovernor.sol](./governance/governor): Governance contract for protocol decisions
+- [OmniDragonTimelockController.sol](./governance/timelock): Timelock for governance actions
+- [ve69LP.sol](./governance/ve69lp): Vote-escrowed LP token for governance
+
+### Partners
+- [DragonPartnerRegistry.sol](./partners/registry): Registry for partner integration
+- [DragonPartnerFactory.sol](./partners/factory): Factory for creating partner pools
+- [DragonPartnerPool.sol](./partners/pool): Partner-specific pools and incentives 

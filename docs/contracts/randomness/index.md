@@ -11,7 +11,7 @@ OmniDragon implements a sophisticated multi-provider randomness system that comb
 The randomness system uses a distributed approach with components across multiple chains, leveraging LayerZero for secure cross-chain communication.
 
 ```mermaid
-graph TD
+flowchart TD
     subgraph "Sonic Chain"
         A[OmniDragonVRFConsumer] --> B[ChainlinkVRFIntegrator]
         A --> C[drand Integrator]
@@ -45,7 +45,7 @@ The central hub of the randomness system, aggregating and combining multiple sou
 - Provides a unified interface for randomness consumers
 - Implements fallback mechanisms for reliability
 
-[Learn more about the VRF Consumer](./vrf-consumer)
+[Learn more about the VRF Consumer](/docs/contracts/randomness/vrf-consumer)
 
 ### ChainlinkVRFIntegrator
 
@@ -56,7 +56,7 @@ Connects the OmniDragon ecosystem to Chainlink's VRF service on Arbitrum via Lay
 - Receives responses and delivers them back to consumers
 - Maintains a local fallback randomness source
 
-[Learn more about the Chainlink Integrator](./chainlink)
+[Learn more about the Chainlink Integrator](/docs/contracts/randomness/chainlink)
 
 ### ArbitrumVRFRequester
 
@@ -67,7 +67,7 @@ Deployed on Arbitrum to interact with Chainlink's VRF service:
 - Forwards randomness results back to Sonic
 - Manages Chainlink subscription and configuration
 
-[Learn more about the Arbitrum VRF Requester](./arbitrum-vrf)
+[Learn more about the Arbitrum VRF Requester](/docs/contracts/randomness/arbitrum-vrf)
 
 ### VRF Utilities
 
@@ -78,7 +78,7 @@ A library of helper functions for working with random numbers:
 - Selecting random indices
 - Shuffling arrays
 
-[Learn more about the VRF Utilities](./vrf-utils)
+[Learn more about the VRF Utilities](/docs/contracts/randomness/vrf-utils)
 
 ## Cross-Chain Flow
 
@@ -142,7 +142,7 @@ The randomness system implements multiple security measures:
 The OmniDragon jackpot system uses the randomness infrastructure to select winners:
 
 ```mermaid
-graph LR
+flowchart LR
     A[User Swap] --> B[SwapTriggerOracle]
     B --> C[OmniDragonVRFConsumer]
     C --> D[Randomness Aggregation]
@@ -155,7 +155,7 @@ graph LR
 Random sampling for certain governance decisions:
 
 ```mermaid
-graph LR
+flowchart LR
     A[Governance Proposal] --> B[Random Committee Selection]
     B --> C[OmniDragonVRFConsumer]
     C --> D[Committee Members]

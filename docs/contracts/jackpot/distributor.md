@@ -11,7 +11,7 @@ The DragonJackpotDistributor is a core component of the Sonic Red Dragon ecosyst
 The jackpot system operates through a coordinated flow of three primary contracts:
 
 ```mermaid
-graph TD
+flowchart TD
     OmniDragon["OmniDragon.sol"] -->|"Collects Fees"| JackpotVault["DragonJackpotVault.sol"]
     OmniDragon -->|"Triggers Lottery Entry"| SwapTrigger["OmniDragonSwapTriggerOracle.sol"]
     SwapTrigger -->|"Winner Selection"| JackpotDistributor["DragonJackpotDistributor.sol"]

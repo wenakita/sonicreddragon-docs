@@ -11,7 +11,7 @@ The drand integration allows OmniDragon to use the decentralized randomness beac
 drand is a distributed randomness beacon that provides publicly verifiable, unpredictable, and unbiased random values. OmniDragon integrates drand as part of its multi-source randomness approach, enhancing the security and reliability of the randomness used in the jackpot system.
 
 ```mermaid
-graph TD
+flowchart TD
     A[OmniDragonVRFConsumer] --> B[drand Integrator]
     B --> C[Verifiable Randomness]
     C --> D[League of Entropy Beacon]

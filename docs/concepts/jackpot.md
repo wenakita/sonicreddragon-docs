@@ -11,7 +11,7 @@ The Sonic Red Dragon jackpot system is a core feature of the ecosystem, providin
 The jackpot system introduces an exciting element of randomized rewards to the Sonic Red Dragon ecosystem through a sophisticated, probability-based lottery mechanism:
 
 ```mermaid
-graph TB
+flowchart TB
     subgraph "Fee Collection"
         Transaction["Token Transaction"] -->|"10% Fee"| FeeProcessor["Fee Processor"]
         FeeProcessor -->|"6.9%"| JackpotVault["Jackpot Vault"]
@@ -89,7 +89,7 @@ sequenceDiagram
 The win probability for each lottery entry is calculated using a sophisticated algorithm that considers multiple factors:
 
 ```mermaid
-graph TD
+flowchart TD
     SwapAmount["Swap Amount"] -->|"Input"| Calculation["Probability Calculation"]
     AverageSwap["Average Swap Size"] -->|"Comparison"| Calculation
     OraclePrice["Oracle Price Data"] -->|"Market Context"| Calculation

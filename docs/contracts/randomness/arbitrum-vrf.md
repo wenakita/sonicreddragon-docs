@@ -11,7 +11,7 @@ The ArbitrumVRFRequester contract serves as the OmniDragon ecosystem's bridge to
 This contract is deployed on the Arbitrum network and acts as an intermediary between OmniDragon's randomness system on Sonic and Chainlink's VRF service on Arbitrum, enabling secure cross-chain randomness verification.
 
 ```mermaid
-graph LR
+flowchart LR
     A[Sonic Chain] -->|LayerZero| B[ArbitrumVRFRequester]
     B -->|Chainlink VRF| C[VRF Coordinator]
     C -->|Random Number| B

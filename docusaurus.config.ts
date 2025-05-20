@@ -1,16 +1,17 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import path from 'path';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'Sonic Red Dragon',
+  title: 'OmniDragon',
   tagline: 'LayerZero V2 Compatible Token',
   favicon: '/img/favicon-32x32.png',
 
   // Set the production url of your site here
-  url: 'https://docs.sonicreddragon.io',
+  url: 'https://docs.omnidragon.io',
   // For custom domain with GitHub Pages, use baseUrl: '/'
   baseUrl: '/',
   // Remove trailing slash for GitHub Pages
@@ -18,10 +19,10 @@ const config: Config = {
 
   // GitHub pages deployment config
   organizationName: 'wenakita',
-  projectName: 'sonicreddragon-docs',
+  projectName: 'omnidragon-docs',
 
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'throw',
+  onBrokenLinks: 'warn',
+  onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -30,6 +31,26 @@ const config: Config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
+
+  // Add plugins array with custom mermaid plugin
+  plugins: [
+    // Custom plugin to properly process mermaid diagrams
+    function mermaidPlugin(context, options) {
+      return {
+        name: 'custom-mermaid-plugin',
+        configureWebpack() {
+          return {
+            resolve: {
+              alias: {
+                // Create an alias for our mermaid component
+                '@mermaid': path.resolve(__dirname, 'src/components/MermaidDiagram'),
+              },
+            },
+          };
+        },
+      };
+    },
+  ],
 
   presets: [
     [
@@ -40,8 +61,12 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/wenakita/sonicreddragon-docs/edit/main/',
+            'https://github.com/wenakita/omnidragon-docs/edit/main/',
           routeBasePath: '/',
+          // Add custom remark plugins for mermaid processing
+          remarkPlugins: [
+            [require('./src/plugins/mermaid-plugin'), {}],
+          ],
         },
         blog: false,
         theme: {
@@ -61,9 +86,9 @@ const config: Config = {
     
     // Modern navbar configuration
     navbar: {
-      title: 'Sonic Red Dragon',
+      title: 'OmniDragon',
       logo: {
-        alt: 'Sonic Red Dragon Logo',
+        alt: 'OmniDragon Logo',
         src: '/img/logo.svg',
       },
       items: [
@@ -115,15 +140,15 @@ const config: Config = {
             },
             {
               label: 'Discord',
-              href: 'https://discord.gg/w75vaxDXuE',
+              href: 'https://discord.gg/omnidragon',
             },
             {
               label: 'Twitter',
-              href: 'https://twitter.com/sonicreddragon',
+              href: 'https://twitter.com/omnidragon',
             },
             {
               label: 'Blog',
-              href: 'https://blog.sonicreddragon.io',
+              href: 'https://blog.omnidragon.io',
             },
           ],
         },
@@ -135,9 +160,9 @@ const config: Config = {
     footer: {
       style: 'dark',
       logo: {
-        alt: 'Sonic Red Dragon Logo',
+        alt: 'OmniDragon Logo',
         src: 'img/logo-dark.svg',
-        href: 'https://sonicreddragon.io',
+        href: 'https://omnidragon.io',
       },
       links: [
         {
@@ -165,12 +190,12 @@ const config: Config = {
           items: [
             {
               label: 'Discord',
-              href: 'https://discord.gg/w75vaxDXuE',
+              href: 'https://discord.gg/omnidragon',
               className: 'footer__link--modern footer__link--discord',
             },
             {
               label: 'Twitter',
-              href: 'https://twitter.com/sonicreddragon',
+              href: 'https://twitter.com/omnidragon',
               className: 'footer__link--modern footer__link--twitter',
             },
           ],
@@ -185,13 +210,13 @@ const config: Config = {
             },
             {
               label: 'Blog',
-              href: 'https://blog.sonicreddragon.io',
+              href: 'https://blog.omnidragon.io',
               className: 'footer__link--modern',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Sonic Red Dragon. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} OmniDragon. Built with Docusaurus.`,
     },
 
     // Enhanced code block styling
@@ -210,14 +235,33 @@ const config: Config = {
 
     // Mermaid diagram configuration
     mermaid: {
-      theme: {light: 'neutral', dark: 'forest'},
+      theme: {light: 'default', dark: 'dark'},
       options: {
         fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
         fontSize: 16,
+        themeVariables: {
+          darkMode: true,
+          primaryColor: '#4a80d1',
+          primaryTextColor: '#f5f6fa',
+          primaryBorderColor: '#666',
+          lineColor: '#999',
+          secondaryColor: '#cc5a2b',
+          tertiaryColor: '#1e293b',
+        },
         flowchart: {
           curve: 'basis',
-          nodeSpacing: 50,
-          rankSpacing: 50,
+          nodeSpacing: 60,
+          rankSpacing: 80,
+          padding: 20,
+          useMaxWidth: true,
+        },
+        sequence: {
+          mirrorActors: false,
+          bottomMarginAdj: 10,
+          boxMargin: 10,
+          noteMargin: 10,
+          messageMargin: 35,
+          boxTextMargin: 15,
         },
       },
     },
@@ -238,7 +282,7 @@ const config: Config = {
     // Modern announcement bar
     announcementBar: {
       id: 'support_us',
-      content: '🚀 Sonic Red Dragon is now live on mainnet! Join our <a href="https://discord.gg/w75vaxDXuE">Discord</a> for updates.',
+      content: '🚀 OmniDragon is now live on mainnet! Join our <a href="https://discord.gg/omnidragon">Discord</a> for updates.',
       backgroundColor: '#1e3c72',
       textColor: '#fff',
       isCloseable: true,
@@ -249,19 +293,6 @@ const config: Config = {
   themes: [
     '@docusaurus/theme-mermaid',
   ],
-
-  // Remove the API plugin configuration since we're not using it yet
-  // plugins: [
-  //   [
-  //     '@docusaurus/plugin-content-docs',
-  //     {
-  //       id: 'api',
-  //       path: 'api',
-  //       routeBasePath: 'api',
-  //       sidebarPath: require.resolve('./sidebarsApi.js'),
-  //     },
-  //   ],
-  // ],
 };
 
 export default config;

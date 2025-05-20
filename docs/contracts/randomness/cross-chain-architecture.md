@@ -11,7 +11,7 @@ OmniDragon implements a pioneering cross-chain randomness architecture that leve
 The cross-chain randomness architecture spans multiple blockchains, using LayerZero for secure messaging between chains:
 
 ```mermaid
-graph TB
+flowchart TB
     subgraph "Sonic Chain"
         A[OmniDragon Token] --> B[SwapTriggerOracle]
         B --> C[OmniDragonVRFConsumer]

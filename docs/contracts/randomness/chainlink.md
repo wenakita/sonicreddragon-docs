@@ -11,7 +11,7 @@ The ChainlinkVRFIntegrator contract serves as a bridge between the OmniDragon VR
 This contract is part of OmniDragon's cross-chain randomness architecture, responsible for forwarding randomness requests to Arbitrum and receiving the results via LayerZero messaging.
 
 ```mermaid
-graph TD
+flowchart TD
     A[OmniDragonVRFConsumer] --> B[ChainlinkVRFIntegrator]
     B --> C[LayerZero Endpoint]
     C --> D[Cross-Chain Messaging]

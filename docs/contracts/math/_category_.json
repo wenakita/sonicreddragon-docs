@@ -1,0 +1,9 @@
+{
+  "label": "Mathematical Framework",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "The OmniDragon Mathematical Framework is a suite of sophisticated libraries that provide the computational foundation for the protocol's core features. From governance voting to jackpot distribution, these libraries implement complex algorithms with gas-efficient, secure code designed for on-chain execution."
+  },
+  "collapsed": false
+} 

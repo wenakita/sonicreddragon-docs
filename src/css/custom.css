@@ -7,7 +7,7 @@
 /* Import modern fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* Modern color scheme */
+/* Modern color scheme - Light mode */
 :root {
   --ifm-color-primary: #2e8555;
   --ifm-color-primary-dark: #29784c;
@@ -22,17 +22,34 @@
   --ifm-navbar-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
   --ifm-toc-border-color: var(--ifm-color-emphasis-200);
   --ifm-global-radius: 8px;
-  --gradient-bg: linear-gradient(135deg, #111827 0%, #162037 40%, #1e293b 100%);
-  --navbar-bg: rgba(17, 24, 39, 0.85);
-  --footer-bg: rgba(17, 24, 39, 0.85);
-  --announcement-bg: #111827;
-  --announcement-text: #fff;
+  
+  /* Background gradient for light mode */
+  --gradient-bg: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+  --navbar-bg: rgba(255, 255, 255, 0.8);
+  --footer-bg: rgba(255, 255, 255, 0.8);
+  --announcement-bg: #e4e8f0;
+  --announcement-text: #333;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --code-bg: #f6f8fa;
+  
+  /* Content background */
+  --ifm-background-color: transparent;
+  --ifm-background-surface-color: rgba(255, 255, 255, 0.8);
+  --ifm-card-background-color: var(--card-bg);
 }
 
-body {
-  background: var(--gradient-bg) !important;
+/* Fixed background attachment to prevent scroll jumps */
+html {
+  background: var(--gradient-bg);
   background-attachment: fixed;
-  color: #f5f6fa;
+  background-size: cover;
+  min-height: 100%;
+}
+
+/* Main layout structures */
+body {
+  background: transparent;
+  min-height: 100vh;
 }
 
 /* Dark mode colors */
@@ -45,13 +62,26 @@ body {
   --ifm-color-primary-lighter: #6aa0f1;
   --ifm-color-primary-lightest: #7ab0ff;
   --ifm-success-color: #cc5a2b; /* Orange for success elements */
-  --ifm-background-color: #111827; /* Deep dark blue */
-  --ifm-background-surface-color: #1e293b; /* Slightly lighter dark blue */
-  --ifm-navbar-background-color: rgba(17, 24, 39, 0.85); /* Transparent dark background */
-  --ifm-footer-background-color: rgba(17, 24, 39, 0.85); /* Transparent dark background */
+  
+  /* Background gradient for dark mode */
+  --gradient-bg: linear-gradient(135deg, #111827 0%, #162037 40%, #1e293b 100%);
+  --navbar-bg: rgba(17, 24, 39, 0.85);
+  --footer-bg: rgba(17, 24, 39, 0.85);
+  --announcement-bg: #111827;
+  --announcement-text: #fff;
+  --card-bg: rgba(30, 41, 59, 0.8);
+  --code-bg: #0d1117;
+  
+  /* Content background */
+  --ifm-background-color: transparent;
+  --ifm-background-surface-color: rgba(30, 41, 59, 0.6);
+  --ifm-navbar-background-color: var(--navbar-bg);
+  --ifm-footer-background-color: var(--footer-bg);
+  --ifm-card-background-color: var(--card-bg);
+  
+  /* Other theme colors */
   --ifm-navbar-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-  --ifm-toc-border-color: #2a3144; /* Slightly visible border */
-  --gradient-bg: linear-gradient(135deg, #111827 0%, #162037 40%, #1e293b 100%); /* Very subtle gradient */
+  --ifm-toc-border-color: #2a3144;
 }
 
 /* Modern navbar styling */
@@ -60,6 +90,7 @@ body {
   -webkit-backdrop-filter: blur(8px);
   background: var(--navbar-bg) !important;
   box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid var(--ifm-toc-border-color);
 }
 
 .navbar__item--modern {
@@ -72,17 +103,20 @@ body {
 }
 
 .navbar__item--github {
-  background: linear-gradient(45deg, #2a3144, #384158);
+  background: linear-gradient(45deg, var(--ifm-color-primary-dark), var(--ifm-color-primary));
   border-radius: 6px;
   padding: 0.4rem 0.8rem;
   margin-left: 0.5rem;
+  color: white !important;
 }
 
 /* Modern footer styling */
 .footer {
   background-color: var(--footer-bg) !important;
   border-top: 1px solid var(--ifm-toc-border-color);
-  box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 -2px 16px 0 rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .footer__link--modern {
@@ -107,20 +141,37 @@ body {
   color: #2ea44f;
 }
 
+/* Main content container */
+.main-wrapper {
+  min-height: calc(100vh - 60px - 300px); /* Adjust based on your navbar and footer heights */
+}
+
+/* Document container styling */
+main > .container {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.docusaurus-mt-lg {
+  margin-top: 2rem;
+}
+
 /* Modern card styling */
 .card {
   border-radius: var(--ifm-global-radius);
   border: 1px solid var(--ifm-toc-border-color);
   transition: all 0.3s ease;
   overflow: hidden;
-  background-color: rgba(30, 41, 59, 0.7);
+  background-color: var(--card-bg);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  border-color: var(--ifm-color-primary-dark);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-color: var(--ifm-color-primary);
 }
 
 /* Modern code block styling */
@@ -130,11 +181,11 @@ body {
 }
 
 .theme-code-block {
-  background-color: #0d1117 !important;
+  background-color: var(--code-bg) !important;
 }
 
 pre {
-  background-color: #0d1117 !important;
+  background-color: var(--code-bg) !important;
 }
 
 .theme-code-block-highlighted-line {
@@ -146,18 +197,23 @@ pre {
 table {
   border-radius: var(--ifm-global-radius);
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  background-color: var(--ifm-background-surface-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--ifm-toc-border-color);
 }
 
 table thead {
-  background-color: #1e293b;
-  color: white;
+  background-color: var(--ifm-color-emphasis-200);
 }
 
 table th {
   font-weight: 600;
   padding: 1rem;
+  border-bottom: 2px solid var(--ifm-toc-border-color);
+  background-color: var(--ifm-color-emphasis-100);
 }
 
 table td {
@@ -165,12 +221,67 @@ table td {
   border-bottom: 1px solid var(--ifm-toc-border-color);
 }
 
-/* Modern mermaid diagram styling */
-.mermaid {
-  background-color: var(--ifm-background-surface-color);
+/* Advanced mermaid diagram styling */
+.docusaurus-mermaid-container {
+  background-color: var(--card-bg);
+  padding: 2rem;
   border-radius: var(--ifm-global-radius);
-  padding: 1rem;
-  margin: 1rem 0;
+  margin: 2rem 0;
+  border: 1px solid var(--ifm-toc-border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  max-width: 100%;
+  overflow: auto;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.docusaurus-mermaid-container:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Add a subtle border around diagram */
+.docusaurus-mermaid-container svg {
+  border-radius: var(--ifm-global-radius);
+  max-width: 100%;
+}
+
+/* Enhance node appearance */
+.docusaurus-mermaid-container .node rect,
+.docusaurus-mermaid-container .node circle,
+.docusaurus-mermaid-container .node polygon,
+.docusaurus-mermaid-container .node path {
+  fill: var(--ifm-color-emphasis-100) !important;
+  stroke: var(--ifm-color-primary) !important;
+  stroke-width: 2px !important;
+}
+
+/* Make mermaid text more readable */
+.docusaurus-mermaid-container .label {
+  font-family: var(--ifm-font-family-base) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+/* Style edges/arrows */
+.docusaurus-mermaid-container .edgePath path {
+  stroke: var(--ifm-color-primary-dark) !important;
+  stroke-width: 2px !important;
+}
+
+.docusaurus-mermaid-container .arrowheadPath {
+  fill: var(--ifm-color-primary-dark) !important;
+  stroke: none !important;
+}
+
+/* Improve cluster styling */
+.docusaurus-mermaid-container .cluster rect {
+  fill: var(--ifm-color-emphasis-100) !important;
+  stroke: var(--ifm-color-primary-lighter) !important;
+  stroke-width: 1px !important;
+  rx: 8px !important;
+  ry: 8px !important;
 }
 
 /* Modern announcement bar */
@@ -181,16 +292,45 @@ table td {
 }
 
 .announcementBar a {
-  color: white;
   text-decoration: underline;
   font-weight: 600;
 }
 
-/* Modern sidebar styling */
+[data-theme='light'] .announcementBar a {
+  color: var(--ifm-color-primary-darkest);
+}
+
+[data-theme='dark'] .announcementBar a {
+  color: white;
+}
+
+/* Fix scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ifm-color-emphasis-100);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ifm-color-primary-dark);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ifm-color-primary);
+}
+
+/* Sidebar styling */
 .menu {
   padding: 1rem;
-  background-color: rgba(30, 41, 59, 0.6);
+  background-color: var(--ifm-background-surface-color);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-right: 1px solid var(--ifm-toc-border-color);
 }
 
 .menu__link {
@@ -199,167 +339,72 @@ table td {
 }
 
 .menu__link:hover {
-  background-color: rgba(74, 128, 209, 0.1);
-  color: var(--ifm-color-primary-lightest);
+  background-color: rgba(var(--ifm-color-primary-rgb), 0.1);
 }
 
 .menu__link--active {
-  background-color: rgba(74, 128, 209, 0.15);
-  color: var(--ifm-color-primary-lightest);
+  background-color: rgba(var(--ifm-color-primary-rgb), 0.15);
+  color: var(--ifm-color-primary);
+  font-weight: 500;
   border-left: 2px solid var(--ifm-color-primary);
 }
 
-/* Modern doc item styling */
-.docItemContainer {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-.docItemContainer article {
-  background-color: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(8px);
+/* TOC styling */
+.table-of-contents {
+  padding: 1rem;
   border-radius: var(--ifm-global-radius);
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background-color: var(--ifm-background-surface-color);
   border: 1px solid var(--ifm-toc-border-color);
-}
-
-/* Modern heading styling */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-  margin-top: 2rem;
   margin-bottom: 1rem;
 }
 
-h1 {
-  font-size: 2.5rem;
-  background: linear-gradient(45deg, var(--ifm-color-primary), #4d7dcc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-h2 {
-  color: var(--ifm-color-primary-light);
-}
-
-h3 {
-  color: #cc5a2b;
-}
-
-/* Modern link styling */
-a {
-  color: var(--ifm-color-primary);
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-a:hover {
-  color: #cc5a2b;
-  text-decoration: underline;
-}
-
-/* Modern list styling */
-ul, ol {
-  padding-left: 1.5rem;
-}
-
-li {
-  margin: 0.5rem 0;
-}
-
-/* Modern blockquote styling */
-blockquote {
-  border-left: 4px solid #cc5a2b;
-  background-color: rgba(204, 90, 43, 0.05);
-  padding: 1rem;
-  border-radius: 0 var(--ifm-global-radius) var(--ifm-global-radius) 0;
-  margin: 1rem 0;
-}
-
-/* Modern image styling */
-img {
-  border-radius: var(--ifm-global-radius);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Modern scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--ifm-background-surface-color);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(74, 128, 209, 0.5);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(74, 128, 209, 0.7);
-}
-
-/* Table of contents styling */
-.table-of-contents {
-  background-color: rgba(30, 41, 59, 0.6);
-  backdrop-filter: blur(8px);
-  border-radius: var(--ifm-global-radius);
-  padding: 1rem;
-  border: 1px solid var(--ifm-toc-border-color);
-}
-
 .table-of-contents__link:hover {
-  color: #cc5a2b;
+  color: var(--ifm-color-primary);
 }
 
 .table-of-contents__link--active {
-  color: var(--ifm-color-primary-lightest);
+  color: var(--ifm-color-primary);
+  font-weight: 500;
 }
 
-/* Modern mobile responsiveness */
+/* Doc item main content */
+article {
+  background-color: var(--card-bg);
+  border-radius: var(--ifm-global-radius);
+  padding: 2rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ifm-toc-border-color);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Mobile responsiveness */
 @media (max-width: 996px) {
   .navbar__item--github {
     display: none;
   }
   
-  .docItemContainer {
-    padding: 1rem;
+  article {
+    padding: 1.5rem;
   }
   
-  .docItemContainer article {
+  .docusaurus-mermaid-container {
     padding: 1rem;
-  }
-  
-  h1 {
-    font-size: 2rem;
   }
 }
 
-/* Modern print styling */
+/* Print styles */
 @media print {
   .navbar, .footer, .announcementBar {
     display: none;
   }
   
-  .docItemContainer {
-    max-width: none;
-    padding: 0;
+  body, html {
+    background: #fff !important;
   }
   
-  .docItemContainer article {
+  article {
     box-shadow: none;
-    padding: 0;
+    border: none;
   }
-}
-
-/* Prepare for animated gradient overlay */
-#gradient-animate {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.3;
 }

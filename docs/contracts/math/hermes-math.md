@@ -1,0 +1,494 @@
+---
+sidebar_position: 3
+title: HermesMath
+description: Proprietary jackpot distribution mathematics implementing the Hermès formula
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# HermesMath
+
+**Proprietary jackpot distribution mathematics implementing the Hermès formula**
+
+<div className="contract-badges">
+  <span className="contract-badge distribution">Distribution System</span>
+  <span className="contract-badge jackpot">Jackpot Mathematics</span>
+  <span className="contract-badge proprietary">Proprietary Algorithm</span>
+</div>
+
+## Overview
+
+The Hermès formula provides a mathematically balanced approach to jackpot distribution, optimizing for both large prize pools and frequent wins:
+
+```mermaid
+flowchart TB
+    subgraph "Mathematical Components"
+        formula["Hermès Formula"]
+        comp1["Component 1<br>Approximation"]
+        comp2["Component 2<br>Approximation"]
+        cubeRoot["Cube Root<br>Approximation"]
+    end
+    
+    subgraph "Distribution Parameters"
+        jackpotBps["Jackpot Percentage"]
+        lpBps["LP Rewards"]
+        burnBps["Burn Allocation"]
+        winProb["Win Probability"]
+    end
+    
+    subgraph "Applications"
+        jackpotSize["Jackpot Size<br>Calculation"]
+        distribution["Reward<br>Distribution"]
+        probCalculation["Probability<br>Calculations"]
+    end
+    
+    formula --> comp1
+    formula --> comp2
+    comp1 --> cubeRoot
+    cubeRoot --> formula
+    
+    formula --> jackpotSize
+    jackpotBps --> distribution
+    lpBps --> distribution
+    burnBps --> distribution
+    winProb --> probCalculation
+    
+    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white
+    class formula highlight
+```
+
+## The Hermès Formula
+
+The Hermès formula is a sophisticated mathematical model designed specifically for the OmniDragon jackpot system. It provides an optimal balance between jackpot growth and win frequency using a complex mathematical function.
+
+### Mathematical Expression
+
+<div className="math-formula">
+H(x) = ∛(x⁴ + d^(n+2)/(n² · x)) - x²/(3 · ∛(x⁴ + d^(n+2)/(n² · x)))
+</div>
+
+Where:
+- `x` is the current jackpot size
+- `d` is protocol constant D (governance parameter)
+- `n` is protocol constant N (governance parameter)
+
+### Implementation
+
+Due to the complexity of this formula, the implementation uses approximations optimized for Solidity:
+
+<Tabs>
+  <TabItem value="main" label="Main Function" default>
+
+```solidity
+/**
+ * @notice Calculate jackpot distribution using the Hermès formula
+ * @param x Current jackpot size (scaled by 1e18)
+ * @param d Protocol constant D (governance parameter)
+ * @param n Protocol constant N (governance parameter)
+ * @return Distribution value according to Hermès formula
+ */
+function calculateHermesValue(uint256 x, uint256 d, uint256 n) internal pure returns (uint256) {
+    // Handle edge cases
+    if (x == 0) return 0;
+    
+    // Step 1: Calculate the component under the cube root
+    uint256 component1 = approximateComponent1(x, d, n);
+    
+    // Step 2: Calculate the cube root
+    uint256 cubeRoot = approximateCubeRoot(component1);
+    
+    // Step 3: Calculate the second component
+    uint256 component2 = approximateComponent2(x, cubeRoot);
+    
+    // Return the result (ensuring no underflow)
+    if (component2 >= cubeRoot) return 0;
+    return cubeRoot - component2;
+}
+```
+
+  </TabItem>
+  <TabItem value="component1" label="Component 1">
+
+```solidity
+/**
+ * @notice Approximate the first component of the Hermès formula
+ * @param x Current jackpot size
+ * @param d Protocol constant D
+ * @param n Protocol constant N
+ * @return Approximate value of the first component
+ */
+function approximateComponent1(uint256 x, uint256 d, uint256 n) private pure returns (uint256) {
+    // Calculate x^4
+    uint256 x2 = (x * x) / PRECISION;
+    uint256 x4 = (x2 * x2) / PRECISION;
+    
+    // Calculate d^(n+2)
+    uint256 nPlus2 = n + 2 * PRECISION;
+    uint256 dTermExp = nPlus2 / PRECISION;
+    
+    uint256 dTerm = d;
+    for (uint256 i = 1; i < dTermExp; i++) {
+        dTerm = (dTerm * d) / PRECISION;
+    }
+    
+    // Calculate fractional part
+    uint256 nSquared = (n * n) / PRECISION;
+    uint256 denominator = (nSquared * x) / PRECISION;
+    
+    // Calculate final result: x^4 + d^(n+2)/(n^2*x)
+    uint256 result = x4;
+    
+    // Safe addition with division result
+    if (denominator > 0) {
+        result += dTerm / denominator;
+    }
+    
+    return result;
+}
+```
+
+  </TabItem>
+  <TabItem value="cuberoot" label="Cube Root">
+
+```solidity
+/**
+ * @notice Approximate the cube root of a number
+ * @param x Value to calculate cube root of
+ * @return Approximated cube root
+ */
+function approximateCubeRoot(uint256 x) private pure returns (uint256) {
+    if (x == 0) return 0;
+    
+    // Initial guess (scaled by PRECISION)
+    uint256 y = x;
+    
+    // Newton's method for cube root
+    // y = y - (y^3 - x) / (3 * y^2)
+    // Simplified to: y = (2*y^3 + x) / (3*y^2)
+    
+    // Four iterations of Newton's method
+    for (uint256 i = 0; i < 4; i++) {
+        uint256 y3 = ((y * y) / PRECISION) * y / PRECISION;
+        uint256 y2 = (y * y) / PRECISION;
+        if (y2 == 0) return 0;
+        y = ((2 * y3) + x) / (3 * y2);
+    }
+    
+    return y;
+}
+```
+
+  </TabItem>
+  <TabItem value="component2" label="Component 2">
+
+```solidity
+/**
+ * @notice Approximate the second component of the Hermès formula
+ * @param x Current jackpot size
+ * @param cubeRoot Cube root from the first component
+ * @return Approximate value of the second component
+ */
+function approximateComponent2(uint256 x, uint256 cubeRoot) private pure returns (uint256) {
+    // Calculate x^2
+    uint256 x2 = (x * x) / PRECISION;
+    
+    // Calculate x^2 / (3 * cubeRoot)
+    if (cubeRoot == 0) return 0;
+    
+    uint256 denominator = 3 * cubeRoot;
+    uint256 result = (x2 * PRECISION) / denominator;
+    
+    return result;
+}
+```
+
+  </TabItem>
+</Tabs>
+
+<div className="gas-optimization">
+  <h4>Gas Optimization Notes</h4>
+  <p>The implementation is carefully optimized for gas efficiency:</p>
+  <ul>
+    <li>Component-based approach divides the complex formula into manageable parts</li>
+    <li>Fixed number of iterations for Newton's method (4) balances precision with gas usage</li>
+    <li>Early exit conditions for edge cases such as zero values</li>
+    <li>Careful ordering of operations to maintain precision with minimal gas cost</li>
+    <li>Reuse of calculated values where possible (e.g., y², y³)</li>
+  </ul>
+</div>
+
+## Distribution Parameters
+
+The library defines several constants for fee distribution and probability calculations:
+
+<Tabs>
+  <TabItem value="fees" label="Fee Distribution" default>
+
+```solidity
+// Base fee distribution (in basis points)
+uint256 constant public BASE_JACKPOT_BPS = 690;  // 69.0%
+uint256 constant public BASE_LP_BPS = 241;       // 24.1%
+uint256 constant public BASE_BURN_BPS = 69;      // 6.9%
+
+// Minimum allocations (in basis points)
+uint256 constant public MIN_JACKPOT_BPS = 400;   // 40.0% minimum to jackpot
+uint256 constant public MIN_LP_BPS = 150;        // 15.0% minimum to LPs
+uint256 constant public MIN_BURN_BPS = 30;       // 3.0% minimum burn
+```
+
+  </TabItem>
+  <TabItem value="probability" label="Win Probability">
+
+```solidity
+// Win probability constants
+uint256 constant public BASE_WIN_PROB_BPS = 4;      // 0.0004% base probability
+uint256 constant public MAX_BASE_WIN_PROB_BPS = 400;  // 4% max base probability
+uint256 constant public MAX_BOOSTED_WIN_PROB_BPS = 1000; // 10% max boosted probability
+```
+
+  </TabItem>
+  <TabItem value="boost" label="Boost Parameters">
+
+```solidity
+// Constants for boost calculations
+uint256 constant private BASE_BOOST_BPS = 10000; // 100% = 1.0x boost
+uint256 constant private MAX_BOOST_BPS = 25000;  // 250% = 2.5x max boost
+uint256 constant private MIN_LP_FOR_MAX_BOOST = 1000 ether; // 1000 LP tokens for max boost
+```
+
+  </TabItem>
+</Tabs>
+
+## Distribution Calculation
+
+The library provides functions to calculate jackpot distributions:
+
+```solidity title="Jackpot Distribution Calculator"
+/**
+ * @notice Calculate jackpot distribution percentages
+ * @param jackpotSize Current jackpot size
+ * @param totalParticipants Number of lottery participants
+ * @param params Additional parameters [0]=d, [1]=n, [2]=basePercentage, [3]=adjustmentFactor
+ * @return mainPrize Percentage for main winner
+ * @return secondaryPrize Percentage for secondary winners
+ * @return participationRewards Percentage for participation rewards
+ */
+function calculateJackpotDistribution(
+    uint256 jackpotSize,
+    uint256 totalParticipants,
+    uint256[4] memory params
+) internal pure returns (
+    uint256 mainPrize,
+    uint256 secondaryPrize,
+    uint256 participationRewards
+) {
+    // Default values
+    mainPrize = 69 * PRECISION / 100; // 69%
+    secondaryPrize = 24 * PRECISION / 100; // 24%
+    participationRewards = 7 * PRECISION / 100; // 7%
+    
+    // Apply the Hermès formula for dynamic distribution
+    if (jackpotSize > 0 && totalParticipants > 0) {
+        uint256 d = params[0];
+        uint256 n = params[1];
+        uint256 basePercentage = params[2];
+        uint256 adjustmentFactor = params[3];
+        
+        // Calculate the optimal distribution using Hermès formula
+        uint256 optimalDistribution = calculateHermesValue(jackpotSize, d, n);
+        
+        // Apply adjustment factor
+        uint256 adjustedValue = (optimalDistribution * adjustmentFactor) / PRECISION;
+        
+        // Calculate the dynamic distribution
+        mainPrize = basePercentage + adjustedValue;
+        
+        // Ensure total doesn't exceed 100%
+        if (mainPrize > 85 * PRECISION / 100) {
+            mainPrize = 85 * PRECISION / 100;
+        }
+        
+        // Adjust secondary and participation based on main prize
+        secondaryPrize = (100 * PRECISION / 100 - mainPrize) * 80 / 100;
+        participationRewards = 100 * PRECISION / 100 - mainPrize - secondaryPrize;
+    }
+    
+    return (mainPrize, secondaryPrize, participationRewards);
+}
+```
+
+<div className="return-value">
+  <strong>Return Values:</strong>
+  <ul>
+    <li><code>mainPrize</code>: Percentage allocated to the main jackpot winner (scaled by PRECISION)</li>
+    <li><code>secondaryPrize</code>: Percentage allocated to secondary winners (scaled by PRECISION)</li>
+    <li><code>participationRewards</code>: Percentage allocated to participation rewards (scaled by PRECISION)</li>
+  </ul>
+</div>
+
+## Win Probability Calculation
+
+The library also provides functions to calculate win probabilities:
+
+```solidity title="Win Probability Calculator"
+/**
+ * @notice Calculate win probability based on swap size
+ * @param swapAmount Amount being swapped (in base units)
+ * @param tokenPrice Current token price
+ * @param userBoost User's boost multiplier (in BPS)
+ * @return Probability of winning (in BPS)
+ */
+function calculateWinProbability(
+    uint256 swapAmount,
+    uint256 tokenPrice,
+    uint256 userBoost
+) internal pure returns (uint256) {
+    // Convert swap amount to USD value
+    uint256 swapValueUsd = (swapAmount * tokenPrice) / PRECISION;
+    
+    // Base probability follows logarithmic curve
+    uint256 baseProbability;
+    
+    if (swapValueUsd < 10 * PRECISION) {
+        // Swaps under $10 get minimum probability
+        baseProbability = BASE_WIN_PROB_BPS;
+    } else if (swapValueUsd >= 10000 * PRECISION) {
+        // Swaps over $10,000 get maximum probability
+        baseProbability = MAX_BASE_WIN_PROB_BPS;
+    } else {
+        // Logarithmic scaling for values in between
+        uint256 logFactor = logarithmicScaling(swapValueUsd, 10 * PRECISION, 10000 * PRECISION);
+        baseProbability = BASE_WIN_PROB_BPS + 
+            (logFactor * (MAX_BASE_WIN_PROB_BPS - BASE_WIN_PROB_BPS)) / PRECISION;
+    }
+    
+    // Apply user boost
+    uint256 boostedProbability = (baseProbability * userBoost) / BASE_BOOST_BPS;
+    
+    // Cap at maximum boosted probability
+    if (boostedProbability > MAX_BOOSTED_WIN_PROB_BPS) {
+        return MAX_BOOSTED_WIN_PROB_BPS;
+    }
+    
+    return boostedProbability;
+}
+```
+
+<div className="return-value">
+  <strong>Return Value:</strong>
+  <p>Win probability in basis points (1 BPS = 0.01%). A value of 100 represents a 1% probability.</p>
+</div>
+
+## Integration Examples
+
+### Jackpot Distribution System
+
+<Tabs>
+  <TabItem value="distributor" label="Jackpot Distributor" default>
+
+```solidity
+// Import the library
+import "../math/HermesMath.sol";
+
+contract JackpotDistributor {
+    using HermesMath for uint256;
+    
+    // Protocol constants (can be adjusted by governance)
+    uint256 public d = 3 * 1e18; // Protocol constant D
+    uint256 public n = 2 * 1e18; // Protocol constant N
+    uint256 public basePercentage = 60 * 1e18 / 100; // 60%
+    uint256 public adjustmentFactor = 8 * 1e17; // 0.8
+    
+    // Calculate prize distribution for current jackpot
+    function calculatePrizes(uint256 jackpotSize, uint256 participants) external view returns (
+        uint256 mainPrize,
+        uint256 secondaryPrize,
+        uint256 participationRewards
+    ) {
+        uint256[4] memory params = [d, n, basePercentage, adjustmentFactor];
+        
+        return HermesMath.calculateJackpotDistribution(
+            jackpotSize,
+            participants,
+            params
+        );
+    }
+    
+    // Calculate win probability for a swap
+    function calculateSwapWinProbability(
+        uint256 swapAmount,
+        uint256 tokenPrice,
+        uint256 userBoost
+    ) external pure returns (uint256) {
+        return HermesMath.calculateWinProbability(
+            swapAmount,
+            tokenPrice,
+            userBoost
+        );
+    }
+}
+```
+
+  </TabItem>
+  <TabItem value="feedistributor" label="Fee Distributor">
+
+```solidity
+// Import the library
+import "../math/HermesMath.sol";
+
+contract FeeDistributor {
+    using HermesMath for uint256;
+    
+    // Distribute fees according to the HermesMath parameters
+    function distributeFees(uint256 feeAmount) external returns (
+        uint256 toJackpot,
+        uint256 toLps,
+        uint256 toBurn
+    ) {
+        toJackpot = (feeAmount * HermesMath.BASE_JACKPOT_BPS) / HermesMath.BPS_MAX;
+        toLps = (feeAmount * HermesMath.BASE_LP_BPS) / HermesMath.BPS_MAX;
+        toBurn = (feeAmount * HermesMath.BASE_BURN_BPS) / HermesMath.BPS_MAX;
+        
+        // Send to respective destinations
+        // ...
+        
+        return (toJackpot, toLps, toBurn);
+    }
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Mathematical Background
+
+### The Hermès Distribution Model
+
+The Hermès formula was designed specifically for the Sonic Red Dragon jackpot system with these properties:
+
+1. **Balance**: Finds the optimal balance between jackpot growth and payout frequency
+2. **Scale Sensitivity**: Distribution changes based on jackpot size
+3. **Governance Control**: Parameters d and n allow governance to tune the system
+4. **Stability**: Ensures stable growth even with volatile participation rates
+
+### Numerical Properties
+
+The formula has several interesting numerical properties:
+
+1. As jackpot size (x) increases, the formula yields larger absolute values
+2. The growth rate is non-linear, creating a natural "jackpot momentum" effect
+3. Parameter d controls the baseline distribution rate
+4. Parameter n controls the sensitivity to jackpot size changes
+
+<div className="security-consideration">
+  <h4>Security Considerations</h4>
+  <p>When using the HermesMath library, consider these security best practices:</p>
+  <ul>
+    <li><strong>Parameter Bounds</strong>: Ensure governance parameters d and n stay within reasonable bounds</li>
+    <li><strong>Precision Consistency</strong>: Maintain consistent precision factors across calculations</li>
+    <li><strong>Reserve Requirements</strong>: Ensure the contract has sufficient reserves to pay calculated prizes</li>
+    <li><strong>Update Control</strong>: Implement careful controls around updating the distribution parameters</li>
+    <li><strong>Max Cap</strong>: Consider implementing maximum caps on individual prizes for security</li>
+  </ul>
+</div> 
