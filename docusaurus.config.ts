@@ -116,7 +116,7 @@ const config: Config = {
             },
             {
               label: 'Discord',
-              href: 'https://discord.gg/sonicreddragon',
+              href: 'https://discord.gg/w75vaxDXuE',
             },
             {
               label: 'Twitter',
@@ -166,7 +166,7 @@ const config: Config = {
           items: [
             {
               label: 'Discord',
-              href: 'https://discord.gg/sonicreddragon',
+              href: 'https://discord.gg/w75vaxDXuE',
               className: 'footer__link--modern footer__link--discord',
             },
             {
