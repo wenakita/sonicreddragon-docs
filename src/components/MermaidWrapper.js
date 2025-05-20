@@ -13,6 +13,32 @@ export default function MermaidWrapper({ chart }) {
   const isBrowser = useIsBrowser();
   const { colorMode } = useColorMode();
   
+  // Function to sanitize chart code to prevent parsing errors
+  const sanitizeMermaidCode = (code) => {
+    if (!code) return '';
+    
+    // Replace any non-standard quotes, dashes or problematic Unicode
+    return code
+      // Normalize quotes
+      .replace(/[""]/g, '"')
+      .replace(/['']/g, "'")
+      // Normalize dashes
+      .replace(/[—–]/g, '-')
+      // Fix common Unicode errors in classDef lines
+      .replace(/classDef\s+(\w+)\s+fill:([^\n,;]+)/g, (match, className, fill) => {
+        // Clean up the fill value to ensure it only has valid hex colors or CSS color names
+        const cleanFill = fill
+          .replace(/[^\w#(),.\s-]/g, '') // Remove any non-alphanumeric characters except those valid in colors
+          .replace(/\s+/g, ' ');         // Normalize whitespace
+        
+        return `classDef ${className} fill:${cleanFill}`;
+      })
+      // Ensure semicolons in style definitions are properly spaced
+      .replace(/;(\w)/g, '; $1')
+      // Replace any lingering problematic Unicode characters
+      .replace(/[^\x00-\x7F]/g, '');
+  };
+
   useEffect(() => {
     async function renderDiagram() {
       if (!isBrowser || !containerRef.current || !chart) {
@@ -44,6 +70,9 @@ export default function MermaidWrapper({ chart }) {
         // Generate a unique ID to avoid conflicts
         const id = `mermaid-diagram-${Math.random().toString(36).substr(2, 9)}`;
         
+        // Sanitize the chart code
+        const sanitizedChart = sanitizeMermaidCode(chart.trim());
+        
         // Initialize mermaid with the current theme
         const isDarkTheme = colorMode === 'dark';
         window.mermaid.initialize({
@@ -59,8 +88,11 @@ export default function MermaidWrapper({ chart }) {
         });
         
         try {
+          // Pre-parse to catch syntax errors early
+          await window.mermaid.parse(sanitizedChart);
+          
           // Use mermaid's render method (most reliable)
-          const { svg } = await window.mermaid.render(id, chart.trim());
+          const { svg } = await window.mermaid.render(id, sanitizedChart);
           
           // Insert the rendered SVG
           containerRef.current.innerHTML = svg;
@@ -84,6 +116,10 @@ export default function MermaidWrapper({ chart }) {
         } catch (renderError) {
           console.error('MermaidWrapper render error:', renderError);
           setRenderError(renderError.message || 'Failed to render diagram');
+          
+          // Log the problematic diagram code for debugging
+          console.log('Problematic diagram code:', sanitizedChart);
+          
           setIsLoading(false);
         }
       } catch (error) {

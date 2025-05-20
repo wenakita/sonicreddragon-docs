@@ -20,8 +20,34 @@ export default function StandardMermaid({ chart, className, animate = true }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [retryCount, setRetryCount] = useState(0);
   
-  // Ensure chart is properly processed
-  const processedChart = chart?.trim() || '';
+  // Function to sanitize chart code to prevent parsing errors
+  const sanitizeMermaidCode = (code) => {
+    if (!code) return '';
+    
+    // Replace any non-standard quotes, dashes or problematic Unicode
+    return code
+      // Normalize quotes
+      .replace(/[""]/g, '"')
+      .replace(/['']/g, "'")
+      // Normalize dashes
+      .replace(/[—–]/g, '-')
+      // Fix common Unicode errors in classDef lines
+      .replace(/classDef\s+(\w+)\s+fill:([^\n,;]+)/g, (match, className, fill) => {
+        // Clean up the fill value to ensure it only has valid hex colors or CSS color names
+        const cleanFill = fill
+          .replace(/[^\w#(),.\s-]/g, '') // Remove any non-alphanumeric characters except those valid in colors
+          .replace(/\s+/g, ' ');         // Normalize whitespace
+        
+        return `classDef ${className} fill:${cleanFill}`;
+      })
+      // Ensure semicolons in style definitions are properly spaced
+      .replace(/;(\w)/g, '; $1')
+      // Replace any lingering problematic Unicode characters
+      .replace(/[^\x00-\x7F]/g, '');
+  };
+  
+  // Ensure chart is properly processed and sanitized
+  const processedChart = sanitizeMermaidCode(chart?.trim() || '');
   
   // Create a unique identifier for this diagram
   const uniqueId = useRef(`mermaid-${Math.random().toString(36).substring(2, 11)}`);
@@ -100,21 +126,36 @@ export default function StandardMermaid({ chart, className, animate = true }) {
       diagramElement.style.overflow = 'visible';
       diagramContainer.appendChild(diagramElement);
       
-      // Render the diagram
-      const { svg } = await mermaid.render(uniqueId.current, processedChart);
-      
-      // Replace the content with the SVG
-      diagramElement.innerHTML = svg;
-      
-      // Mark as rendered
-      setIsRendered(true);
-      setIsError(false);
-      
-      // Apply animation if available and requested
-      if (animate && window.animateMermaidDiagrams && typeof window.animateMermaidDiagrams === 'function') {
-        setTimeout(() => {
-          window.animateMermaidDiagrams(diagramElement);
-        }, 100);
+      // Add a try/catch block specifically for the parsing step
+      try {
+        // Pre-parse the diagram to catch syntax errors early
+        await mermaid.parse(processedChart);
+        
+        // If parsing is successful, render the diagram
+        const { svg } = await mermaid.render(uniqueId.current, processedChart);
+        
+        // Replace the content with the SVG
+        diagramElement.innerHTML = svg;
+        
+        // Mark as rendered
+        setIsRendered(true);
+        setIsError(false);
+        
+        // Apply animation if available and requested
+        if (animate && window.animateMermaidDiagrams && typeof window.animateMermaidDiagrams === 'function') {
+          setTimeout(() => {
+            window.animateMermaidDiagrams(diagramElement);
+          }, 100);
+        }
+      } catch (parseError) {
+        console.error('Mermaid parse error:', parseError);
+        
+        // Display a more specific error for parse issues
+        setIsError(true);
+        setErrorMessage(`Diagram syntax error: ${parseError.message}`);
+        
+        // Log the problematic diagram code for debugging
+        console.log('Problematic diagram code:', processedChart);
       }
     } catch (error) {
       console.error('Error rendering Mermaid diagram:', error);
