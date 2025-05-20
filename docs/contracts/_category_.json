@@ -1,0 +1,9 @@
+{
+  "label": "Smart Contracts",
+  "position": 2,
+  "link": {
+    "type": "doc",
+    "id": "contracts/overview"
+  },
+  "collapsed": false
+} 
