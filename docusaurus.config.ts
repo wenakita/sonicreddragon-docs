@@ -10,19 +10,18 @@ const config: Config = {
   favicon: 'img/logo.svg',
 
   // Set the production url of your site here
-  url: 'https://docs.sonicreddragon.io',
+  url: 'https://wenakita.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/sonicreddragon-docs/',
-  trailingSlash: true,
+  // Remove trailing slash for GitHub Pages
+  trailingSlash: false,
 
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'wenakita', // Replace with your GitHub username
-  projectName: 'sonicreddragon-docs', // Replace with your repository name
+  // GitHub pages deployment config
+  organizationName: 'wenakita',
+  projectName: 'sonicreddragon-docs',
 
-  onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'throw',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
