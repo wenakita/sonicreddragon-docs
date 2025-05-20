@@ -5,44 +5,41 @@ title: Security Architecture
 
 # Security Architecture
 
-The OmniDragon protocol implements multiple layers of security to ensure the safety of user funds and the integrity of the system.
+This document outlines the planned security architecture for the OmniDragon protocol.
 
-## Overview
+## Current Status
 
-Security is a fundamental aspect of the OmniDragon protocol design. The system incorporates industry best practices and multiple protective layers to mitigate risks and ensure robust operation across different blockchain networks.
+OmniDragon is currently in development, and the full security architecture described in this document represents our planned approach. At present, we are in the process of designing and implementing these security features.
 
-## Security Layers
+## Planned Security Layers
 
 ```mermaid
 flowchart TB
     %% Define main security layers
-    subgraph CoreSecurity ["Core Contract Security"]
+    subgraph CoreSecurity ["Core Contract Security (Planned)"]
         direction TB
         AUDITS["External Audits"]:::core
         TESTING["Comprehensive Testing"]:::core
-        FORMAL["Formal Verification"]:::core
         ACCESS["Access Controls"]:::core
     end
     
-    subgraph RuntimeSecurity ["Runtime Protection"]
+    subgraph RuntimeSecurity ["Runtime Protection (Planned)"]
         direction TB
         PAUSE["Emergency Pause"]:::runtime
         GUARD["Reentrancy Guards"]:::runtime
         LIMITS["Transaction Limits"]:::runtime
-        MONITORING["Real-time Monitoring"]:::runtime
     end
     
-    subgraph CrossChainSecurity ["Cross-Chain Security"]
+    subgraph CrossChainSecurity ["Cross-Chain Security (Planned)"]
         direction TB
         MESSAGE["Message Verification"]:::crosschain
         CONSISTENCY["State Consistency"]:::crosschain
         ROLLBACK["Rollback Mechanisms"]:::crosschain
-        PROOFS["Cryptographic Proofs"]:::crosschain
     end
     
     %% Connect the systems
-    CoreSecurity -->|"Protects"| RuntimeSecurity
-    RuntimeSecurity -->|"Secures"| CrossChainSecurity
+    CoreSecurity -->|"Will Protect"| RuntimeSecurity
+    RuntimeSecurity -->|"Will Secure"| CrossChainSecurity
     
     %% Apply styling
     classDef core fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1
@@ -55,22 +52,22 @@ flowchart TB
     style CrossChainSecurity fill:#f3e5f5,stroke:#e1bee7,color:#6a1b9a
 ```
 
-## Key Security Features
+## Planned Security Features
 
 ### Access Control Mechanisms
 
-The protocol implements role-based access control (RBAC) with clearly defined roles:
+We plan to implement role-based access control (RBAC) with clearly defined roles:
 
-1. **Owners** - Can update critical protocol parameters and perform emergency actions
-2. **Operators** - Can execute routine maintenance operations
-3. **Fee Collectors** - Can receive and distribute protocol fees
-4. **Bridges** - Can initiate and receive cross-chain messages
+1. **Owners** - Will be able to update critical protocol parameters and perform emergency actions
+2. **Operators** - Will be able to execute routine maintenance operations
+3. **Fee Collectors** - Will be able to receive and distribute protocol fees
+4. **Bridges** - Will be able to initiate and receive cross-chain messages
 
-Each role has limited permissions, following the principle of least privilege.
+Each role will have limited permissions, following the principle of least privilege.
 
 ### Reentrancy Protection
 
-All fund-moving functions implement reentrancy guards to prevent potential attacks:
+All fund-moving functions will implement reentrancy guards to prevent potential attacks:
 
 ```solidity
 function distributeRewards(address[] memory recipients, uint256[] memory amounts) 
@@ -84,7 +81,7 @@ function distributeRewards(address[] memory recipients, uint256[] memory amounts
 
 ### Emergency Circuit Breakers
 
-Critical contracts include pausable functionality that can be triggered in case of emergencies:
+Critical contracts will include pausable functionality that can be triggered in case of emergencies:
 
 ```solidity
 function transfer(address to, uint256 amount) public override whenNotPaused returns (bool) {
@@ -94,27 +91,26 @@ function transfer(address to, uint256 amount) public override whenNotPaused retu
 
 ### Cross-Chain Message Verification
 
-The protocol implements rigorous verification for all cross-chain messages:
+The protocol will implement verification for all cross-chain messages:
 
 1. **Message Authentication** - Cryptographic verification of message origin
 2. **Replay Protection** - Prevention of message replay attacks
 3. **Timeout Mechanisms** - Automatic invalidation of stale messages
 4. **Consistent State** - Verification of cross-chain state consistency
 
-## Security Audits
+## Security Audit Plan
 
-The OmniDragon protocol undergoes regular security audits by leading blockchain security firms:
+We plan to engage with reputable blockchain security firms for audits prior to mainnet launch:
 
-| Date | Auditor | Scope | Result |
-|------|---------|-------|--------|
-| Q2 2023 | BlockSec | Core Contracts | Passed |
-| Q3 2023 | CertiK | Cross-Chain Bridge | Passed |
-| Q4 2023 | PeckShield | Jackpot System | Passed |
-| Q1 2024 | Trail of Bits | Full Protocol | Passed |
+| Timeline | Audit Focus | Status |
+|----------|-------------|--------|
+| Pre-launch | Core Contracts | Planned |
+| Pre-launch | Cross-Chain Bridge | Planned |
+| Pre-launch | Jackpot System | Planned |
 
-## Incident Response
+## Future Incident Response Plan
 
-In the event of a security incident, the protocol has a defined response process:
+Once launched, we plan to implement a defined incident response process:
 
 1. **Detection** - Continuous monitoring systems for early threat detection
 2. **Analysis** - Rapid impact assessment by the security team
@@ -125,4 +121,4 @@ In the event of a security incident, the protocol has a defined response process
 
 ## Bug Bounty Program
 
-OmniDragon maintains an active bug bounty program with rewards up to $250,000 for critical vulnerabilities. Researchers can submit findings through our secure reporting channel at [security@omnidragon.io](mailto:security@omnidragon.io).
+We intend to establish a bug bounty program to encourage responsible disclosure of security vulnerabilities. Details will be announced closer to the mainnet launch.
