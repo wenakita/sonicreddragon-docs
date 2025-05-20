@@ -1,155 +1,226 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # Architecture
 
-Sonic Red Dragon implements a comprehensive, multi-layered architecture that combines advanced blockchain technologies to create a secure, efficient, and feature-rich cross-chain token ecosystem.
+The Sonic Red Dragon ecosystem is built on a modular, extensible architecture designed for cross-chain compatibility, security, and scalability.
 
 ## System Overview
 
-The Sonic Red Dragon architecture consists of four main components that work together to provide its core functionality:
+At a high level, the Sonic Red Dragon architecture consists of several interconnected components:
 
 ```mermaid
-graph TB
-    subgraph "Core Token System"
-        TokenContract["Token Contract"]
-        DeployerContract["Deployer Contract"]
-        ChainRegistry["Chain Registry"]
-    end
+graph TD
+    Token["OmniDragon Token"] --> LZ["LayerZero V2"]
+    Token --> Governance["ve69LP Governance"]
+    Token --> JackpotSystem["Jackpot System"]
     
     subgraph "Cross-Chain Infrastructure"
-        LayerZero["LayerZero V2"]
-        Endpoints["Chain Endpoints"]
-        Bridge["Bridge Contract"]
+        LZ
+        MessageLib["Message Library"]
+        DVN["Data Verification Network"]
+        Executor["Executor"]
     end
     
-    subgraph "Randomness System"
-        DrandIntegration["dRAND Integration"]
-        ChainlinkVRF["Chainlink VRF"]
-        RandomnessOracle["Randomness Oracle"]
+    subgraph "Governance System"
+        Governance
+        Treasury["Treasury"]
+        VotingPower["Voting Power"]
+        Rewards["Rewards Distribution"]
     end
     
-    subgraph "Governance & Economics"
-        ve69LP["ve69LP Tokenomics"]
-        FeeSystem["Fee Distribution"]
-        JackpotMechanism["Jackpot Mechanism"]
+    subgraph "Jackpot Infrastructure"
+        JackpotSystem
+        JackpotVault["Jackpot Vault"]
+        SwapTrigger["Swap Trigger Oracle"]
+        Distributor["Jackpot Distributor"]
     end
     
-    TokenContract <--> Bridge
-    Bridge <--> LayerZero
-    LayerZero <--> Endpoints
-    TokenContract --> FeeSystem
-    RandomnessOracle --> JackpotMechanism
-    DrandIntegration --> RandomnessOracle
-    ChainlinkVRF --> RandomnessOracle
-    DeployerContract --> TokenContract
-    ChainRegistry <--> Endpoints
-    ve69LP --> Governance["Governance"]
-    FeeSystem --> Treasury["Treasury"]
+    LZ --> MessageLib
+    LZ --> DVN
+    LZ --> Executor
     
-    class TokenContract,RandomnessOracle,JackpotMechanism highlight
+    Governance --> Treasury
+    Governance --> VotingPower
+    Governance --> Rewards
+    
+    JackpotSystem --> JackpotVault
+    JackpotSystem --> SwapTrigger
+    JackpotSystem --> Distributor
+    
+    class Token,LZ,Governance,JackpotSystem highlight
 ```
 
-## Core Token System
+## Core Components
 
-The Core Token System implements the main ERC-20 compatible token with enhanced features:
+### OmniDragon Token
 
-1. **Token Contract**: Implements the ERC-20 interface with additional cross-chain capabilities
-2. **Deployer Contract**: Manages the deployment of token contracts across different chains
-3. **Chain Registry**: Maintains a registry of supported chains and their configurations
+The OmniDragon token serves as the foundation of the ecosystem. It implements:
 
-The token implementation includes role-based access control, pausable transfers for emergency situations, and integration points for the fee and jackpot mechanics.
+- ERC-20 standard functionality
+- Cross-chain compatibility via LayerZero V2
+- Fee collection and distribution
+- Jackpot entry triggering for buy transactions
+- Governance integration
 
-## Cross-Chain Infrastructure
+### Cross-Chain Infrastructure
 
-Sonic Red Dragon leverages LayerZero V2 for its cross-chain messaging capabilities:
-
-1. **LayerZero Integration**: Enables secure cross-chain messaging with optimistic security
-2. **Chain Endpoints**: Custom endpoints for each supported blockchain
-3. **Bridge Contract**: Manages token transfers between chains
-
-This infrastructure ensures that tokens can be seamlessly moved across different blockchains while maintaining security and consistency of the token supply.
-
-## Randomness System
-
-One of Sonic Red Dragon's unique features is its verifiable randomness system:
+The cross-chain functionality is powered by LayerZero V2:
 
 ```mermaid
-flowchart TB
-    subgraph "Randomness Sources"
-        drand["dRAND Network"]
-        chainlink["Chainlink VRF"]
-        arbitrum["Arbitrum VRF"]
-    end
+sequenceDiagram
+    participant UserA as "User (Chain A)"
+    participant TokenA as "DRAGON (Chain A)"
+    participant LZA as "LayerZero Endpoint (Chain A)"
+    participant Relayer as "LayerZero Relayer"
+    participant DVN as "Data Verification Network"
+    participant LZB as "LayerZero Endpoint (Chain B)"
+    participant TokenB as "DRAGON (Chain B)"
+    participant UserB as "User (Chain B)"
     
-    subgraph "Randomness Oracle"
-        randomnessAggregator["Randomness Aggregator"]
-        verifier["Verification Module"]
-        cache["Random Cache"]
-    end
-    
-    subgraph "Consumers"
-        jackpot["Jackpot System"]
-        games["Games & Applications"]
-        governance["Governance Decisions"]
-    end
-    
-    drand -->|"Verified Randomness"| randomnessAggregator
-    chainlink -->|"VRF Output"| randomnessAggregator
-    arbitrum -->|"Chain-specific VRF"| randomnessAggregator
-    
-    randomnessAggregator -->|"Aggregate"| verifier
-    verifier -->|"Store"| cache
-    cache -->|"Retrieve"| jackpot
-    cache -->|"Retrieve"| games
-    cache -->|"Retrieve"| governance
-    
-    class randomnessAggregator,jackpot highlight
+    UserA->>TokenA: sendTokensToChain(ChainB, recipient, amount)
+    TokenA->>TokenA: Burn tokens
+    TokenA->>LZA: Send cross-chain message
+    LZA->>Relayer: Relay message
+    LZA->>DVN: Request data verification
+    DVN-->>LZB: Verify message data
+    Relayer-->>LZB: Deliver message
+    LZB->>TokenB: Receive verified message
+    TokenB->>TokenB: Mint tokens
+    TokenB->>UserB: Token received
 ```
 
-1. **dRAND Integration**: Primary source of verifiable randomness from the League of Entropy
-2. **Chainlink VRF**: Secondary source for additional randomness verification
-3. **Randomness Oracle**: Aggregates and verifies random values from multiple sources
+### Governance System
 
-This multi-source approach ensures that randomness cannot be manipulated, providing a secure foundation for the jackpot system and other random-dependent features.
-
-## Governance & Economics
-
-The economic model of Sonic Red Dragon is designed for long-term sustainability:
-
-1. **ve69LP Tokenomics**: Vote-escrowed liquidity provider tokens for governance
-2. **Fee System**: Transaction fees distributed to stakers, treasury, and jackpot
-3. **Jackpot Mechanism**: Periodic random distribution of accumulated fees
-
-## User Journey
+The governance system is based on the ve69LP (vote-escrowed) model:
 
 ```mermaid
-flowchart LR
-    User["User"] -->|"Buy"| Token["Sonic Red Dragon Token"]
-    User -->|"Provide Liquidity"| LP["Liquidity Pool"]
-    LP -->|"Lock for"| ve69LP["ve69LP Tokens"]
-    Token -->|"Transfer Cross-Chain"| Bridge["Bridge"]
-    Bridge -->|"Send to"| DestChain["Destination Chain"]
-    Token -->|"Generate"| Fees["Transaction Fees"]
-    Fees -->|"Distribute to"| JackpotPool["Jackpot Pool"]
-    Fees -->|"Distribute to"| Stakers["Stakers"]
-    Fees -->|"Distribute to"| Treasury["Treasury"]
-    JackpotPool -->|"Random Winner"| User
-    ve69LP -->|"Vote on"| Governance["Governance Proposals"]
+graph TD
+    LP["LP Tokens"] -->|"Lock"| ve69LP["ve69LP Tokens"]
+    ve69LP -->|"Grant"| Voting["Voting Power"]
+    ve69LP -->|"Receive"| FeeRewards["Fee Rewards"]
+    ve69LP -->|"Boost"| StakingRewards["Staking Rewards"]
     
-    class Token,JackpotPool highlight
+    Voting -->|"Vote on"| Proposals["Governance Proposals"]
+    Proposals -->|"Execute"| Treasury["Treasury Actions"]
+    Proposals -->|"Control"| Parameters["Protocol Parameters"]
+    
+    class ve69LP highlight
 ```
 
-This architecture provides a comprehensive foundation for the Sonic Red Dragon ecosystem, enabling advanced features while maintaining security and decentralization.
+### Jackpot System
 
-## Technical Implementation
+The jackpot system provides on-chain lottery functionality:
 
-At the technical level, all contracts are written in Solidity with a focus on:
+```mermaid
+graph TD
+    Buy["Token Purchase"] -->|"Detected by"| OmniDragon["OmniDragon Token"]
+    OmniDragon -->|"Collect Fees"| FeeProcessor["Fee Processor"]
+    FeeProcessor -->|"6.9% to Jackpot"| JackpotVault["Jackpot Vault"]
+    OmniDragon -->|"Trigger"| SwapOracle["Swap Trigger Oracle"]
+    SwapOracle -->|"Calculate Probability"| Entry["Lottery Entry"]
+    Entry -->|"If Winning Entry"| Distributor["Jackpot Distributor"]
+    JackpotVault -->|"Provide Funds"| Distributor
+    Distributor -->|"Send Reward"| Winner["Winner"]
+    
+    class SwapOracle,JackpotVault,Distributor highlight
+```
 
-1. Gas optimization for cost-effective operations
-2. Comprehensive security measures including formal verification
-3. Upgradability patterns for critical components
-4. Extensive testing and auditing
+## Technical Relationships
 
-For more detailed information about specific components, please refer to the corresponding sections in the documentation.
+The relationship between the contracts can be visualized as follows:
+
+```mermaid
+classDiagram
+    class OmniDragon {
+        +address swapTrigger
+        +address jackpotVault
+        +address ve69LP
+        +transfer()
+        +_tryProcessLotteryEntry()
+        +processPartnerJackpotEntry()
+        +swapTokensForWrappedNative()
+        +_distributeFees()
+        +sendTokensToChain()
+    }
+    
+    class OmniDragonSwapTriggerOracle {
+        +address omniDragon
+        +address jackpotDistributor
+        +onSwap()
+        +calculateWinProbability()
+        +getAggregatedPrice()
+    }
+    
+    class DragonJackpotVault {
+        +address omniDragon
+        +address distributor
+        +uint256 availableJackpotAmount
+        +addToJackpot()
+        +distributeJackpot()
+        +getAvailableJackpot()
+    }
+    
+    class DragonJackpotDistributor {
+        +address jackpotVault
+        +triggerJackpot()
+        +distributeJackpot()
+    }
+    
+    class ve69LP {
+        +createLock()
+        +increaseLockAmount()
+        +extendLockTime()
+        +withdraw()
+        +getVotingPower()
+    }
+    
+    OmniDragon --> OmniDragonSwapTriggerOracle : triggers
+    OmniDragon --> DragonJackpotVault : sends fees
+    OmniDragon --> ve69LP : sends fees
+    OmniDragonSwapTriggerOracle --> DragonJackpotDistributor : notifies
+    DragonJackpotDistributor --> DragonJackpotVault : requests funds
+```
+
+## Multi-Chain Deployment
+
+The Sonic Red Dragon ecosystem is deployed on multiple blockchains with identical functionality on each chain:
+
+| Chain | Layer Type | Primary Use Cases |
+|-------|------------|------------------|
+| Ethereum | L1 | Governance, Security, Prime Liquidity |
+| BNB Chain | L1 | High Throughput, Lower Fees |
+| Arbitrum | L2 | Scaling, Lower Fees |
+| Avalanche | L1 | Fast Finality, EVM Compatible |
+| Base | L2 | Scaling, Lower Fees |
+
+## Security Model
+
+The security architecture is built on several principles:
+
+1. **Multi-Layered Access Controls**: Role-based permissions with strict validation
+2. **Economic Security**: Fee mechanism and incentive alignment
+3. **Oracle Diversity**: Multiple price feeds for reliable market data
+4. **Governance Time-Locks**: Delay periods for critical changes
+5. **External Verification**: LayerZero DVN provides additional security layer
+
+## Fee Flow
+
+The token implements a fee model that distributes transaction fees as follows:
+
+```mermaid
+pie title Fee Distribution
+    "Jackpot (6.9%)" : 6.9
+    "Governance (2.41%)" : 2.41
+    "Burn (0.69%)" : 0.69
+```
+
+## Integration Points
+
+The system exposes several integration points for partners and extensions:
+
+1. **Partner Jackpot Program**: Special jackpot entries for integrated pools
+2. **Cross-Chain Messaging**: LayerZero integration for cross-chain communication
+3. **Governance Hooks**: Extensible governance for protocol evolution
+4. **Oracle Aggregation**: Multiple price feed sources for reliability
