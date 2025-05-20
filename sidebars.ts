@@ -20,6 +20,11 @@ const sidebars: SidebarsConfig = {
       label: 'Introduction',
     },
     {
+      type: 'doc',
+      id: 'getting-started',
+      label: 'Getting Started',
+    },
+    {
       type: 'category',
       label: 'Smart Contracts',
       items: [
@@ -27,6 +32,22 @@ const sidebars: SidebarsConfig = {
           type: 'doc',
           id: 'contracts/overview',
           label: 'Overview',
+        },
+        {
+          type: 'category',
+          label: 'Guides',
+          items: [
+            {
+              type: 'doc',
+              id: 'contracts/guides/integration',
+              label: 'Integration Guide',
+            },
+            {
+              type: 'doc',
+              id: 'contracts/guides/security',
+              label: 'Security Best Practices',
+            },
+          ],
         },
       ],
     },
@@ -38,6 +59,43 @@ const sidebars: SidebarsConfig = {
           type: 'doc',
           id: 'ecosystem/drand-network',
           label: 'dRAND Network',
+        },
+        {
+          type: 'category',
+          label: 'LayerZero',
+          items: [
+            {
+              type: 'doc',
+              id: 'ecosystem/layerzero/overview',
+              label: 'Overview',
+            },
+            {
+              type: 'doc',
+              id: 'ecosystem/layerzero/integration',
+              label: 'Integration Guide',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'category',
+      label: 'API Reference',
+      items: [
+        {
+          type: 'doc',
+          id: 'api/token',
+          label: 'Token Contract',
+        },
+        {
+          type: 'doc',
+          id: 'api/bridge',
+          label: 'Bridge Contract',
+        },
+        {
+          type: 'doc',
+          id: 'api/randomness',
+          label: 'Randomness Contract',
         },
       ],
     },
