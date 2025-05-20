@@ -69,31 +69,64 @@ const config: Config = {
       },
       items: [
         {
-          type: 'doc',
-          docId: 'intro',
+          type: 'docSidebar',
           position: 'left',
-          label: 'Overview',
+          sidebarId: 'concepts',
+          label: 'Concepts',
           className: 'navbar__item--modern',
         },
         {
-          type: 'doc',
-          docId: 'contracts/overview',
+          type: 'docSidebar',
           position: 'left',
+          sidebarId: 'guides',
+          label: 'Guides',
+          className: 'navbar__item--modern',
+        },
+        {
+          type: 'docSidebar',
+          position: 'left',
+          sidebarId: 'contracts',
           label: 'Contracts',
           className: 'navbar__item--modern',
         },
         {
-          type: 'doc',
-          docId: 'ecosystem/drand-network',
+          type: 'docSidebar',
           position: 'left',
-          label: 'Randomness',
+          sidebarId: 'integrations',
+          label: 'Integrations',
           className: 'navbar__item--modern',
         },
         {
-          href: 'https://github.com/wenakita/omnidragon',
-          label: 'GitHub',
+          type: 'docSidebar',
+          position: 'left',
+          sidebarId: 'reference',
+          label: 'Reference',
+          className: 'navbar__item--modern',
+        },
+        {
+          type: 'dropdown',
           position: 'right',
-          className: 'navbar__item--modern navbar__item--github',
+          label: 'Resources',
+          className: 'navbar__item--modern',
+          items: [
+            {
+              label: 'GitHub',
+              href: 'https://github.com/wenakita/omnidragon',
+              className: 'navbar__item--github',
+            },
+            {
+              label: 'Discord',
+              href: 'https://discord.gg/sonicreddragon',
+            },
+            {
+              label: 'Twitter',
+              href: 'https://twitter.com/sonicreddragon',
+            },
+            {
+              label: 'Blog',
+              href: 'https://blog.sonicreddragon.io',
+            },
+          ],
         },
       ],
       style: 'dark',
@@ -216,7 +249,6 @@ const config: Config = {
   // Add modern plugins
   themes: [
     '@docusaurus/theme-mermaid',
-    '@docusaurus/theme-classic',
   ],
 
   // Remove the API plugin configuration since we're not using it yet
