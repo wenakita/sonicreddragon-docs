@@ -13,6 +13,59 @@ export default {
       const sidebar = document.querySelector('.navbar-sidebar');
       const body = document.body;
       
+      // Fix Docusaurus specific sidebar issues
+      const fixDocusaurusSidebar = () => {
+        // Create backdrop overlay if it doesn't exist
+        let overlay = document.querySelector('.overlay-container');
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.className = 'overlay-container';
+          document.body.appendChild(overlay);
+          
+          // Add click handler to close sidebar when overlay is clicked
+          overlay.addEventListener('click', function() {
+            const docSidebar = document.querySelector('.theme-doc-sidebar-container');
+            if (docSidebar && docSidebar.classList.contains('menu--show')) {
+              docSidebar.classList.remove('menu--show');
+            }
+          });
+        }
+        
+        // Fix for doc sidebar toggle
+        const docSidebarButton = document.querySelector('.navbar__toggle');
+        if (docSidebarButton) {
+          docSidebarButton.addEventListener('click', function() {
+            const docSidebar = document.querySelector('.theme-doc-sidebar-container');
+            if (docSidebar) {
+              if (docSidebar.classList.contains('menu--show')) {
+                docSidebar.classList.remove('menu--show');
+              } else {
+                docSidebar.classList.add('menu--show');
+              }
+            }
+          });
+        }
+        
+        // Ensure main content doesn't overlap with sidebar
+        const mainContent = document.querySelector('.main-wrapper');
+        if (mainContent) {
+          mainContent.style.position = 'relative';
+          mainContent.style.zIndex = '10';
+        }
+      };
+      
+      // Force proper z-index on the sidebar
+      if (sidebar) {
+        sidebar.style.zIndex = '500';
+        
+        // Fix sidebar position and backdrop
+        const backdrop = document.querySelector('.navbar-sidebar__backdrop');
+        if (backdrop) {
+          backdrop.style.zIndex = '400';
+          backdrop.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        }
+      }
+      
       // Add active link highlighting
       const activeLinks = document.querySelectorAll('.menu__link--active');
       activeLinks.forEach(link => {
@@ -39,6 +92,7 @@ export default {
         collapseButton.className = 'collapse-button';
         collapseButton.innerHTML = '×';
         collapseButton.setAttribute('aria-label', 'Close sidebar');
+        collapseButton.style.zIndex = '1000';
         collapseButton.addEventListener('click', () => {
           const closeButton = document.querySelector('.navbar-sidebar__close');
           if (closeButton) closeButton.click();
@@ -52,8 +106,10 @@ export default {
           setTimeout(() => {
             if (sidebar && sidebar.classList.contains('shown')) {
               body.classList.add('menu-opened');
+              document.documentElement.style.overflow = 'hidden'; // Prevent background scrolling
             } else {
               body.classList.remove('menu-opened');
+              document.documentElement.style.overflow = ''; // Restore scrolling
             }
           }, 100);
         });
@@ -66,6 +122,9 @@ export default {
           item.style.margin = '0.25rem 0';
         });
       }
+      
+      // Fix for Docusaurus specific sidebar
+      fixDocusaurusSidebar();
     }
     
     // Run when the page is loaded and after route changes
@@ -79,6 +138,15 @@ export default {
         if (collapseButton.parentNode) {
           collapseButton.parentNode.removeChild(collapseButton);
         }
+      }
+      
+      // Restore body scrolling
+      document.documentElement.style.overflow = '';
+      
+      // Remove any overlay that might have been added
+      const overlay = document.querySelector('.overlay-container');
+      if (overlay && overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
       }
     };
   }

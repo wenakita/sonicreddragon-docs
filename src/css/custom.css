@@ -37,6 +37,9 @@
   --ifm-background-surface-color: rgba(255, 255, 255, 0.8);
   --ifm-card-background-color: var(--card-bg);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --ifm-navbar-sidebar-width: 85% !important;
+  --doc-sidebar-width: 85% !important;
+  --ifm-toc-border-color: var(--ifm-color-emphasis-200) !important;
 }
 
 /* Fixed background attachment to prevent scroll jumps */
@@ -51,6 +54,7 @@ html {
 body {
   background: transparent;
   min-height: 100vh;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 /* Dark mode colors */
@@ -959,4 +963,132 @@ article {
 .mermaid .divider {
   stroke-width: 1px !important;
   stroke: var(--ifm-color-emphasis-300) !important;
+}
+
+/* Fix mobile sidebar z-index and positioning */
+.navbar-sidebar {
+  z-index: 100 !important; /* Ensure sidebar is above content */
+  width: 85%; /* Limit width for better usability */
+  max-width: 300px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Make backdrop fully opaque to prevent seeing content underneath */
+.navbar-sidebar__backdrop {
+  z-index: 99 !important;
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Ensure menu is visible on top of content */
+.menu {
+  z-index: 20;
+  position: relative;
+}
+
+/* Mobile styles enhancements */
+@media (max-width: 996px) {
+  /* Improve mobile sidebar appearance */
+  .navbar-sidebar {
+    transform: translate3d(0, 0, 0); /* Force GPU acceleration */
+  }
+  
+  /* Adjust content when sidebar is visible */
+  .navbar-sidebar-show .main-wrapper {
+    overflow: hidden;
+    max-height: 100vh;
+  }
+  
+  /* Increase tap target areas */
+  .menu__link, 
+  .navbar-sidebar__item {
+    padding: 0.85rem 0.75rem;
+  }
+  
+  /* Prevent sidebar from going under content */
+  .navbar-sidebar .menu {
+    position: static;
+    padding-bottom: 5rem; /* Add padding at bottom for scrolling */
+  }
+  
+  /* Ensure sidebar stays on top */
+  .navbar-sidebar__items {
+    padding-top: 0.5rem;
+    z-index: 101;
+    position: relative;
+  }
+  
+  /* Disable backdrop filter on mobile for better performance */
+  .navbar, 
+  .navbar-sidebar, 
+  .menu {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Additional Docusaurus-specific fixes */
+:root {
+  --ifm-navbar-sidebar-width: 85% !important;
+  --doc-sidebar-width: 85% !important;
+  --ifm-toc-border-color: var(--ifm-color-emphasis-200) !important;
+}
+
+/* Fix Docusaurus overlapping issues */
+body {
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Fix for mobile doc sidebar */
+.docs-doc-page .menu {
+  z-index: 500 !important; /* Higher than content but lower than top navbar */
+}
+
+.theme-doc-sidebar-container {
+  position: relative;
+  z-index: 20;
+}
+
+/* Fix backdrop for the docusaurus mobile sidebar */
+.docs-doc-sidebar {
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+@media (max-width: 996px) {
+  .theme-doc-sidebar-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    z-index: 100 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease !important;
+  }
+
+  html[data-theme='light'] .theme-doc-sidebar-container {
+    background-color: var(--ifm-background-surface-color);
+  }
+  
+  html[data-theme='dark'] .theme-doc-sidebar-container {
+    background-color: var(--ifm-background-surface-color);
+  }
+
+  .theme-doc-sidebar-container.menu--show {
+    transform: translateX(0) !important;
+  }
+  
+  /* Add sidebar backdrop */
+  .overlay-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 99;
+    display: none;
+  }
+  
+  .menu--show + .overlay-container {
+    display: block;
+  }
 }
