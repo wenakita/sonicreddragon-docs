@@ -239,8 +239,8 @@ const config: Config = {
     announcementBar: {
       id: 'support_us',
       content: '🚀 Sonic Red Dragon is now live on mainnet! Join our <a href="https://discord.gg/sonicreddragon">Discord</a> for updates.',
-      backgroundColor: '#2e8555',
-      textColor: '#ffffff',
+      backgroundColor: '#1e3c72',
+      textColor: '#fff',
       isCloseable: true,
     },
   } satisfies Preset.ThemeConfig,
