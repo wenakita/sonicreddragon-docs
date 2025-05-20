@@ -11,9 +11,9 @@ const config: Config = {
 
   // Set the production url of your site here
   url: 'https://wenakita.github.io',
-  // NOTE: For local development, use baseUrl: '/'.
-  // For GitHub Pages deployment, set baseUrl: '/sonicreddragon-docs/'
-  baseUrl: '/',
+  // NOTE: For production (GitHub Pages), use baseUrl: '/sonicreddragon-docs/'.
+  // For local development, set baseUrl: '/'
+  baseUrl: '/sonicreddragon-docs/',
   // Remove trailing slash for GitHub Pages
   trailingSlash: false,
 
