@@ -1,186 +1,173 @@
 ---
+sidebar_position: 10
 title: Mermaid Diagram Test
-sidebar_position: 1
 ---
 
-# Mermaid Diagram Gallery
+# Mermaid Diagram Test
 
-This page demonstrates our enhanced mermaid diagrams with minimal styling and semantic color coding.
+This page contains various Mermaid diagrams to test our implementation.
 
 ## Simple Flowchart
 
 ```mermaid
-flowchart LR
-    A([Begin]) --> B{Decision}
-    B -->|Yes| C([Complete])
-    B -->|No| D([Refine])
-    D --> A
-    
-    classDef start fill:#e3f2fd,stroke:#2196f3,color:#0d47a1
-    classDef process fill:#fff3e0,stroke:#ff9800,color:#e65100
-    classDef end fill:#e8f5e9,stroke:#4caf50,color:#1b5e20
-    
-    class A start
-    class B,D process
-    class C end
+graph TD
+    A[Start] --> B{Is it working?}
+    B -->|Yes| C[Great!]
+    B -->|No| D[Debug]
+    D --> B
+    C --> E[Continue]
 ```
 
-## OmniDragon Randomness System
-
-```mermaid
-flowchart TB
-    %% Define node groups with clear labels
-    subgraph External ["External VRF Sources"]
-        direction LR
-        DR["dRAND"]:::source
-        CL["Chainlink"]:::source
-        AR["Arbitrum"]:::source
-    end
-    
-    subgraph Verifiers ["On-Chain Verification"]
-        direction LR
-        DI["dRAND Integrator"]:::integrator
-        CI["Chainlink Integrator"]:::integrator
-        AI["Arbitrum Integrator"]:::integrator
-    end
-    
-    subgraph Core ["Core Components"]
-        direction TB
-        OC["OmniDragon Consumer"]:::core
-        RB["Randomness Buffer"]:::core
-        WC["Weighted Combiner"]:::core
-    end
-    
-    subgraph Applications ["Consumer Applications"]
-        direction LR
-        JP["Jackpot"]:::app
-        GM["Games"]:::app
-        GV["Governance"]:::app
-    end
-    
-    %% Define connections with consistent pattern
-    DR --> DI
-    CL --> CI
-    AR --> AI
-    
-    DI --> OC
-    CI --> OC
-    AI --> OC
-    
-    OC --> RB
-    RB --> WC
-    
-    WC --> JP
-    WC --> GM
-    WC --> GV
-    
-    %% Style definitions
-    classDef source fill:#fafafa,stroke:#9e9e9e,color:#424242
-    classDef integrator fill:#e8eaf6,stroke:#7986cb,color:#3949ab
-    classDef core fill:#e1f5fe,stroke:#4fc3f7,color:#0288d1
-    classDef app fill:#e0f2f1,stroke:#4db6ac,color:#00796b
-    
-    %% Style subgraphs
-    style External fill:#f5f5f5,stroke:#e0e0e0,color:#616161
-    style Verifiers fill:#e8eaf6,stroke:#c5cae9,color:#3949ab
-    style Core fill:#e1f5fe,stroke:#b3e5fc,color:#0288d1
-    style Applications fill:#e0f2f1,stroke:#b2dfdb,color:#00796b
-```
-
-## Cross-Chain Token Flow
+## Sequence Diagram
 
 ```mermaid
 sequenceDiagram
-    %% Define participants with roles
-    participant User as 👤 User
-    participant Source as 🔄 Source Chain
-    participant Bridge as 🌉 Bridge
-    participant Dest as 📥 Destination
-    
-    %% Activate participants with semantic colors
-    activate User
-    rect rgb(242, 242, 247)
-    note over User: Initiates transaction
-    end
-    
-    %% Request flow
-    User->>+Source: Request transfer
-    deactivate User
-    rect rgb(235, 245, 251)
-    note over Source: Locks tokens
-    end
-    
-    %% Bridge processing
-    Source->>+Bridge: Send message with proof
-    deactivate Source
-    rect rgb(255, 245, 230)
-    note over Bridge: Validates transaction
-    end
-    
-    %% Destination delivery
-    Bridge->>+Dest: Deliver verified message
-    deactivate Bridge
-    rect rgb(235, 249, 242)
-    note over Dest: Mints or releases tokens
-    end
-    
-    %% Complete transaction
-    Dest->>User: Credit tokens to account
-    deactivate Dest
-    activate User
-    deactivate User
-    
-    %% Overall process annotation
-    note over Bridge,Dest: Secure cross-chain verification
+    participant User
+    participant API
+    participant Database
+
+    User->>API: Request data
+    activate API
+    API->>Database: Query data
+    activate Database
+    Database-->>API: Return results
+    deactivate Database
+    API-->>User: Response with data
+    deactivate API
 ```
 
-## Token System Architecture
+## Class Diagram
 
 ```mermaid
 classDiagram
-    %% Define core classes
-    class OmniToken {
+    class Token {
         +string name
         +string symbol
-        +uint256 total
-        +mapping balances
-        +transfer()
-        +approve()
+        +uint256 totalSupply
+        +transfer(address, uint256)
+        +approve(address, uint256)
     }
     
-    class RandomSource {
-        +requestRandom()
-        +verifyProof()
-        +combineEntropy()
+    class Omni {
+        +string name
+        +string symbol
+        +address endpoint
+        +sendCrossChain(uint16, bytes, bytes)
     }
     
-    class JackpotSystem {
-        +uint256 pool
-        +uint256 nextDraw
-        +trigger()
-        +distribute()
+    Token <|-- Omni
+```
+
+## State Diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending
+    Pending --> Processing: Submit
+    Processing --> Completed: Success
+    Processing --> Failed: Error
+    Completed --> [*]
+    Failed --> Pending: Retry
+```
+
+## Entity Relationship
+
+```mermaid
+erDiagram
+    USER ||--o{ TOKEN : owns
+    USER {
+        string address
+        uint256 balance
     }
-    
-    class Governance {
-        +propose()
-        +vote()
-        +execute()
+    TOKEN {
+        string name
+        string symbol
+        uint256 amount
     }
+    TOKEN ||--o{ TRANSACTION : involves
+    TRANSACTION {
+        uint256 id
+        uint256 amount
+        uint256 timestamp
+    }
+```
+
+## Gantt Chart
+
+```mermaid
+gantt
+    title Sonic Red Dragon Development Roadmap
+    dateFormat  YYYY-MM-DD
     
-    %% Define relationships
-    OmniToken --> JackpotSystem: funds
-    RandomSource --> JackpotSystem: entropy
-    JackpotSystem --> Governance: influences
-    OmniToken --> Governance: voting power
+    section Planning
+    Research           :done, a1, 2023-01-01, 30d
+    Design             :done, a2, after a1, 45d
     
-    %% Apply semantic styling
-    classDef token fill:#e8f4f8,stroke:#4dabf7,color:#1971c2
-    classDef random fill:#f3f0ff,stroke:#b197fc,color:#6741d9
-    classDef jackpot fill:#fff9db,stroke:#ffd43b,color:#f08c00
-    classDef gov fill:#e6fcf5,stroke:#3bc9db,color:#0b7285
+    section Development
+    Smart Contracts    :active, b1, after a2, 60d
+    Frontend           :b2, after a2, 60d
+    Testing            :b3, after b1, 30d
     
-    class OmniToken token
-    class RandomSource random
-    class JackpotSystem jackpot
-    class Governance gov
-``` 
+    section Launch
+    Audit              :c1, after b3, 30d
+    Mainnet Deployment :c2, after c1, 10d
+    Marketing          :c3, after c2, 30d
+```
+
+## Journey Diagram
+
+```mermaid
+journey
+    title User Journey for Sonic Red Dragon
+    section Discover
+      Learn about Sonic Red Dragon: 5: User
+      Visit documentation: 3: User
+    section Interact
+      Get tokens: 5: User, Web App
+      Use cross-chain features: 4: User, Web App
+    section Engage
+      Join community: 5: User, Community
+      Provide feedback: 3: User, Community
+```
+
+## Using StandardMermaid Component
+
+<StandardMermaid chart={`graph LR
+    A[Component] --> B[Rendering]
+    B --> C[Animation]
+    C --> D[Interactive]
+`} />
+
+## Using EnhancedMermaid Component
+
+<EnhancedMermaid
+  chart={`flowchart LR
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Process]
+    B -->|No| D[End]
+    C --> D
+  `}
+  caption="Enhanced Mermaid Diagram with Caption"
+  theme="forest"
+/>
+
+## Using AnimatedCard with Mermaid
+
+<AnimatedCard title="Cross-Chain Architecture">
+
+Here's how our cross-chain architecture works:
+
+```mermaid
+graph TD
+    A[User] -->|Request| B[Ethereum]
+    A -->|Request| C[Avalanche]
+    A -->|Request| D[Arbitrum]
+    B <-->|LayerZero| C
+    B <-->|LayerZero| D
+    C <-->|LayerZero| D
+    B --> E[Sonic Red Dragon Protocol]
+    C --> E
+    D --> E
+```
+
+</AnimatedCard> 

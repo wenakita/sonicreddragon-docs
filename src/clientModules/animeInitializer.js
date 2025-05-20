@@ -8,8 +8,8 @@ import anime from 'animejs/lib/anime.es.js';
  * @param {HTMLElement} container - The container element
  */
 function animateMermaidElements(container) {
-  // Find the SVG element
-  const svg = container.querySelector('svg');
+  // Find the SVG element (either direct or within the container)
+  const svg = container?.tagName === 'svg' ? container : container?.querySelector('svg');
   if (!svg) return;
   
   // Create animation timeline
@@ -88,19 +88,28 @@ function animateMermaidElements(container) {
       duration: 300
     }, '-=200');
   }
-  
-  // Remove hover animations that cause movement
-  // No hover effects to prevent unwanted movement
 }
 
 /**
  * Initialize animations for all Mermaid diagrams on the page
+ * @param {HTMLElement|null} targetElement - Optional specific element to animate
  */
-function initializeAllAnimations() {
-  // Get both standard containers and direct mermaid elements
-  const mermaidContainers = document.querySelectorAll('.docusaurus-mermaid-container, .standardMermaidContainer');
+function initializeAllAnimations(targetElement) {
+  // If a specific element is provided, only animate that
+  if (targetElement) {
+    if (!targetElement.dataset.animated) {
+      targetElement.dataset.animated = 'true';
+      animateMermaidElements(targetElement);
+    }
+    return;
+  }
   
-  mermaidContainers.forEach(container => {
+  // Standard Mermaid containers
+  const standardMermaidContainers = document.querySelectorAll(
+    '.standard-mermaid-container, .standardMermaidContainer'
+  );
+  
+  standardMermaidContainers.forEach(container => {
     // Skip if already animated
     if (container.dataset.animated === 'true') return;
     
@@ -111,8 +120,22 @@ function initializeAllAnimations() {
     animateMermaidElements(container);
   });
   
-  // Also handle any direct mermaid elements that might be in standard code blocks
-  const directMermaidElements = document.querySelectorAll('.theme-code-block pre.mermaid');
+  // Docusaurus Mermaid containers
+  const docusaurusMermaidContainers = document.querySelectorAll('.docusaurus-mermaid-container');
+  
+  docusaurusMermaidContainers.forEach(container => {
+    // Skip if already animated
+    if (container.dataset.animated === 'true') return;
+    
+    // Mark as animated to prevent duplicate animations
+    container.dataset.animated = 'true';
+    
+    // Apply animations
+    animateMermaidElements(container);
+  });
+  
+  // Direct mermaid elements
+  const directMermaidElements = document.querySelectorAll('.mermaid-diagram-container .mermaid, .mermaid');
   directMermaidElements.forEach(el => {
     // Only animate elements that have been processed and have SVG
     const svg = el.querySelector('svg');
@@ -147,4 +170,26 @@ if (typeof window !== 'undefined') {
       initializeAllAnimations();
     }, 600);
   });
+  
+  // Also observe DOM changes to animate diagrams that are added dynamically
+  if (typeof MutationObserver !== 'undefined') {
+    const observer = new MutationObserver((mutations) => {
+      // Check if any mutations might have added Mermaid diagrams
+      const shouldCheckForDiagrams = mutations.some(mutation => {
+        return mutation.type === 'childList' && mutation.addedNodes.length > 0;
+      });
+      
+      if (shouldCheckForDiagrams) {
+        setTimeout(() => {
+          initializeAllAnimations();
+        }, 500);
+      }
+    });
+    
+    // Start observing the document
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  }
 } 

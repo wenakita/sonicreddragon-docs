@@ -20,13 +20,14 @@ export default {
     
     // Directly handle Mermaid code blocks
     if (className === 'language-mermaid') {
-      return (
-        <div className="mermaid-container">
-          <div className="mermaid">
-            {children}
-          </div>
-        </div>
-      );
+      // Extract the diagram code
+      const diagramCode = children?.trim();
+      if (!diagramCode) {
+        return <div className="mermaid-error">Empty mermaid diagram</div>;
+      }
+      
+      // Use our enhanced StandardMermaid component
+      return <StandardMermaid chart={diagramCode} />;
     }
     
     // Use default for all other code blocks
@@ -44,7 +45,11 @@ export default {
       children.props.mdxType === 'code' &&
       children.props.className === 'language-mermaid'
     ) {
-      const mermaidCode = children.props.children.trim();
+      const mermaidCode = children.props.children?.trim();
+      if (!mermaidCode) {
+        return <div className="mermaid-error">Empty mermaid diagram</div>;
+      }
+      
       return <StandardMermaid chart={mermaidCode} />;
     }
     

@@ -43,6 +43,7 @@ const config: Config = {
   clientModules: [
     require.resolve('./src/clientModules/mermaidInit.js'),
     require.resolve('./src/clientModules/animeInitializer.js'),
+    require.resolve('./src/clientModules/sidebarEnhancer.js'),
     require.resolve('./src/js/mermaid-enhancements.js'),
   ],
 
@@ -263,7 +264,7 @@ const config: Config = {
     // Modern announcement bar
     announcementBar: {
       id: 'support_us',
-      content: '🚀 Sonic Red Dragon will relaunch soon! Join our <a href="https://discord.gg/w75vaxDXuE">Discord</a> for updates.',
+      content: '🚀 Sonic Red Dragon will relaunch soon! Join our <a href="https://t.me/SonicRedDragon">Telegram</a> for updates.',
       backgroundColor: '#1e3c72',
       textColor: '#fff',
       isCloseable: true,

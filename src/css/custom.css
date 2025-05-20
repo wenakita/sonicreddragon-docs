@@ -332,22 +332,43 @@ table td {
   background: var(--ifm-color-primary);
 }
 
-/* Sidebar styling */
+/* Improved sidebar styling */
 .menu {
   padding: 1rem;
   background-color: var(--ifm-background-surface-color);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-right: 1px solid var(--ifm-toc-border-color);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ifm-color-primary-dark) transparent;
+  scroll-behavior: smooth;
+  transition: transform 0.3s ease;
+}
+
+.menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu::-webkit-scrollbar-thumb {
+  background-color: var(--ifm-color-primary-dark);
+  border-radius: 3px;
 }
 
 .menu__link {
   border-radius: var(--ifm-global-radius);
   transition: all 0.2s ease;
+  padding: 0.6rem 0.8rem;
+  margin: 0.2rem 0;
 }
 
 .menu__link:hover {
   background-color: rgba(var(--ifm-color-primary-rgb), 0.1);
+  transform: translateX(2px);
 }
 
 .menu__link--active {
@@ -355,6 +376,54 @@ table td {
   color: var(--ifm-color-primary);
   font-weight: 500;
   border-left: 2px solid var(--ifm-color-primary);
+}
+
+.menu__list-item {
+  margin: 0.25rem 0;
+}
+
+.menu__list-item--collapsed .menu__link {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme='dark'] .menu__list-item--collapsed .menu__link {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.menu__list-item-collapsible {
+  font-weight: 500;
+}
+
+.menu__list-item-collapsible:hover {
+  background-color: rgba(var(--ifm-color-primary-rgb), 0.05);
+  border-radius: 8px;
+}
+
+.collapse-button {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--ifm-color-primary);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Show the collapse button only on mobile and when sidebar is open */
+@media (max-width: 996px) {
+  .menu-opened .collapse-button {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
 /* TOC styling */
@@ -398,6 +467,118 @@ article {
   
   .docusaurus-mermaid-container {
     padding: 1rem;
+  }
+  
+  /* Mobile sidebar improvements */
+  .menu {
+    padding: 0.75rem 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .menu__link {
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+  
+  .menu__list {
+    transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .menu__list-item {
+    margin: 0.25rem 0;
+  }
+  
+  .menu__list-item--collapsed .menu__link {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+  
+  [data-theme='dark'] .menu__list-item--collapsed .menu__link {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .menu__list-item-collapsible {
+    font-weight: 500;
+  }
+  
+  .menu__list-item-collapsible:hover {
+    background-color: rgba(var(--ifm-color-primary-rgb), 0.1);
+    border-radius: 8px;
+  }
+  
+  .menu__caret {
+    padding: 0 1rem;
+  }
+  
+  .menu__caret:before,
+  .menu__link--sublist-caret:after {
+    background: var(--ifm-menu-link-sublist-icon) 50% / 1.5rem 1.5rem;
+    opacity: 0.8;
+  }
+  
+  /* Better touch targets for the mobile menu toggle */
+  .navbar__toggle {
+    color: var(--ifm-color-primary);
+    padding: 8px;
+  }
+  
+  .navbar-sidebar {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .navbar-sidebar__backdrop {
+    opacity: 0.6;
+  }
+  
+  .navbar-sidebar__brand {
+    box-shadow: none;
+    border-bottom: 1px solid var(--ifm-toc-border-color);
+  }
+  
+  .navbar-sidebar__close {
+    padding: 1.25rem;
+  }
+  
+  .navbar-sidebar__items {
+    padding: 0.5rem 0;
+  }
+  
+  .navbar-sidebar__item {
+    padding: 0.5rem 1rem;
+  }
+  
+  .navbar-sidebar__back {
+    padding: 0.75rem 1rem;
+    background-color: rgba(var(--ifm-color-primary-rgb), 0.1);
+    margin: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  article {
+    padding: 1.25rem 1rem;
+  }
+  
+  .menu__link {
+    padding: 0.75rem 0.75rem;
+  }
+  
+  /* Simplified animations for better performance on mobile */
+  .mermaid .flowchart-link,
+  .mermaid .edgePaths .path {
+    animation: none;
+  }
+  
+  /* Lighter backdrop filters for better performance */
+  .navbar,
+  .footer,
+  .menu {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
 }
 
@@ -611,4 +792,120 @@ article {
   content: "Loading diagram...";
   color: #666;
   font-style: italic;
+}
+
+/* StandardMermaid component styling */
+.standard-mermaid-container {
+  background: var(--ifm-card-background-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  text-align: center;
+  position: relative;
+  min-height: 100px;
+}
+
+.standard-mermaid-container svg {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Error display for StandardMermaid */
+.mermaid-error {
+  background: #fff1f0;
+  border: 1px solid #ffb4ae;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+  color: #d32f2f;
+}
+
+[data-theme='dark'] .mermaid-error {
+  background: rgba(211, 47, 47, 0.2);
+  border-color: rgba(211, 47, 47, 0.5);
+  color: #ff7875;
+}
+
+.mermaid-error details {
+  margin-top: 1rem;
+}
+
+.mermaid-error pre {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.75rem;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow: auto;
+  margin: 0.5rem 0;
+}
+
+/* Loading indicator */
+.mermaid-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
+  width: 100%;
+}
+
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.loading-indicator span {
+  width: 10px;
+  height: 10px;
+  background: var(--ifm-color-primary);
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.loading-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Fix Mermaid diagrams in dark mode */
+[data-theme='dark'] .mermaid-diagram-container svg {
+  filter: brightness(1.1);
+}
+
+[data-theme='dark'] .mermaid-diagram-container .actor {
+  fill: #2d3748 !important;
+}
+
+[data-theme='dark'] .mermaid-diagram-container .actor text {
+  fill: #e2e8f0 !important;
+}
+
+[data-theme='dark'] .mermaid-diagram-container .activation0 {
+  fill: #2d3748 !important;
+}
+
+/* Improve mermaid animation performance */
+.mermaid svg {
+  contain: paint;
+}
+
+/* Prevent layout shifts */
+.mermaid-diagram-container {
+  min-height: 150px;
 }

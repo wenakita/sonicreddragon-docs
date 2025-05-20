@@ -1,21 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useIsBrowser from '@docusaurus/useIsBrowser';
+import { useColorMode } from '@docusaurus/theme-common';
 import styles from './styles.module.css';
 
 /**
- * StandardMermaid component - ensures standard Mermaid code blocks render properly
- * Use this component in MDX to directly render Mermaid diagrams
+ * StandardMermaid component - renders Mermaid diagrams with consistent styling
  * 
  * @param {Object} props
  * @param {string} props.chart - The mermaid diagram code
  * @param {string} props.className - Additional CSS classes
+ * @param {boolean} props.animate - Whether to animate the diagram
  */
-export default function StandardMermaid({ chart, className }) {
+export default function StandardMermaid({ chart, className, animate = true }) {
   const containerRef = useRef(null);
   const isBrowser = useIsBrowser();
+  const { colorMode } = useColorMode();
   const [isRendered, setIsRendered] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
   
   // Ensure chart is properly processed
   const processedChart = chart?.trim() || '';
@@ -23,81 +26,127 @@ export default function StandardMermaid({ chart, className }) {
   // Create a unique identifier for this diagram
   const uniqueId = useRef(`mermaid-${Math.random().toString(36).substring(2, 11)}`);
   
-  useEffect(() => {
+  // Function to load Mermaid if it's not already loaded
+  const loadMermaid = async () => {
+    if (typeof window === 'undefined') return null;
+    
+    if (!window.mermaid) {
+      try {
+        const mermaid = (await import('mermaid')).default;
+        window.mermaid = mermaid;
+        return mermaid;
+      } catch (error) {
+        console.error('Failed to load Mermaid:', error);
+        return null;
+      }
+    }
+    
+    return window.mermaid;
+  };
+  
+  // Function to initialize Mermaid with the current theme
+  const initializeMermaid = (mermaid) => {
+    if (!mermaid || mermaid.initialized) return mermaid;
+    
+    const isDarkTheme = colorMode === 'dark';
+    
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDarkTheme ? 'dark' : 'default',
+      securityLevel: 'loose',
+      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      themeVariables: {
+        primaryColor: isDarkTheme ? '#5468ff' : '#1a73e8',
+        primaryTextColor: isDarkTheme ? '#f0f0f0' : '#333',
+        primaryBorderColor: isDarkTheme ? '#555' : '#ddd',
+        lineColor: isDarkTheme ? '#999' : '#666',
+        secondaryColor: '#cc5a2b',
+        tertiaryColor: isDarkTheme ? '#1e293b' : '#f8f9fa',
+      }
+    });
+    
+    mermaid.initialized = true;
+    return mermaid;
+  };
+  
+  // Render the Mermaid diagram
+  const renderDiagram = async () => {
     if (!isBrowser || !containerRef.current || !processedChart) {
       return;
     }
     
-    const renderDiagram = async () => {
-      try {
-        if (typeof window === 'undefined' || !window.mermaid) {
-          // Dynamically import mermaid if needed
-          const mermaid = (await import('mermaid')).default;
-          window.mermaid = mermaid;
-        }
-        
-        // Initialize mermaid if not already initialized
-        if (!window.mermaid.initialized) {
-          window.mermaid.initialize({
-            startOnLoad: false,
-            theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default',
-            securityLevel: 'loose',
-            fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-          });
-          
-          window.mermaid.initialized = true;
-        }
-        
-        // Get a reference to the diagram container
-        const diagramContainer = containerRef.current;
-        if (!diagramContainer) return;
-        
-        // Find or create a diagram element
-        let diagramElement = diagramContainer.querySelector('.mermaid-diagram');
-        if (!diagramElement) {
-          diagramElement = document.createElement('div');
-          diagramElement.className = 'mermaid-diagram';
-          diagramElement.id = uniqueId.current;
-          diagramContainer.appendChild(diagramElement);
-        }
-        
-        // Set the content and render
-        diagramElement.textContent = processedChart;
-        
-        // Render the diagram
-        const { svg } = await window.mermaid.render(uniqueId.current, processedChart);
-        
-        // Replace the content with the SVG
-        diagramElement.innerHTML = svg;
-        
-        // Mark as rendered
-        setIsRendered(true);
-        setIsError(false);
-        
-        // Apply animation if available
-        setTimeout(() => {
-          if (window.animateMermaidDiagrams && typeof window.animateMermaidDiagrams === 'function') {
-            window.animateMermaidDiagrams();
-          }
-        }, 200);
-      } catch (error) {
-        console.error('Error rendering Mermaid diagram:', error);
-        setIsError(true);
-        setErrorMessage(error.message || 'Failed to render diagram');
+    try {
+      // Load mermaid
+      const mermaid = await loadMermaid();
+      if (!mermaid) {
+        throw new Error('Failed to load Mermaid library');
       }
-    };
-    
-    // Render with a slight delay to ensure the DOM is ready
+      
+      // Initialize mermaid if not already initialized
+      initializeMermaid(mermaid);
+      
+      // Get a reference to the diagram container
+      const diagramContainer = containerRef.current;
+      if (!diagramContainer) return;
+      
+      // Clear previous content
+      diagramContainer.innerHTML = '';
+      
+      // Create a diagram element
+      const diagramElement = document.createElement('div');
+      diagramElement.id = uniqueId.current;
+      diagramElement.style.width = '100%';
+      diagramElement.style.height = 'auto';
+      diagramElement.style.overflow = 'visible';
+      diagramContainer.appendChild(diagramElement);
+      
+      // Render the diagram
+      const { svg } = await mermaid.render(uniqueId.current, processedChart);
+      
+      // Replace the content with the SVG
+      diagramElement.innerHTML = svg;
+      
+      // Mark as rendered
+      setIsRendered(true);
+      setIsError(false);
+      
+      // Apply animation if available and requested
+      if (animate && window.animateMermaidDiagrams && typeof window.animateMermaidDiagrams === 'function') {
+        setTimeout(() => {
+          window.animateMermaidDiagrams(diagramElement);
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error rendering Mermaid diagram:', error);
+      setIsError(true);
+      setErrorMessage(error.message || 'Failed to render diagram');
+      
+      // Retry a few times with exponential backoff
+      if (retryCount < 3) {
+        const timeoutId = setTimeout(() => {
+          setRetryCount(prev => prev + 1);
+          renderDiagram();
+        }, 500 * Math.pow(2, retryCount));
+        
+        return () => clearTimeout(timeoutId);
+      }
+    }
+  };
+  
+  // Effect to render the diagram
+  useEffect(() => {
     const timeoutId = setTimeout(renderDiagram, 100);
-    
-    // Cleanup
     return () => clearTimeout(timeoutId);
-  }, [chart, isBrowser, processedChart]);
+  }, [chart, isBrowser, processedChart, colorMode, retryCount]);
   
   return (
-    <div ref={containerRef} className={`${styles.standardMermaidContainer || ''} ${className || ''}`}>
+    <div 
+      ref={containerRef} 
+      className={`${styles.standardMermaidContainer || 'standard-mermaid-container'} ${className || ''}`}
+      data-theme={colorMode}
+    >
       {isError ? (
-        <div className={styles.mermaidError || ''}>
+        <div className={styles.mermaidError || 'mermaid-error'}>
           <p>Error rendering diagram: {errorMessage}</p>
           <details>
             <summary>View diagram code</summary>
@@ -105,8 +154,8 @@ export default function StandardMermaid({ chart, className }) {
           </details>
         </div>
       ) : !isRendered && isBrowser ? (
-        <div className={styles.mermaidLoading || ''}>
-          <div className={styles.loadingIndicator || ''}>
+        <div className={styles.mermaidLoading || 'mermaid-loading'}>
+          <div className={styles.loadingIndicator || 'loading-indicator'}>
             <span></span><span></span><span></span>
           </div>
         </div>

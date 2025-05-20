@@ -14,6 +14,21 @@ Sonic Red Dragon is a LayerZero V2 compatible token that brings unique features 
 
 Sonic Red Dragon is a next-generation token built on the LayerZero V2 protocol, designed to provide seamless cross-chain functionality while maintaining high security and efficiency. Our token leverages advanced cryptographic techniques and the dRAND network for verifiable randomness, making it ideal for various DeFi applications.
 
+## Architecture Overview
+
+```mermaid
+graph TD
+    A[User] -->|Request| B[Ethereum]
+    A -->|Request| C[Sonic]
+    A -->|Request| D[Arbitrum]
+    B <-->|LayerZero| C
+    B <-->|LayerZero| D
+    C <-->|LayerZero| D
+    B --> E[Sonic Red Dragon Protocol]
+    C --> E
+    D --> E
+```
+
 ## Key Features
 
 - **LayerZero V2 Compatibility**: Seamless cross-chain operations with enhanced security
