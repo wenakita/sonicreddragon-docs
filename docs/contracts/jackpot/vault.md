@@ -1,284 +1,246 @@
 ---
 title: Jackpot Vault
-sidebar_position: 2
+sidebar_position: 1
 ---
 
-# DragonJackpotVault Contract
+# Jackpot Vault Contract
 
-The DragonJackpotVault contract (`DragonJackpotVault.sol`) is responsible for securely storing and managing jackpot funds until they are distributed to winners.
+The Jackpot Vault (`DragonJackpotVault.sol`) is responsible for securely storing funds allocated to the OmniDragon jackpot system and handling the distribution of winnings to lucky participants.
 
-## Architecture Overview
+## Contract Overview
 
-The jackpot vault implements a secure fund management system with clear role separation:
+The Jackpot Vault is a key component of the OmniDragon ecosystem's unique jackpot mechanism, providing:
 
-```mermaid
-flowchart TB
-    %% Define main components of the vault system
-    subgraph ValutCore ["Vault Core Functions"]
-        direction TB
-        STORAGE["Token Storage"]:::core
-        ACCOUNTING["Balance Tracking"]:::core
-        SECURITY["Access Controls"]:::core
-    end
-    
-    subgraph ExternalSystems ["Connected Systems"]
-        direction LR
-        TOKEN["OmniDragon Token"]:::external
-        DISTRIBUTOR["Jackpot Distributor"]:::external
-        TRIGGER["Jackpot Trigger"]:::external
-    end
-    
-    subgraph Operations ["Vault Operations"]
-        direction TB
-        DEPOSIT["Add to Jackpot"]:::op
-        WITHDRAW["Distribute Funds"]:::op
-        STATS["Stats Reporting"]:::op
-    end
-    
-    %% Connect systems
-    TOKEN -->|"Sends fees"| DEPOSIT
-    DEPOSIT -->|"Updates"| STORAGE
-    DEPOSIT -->|"Updates"| ACCOUNTING
-    
-    TRIGGER -->|"Requests"| WITHDRAW
-    DISTRIBUTOR -->|"Requests"| WITHDRAW
-    WITHDRAW -->|"Updates"| STORAGE
-    WITHDRAW -->|"Updates"| ACCOUNTING
-    WITHDRAW -->|"Transfers to"| DISTRIBUTOR
-    
-    ACCOUNTING -->|"Provides"| STATS
-    
-    %% Security controls
-    SECURITY -->|"Controls"| DEPOSIT
-    SECURITY -->|"Controls"| WITHDRAW
-    
-    %% Apply styling
-    classDef core fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1
-    classDef external fill:#f3e5f5,stroke:#8e24aa,color:#4a148c
-    classDef op fill:#e8f5e9,stroke:#43a047,color:#1b5e20
-    
-    %% Style subgraphs
-    style ValutCore fill:#e3f2fd,stroke:#bbdefb,color:#1565c0
-    style ExternalSystems fill:#f3e5f5,stroke:#e1bee7,color:#6a1b9a
-    style Operations fill:#e8f5e9,stroke:#c8e6c9,color:#2e7d32
-```
-
-## Funds Flow Process
-
-The journey of funds through the jackpot vault follows a well-defined sequence:
-
-```mermaid
-sequenceDiagram
-    participant Token as OmniDragon Token
-    participant Vault as Jackpot Vault
-    participant Trigger as Jackpot Trigger
-    participant Distributor as Reward Distributor
-    participant Winners as Jackpot Winners
-    
-    %% Add style regions
-    rect rgb(227, 242, 253)
-    note over Token,Vault: Funds Collection Phase
-    end
-    
-    Token->>+Vault: addToJackpot(amount)
-    Vault->>Vault: Update total jackpot amount
-    Vault->>Vault: Update available jackpot amount
-    Vault-->>-Token: Emit JackpotDeposit event
-    
-    rect rgb(232, 245, 233)
-    note over Trigger,Vault: Trigger Phase
-    end
-    
-    Trigger->>+Vault: getCurrentJackpotAmount()
-    Vault-->>-Trigger: Return available amount
-    Trigger->>Trigger: Determine if jackpot should trigger
-    
-    alt Jackpot is triggered
-        rect rgb(243, 229, 245)
-        note over Distributor,Winners: Distribution Phase
-        end
-        
-        Trigger->>+Distributor: initiateJackpotDistribution()
-        Distributor->>+Vault: distributeJackpot(winners, amounts)
-        Vault->>Vault: Validate distributor permission
-        Vault->>Vault: Verify sufficient funds
-        Vault->>Vault: Update available amount
-        Vault->>+Winners: Transfer rewards to winners
-        Winners-->>-Distributor: Rewards received
-        Vault-->>-Distributor: Emit JackpotDistributed event
-        Distributor-->>-Trigger: Distribution completed
-    end
-```
-
-## Implementation Details
-
-The DragonJackpotVault contract implements a role-based security model with clear separation of concerns:
-
-```mermaid
-classDiagram
-    %% Define main contract and components
-    class DragonJackpotVault {
-        %% State variables
-        -address wrappedToken
-        -address omniDragon
-        -address jackpotDistributor
-        -address jackpotTrigger
-        -uint256 totalJackpotAmount
-        -uint256 availableJackpotAmount
-        -uint256 distributedJackpotAmount
-        -uint256 distributionCount
-        
-        %% Functions
-        +addToJackpot(uint256 amount)
-        +distributeJackpot(address[] winners, uint256[] amounts)
-        +getCurrentJackpotAmount() uint256
-        +getTotalJackpotHistory() uint256
-        +getDistributedJackpotAmount() uint256
-        +getDistributionCount() uint256
-        +setJackpotDistributor(address newDistributor)
-        +setJackpotTrigger(address newTrigger)
-        +sweep(address token, address to, uint256 amount)
-    }
-    
-    class Ownable {
-        -address owner
-        +onlyOwner() modifier
-        +transferOwnership(address newOwner)
-    }
-    
-    class ReentrancyGuard {
-        -uint256 _status
-        +nonReentrant() modifier
-    }
-    
-    class IERC20 {
-        +transfer(address to, uint256 amount) bool
-        +balanceOf(address account) uint256
-    }
-    
-    %% Define relationships
-    Ownable <|-- DragonJackpotVault : inherits
-    ReentrancyGuard <|-- DragonJackpotVault : inherits
-    DragonJackpotVault --> IERC20 : uses
-    
-    %% Define interfaces/abstract classes
-    class IDragonJackpotVault {
-        <<interface>>
-        +addToJackpot(uint256 amount)
-        +distributeJackpot(address[] winners, uint256[] amounts)
-        +getCurrentJackpotAmount() uint256
-    }
-    
-    IDragonJackpotVault <|.. DragonJackpotVault : implements
-    
-    %% Define access control roles
-    class AccessRoles {
-        <<enumeration>>
-        OWNER
-        OMNI_DRAGON
-        DISTRIBUTOR
-        TRIGGER
-    }
-    
-    DragonJackpotVault --> AccessRoles : enforces
-    
-    %% Apply styling
-    classDef main fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1
-    classDef base fill:#e8f5e9,stroke:#43a047,color:#1b5e20
-    classDef interface fill:#f3e5f5,stroke:#8e24aa,color:#4a148c
-    classDef external fill:#fff8e1,stroke:#ffb300,color:#ff6f00
-    
-    class DragonJackpotVault main
-    class Ownable,ReentrancyGuard base
-    class IDragonJackpotVault interface
-    class IERC20,AccessRoles external
-```
+- Secure storage for jackpot funds
+- Randomized winner selection mechanism
+- Configurable winning thresholds
+- Integration with dRand for verifiable randomness
+- Transparent distribution of jackpot rewards
 
 ## Key Functions
 
-The DragonJackpotVault contract provides the following core functionality:
-
-### Add To Jackpot
-
-Allows the OmniDragon token contract to add funds to the jackpot pool:
-
 ```solidity
-function addToJackpot(uint256 amount) external override onlyOmniDragon {
-    require(amount > 0, "Zero amount");
-    
-    // Update jackpot balances
-    totalJackpotAmount += amount;
-    availableJackpotAmount += amount;
-    
-    emit JackpotDeposit(msg.sender, amount, totalJackpotAmount);
-}
+// Receive tokens from the fee distributor
+function receiveJackpotFunds(uint256 _amount) external;
+
+// Trigger jackpot drawing process
+function triggerJackpot() external returns (bool);
+
+// Check if jackpot threshold has been reached
+function isJackpotReady() external view returns (bool);
+
+// Set jackpot parameters
+function setJackpotParameters(
+    uint256 _minThreshold,
+    uint256 _maxThreshold,
+    uint256 _baseOdds
+) external onlyOwner;
+
+// Process random number to select winner
+function processRandomness(uint256 _randomness) external;
+
+// Distribute jackpot to winner
+function distributeJackpot(address _winner, uint256 _amount) external;
+
+// Get current jackpot pool size
+function getJackpotSize() external view returns (uint256);
 ```
 
-### Distribute Jackpot
+## Architecture Diagram
 
-Allows the authorized distributor to distribute jackpot funds to winners:
+```mermaid
+flowchart TB
+    %% Main vault contract
+    JackpotVault["DragonJackpotVault"]:::main
+    
+    %% Core components
+    subgraph Components ["Core Components"]
+        direction TB
+        Treasury["Token Treasury"]:::component
+        WinnerSelector["Winner Selector"]:::component
+        Distributor["Reward Distributor"]:::component
+        EntryTracker["Entry Tracker"]:::component
+    end
+    
+    %% Integration with other systems
+    subgraph Integrations ["System Integrations"]
+        direction LR
+        OmniDragon["OmniDragon Token"]:::external
+        RandomnessProvider["VRF Consumer"]:::external
+        FeeCollector["Fee Collector"]:::external
+    end
+    
+    %% Jackpot logic
+    subgraph JackpotLogic ["Jackpot Mechanics"]
+        direction TB
+        Trigger["Trigger Mechanism"]:::logic
+        Threshold["Pool Threshold"]:::logic
+        Selection["Winner Selection"]:::logic
+        Odds["Entry Odds"]:::logic
+    end
+    
+    %% Connect everything
+    Components --> JackpotVault
+    JackpotVault --> JackpotLogic
+    Integrations <--> JackpotVault
+    
+    %% Detailed connections
+    OmniDragon -->|"Provides tokens"| Treasury
+    RandomnessProvider -->|"Provides randomness"| Selection
+    FeeCollector -->|"Funds jackpot"| Treasury
+    
+    Trigger -->|"Initiates"| Selection
+    Threshold -->|"Controls"| Trigger
+    Selection -->|"Uses"| Odds
+    Selection -->|"Selects"| Winner((("Lucky Winner"))):::winner
+    
+    Distributor -->|"Transfers reward to"| Winner
+    EntryTracker -->|"Provides data to"| Selection
+    
+    %% Participant interactions
+    User([User]):::user -->|"Trading activities"| OmniDragon
+    User -->|"Earns entries"| EntryTracker
+    Winner -->|"Receives jackpot"| User
+    
+    %% Styling
+    classDef main fill:#4a80d1;stroke:#355899;color:#ffffff;font-weight:bold
+    classDef component fill:#42a5f5;stroke:#1e88e5;color:#ffffff
+    classDef external fill:#78909c;stroke:#455a64;color:#ffffff
+    classDef logic fill:#66bb6a;stroke:#43a047;color:#ffffff
+    classDef winner fill:#ffd700;stroke:#ff8f00;color:#ffffff;font-weight:bold
+    classDef user fill:#ab47bc;stroke:#8e24aa;color:#ffffff;font-weight:bold
+    
+    %% Subgraph styling
+    style Components fill:rgba(33,150,243,0.1);stroke:#bbdefb;color:#1565c0
+    style Integrations fill:rgba(117,117,117,0.1);stroke:#f5f5f5;color:#424242
+    style JackpotLogic fill:rgba(76,175,80,0.1);stroke:#c8e6c9;color:#2e7d32
+```
+
+## Jackpot Winner Selection
+
+The jackpot winner selection process uses a combination of factors to ensure fairness:
+
+```mermaid
+sequenceDiagram
+    participant System as System
+    participant Vault as JackpotVault
+    participant VRF as RandomnessProvider
+    participant Token as OmniDragon
+    participant Winner as LuckyWinner
+    
+    System->>Vault: triggerJackpot()
+    Note over Vault: Check if jackpot threshold reached
+    
+    Vault->>VRF: requestRandomness()
+    VRF-->>Vault: processRandomness(randomNumber)
+    
+    Note over Vault: Calculate winner using<br>entries and randomness
+    
+    Vault->>Token: getEntries()
+    Token-->>Vault: userEntries[]
+    
+    Vault->>Vault: selectWinner(randomness, entries)
+    Note over Vault: Winner selected!
+    
+    Vault->>Winner: distributeJackpot(amount)
+    Winner-->>Vault: Event: JackpotClaimed
+    
+    Vault->>System: Reset jackpot pool
+```
+
+## Jackpot Entry Mechanism
+
+Users can earn jackpot entries through various activities in the ecosystem:
+
+| Activity | Entry Calculation | Max Entries |
+|----------|-------------------|-------------|
+| Token Transfer | 1 entry per 1000 tokens | Unlimited |
+| DEX Swap | 10 entries per $100 swap value | Unlimited |
+| Liquidity Provision | 5 entries per $100 provided | 1,000 per LP |
+| Staking | 1 entry per 100 tokens staked per day | Based on stake duration |
+
+## Security Features
+
+The Jackpot Vault incorporates multiple security measures:
+
+- **Time-Locked Withdrawals**: Treasury funds can only be withdrawn after a time delay
+- **Owner Controls**: Administrative functions restricted to authorized addresses
+- **Threshold Limits**: Min/max jackpot size with circuit breakers
+- **Audit Trail**: Comprehensive event logging for all jackpot activities
+- **Rate Limiting**: Cooldown periods between jackpot triggers
+- **Emergency Pause**: Ability to pause the jackpot system in emergencies
+
+## Integration Example
+
+Here's an example of how other contracts can integrate with the Jackpot Vault:
 
 ```solidity
-function distributeJackpot(
-    address[] calldata winners, 
-    uint256[] calldata amounts
-) external override onlyDistributor nonReentrant {
-    require(winners.length > 0, "No winners");
-    require(winners.length == amounts.length, "Length mismatch");
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@omnidragon/contracts/interfaces/IDragonJackpotVault.sol";
+import "@omnidragon/contracts/interfaces/IOmniDragon.sol";
+
+contract JackpotIntegration {
+    IDragonJackpotVault public jackpotVault;
+    IOmniDragon public omniDragon;
     
-    uint256 totalAmount = 0;
-    for (uint256 i = 0; i < amounts.length; i++) {
-        totalAmount += amounts[i];
+    constructor(address _jackpotVault, address _omniDragon) {
+        jackpotVault = IDragonJackpotVault(_jackpotVault);
+        omniDragon = IOmniDragon(_omniDragon);
     }
     
-    require(totalAmount > 0, "Zero total amount");
-    require(totalAmount <= availableJackpotAmount, "Insufficient funds");
-    
-    // Update jackpot amount
-    availableJackpotAmount -= totalAmount;
-    distributedJackpotAmount += totalAmount;
-    distributionCount++;
-    
-    // Transfer to winners
-    for (uint256 i = 0; i < winners.length; i++) {
-        if (amounts[i] > 0) {
-            IERC20(wrappedToken).safeTransfer(winners[i], amounts[i]);
-            emit JackpotWinner(winners[i], amounts[i]);
+    // Example: A transaction that generates a jackpot entry
+    function swapWithEntry(uint256 _amount) external {
+        // Process the swap (simplified example)
+        // ...
+        
+        // Check if jackpot is ready for triggering
+        if (jackpotVault.isJackpotReady()) {
+            // Try to trigger the jackpot
+            jackpotVault.triggerJackpot();
         }
     }
     
-    emit JackpotDistributed(msg.sender, totalAmount, availableJackpotAmount);
+    // Example: Register an entry for a user
+    function registerJackpotEntry(address _user, uint256 _entryCount) external {
+        // Only callable by authorized contracts
+        // Implementation would depend on your entry tracking system
+    }
 }
 ```
 
-### Get Current Jackpot Amount
+## Interface
 
-Provides the current available jackpot amount:
+The Jackpot Vault exposes its functionality through the following interface:
 
 ```solidity
-function getCurrentJackpotAmount() external view override returns (uint256) {
-    return availableJackpotAmount;
+interface IDragonJackpotVault {
+    // Fund management
+    function receiveJackpotFunds(uint256 _amount) external;
+    function withdrawExcessFunds(uint256 _amount) external;
+    
+    // Jackpot control
+    function triggerJackpot() external returns (bool);
+    function isJackpotReady() external view returns (bool);
+    function getJackpotSize() external view returns (uint256);
+    function getMinThreshold() external view returns (uint256);
+    function getMaxThreshold() external view returns (uint256);
+    
+    // Configuration
+    function setJackpotParameters(
+        uint256 _minThreshold,
+        uint256 _maxThreshold,
+        uint256 _baseOdds
+    ) external;
+    
+    // Randomness processing
+    function processRandomness(uint256 _randomness) external;
+    
+    // Events
+    event JackpotFunded(uint256 amount);
+    event JackpotTriggered(uint256 timestamp);
+    event JackpotDistributed(address winner, uint256 amount);
+    event ParametersUpdated(uint256 minThreshold, uint256 maxThreshold, uint256 baseOdds);
 }
 ```
-
-## Security Considerations
-
-The DragonJackpotVault contract implements several critical security features:
-
-1. **Role-Based Access Control**
-   - Only the OmniDragon token can add funds
-   - Only the authorized distributor can distribute funds
-   - Only the owner can configure role addresses
-
-2. **Reentrancy Protection**
-   - Uses ReentrancyGuard to prevent reentrant calls during distributions
-   - Prevents potential attack vectors during token transfers
-
-3. **Input Validation**
-   - Checks for zero amounts
-   - Validates array lengths match
-   - Ensures sufficient funds before distribution
-
-4. **Emergency Controls**
-   - Owner can sweep tokens in case of emergency
-   - Ability to update distributor and trigger addresses if needed
