@@ -21,26 +21,7 @@ The DRAGON token is the native token of the OmniDragon ecosystem:
 
 ## Token Distribution
 
-The initial distribution of DRAGON tokens is designed to ensure fair participation across various stakeholders:
-
-```mermaid
-pie title Initial DRAGON Token Distribution
-    "Public Sale" : 40
-    "Development Fund" : 15
-    "Liquidity" : 20
-    "Team & Advisors" : 10
-    "Treasury" : 10
-    "Airdrop & Marketing" : 5
-```
-
-| Allocation | Percentage | Tokens | Vesting |
-|------------|------------|--------|---------|
-| Public Sale | 40% | 2,776,800 | None (Immediate) |
-| Development Fund | 15% | 1,041,300 | 2 years (linear) |
-| Liquidity | 20% | 1,388,400 | Locked for 3 years |
-| Team & Advisors | 10% | 694,200 | 2 years (6-month cliff) |
-| Treasury | 10% | 694,200 | 3 years (linear) |
-| Airdrop & Marketing | 5% | 347,100 | 1 year (linear) |
+Details about the token distribution will be provided at a later date.
 
 ## Fee Structure
 
@@ -170,33 +151,7 @@ The OmniDragon tokenomics model is designed for long-term sustainability through
 
 ## Emission Schedule
 
-The token emission schedule follows a predetermined vesting period for each allocation:
-
-```mermaid
-gantt
-    title DRAGON Token Emission Schedule
-    dateFormat  YYYY-MM
-    axisFormat %Y-%m
-    
-    section Public Sale
-    Available Immediately :done, ps, 2023-10, 0d
-    
-    section Development Fund
-    Linear Vesting (2 Years) :df, 2023-10, 2023-10-01, 24m
-    
-    section Liquidity
-    Locked (3 Years) :liq, 2023-10, 36m
-    
-    section Team & Advisors
-    Cliff (6 Months) :team_cliff, 2023-10, 6m
-    Linear Vesting (18 Months) :team_vest, after team_cliff, 18m
-    
-    section Treasury
-    Linear Vesting (3 Years) :treasury, 2023-10, 36m
-    
-    section Airdrop & Marketing
-    Linear Vesting (1 Year) :airdrop, 2023-10, 12m
-```
+Details about the token emission schedule will be provided at a later date.
 
 ## Cross-Chain Economics
 
