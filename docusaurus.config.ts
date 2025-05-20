@@ -55,7 +55,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/wenakita/omnidragon-docs/edit/main/',
+            'https://github.com/wenakita/sonicreddragon-docs/edit/main/',
           routeBasePath: '/',
           // Add custom remark plugins for mermaid processing
           remarkPlugins: [
@@ -129,20 +129,24 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/wenakita/omnidragon',
+              href: 'https://github.com/wenakita/sonicreddragon',
               className: 'navbar__item--github',
             },
             {
               label: 'Discord',
-              href: 'https://discord.gg/omnidragon',
+              href: 'https://discord.gg/w75vaxDXuE',
             },
             {
               label: 'Twitter',
-              href: 'https://twitter.com/omnidragon',
+              href: 'https://twitter.com/sonicreddragon',
+            },
+            {
+              label: 'Telegram',
+              href: 'https://t.me/SonicRedDragon',
             },
             {
               label: 'Blog',
-              href: 'https://blog.omnidragon.io',
+              href: 'https://blog.sonicreddragon.io',
             },
           ],
         },
@@ -184,13 +188,18 @@ const config: Config = {
           items: [
             {
               label: 'Discord',
-              href: 'https://discord.gg/sonicreddragon',
+              href: 'https://discord.gg/w75vaxDXuE',
               className: 'footer__link--modern footer__link--discord',
             },
             {
               label: 'Twitter',
               href: 'https://twitter.com/sonicreddragon',
               className: 'footer__link--modern footer__link--twitter',
+            },
+            {
+              label: 'Telegram',
+              href: 'https://t.me/SonicRedDragon',
+              className: 'footer__link--modern footer__link--telegram',
             },
           ],
         },
@@ -254,7 +263,7 @@ const config: Config = {
     // Modern announcement bar
     announcementBar: {
       id: 'support_us',
-      content: '🚀 OmniDragon is now live on mainnet! Join our <a href="https://discord.gg/omnidragon">Discord</a> for updates.',
+      content: '🚀 Sonic Red Dragon will relaunch soon! Join our <a href="https://discord.gg/w75vaxDXuE">Discord</a> for updates.',
       backgroundColor: '#1e3c72',
       textColor: '#fff',
       isCloseable: true,

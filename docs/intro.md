@@ -34,6 +34,7 @@ To start using Sonic Red Dragon in your project:
 
 Join our community to stay updated and get support:
 
+- [Telegram](https://t.me/SonicRedDragon)
 - [Discord](https://discord.gg/sonicreddragon)
 - [Twitter](https://twitter.com/sonicreddragon)
 - [GitHub](https://github.com/wenakita/omnidragon)
