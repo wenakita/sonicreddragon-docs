@@ -1,49 +1,45 @@
-# Introduction to OmniDragon
+---
+sidebar_position: 1
+---
 
-Welcome to the OmniDragon documentation! OmniDragon is a cross-chain token system built with an emphasis on secure randomness and scalability across multiple blockchains.
+# Introduction
 
-## What is OmniDragon?
+Welcome to the Sonic Red Dragon documentation! Sonic Red Dragon is a LayerZero V2 compatible token that brings unique features and capabilities to the cross-chain ecosystem.
 
-OmniDragon is a next-generation token system that combines:
+## What is Sonic Red Dragon?
 
-- **Cross-chain functionality**: Transfer tokens seamlessly between supported blockchains
-- **Multi-source randomness**: Industry-leading randomness generation from multiple sources
-- **Security by design**: Robust architecture that protects against manipulation
-- **Scalable infrastructure**: Built to support growing ecosystems and high transaction volumes
+Sonic Red Dragon is a next-generation token built on the LayerZero V2 protocol, designed to provide seamless cross-chain functionality while maintaining high security and efficiency. Our token leverages advanced cryptographic techniques and the dRAND network for verifiable randomness, making it ideal for various DeFi applications.
 
-## Core System Components
+## Key Features
 
-The OmniDragon system consists of several integrated components:
-
-1. **OmniDragon Token**: The core ERC-20 compatible token contract
-2. **OmniDragonVRFConsumer**: Aggregates randomness from multiple sources
-3. **OmniDragonPeriphery**: Handles cross-chain messaging and token transfers
-4. **Dragon Ecosystem**: Additional utilities, distribution mechanisms, and governance
-
-## Randomness Infrastructure
-
-One of OmniDragon's most innovative features is its multi-source randomness system. Unlike traditional blockchain randomness solutions that depend on a single source, OmniDragon aggregates randomness from:
-
-- **drand League of Entropy**: A distributed randomness beacon with 30-second periods
-- **drand Quicknet**: A faster randomness network with 3-second periods
-- **drand EVMnet**: An Ethereum-optimized randomness network
-- **Chainlink VRF**: Verifiable Random Function from the Chainlink oracle network
-
-This multi-source approach dramatically increases security by eliminating single points of failure.
+- **LayerZero V2 Compatibility**: Seamless cross-chain operations with enhanced security
+- **dRAND Integration**: Verifiable randomness for fair and transparent operations
+- **Advanced Security**: Built with modern cryptographic primitives
+- **Cross-Chain Functionality**: Operate across multiple blockchain networks
+- **Developer-Friendly**: Comprehensive documentation and easy integration
 
 ## Getting Started
 
-To get started with OmniDragon:
+To start using Sonic Red Dragon in your project:
 
-- Explore our documentation to learn about OmniDragon's features
-- Learn about the core concepts behind OmniDragon
-- See the contract documentation for detailed information
-- Check out the [Ecosystem](/ecosystem/drand-network) section to understand key components
+1. Review the [Contracts Overview](./contracts/overview) to understand our smart contract architecture
+2. Learn about our [Randomness System](./ecosystem/drand-network) for verifiable random number generation
+3. Check out our GitHub repository for implementation examples
 
-## Contact and Community
+## Community
 
-Join the OmniDragon community:
+Join our community to stay updated and get support:
 
-- [GitHub](https://github.com/omnidragon/omnidragon)
-- [Discord](https://discord.gg/omnidragon)
-- [Twitter](https://twitter.com/omnidragon) 
+- [Discord](https://discord.gg/sonicreddragon)
+- [Twitter](https://twitter.com/sonicreddragon)
+- [GitHub](https://github.com/wenakita/omnidragon)
+
+## Contributing
+
+We welcome contributions from the community! Whether it's improving documentation, reporting bugs, or suggesting new features, your input helps make Sonic Red Dragon better for everyone.
+
+Visit our [GitHub repository](https://github.com/wenakita/omnidragon) to:
+- Report issues
+- Submit pull requests
+- Review our code
+- Join discussions 
