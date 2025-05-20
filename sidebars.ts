@@ -33,6 +33,21 @@ const sidebars: SidebarsConfig = {
           id: 'contracts/overview',
           label: 'Overview',
         },
+        {
+          type: 'doc',
+          id: 'smart-contracts/token',
+          label: 'Token Contract',
+        },
+        {
+          type: 'doc',
+          id: 'smart-contracts/bridge',
+          label: 'Bridge Contract',
+        },
+        {
+          type: 'doc',
+          id: 'smart-contracts/randomness',
+          label: 'Randomness Contract',
+        },
       ],
     },
     {
@@ -75,27 +90,6 @@ const sidebars: SidebarsConfig = {
               label: 'Integration Guide',
             },
           ],
-        },
-      ],
-    },
-    {
-      type: 'category',
-      label: 'API Reference',
-      items: [
-        {
-          type: 'doc',
-          id: 'api/token',
-          label: 'Token Contract',
-        },
-        {
-          type: 'doc',
-          id: 'api/bridge',
-          label: 'Bridge Contract',
-        },
-        {
-          type: 'doc',
-          id: 'api/randomness',
-          label: 'Randomness Contract',
         },
       ],
     },
