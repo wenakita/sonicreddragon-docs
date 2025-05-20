@@ -37,6 +37,22 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Technical Architecture',
+      items: [
+        {
+          type: 'doc',
+          id: 'technical-architecture/architecture-overview',
+          label: 'Architecture Overview',
+        },
+        {
+          type: 'doc',
+          id: 'technical-architecture/cross-chain-functionality',
+          label: 'Cross-Chain Functionality',
+        },
+      ],
+    },
+    {
+      type: 'category',
       label: 'Ecosystem',
       items: [
         {
