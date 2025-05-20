@@ -63,7 +63,7 @@ Our dRAND integration includes several security measures:
 ### Basic Randomness Request
 
 ```solidity
-// Request randomness
+    // Request randomness
 uint256 requestId = sonicRedDragonRandomness.requestRandomness();
 
 // Handle the callback
