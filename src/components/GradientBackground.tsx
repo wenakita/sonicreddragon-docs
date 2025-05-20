@@ -13,7 +13,7 @@ const GradientBackground: React.FC = () => {
         '100% 50%',
         '0% 50%'
       ],
-      duration: 30000,
+      duration: 60000,
       direction: 'alternate',
       loop: true,
       easing: 'easeInOutQuad',
@@ -32,8 +32,8 @@ const GradientBackground: React.FC = () => {
         height: '100vh',
         zIndex: -1,
         pointerEvents: 'none',
-        opacity: 0.6,
-        background: 'linear-gradient(135deg, #0f1c36 0%, #1a3161 40%, #cc5a2b 100%)',
+        opacity: 0.3,
+        background: 'linear-gradient(135deg, #111827 0%, #162037 40%, #1e293b 100%)',
         backgroundSize: '200% 200%',
         transition: 'background-position 1s',
       }}

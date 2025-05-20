@@ -22,10 +22,10 @@
   --ifm-navbar-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
   --ifm-toc-border-color: var(--ifm-color-emphasis-200);
   --ifm-global-radius: 8px;
-  --gradient-bg: linear-gradient(135deg, #1e3c72 0%, #2a5298 40%, #ff6e30 100%);
-  --navbar-bg: rgba(30, 60, 114, 0.95);
-  --footer-bg: rgba(30, 60, 114, 0.95);
-  --announcement-bg: #1e3c72;
+  --gradient-bg: linear-gradient(135deg, #111827 0%, #162037 40%, #1e293b 100%);
+  --navbar-bg: rgba(17, 24, 39, 0.85);
+  --footer-bg: rgba(17, 24, 39, 0.85);
+  --announcement-bg: #111827;
   --announcement-text: #fff;
 }
 
@@ -45,13 +45,13 @@ body {
   --ifm-color-primary-lighter: #6aa0f1;
   --ifm-color-primary-lightest: #7ab0ff;
   --ifm-success-color: #cc5a2b; /* Orange for success elements */
-  --ifm-background-color: #121621; /* Deep dark blue */
-  --ifm-background-surface-color: #1a202e; /* Slightly lighter dark blue */
-  --ifm-navbar-background-color: rgba(18, 22, 33, 0.8); /* Transparent dark background */
-  --ifm-footer-background-color: rgba(18, 22, 33, 0.8); /* Transparent dark background */
-  --ifm-navbar-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --ifm-background-color: #111827; /* Deep dark blue */
+  --ifm-background-surface-color: #1e293b; /* Slightly lighter dark blue */
+  --ifm-navbar-background-color: rgba(17, 24, 39, 0.85); /* Transparent dark background */
+  --ifm-footer-background-color: rgba(17, 24, 39, 0.85); /* Transparent dark background */
+  --ifm-navbar-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
   --ifm-toc-border-color: #2a3144; /* Slightly visible border */
-  --gradient-bg: linear-gradient(135deg, #0f1c36 0%, #1a3161 40%, #cc5a2b 100%); /* Darker gradient */
+  --gradient-bg: linear-gradient(135deg, #111827 0%, #162037 40%, #1e293b 100%); /* Very subtle gradient */
 }
 
 /* Modern navbar styling */
@@ -59,7 +59,7 @@ body {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   background: var(--navbar-bg) !important;
-  box-shadow: 0 2px 16px 0 rgba(15, 28, 54, 0.15);
+  box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.15);
 }
 
 .navbar__item--modern {
@@ -82,7 +82,7 @@ body {
 .footer {
   background-color: var(--footer-bg) !important;
   border-top: 1px solid var(--ifm-toc-border-color);
-  box-shadow: 0 2px 16px 0 rgba(15, 28, 54, 0.15);
+  box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.15);
 }
 
 .footer__link--modern {
@@ -113,7 +113,7 @@ body {
   border: 1px solid var(--ifm-toc-border-color);
   transition: all 0.3s ease;
   overflow: hidden;
-  background-color: rgba(26, 32, 46, 0.7);
+  background-color: rgba(30, 41, 59, 0.7);
   backdrop-filter: blur(4px);
 }
 
@@ -151,7 +151,7 @@ table {
 }
 
 table thead {
-  background-color: #1a3161;
+  background-color: #1e293b;
   color: white;
 }
 
@@ -189,7 +189,7 @@ table td {
 /* Modern sidebar styling */
 .menu {
   padding: 1rem;
-  background-color: rgba(26, 32, 46, 0.6);
+  background-color: rgba(30, 41, 59, 0.6);
   backdrop-filter: blur(8px);
 }
 
@@ -204,7 +204,7 @@ table td {
 }
 
 .menu__link--active {
-  background-color: rgba(74, 128, 209, 0.2);
+  background-color: rgba(74, 128, 209, 0.15);
   color: var(--ifm-color-primary-lightest);
   border-left: 2px solid var(--ifm-color-primary);
 }
@@ -217,7 +217,7 @@ table td {
 }
 
 .docItemContainer article {
-  background-color: rgba(26, 32, 46, 0.7);
+  background-color: rgba(30, 41, 59, 0.7);
   backdrop-filter: blur(8px);
   border-radius: var(--ifm-global-radius);
   padding: 2rem;
@@ -234,7 +234,7 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
   font-size: 2.5rem;
-  background: linear-gradient(45deg, var(--ifm-color-primary), #cc5a2b);
+  background: linear-gradient(45deg, var(--ifm-color-primary), #4d7dcc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -304,7 +304,7 @@ img {
 
 /* Table of contents styling */
 .table-of-contents {
-  background-color: rgba(26, 32, 46, 0.6);
+  background-color: rgba(30, 41, 59, 0.6);
   backdrop-filter: blur(8px);
   border-radius: var(--ifm-global-radius);
   padding: 1rem;
@@ -361,5 +361,5 @@ img {
   top: 0; left: 0; width: 100vw; height: 100vh;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.3;
 }
