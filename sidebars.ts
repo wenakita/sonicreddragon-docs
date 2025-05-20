@@ -13,40 +13,32 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
  Create as many sidebars as you want.
  */
 const sidebars: SidebarsConfig = {
-  tutorialSidebar: [
-    'intro',
+  docs: [
+    {
+      type: 'doc',
+      id: 'intro',
+      label: 'Introduction',
+    },
     {
       type: 'category',
-      label: 'Contracts',
+      label: 'Smart Contracts',
       items: [
-        'contracts/overview',
+        {
+          type: 'doc',
+          id: 'contracts/overview',
+          label: 'Overview',
+        },
       ],
     },
     {
       type: 'category',
-      label: 'Randomness',
+      label: 'Ecosystem',
       items: [
-        'ecosystem/drand-network',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Tutorial Basics',
-      items: [
-        'tutorial-basics/create-a-document',
-        'tutorial-basics/create-a-blog-post',
-        'tutorial-basics/create-a-page',
-        'tutorial-basics/markdown-features',
-        'tutorial-basics/deploy-your-site',
-        'tutorial-basics/congratulations',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Tutorial Extras',
-      items: [
-        'tutorial-extras/manage-docs-versions',
-        'tutorial-extras/translate-your-site',
+        {
+          type: 'doc',
+          id: 'ecosystem/drand-network',
+          label: 'dRAND Network',
+        },
       ],
     },
   ],
