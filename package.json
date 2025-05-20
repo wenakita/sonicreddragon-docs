@@ -1,11 +1,12 @@
 {
-  "name": "new-docs",
+  "name": "sonic-red-dragon-docs",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "docusaurus build",
+    "debug-build": "node ./scripts/debug-build.js",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",

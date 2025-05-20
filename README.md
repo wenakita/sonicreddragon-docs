@@ -1,4 +1,4 @@
-# OmniDragon Documentation
+# Sonic Red Dragon Documentation
 
 This documentation is built using [Docusaurus 3](https://docusaurus.io/), a modern static website generator.
 

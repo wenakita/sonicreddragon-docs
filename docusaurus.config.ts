@@ -5,12 +5,12 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'OmniDragon',
+  title: 'Sonic Red Dragon',
   tagline: 'LayerZero V2 Compatible Token',
   favicon: '/img/favicon-32x32.png',
 
   // Set the production url of your site here
-  url: 'https://docs.omnidragon.io',
+  url: 'https://docs.sonicreddragon.io',
   // For custom domain with GitHub Pages, use baseUrl: '/'
   baseUrl: '/',
   // Remove trailing slash for GitHub Pages
@@ -18,7 +18,7 @@ const config: Config = {
 
   // GitHub pages deployment config
   organizationName: 'wenakita',
-  projectName: 'omnidragon-docs',
+  projectName: 'sonicreddragon-docs',
 
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
@@ -80,9 +80,9 @@ const config: Config = {
     
     // Modern navbar configuration
     navbar: {
-      title: 'OmniDragon',
+      title: 'Sonic Red Dragon',
       logo: {
-        alt: 'OmniDragon Logo',
+        alt: 'Sonic Red Dragon Logo',
         src: '/img/logo.svg',
       },
       items: [
@@ -154,9 +154,9 @@ const config: Config = {
     footer: {
       style: 'dark',
       logo: {
-        alt: 'OmniDragon Logo',
+        alt: 'Sonic Red Dragon Logo',
         src: 'img/logo-dark.svg',
-        href: 'https://omnidragon.io',
+        href: 'https://sonicreddragon.io',
       },
       links: [
         {
@@ -184,12 +184,12 @@ const config: Config = {
           items: [
             {
               label: 'Discord',
-              href: 'https://discord.gg/omnidragon',
+              href: 'https://discord.gg/sonicreddragon',
               className: 'footer__link--modern footer__link--discord',
             },
             {
               label: 'Twitter',
-              href: 'https://twitter.com/omnidragon',
+              href: 'https://twitter.com/sonicreddragon',
               className: 'footer__link--modern footer__link--twitter',
             },
           ],
@@ -199,18 +199,18 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/wenakita/omnidragon',
+              href: 'https://github.com/wenakita/sonicreddragon',
               className: 'footer__link--modern footer__link--github',
             },
             {
               label: 'Blog',
-              href: 'https://blog.omnidragon.io',
+              href: 'https://blog.sonicreddragon.io',
               className: 'footer__link--modern',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} OmniDragon. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Sonic Red Dragon. Built with Docusaurus.`,
     },
 
     // Enhanced code block styling

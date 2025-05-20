@@ -4,36 +4,53 @@
  * - Adds animation controls
  */
 
-// Wait for document to be fully loaded
-document.addEventListener('DOMContentLoaded', function() {
-  // Create backdrop for expanded diagrams
-  const backdrop = document.createElement('div');
-  backdrop.className = 'mermaid-backdrop';
-  document.body.appendChild(backdrop);
-  
-  // Initialize once diagrams are rendered
-  setTimeout(setupMermaidDiagrams, 1000);
-  
-  // Also set up when navigating between pages
-  const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      if (mutation.addedNodes.length) {
-        setTimeout(setupMermaidDiagrams, 500);
-      }
+// Only execute in browser environment
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  // Wait for document to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Create backdrop for expanded diagrams
+    const backdrop = document.createElement('div');
+    backdrop.className = 'mermaid-backdrop';
+    document.body.appendChild(backdrop);
+    
+    // Initialize once diagrams are rendered
+    setTimeout(setupMermaidDiagrams, 1000);
+    
+    // Also set up when navigating between pages
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.addedNodes.length) {
+          setTimeout(setupMermaidDiagrams, 500);
+        }
+      });
     });
+    
+    // Target the main content area for Docusaurus
+    const contentArea = document.querySelector('main');
+    if (contentArea) {
+      observer.observe(contentArea, { childList: true, subtree: true });
+    }
   });
-  
-  // Target the main content area for Docusaurus
-  const contentArea = document.querySelector('main');
-  if (contentArea) {
-    observer.observe(contentArea, { childList: true, subtree: true });
-  }
-});
+
+  // Add keyboard support for accessibility
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const expandedDiagram = document.querySelector('.mermaid-wrapper.expanded');
+      if (expandedDiagram) {
+        expandedDiagram.classList.remove('expanded');
+        document.querySelector('.mermaid-backdrop').classList.remove('visible');
+        document.body.style.overflow = '';
+      }
+    }
+  });
+}
 
 /**
  * Set up all Mermaid diagrams on the page
  */
 function setupMermaidDiagrams() {
+  if (typeof document === 'undefined') return;
+  
   const mermaidDivs = document.querySelectorAll('.mermaid');
   
   mermaidDivs.forEach((mermaidDiv, index) => {
@@ -76,6 +93,8 @@ function setupMermaidDiagrams() {
  * Enhance animations for specific diagram types
  */
 function enhanceMermaidAnimations(diagram) {
+  if (typeof document === 'undefined') return;
+  
   // Delay to ensure diagram is rendered
   setTimeout(() => {
     // Find flowchart links and add animation classes
@@ -103,6 +122,8 @@ function enhanceMermaidAnimations(diagram) {
  * Set up expansion functionality for a diagram
  */
 function setupDiagramExpansion(wrapper) {
+  if (typeof document === 'undefined') return;
+  
   const backdrop = document.querySelector('.mermaid-backdrop');
   const closeButton = wrapper.querySelector('.mermaid-close');
   
@@ -136,16 +157,4 @@ function setupDiagramExpansion(wrapper) {
       e.stopPropagation();
     }
   });
-}
-
-// Add keyboard support for accessibility
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    const expandedDiagram = document.querySelector('.mermaid-wrapper.expanded');
-    if (expandedDiagram) {
-      expandedDiagram.classList.remove('expanded');
-      document.querySelector('.mermaid-backdrop').classList.remove('visible');
-      document.body.style.overflow = '';
-    }
-  }
-}); 
+} 
