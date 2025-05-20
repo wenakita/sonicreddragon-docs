@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import * as anime from 'animejs';
+import { animate } from 'animejs';
 
 const GradientBackground: React.FC = () => {
   const gradientRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!gradientRef.current) return;
-    (anime as any).default({
+    animate({
       targets: gradientRef.current,
       backgroundPosition: [
         '0% 50%',
@@ -17,7 +17,7 @@ const GradientBackground: React.FC = () => {
       direction: 'alternate',
       loop: true,
       easing: 'linear',
-    });
+    }, {});
   }, []);
 
   return (
