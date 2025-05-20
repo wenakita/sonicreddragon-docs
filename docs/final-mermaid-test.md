@@ -26,10 +26,9 @@ sequenceDiagram
     System-->>User: Response
 `} />
 
-## Simple Method 3: Raw HTML
+## Simple Method 3: Class Diagram
 
-<div dangerouslySetInnerHTML={{__html: `
-<div class="mermaid">
+```mermaid
 classDiagram
     class Animal {
         +String name
@@ -43,5 +42,4 @@ classDiagram
     }
     Animal <|-- Dog
     Animal <|-- Bird
-</div>
-`}} /> 
+``` 
