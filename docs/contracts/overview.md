@@ -6,18 +6,223 @@ sidebar_position: 1
 
 OmniDragon's smart contract system is built on LayerZero, providing a robust foundation for cross-chain operations and verifiable randomness.
 
-## System Architecture
+## Ecosystem Architecture
+
+The OmniDragon ecosystem consists of several interconnected components that work together to provide a comprehensive DeFi platform.
+
+### Core Protocol & User Journey
 
 ```mermaid
-flowchart TD
-    A[OmniDragon] --> B[LayerZero]
-    A --> C[VRF Network]
-    D[ChainRegistry] --> B
-    E[OmniDragonVRFConsumer] --> C
-    E --> B
-    F[Applications] --> A
-    F --> D
-    F --> E
+flowchart LR
+    %% Color classes for different components
+    classDef coreSystem fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000000
+    classDef tokenSystem fill:#e8eaf6,stroke:#5c6bc0,stroke-width:2px,color:#000000
+    classDef userSystem fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000000
+    classDef journeyStep fill:#fff8e1,stroke:#ffb300,stroke-width:2px,color:#000000
+    classDef externalSystem fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000
+    
+    %% Core Protocol
+    subgraph Core["Core Protocol"]
+        direction TB
+        
+        OmniDragon["OmniDragon Token<br>• ERC20 with lottery<br>• Cross-chain capability<br>• Fee distribution"]:::coreSystem
+        SwapTriggerOracle["SwapTriggerOracle<br>• Monitors trading<br>• Triggers lottery draws"]:::coreSystem
+        ChainRegistry["ChainRegistry<br>• Manages chain IDs<br>• Cross-chain config"]:::coreSystem
+        
+        subgraph TokensLP["Token Ecosystem"]
+            direction TB
+            LPToken["69LP Token<br>• Liquidity provider token<br>• Earns trading fees"]:::tokenSystem
+        end
+    end
+    
+    %% User Journey
+    subgraph UserJourney["User Journey"]
+        direction TB
+        
+        %% Main user
+        User["User<br>Entry point"]:::userSystem
+        
+        %% Journey steps
+        Trading["Trading<br>• Buy/Sell OmniDragon<br>• Generates fees<br>• Lottery entry"]:::journeyStep
+        AddLiquidity["Add Liquidity<br>• Create 69LP tokens<br>• Earn trading fees"]:::journeyStep
+        StakeLock["Stake & Lock<br>• 69LP → ve69LP<br>• Governance rights"]:::journeyStep
+        Vote["Vote & Boost<br>• Governance proposals<br>• Weekly gauge voting"]:::journeyStep
+        Collect["Collect Rewards<br>• Fee distribution<br>• Lottery winnings"]:::journeyStep
+    end
+    
+    %% External DEXs
+    subgraph ExternalDEX["External DEXes"]
+        direction LR
+        UniswapV2["Uniswap V2"]:::externalSystem
+        UniswapV3["Uniswap V3"]:::externalSystem
+        Balancer["Balancer"]:::externalSystem
+    end
+    
+    %% Connect User Journey to System
+    User -- "Starts here" --> Trading
+    Trading -- "Next step" --> AddLiquidity
+    AddLiquidity -- "Next step" --> StakeLock
+    StakeLock -- "Next step" --> Vote
+    Vote -- "Final step" --> Collect
+    Trading -- "Lottery" --> Collect
+    
+    Trading -- "Swap" --> ExternalDEX
+    ExternalDEX -- "Provide liquidity" --> AddLiquidity
+    
+    %% Core Connections
+    ChainRegistry -- "Chain management" --> OmniDragon
+    OmniDragon -- "Monitoring" --> SwapTriggerOracle
+    AddLiquidity -- "Creates" --> LPToken
+    
+    %% Style the containers
+    style UserJourney fill:#fff9c4,stroke:#ffb300,stroke-width:2px
+    style Core fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
+    style ExternalDEX fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px
+```
+
+### Randomness System
+
+```mermaid
+flowchart LR
+    %% Color classes for different components
+    classDef randomnessSystem fill:#e1f5fe,stroke:#1976d2,stroke-width:2px,color:#000000
+    classDef processSystem fill:#fff3e0,stroke:#ff9800,stroke-width:2px,color:#000000
+    
+    %% Randomness Sources
+    subgraph Sources["External Randomness Sources"]
+        direction LR
+        DrandDefault["drand Default<br>League of Entropy"]:::randomnessSystem
+        DrandEVMNet["drand EVMNet<br>EVM optimized"]:::randomnessSystem
+        DrandQuickNet["drand QuickNet<br>Fast verification"]:::randomnessSystem
+        ChainlinkVRF["ChainlinkVRF2.5<br>Cross-chain via LayerZero"]:::randomnessSystem
+    end
+    
+    %% Integrators
+    subgraph Integrators["Integrator Layer"]
+        direction LR
+        DefaultIntegrator["Default Integrator<br>• Verifies & formats"]:::randomnessSystem
+        EVMNetIntegrator["EVMNet Integrator<br>• Low latency"]:::randomnessSystem
+        QuickNetIntegrator["QuickNet Integrator<br>• Fastest verification"]:::randomnessSystem
+        ChainlinkRequester["ChainlinkVRFRequester<br>• Request gateway"]:::randomnessSystem
+    end
+    
+    %% Consumer
+    OmniDragonVRFConsumer["OmniDragonVRFConsumer<br>• Aggregates all sources<br>• Priority-based fallback<br>• Caching & redundancy"]:::randomnessSystem
+    
+    %% Process Flow
+    subgraph Process["Lottery Randomness Flow"]
+        direction TB
+        Step1["1. Multiple sources<br>provide entropy"]:::processSystem
+        Step2["2. Integrators verify<br>& format randomness"]:::processSystem
+        Step3["3. VRFConsumer<br>aggregates sources"]:::processSystem
+        Step4["4. SwapTrigger receives<br>secure random values"]:::processSystem
+        Step5["5. OmniDragon determines<br>lottery winners"]:::processSystem
+        
+        Step1 --> Step2 --> Step3 --> Step4 --> Step5
+    end
+    
+    %% Connect Components
+    DrandDefault --> DefaultIntegrator
+    DrandEVMNet --> EVMNetIntegrator
+    DrandQuickNet --> QuickNetIntegrator
+    ChainlinkVRF --> ChainlinkRequester
+    
+    DefaultIntegrator --> OmniDragonVRFConsumer
+    EVMNetIntegrator --> OmniDragonVRFConsumer
+    QuickNetIntegrator --> OmniDragonVRFConsumer
+    ChainlinkRequester --> OmniDragonVRFConsumer
+    
+    %% Style Containers
+    style Sources fill:#e1f5fe,stroke:#1976d2,stroke-width:2px
+    style Integrators fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style Process fill:#fff8e1,stroke:#ff9800,stroke-width:2px
+```
+
+### Economic System & Jackpot
+
+```mermaid
+flowchart LR
+    %% Color classes for different components
+    classDef jackpotSystem fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000000
+    classDef feeSystem fill:#e1f5fe,stroke:#00acc1,stroke-width:2px,color:#000000
+    
+    %% Economic System - Fee Collection
+    subgraph FeeCollection["Fee Collection & Distribution"]
+        direction TB
+        FeeCollector["Fee Collector<br>• Processes all swaps<br>• Splits fees by purpose"]:::feeSystem
+        BurnMechanism["Burn Mechanism<br>• 0.69% of each swap<br>• Supply reduction"]:::feeSystem
+    end
+    
+    %% Jackpot Mechanism
+    subgraph JackpotMechanism["Jackpot Mechanism"]
+        direction TB
+        JackpotVault["JackpotVault<br>• Holds 6.9% of all swaps<br>• Secure prize pool"]:::jackpotSystem
+        JackpotDistributor["JackpotDistributor<br>• Determines winners<br>• Distributes rewards"]:::jackpotSystem
+        WinProbability["Win Probability<br>• Based on swap size<br>• Dynamic adjustments"]:::jackpotSystem
+        LotteryWinners["Lottery Winners<br>• Selected via VRF<br>• Receive jackpot prizes"]:::jackpotSystem
+    end
+    
+    %% Connect Components
+    FeeCollector -- "6.9% of swap" --> JackpotVault
+    FeeCollector -- "0.69% of swap" --> BurnMechanism
+    
+    WinProbability -- "Determines win chance" --> JackpotDistributor
+    JackpotVault -- "Funds prize pool" --> JackpotDistributor
+    JackpotDistributor -- "Distributes prizes" --> LotteryWinners
+    
+    %% Style Containers
+    style FeeCollection fill:#e1f5fe,stroke:#00acc1,stroke-width:2px
+    style JackpotMechanism fill:#fff3e0,stroke:#fb8c00,stroke-width:2px
+```
+
+### Governance & Partner Ecosystem
+
+```mermaid
+flowchart LR
+    %% Color classes for different components
+    classDef governanceSystem fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000000
+    classDef externalSystem fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000000
+    
+    %% ve69LP System
+    subgraph VeTokenSystem["ve69LP Governance System"]
+        direction TB
+        ve69LP["ve69LP Token<br>• Locked LP position<br>• Time-weighted voting power"]:::governanceSystem
+        ve69LPFeeDistributor["ve69LP Fee Distributor<br>• Receives 2.41% of swaps<br>• Proportional distribution"]:::governanceSystem
+        ProposalVoting["Protocol Governance<br>• Parameter changes<br>• Treasury management"]:::governanceSystem
+    end
+    
+    %% Weekly Epoch System
+    subgraph GaugeSystem["Weekly Gauge & Boost System"]
+        direction TB
+        EpochReset["Weekly Epoch Reset<br>• 7-day voting cycle"]:::governanceSystem
+        GaugeVoting["Partner Pool Voting<br>• ve69LP holders allocate votes"]:::governanceSystem
+        GaugeController["Gauge Controller<br>• Tallies all votes<br>• Sets boost allocation"]:::governanceSystem
+    end
+    
+    %% Partners
+    subgraph PartnerSystem["Partner Pools & Rewards"]
+        direction TB
+        PartnerRegistry["Partner Registry<br>• Official partner onboarding"]:::externalSystem
+        PartnerPools["Partner Liquidity Pools<br>• Dragon + Partner token"]:::externalSystem
+        ProbabilityBoost["Probability Boost<br>• Increases win chance"]:::externalSystem
+    end
+    
+    %% Connect Components
+    ve69LP -- "Earns from fees" --> ve69LPFeeDistributor
+    ve69LP -- "Grants governance rights" --> ProposalVoting
+    
+    ve69LP -- "Enables gauge voting" --> GaugeVoting
+    GaugeVoting -- "Vote allocation" --> GaugeController
+    EpochReset -- "Weekly reset" --> GaugeVoting
+    GaugeController -- "Calculate weights" --> ProbabilityBoost
+    
+    PartnerRegistry -- "Register partner" --> PartnerPools
+    ProbabilityBoost -- "Increase probability" --> PartnerPools
+    
+    %% Style Containers
+    style VeTokenSystem fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style GaugeSystem fill:#e0f7fa,stroke:#00acc1,stroke-width:2px
+    style PartnerSystem fill:#fff3e0,stroke:#f57c00,stroke-width:2px
 ```
 
 ## Core Contracts
@@ -168,7 +373,7 @@ For developers looking to contribute or build on OmniDragon:
 
 ## Security
 
-Security is our top priority. Our contracts have undergone multiple audits and are continuously monitored. If you discover any security issues, please report them to security@omnidragon.io.
+Security is our top priority. Our contracts have undergone multiple audits and are continuously monitored. If you discover any security issues, please report them to security@sonicreddragon.io.
 
 ### Security Best Practices
 
@@ -193,8 +398,8 @@ Security is our top priority. Our contracts have undergone multiple audits and a
 
 For technical support or questions about contract integration:
 - Join our [Discord](https://discord.gg/omnidragon)
-- Open an issue on [GitHub](https://github.com/wenakita/omnidragon)
-- Contact us at support@omnidragon.io
+- Open an issue on [GitHub](https://github.com/wenakita/sonicreddragon)
+- Contact us at support@sonicreddragon.io
 
 ## Contract Categories
 

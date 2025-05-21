@@ -44,7 +44,8 @@ flowchart TD
     ve69LP -->|"Proportional Distribution"| Stakers["ve69LP Stakers"]
     Burn -->|"Permanent Removal"| Supply["Circulating Supply"]
     
-    class Fees,JackpotPool highlight
+    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
+    class Fees,Jackpot highlight
 ```
 
 ### Fee Breakdown
@@ -136,6 +137,7 @@ flowchart TD
     TradingExperience -->|"Encourages"| Transactions
     Price -->|"Attracts"| Users
     
+    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
     class Transactions,Fees,Jackpot highlight
 ```
 

@@ -61,3 +61,5 @@ This command generates static content into the `build` directory and can be serv
 ## Deployment
 
 The documentation is automatically deployed when changes are merged to the main branch.
+
+This website is automatically deployed using GitHub Actions.

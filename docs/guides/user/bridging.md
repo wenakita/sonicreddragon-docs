@@ -18,7 +18,7 @@ You can bridge DRAGON tokens between the following networks:
 |---------|----------|--------|
 | Ethereum | 101 | Active |
 | BNB Chain | 102 | Active |
-| Avalanche | 106 | Active |
+| Sonic | 332 | Active |
 | Arbitrum | 110 | Active |
 | Base | 184 | Active |
 | Optimism | 111 | Coming Soon |

@@ -14,9 +14,18 @@ function sanitizeMermaidDiagram(element) {
     .replace(/classDef\s+(\w+)\s+fill:[^\n;]*/g, (match, className) => {
       return `classDef ${className} fill:#4a80d1`;
     })
-    // Fix commas in class names in class diagrams
-    .replace(/(\w+),(\w+)/g, (match, part1, part2) => {
-      return `${part1} ${part2}`;
+    // FIX: Properly handle class statements with commas and highlight keyword
+    // Example: "class Token,LZ,Governance,JackpotSystem highlight" -> "class Token LZ Governance JackpotSystem highlight"
+    .replace(/class\s+([^;\n]+)(\s+highlight)/g, (match, classList, highlight) => {
+      // Replace commas with spaces in the class list
+      const fixedClassList = classList.replace(/,/g, ' ');
+      return `class ${fixedClassList}${highlight}`;
+    })
+    // Fix commas in class names in class diagrams that don't have highlight
+    .replace(/class\s+([^;\n]+)(?!\s+highlight)/g, (match, classList) => {
+      // Replace commas with spaces
+      const fixedClassList = classList.replace(/,/g, ' ');
+      return `class ${fixedClassList}`;
     })
     // Replace all non-ASCII characters
     .replace(/[^\x00-\x7F]/g, '')
@@ -57,9 +66,18 @@ export default {
             .replace(/classDef\s+(\w+)\s+fill:[^\n;]*/g, (match, className) => {
               return `classDef ${className} fill:#4a80d1`;
             })
-            // Fix commas in class names in class diagrams
-            .replace(/(\w+),(\w+)/g, (match, part1, part2) => {
-              return `${part1} ${part2}`;
+            // FIX: Properly handle class statements with commas and highlight keyword
+            // Example: "class Token,LZ,Governance,JackpotSystem highlight" -> "class Token LZ Governance JackpotSystem highlight"
+            .replace(/class\s+([^;\n]+)(\s+highlight)/g, (match, classList, highlight) => {
+              // Replace commas with spaces in the class list
+              const fixedClassList = classList.replace(/,/g, ' ');
+              return `class ${fixedClassList}${highlight}`;
+            })
+            // Fix commas in class names in class diagrams that don't have highlight
+            .replace(/class\s+([^;\n]+)(?!\s+highlight)/g, (match, classList) => {
+              // Replace commas with spaces
+              const fixedClassList = classList.replace(/,/g, ' ');
+              return `class ${fixedClassList}`;
             })
             // Replace all non-ASCII characters
             .replace(/[^\x00-\x7F]/g, '')

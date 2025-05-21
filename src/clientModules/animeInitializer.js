@@ -192,4 +192,69 @@ if (typeof window !== 'undefined') {
       subtree: true,
     });
   }
-} 
+}
+
+export default {
+  onRouteUpdate({ location }) {
+    // Load anime.js if not already loaded
+    if (typeof window !== 'undefined' && !window.anime) {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js';
+      script.integrity = 'sha512-lfQYO3GHifIS5Oxz4yk+5Pv+MJUXjnbvJXgzsWreI1emJZLYjA0CghXrwwHIAOoP9++gas3as7pa71bP3H3EQ==';
+      script.crossOrigin = 'anonymous';
+      script.referrerPolicy = 'no-referrer';
+      script.async = true;
+      
+      script.onload = () => {
+        console.log('Anime.js loaded successfully for mermaid animations');
+        
+        // Trigger any animations when loaded
+        if (typeof window.animateMermaidDiagrams === 'function') {
+          const containers = document.querySelectorAll('.mermaid-container, .standard-mermaid-container, .docusaurus-mermaid-container');
+          containers.forEach(container => {
+            window.animateMermaidDiagrams(container);
+          });
+        }
+      };
+      
+      document.head.appendChild(script);
+    }
+    
+    // Add MutationObserver to detect new mermaid diagrams
+    if (typeof window !== 'undefined' && window.MutationObserver) {
+      // Create observer instance
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+            // Check for new mermaid containers
+            for (let i = 0; i < mutation.addedNodes.length; i++) {
+              const node = mutation.addedNodes[i];
+              if (node.nodeType === 1) { // ELEMENT_NODE
+                const containers = node.querySelectorAll 
+                  ? node.querySelectorAll('.mermaid-container, .standard-mermaid-container, .docusaurus-mermaid-container')
+                  : [];
+                
+                if (containers.length > 0 && typeof window.animateMermaidDiagrams === 'function') {
+                  containers.forEach(container => {
+                    window.animateMermaidDiagrams(container);
+                  });
+                }
+              }
+            }
+          }
+        });
+      });
+      
+      // Start observing the document with configured parameters
+      observer.observe(document.body, { 
+        childList: true, 
+        subtree: true 
+      });
+      
+      // Clean up observer on route change
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }
+}; 

@@ -193,7 +193,7 @@ OmniDragon is available on the following networks:
 | Arbitrum | 42161 | 0x... (Coming Soon) | Planned |
 | Optimism | 10 | 0x... (Coming Soon) | Planned |
 | Avalanche | 43114 | 0x... (Coming Soon) | Planned |
-| BNB Chain | 56 | 0x... (Coming Soon) | Planned |
+| Sonic | 146 | 0x... (Coming Soon) | Planned |
 
 ## Integration Support
 

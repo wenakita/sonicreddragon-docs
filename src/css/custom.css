@@ -37,8 +37,8 @@
   --ifm-background-surface-color: rgba(255, 255, 255, 0.8);
   --ifm-card-background-color: var(--card-bg);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-  --ifm-navbar-sidebar-width: 85% !important;
-  --doc-sidebar-width: 85% !important;
+  --ifm-navbar-sidebar-width: 280px !important; /* Reduced width for desktop */
+  --doc-sidebar-width: 280px !important; /* Reduced width for desktop */
   --ifm-toc-border-color: var(--ifm-color-emphasis-200) !important;
 }
 
@@ -150,6 +150,8 @@ body {
 /* Main content container */
 .main-wrapper {
   min-height: calc(100vh - 60px - 300px); /* Adjust based on your navbar and footer heights */
+  display: flex;
+  width: 100%;
 }
 
 /* Document container styling */
@@ -338,7 +340,9 @@ table td {
 
 /* Improved sidebar styling */
 .menu {
-  padding: 1rem;
+  padding-top: 0;
+  padding-bottom: 0.5rem;
+  margin-top: 0;
   background-color: var(--ifm-background-surface-color);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -347,7 +351,6 @@ table td {
   scrollbar-width: thin;
   scrollbar-color: var(--ifm-color-primary-dark) transparent;
   scroll-behavior: smooth;
-  transition: transform 0.3s ease;
 }
 
 .menu::-webkit-scrollbar {
@@ -364,10 +367,9 @@ table td {
 }
 
 .menu__link {
-  border-radius: var(--ifm-global-radius);
-  transition: all 0.2s ease;
   padding: 0.6rem 0.8rem;
-  margin: 0.2rem 0;
+  border-radius: var(--ifm-global-radius);
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .menu__link:hover {
@@ -376,9 +378,8 @@ table td {
 }
 
 .menu__link--active {
+  font-weight: 600;
   background-color: rgba(var(--ifm-color-primary-rgb), 0.15);
-  color: var(--ifm-color-primary);
-  font-weight: 500;
   border-left: 2px solid var(--ifm-color-primary);
 }
 
@@ -399,7 +400,7 @@ table td {
 }
 
 .menu__list-item-collapsible:hover {
-  background-color: rgba(var(--ifm-color-primary-rgb), 0.05);
+  background-color: rgba(var(--ifm-color-primary-rgb), 0.1);
   border-radius: 8px;
 }
 
@@ -502,15 +503,6 @@ article {
     background-color: rgba(255, 255, 255, 0.05);
   }
   
-  .menu__list-item-collapsible {
-    font-weight: 500;
-  }
-  
-  .menu__list-item-collapsible:hover {
-    background-color: rgba(var(--ifm-color-primary-rgb), 0.1);
-    border-radius: 8px;
-  }
-  
   .menu__caret {
     padding: 0 1rem;
   }
@@ -528,7 +520,8 @@ article {
   }
   
   .navbar-sidebar {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    width: 85% !important; /* Mobile width */
+    max-width: 300px;
   }
   
   .navbar-sidebar__backdrop {
@@ -798,6 +791,129 @@ article {
   font-style: italic;
 }
 
+/* Enhanced mermaid controls */
+.mermaid-controls {
+  display: flex;
+  justify-content: flex-end;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 5px 5px 0 0;
+  margin-bottom: 5px;
+  z-index: 50;
+  position: relative;
+}
+
+[data-theme='dark'] .mermaid-controls {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mermaid-control {
+  margin-left: 5px;
+  border: none;
+  background: var(--ifm-color-primary);
+  color: white;
+  border-radius: 4px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mermaid-control:hover {
+  transform: scale(1.1);
+  background: var(--ifm-color-primary-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Node highlighting animation */
+.highlight-active {
+  animation: pulse-highlight 1s ease-in-out;
+}
+
+@keyframes pulse-highlight {
+  0% {
+    filter: drop-shadow(0 0 3px var(--ifm-color-primary));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px var(--ifm-color-primary));
+  }
+  100% {
+    filter: drop-shadow(0 0 3px var(--ifm-color-primary));
+  }
+}
+
+/* Better gradient fills for nodes */
+.mermaid .node rect {
+  fill: url(#gradient-primary) !important;
+  transition: all 0.3s ease !important;
+}
+
+.mermaid .node circle {
+  fill: url(#gradient-secondary) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Responsive improvements for mermaid diagrams */
+@media (max-width: 576px) {
+  .mermaid-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .mermaid-control {
+    margin: 3px;
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  
+  .mermaid-wrapper.expanded {
+    width: 95%;
+    height: 80%;
+  }
+}
+
+/* Smooth transitions for nodes */
+.mermaid .node, 
+.mermaid .cluster,
+.mermaid text,
+.mermaid .actor {
+  transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease !important;
+}
+
+/* Enhanced mermaid wrapper for better expandability */
+.mermaid-wrapper {
+  position: relative;
+  margin: 20px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  background: var(--ifm-card-background-color);
+}
+
+.mermaid-wrapper .mermaid svg {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Make sure controls are on top in expanded view */
+.mermaid-wrapper.expanded .mermaid-controls {
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  background: var(--ifm-background-color);
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
 /* StandardMermaid component styling */
 .standard-mermaid-container {
   background: var(--ifm-card-background-color);
@@ -965,71 +1081,158 @@ article {
   stroke: var(--ifm-color-emphasis-300) !important;
 }
 
-/* Fix mobile sidebar z-index and positioning */
+/* Fix mobile sidebar z-index and positioning - UPDATED */
 .navbar-sidebar {
-  z-index: 100 !important; /* Ensure sidebar is above content */
-  width: 85%; /* Limit width for better usability */
+  z-index: 10000 !important; /* Extremely high z-index */
+  width: 300px; /* Default width for desktop */
   max-width: 300px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) !important;
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  overflow-y: auto !important;
 }
 
-/* Make backdrop fully opaque to prevent seeing content underneath */
+/* Responsive adjustments for mobile */
+@media (max-width: 996px) {
+  .navbar-sidebar {
+    width: 85% !important; /* Mobile width */
+    max-width: 300px;
+  }
+}
+
+/* Ensure backdrop covers all content */
 .navbar-sidebar__backdrop {
-  z-index: 99 !important;
+  z-index: 9999 !important; /* Just below sidebar but above everything else */
   background-color: rgba(0, 0, 0, 0.7) !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+/* Fix docusaurus specific issues */
+:root {
+  --ifm-navbar-sidebar-width: 280px !important; /* Reduced width for desktop */
+  --doc-sidebar-width: 280px !important; /* Reduced width for desktop */
+  --ifm-toc-border-color: var(--ifm-color-emphasis-200) !important;
+}
+
+/* Mobile-specific variables */
+@media (max-width: 996px) {
+  :root {
+    --ifm-navbar-sidebar-width: 85% !important; /* Mobile width */
+    --doc-sidebar-width: 85% !important; /* Mobile width */
+  }
+}
+
+/* Force content behind sidebar */
+.main-wrapper {
+  z-index: 1 !important; /* Low z-index for content */
+  position: relative !important;
 }
 
 /* Ensure menu is visible on top of content */
 .menu {
-  z-index: 20;
-  position: relative;
+  z-index: 10000 !important; /* Same as sidebar */
+  position: relative !important;
+}
+
+/* Fix Docusaurus specific issues */
+.navbar {
+  z-index: 9998 !important; /* Below sidebar but above content */
+}
+
+/* Doc sidebar specific fixes */
+.theme-doc-sidebar-container {
+  position: sticky !important;
+  top: var(--ifm-navbar-height) !important;
+  height: calc(100vh - var(--ifm-navbar-height)) !important;
+  max-height: calc(100vh - var(--ifm-navbar-height)) !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  overflow-y: auto;
+  width: var(--doc-sidebar-width);
+  max-width: 280px !important; /* Ensure sidebar doesn't exceed this width */
+  z-index: 200 !important;
+}
+
+/* Fix main docusaurus elements */
+.docMainContainer_gTbr, 
+.docPage_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
+.docMainContainer_N2Fh,
+.docPage_WvG3 {
+  z-index: 1 !important;
+  position: relative !important;
 }
 
 /* Mobile styles enhancements */
 @media (max-width: 996px) {
-  /* Improve mobile sidebar appearance */
-  .navbar-sidebar {
-    transform: translate3d(0, 0, 0); /* Force GPU acceleration */
+  /* Force content behind when sidebar is shown */
+  body.navbar-sidebar--show .main-wrapper {
+    z-index: 1 !important;
+    position: relative !important;
   }
   
-  /* Adjust content when sidebar is visible */
-  .navbar-sidebar-show .main-wrapper {
-    overflow: hidden;
-    max-height: 100vh;
+  /* Ensure the sidebar container is fixed and visible above all */
+  body.navbar-sidebar--show .navbar-sidebar {
+    transform: translateX(0) !important;
+    visibility: visible !important;
   }
   
-  /* Increase tap target areas */
-  .menu__link, 
-  .navbar-sidebar__item {
-    padding: 0.85rem 0.75rem;
+  /* Force DocSidebar above content */
+  .theme-doc-sidebar-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    right: auto !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    z-index: 10000 !important;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease !important;
   }
   
-  /* Prevent sidebar from going under content */
-  .navbar-sidebar .menu {
-    position: static;
-    padding-bottom: 5rem; /* Add padding at bottom for scrolling */
+  /* Wrap content with main-content-wrapper for z-index management */
+  .main-wrapper::after {
+    content: '';
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
   }
   
-  /* Ensure sidebar stays on top */
-  .navbar-sidebar__items {
-    padding-top: 0.5rem;
-    z-index: 101;
+  /* Menu button visibility */
+  .navbar__toggle {
+    z-index: 9999 !important;
     position: relative;
   }
   
-  /* Disable backdrop filter on mobile for better performance */
-  .navbar, 
-  .navbar-sidebar, 
-  .menu {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+  /* Override any theme specific styles */
+  .docs-doc-sidebar {
+    z-index: 10000 !important;
   }
+}
+
+/* Fix for docusaurus sidebar menu */
+.theme-doc-sidebar-menu {
+  padding: 0.5rem !important;
+  font-size: 15px !important;
+  padding-bottom: 5rem !important; /* Add padding at bottom for scrolling */
+}
+
+.menu__list-item {
+  position: relative !important;
 }
 
 /* Additional Docusaurus-specific fixes */
 :root {
-  --ifm-navbar-sidebar-width: 85% !important;
-  --doc-sidebar-width: 85% !important;
+  --ifm-navbar-sidebar-width: 280px !important; /* Reduced width for desktop */
+  --doc-sidebar-width: 280px !important; /* Reduced width for desktop */
   --ifm-toc-border-color: var(--ifm-color-emphasis-200) !important;
 }
 
@@ -1083,12 +1286,112 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 99;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
     display: none;
   }
   
   .menu--show + .overlay-container {
     display: block;
+  }
+}
+
+/* Menu item improvements */
+.menu__list-item-collapsible {
+  font-weight: 500;
+}
+
+.menu__list-item-collapsible:hover {
+  background-color: rgba(var(--ifm-color-primary-rgb), 0.1);
+  border-radius: 8px;
+}
+
+.menu__link {
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--ifm-global-radius);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.menu__link:hover {
+  background-color: rgba(var(--ifm-color-primary-rgb), 0.1);
+  transform: translateX(2px);
+}
+
+.menu__link--active {
+  font-weight: 600;
+  background-color: rgba(var(--ifm-color-primary-rgb), 0.15);
+  border-left: 2px solid var(--ifm-color-primary);
+}
+
+/* Fix theme-doc-sidebar-menu padding and appearance */
+.theme-doc-sidebar-menu {
+  padding: 0.5rem !important;
+  font-size: 15px !important;
+  padding-bottom: 5rem !important; /* Add padding at bottom for scrolling */
+}
+
+/* Ensure sidebar shows when menu--show class is applied */
+.theme-doc-sidebar-container.menu--show {
+  transform: translateX(0) !important;
+}
+
+/* Restore backdrop overlay for mobile */
+.overlay-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  display: none;
+}
+
+.menu--show + .overlay-container {
+  display: block;
+}
+
+/* Better content area width */
+.container {
+  max-width: 1400px !important; /* Wider content area */
+}
+
+/* Adjust main content container for better layout */
+.main-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+/* Proper spacing for document content */
+.docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
+.docMainContainer_N2Fh,
+.docMainContainer_gTbr,
+.docPage_WvG3 {
+  flex: 1;
+  max-width: calc(100% - 280px);
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 996px) {
+  :root {
+    --ifm-navbar-sidebar-width: 85% !important; /* Mobile width */
+    --doc-sidebar-width: 85% !important; /* Mobile width */
+  }
+  
+  .navbar-sidebar {
+    width: 85% !important; /* Mobile width */
+    max-width: 300px;
+  }
+  
+  /* Reset main content container constraints on mobile */
+  .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
+  .docMainContainer_N2Fh,
+  .docMainContainer_gTbr,
+  .docPage_WvG3 {
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }

@@ -5,23 +5,22 @@ title: Quick Start Guide
 
 # Quick Start Guide
 
-This guide will help you get started with the OmniDragon protocol for developers, integrators, and users.
+This guide will help you get started with the Sonic Red Dragon protocol for developers, integrators, and users.
 
 ## For Users
 
-### Acquiring OmniDragon Tokens
+### Acquiring Dragon Tokens
 
-1. **Connect Wallet**: Visit [app.omnidragon.io](https://app.omnidragon.io) and connect your Web3 wallet
+1. **Connect Wallet**: Visit [app.sonicreddragon.io](https://app.sonicreddragon.io) and connect your Web3 wallet
 2. **Select Network**: Choose your preferred network (Ethereum, Arbitrum, BSC, etc.)
-3. **Swap Tokens**: Use the swap interface to exchange your assets for OmniDragon tokens
+3. **Swap Tokens**: Use the swap interface to exchange your assets for Dragon tokens
 4. **Confirm Transaction**: Approve the transaction in your wallet
 
 ### Participating in Jackpots
 
 1. **Navigate to Jackpot**: Go to the Jackpot section in the OmniDragon app
 2. **View Current Jackpot**: Check the current jackpot amount and time until next draw
-3. **Hold Tokens**: Simply holding OmniDragon tokens in your wallet automatically enters you in jackpot draws
-4. **Increase Chances**: Increase your jackpot chances by:
+3. **Increase Chances**: Increase your jackpot chances by:
    - Holding more tokens
    - Staking tokens in the protocol
    - Participating in promotions
@@ -40,8 +39,8 @@ This guide will help you get started with the OmniDragon protocol for developers
 
 ```bash
 # Clone the repository
-git clone https://github.com/omnidragon/omnidragon.git
-cd omnidragon
+git clone https://github.com/wenakita/sonicreddragon.git
+cd sonicreddragon
 
 # Install dependencies
 npm install
@@ -146,7 +145,7 @@ const jackpotInfo = await sdk.getJackpotInfo();
 
 ## Community Resources
 
-- **Discord**: [discord.gg/omnidragon](https://discord.gg/omnidragon)
-- **GitHub**: [github.com/omnidragon](https://github.com/omnidragon)
-- **Documentation**: [docs.omnidragon.io](https://docs.omnidragon.io)
-- **Twitter**: [@OmniDragonEco](https://twitter.com/OmniDragonEco)
+- **Discord**: [discord.gg/w75vaxDXuE](https://discord.gg/w75vaxDXuE)
+- **GitHub**: [github.com/wenakita/sonicreddragon](https://github.com/wenakita/sonicreddragon)
+- **Documentation**: [docs.sonicreddragon.io](https://docs.sonicreddragon.io)
+- **Twitter**: [@sonicreddragon](https://twitter.com/sonicreddragon)

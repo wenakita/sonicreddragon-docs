@@ -204,6 +204,6 @@ Our system includes:
 For help with dRAND integration:
 
 - [dRAND Documentation](https://drand.love)
-- [OmniDragon GitHub](https://github.com/wenakita/omnidragon)
-- [Discord Support](https://discord.gg/omnidragon)
-- [Technical Support](mailto:support@omnidragon.io) 
+- [OmniDragon GitHub](https://github.com/wenakita/sonicreddragon)
+- [Discord Support](https://discord.gg/)
+- [Technical Support](mailto:support@sonicreddragon.io) 

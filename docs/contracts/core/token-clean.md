@@ -1,20 +1,20 @@
 ---
-title: OmniDragon Token
+title: Sonic Red Dragon Token
 sidebar_position: 1
 ---
 
-# OmniDragon Token Contract
+# Sonic Red Dragon Token Contract
 
-The OmniDragon token (`OmniDragon.sol`) is the core contract of the ecosystem, implementing an ERC-20 token with advanced cross-chain and fee distribution capabilities.
+The Sonic Red Dragon token (`SonicRedDragon.sol`) is the core contract of the ecosystem, implementing an ERC-20 token with advanced cross-chain and fee distribution capabilities.
 
 ## Architecture Overview
 
-The OmniDragon token implements a robust architecture with multiple integrated systems:
+The Sonic Red Dragon token implements a robust architecture with multiple integrated systems:
 
 ```mermaid
 flowchart TB
     %% Main token contract at the center
-    OMNIDRAGON["OmniDragon Token<br/><i>ERC-20 Implementation</i>"]:::main
+    OMNIDRAGON["Sonic Red Dragon Token<br/><i>ERC-20 Implementation</i>"]:::main
     
     %% Core components with detailed descriptions
     subgraph TokenCore ["Core Token Infrastructure"]
@@ -44,7 +44,7 @@ flowchart TB
     subgraph CrossChainSystem ["LayerZero Cross-Chain Integration"]
         direction TB
         
-        BRIDGE["OmniDragon Bridge<br/><small>• Token locking/burning<br/>• Secure transfers<br/>• Chain abstraction</small>"]:::bridge
+        BRIDGE["Sonic Red Dragon Bridge<br/><small>• Token locking/burning<br/>• Secure transfers<br/>• Chain abstraction</small>"]:::bridge
         
         MSG_HANDLER["Message Handler<br/><small>• Payload processing<br/>• Security verification<br/>• Transaction reconstruction</small>"]:::bridge
         
@@ -112,7 +112,7 @@ flowchart TB
 
 ## Token Fees and Distribution
 
-The OmniDragon token implements an innovative fee system with adaptive rates and multi-destination distribution:
+The Sonic Red Dragon token implements an innovative fee system with adaptive rates and multi-destination distribution:
 
 ```mermaid
 flowchart LR
@@ -185,7 +185,7 @@ flowchart LR
 
 ## Cross-Chain Functionality
 
-The OmniDragon token seamlessly integrates with LayerZero for cross-chain transfers:
+The Sonic Red Dragon token seamlessly integrates with LayerZero for cross-chain transfers:
 
 ```mermaid
 sequenceDiagram
@@ -193,11 +193,11 @@ sequenceDiagram
     
     %% Define participants with icons (using letters as icons)
     participant User as "User"
-    participant Source as "OmniDragon<br/>Source Chain"
+    participant Source as "Sonic Red Dragon<br/>Source Chain"
     participant Bridge as "Cross-Chain<br/>Bridge"
     participant LZ as "LayerZero<br/>Endpoint"
     participant Relayers as "LayerZero<br/>Relayer Network"
-    participant Target as "OmniDragon<br/>Target Chain"
+    participant Target as "Sonic Red Dragon<br/>Target Chain"
     
     %% Style with boundaries
     rect rgba(74, 128, 209, 0.1)
@@ -267,12 +267,12 @@ sequenceDiagram
 
 ## Implementation Details
 
-The OmniDragon token implements several key modules:
+The Sonic Red Dragon token implements several key modules:
 
 ```mermaid
 classDiagram
     %% Define main contract and inherited functionality
-    class OmniDragon {
+    class SonicRedDragon {
         %% Core token properties
         -string name
         -string symbol
@@ -325,17 +325,17 @@ classDiagram
     }
     
     %% Define relationships
-    ERC20 <|-- OmniDragon : inherits
-    Ownable <|-- OmniDragon : inherits
-    Pausable <|-- OmniDragon : inherits
-    CrossChainEnabled <|-- OmniDragon : inherits
+    ERC20 <|-- SonicRedDragon : inherits
+    Ownable <|-- SonicRedDragon : inherits
+    Pausable <|-- SonicRedDragon : inherits
+    CrossChainEnabled <|-- SonicRedDragon : inherits
     
     %% Apply styling
     classDef main fill:#e3f2fd;stroke:#1e88e5;color:#0d47a1
     classDef inherited fill:#e8f5e9;stroke:#43a047;color:#1b5e20
     classDef extension fill:#f3e5f5;stroke:#8e24aa;color:#4a148c
     
-    class OmniDragon main
+    class SonicRedDragon main
     class ERC20 inherited
     class Ownable inherited
     class Pausable inherited
@@ -344,7 +344,7 @@ classDiagram
 
 ## Key Features
 
-Based on the contract implementation, the OmniDragon token includes:
+Based on the contract implementation, the Sonic Red Dragon token includes:
 
 1. **Adaptive Fee System**
    - Different fee rates for buy, sell, and transfer operations
@@ -368,7 +368,7 @@ Based on the contract implementation, the OmniDragon token includes:
 
 ## Jackpot Mechanism
 
-OmniDragon implements an innovative on-chain jackpot system powered by verifiable randomness:
+Sonic Red Dragon implements an innovative on-chain jackpot system powered by verifiable randomness:
 
 ```mermaid
 flowchart TB
@@ -433,7 +433,7 @@ flowchart TB
 
 ### Jackpot Selection Criteria
 
-The OmniDragon jackpot selection process is designed to be fair and transparent:
+The Sonic Red Dragon jackpot selection process is designed to be fair and transparent:
 
 1. **Threshold Triggering:**
    - Jackpot draws are triggered when the vault reaches a predetermined token threshold
@@ -456,13 +456,13 @@ The OmniDragon jackpot selection process is designed to be fair and transparent:
 
 ## Multi-Chain Ecosystem
 
-OmniDragon operates seamlessly across multiple blockchain networks, maintaining consistent state and features:
+Sonic Red Dragon operates seamlessly across multiple blockchain networks, maintaining consistent state and features:
 
 ```mermaid
 graph TB
     %% Main token deployed on multiple chains
     subgraph "Ethereum Mainnet"
-        ETH_TOKEN("OmniDragon<br/>Token"):::mainnet
+        ETH_TOKEN("Sonic Red Dragon<br/>Token"):::mainnet
         ETH_JACKPOT("Jackpot Vault"):::mainnet
         ETH_LIQUIDITY("Liquidity Pool"):::mainnet
         ETH_ENDPOINT("LayerZero<br/>Endpoint"):::endpoint
@@ -473,7 +473,7 @@ graph TB
     end
     
     subgraph "BNB Chain"
-        BSC_TOKEN("OmniDragon<br/>Token"):::bsc
+        BSC_TOKEN("Sonic Red Dragon<br/>Token"):::bsc
         BSC_JACKPOT("Jackpot Vault"):::bsc
         BSC_LIQUIDITY("Liquidity Pool"):::bsc
         BSC_ENDPOINT("LayerZero<br/>Endpoint"):::endpoint
@@ -484,7 +484,7 @@ graph TB
     end
     
     subgraph "Arbitrum"
-        ARB_TOKEN("OmniDragon<br/>Token"):::arb
+        ARB_TOKEN("Sonic Red Dragon<br/>Token"):::arb
         ARB_JACKPOT("Jackpot Vault"):::arb
         ARB_LIQUIDITY("Liquidity Pool"):::arb
         ARB_ENDPOINT("LayerZero<br/>Endpoint"):::endpoint
@@ -495,7 +495,7 @@ graph TB
     end
     
     subgraph "Avalanche"
-        AVAX_TOKEN("OmniDragon<br/>Token"):::avax
+        AVAX_TOKEN("Sonic Red Dragon<br/>Token"):::avax
         AVAX_JACKPOT("Jackpot Vault"):::avax
         AVAX_LIQUIDITY("Liquidity Pool"):::avax
         AVAX_ENDPOINT("LayerZero<br/>Endpoint"):::endpoint
@@ -548,14 +548,14 @@ graph TB
 
 ## Contract Implementation
 
-The OmniDragon smart contract architecture uses multiple inheritance and specialized components:
+The Sonic Red Dragon smart contract architecture uses multiple inheritance and specialized components:
 
 ```mermaid
 classDiagram
     %% Define contracts with expanded details
-    class OmniDragon {
+    class SonicRedDragon {
         %% Token Identity
-        -string name = "OmniDragon"
+        -string name = "Sonic Red Dragon"
         -string symbol = "DRAGON"
         -uint8 decimals = 18
         -uint256 totalSupply
@@ -681,11 +681,11 @@ classDiagram
     }
     
     %% Define relationships
-    ERC20 <|-- OmniDragon : inherits
-    Ownable <|-- OmniDragon : inherits
-    Pausable <|-- OmniDragon : inherits
-    CrossChainEnabled <|-- OmniDragon : inherits
-    OmniDragon --> FeeDistributor : uses
+    ERC20 <|-- SonicRedDragon : inherits
+    Ownable <|-- SonicRedDragon : inherits
+    Pausable <|-- SonicRedDragon : inherits
+    CrossChainEnabled <|-- SonicRedDragon : inherits
+    SonicRedDragon --> FeeDistributor : uses
     CrossChainEnabled --> ILayerZeroEndpoint : uses
     
     %% Apply styling
@@ -694,11 +694,11 @@ classDiagram
     classDef extension fill:#8e24aa;stroke:#6a1b9a;color:#ffffff
     classDef interface fill:#1e293b;stroke:#0f172a;color:#ffffff;font-style:italic
     
-    class OmniDragon main
+    class SonicRedDragon main
     class ERC20 inherited
     class Ownable inherited
     class Pausable inherited
     class CrossChainEnabled extension
     class FeeDistributor interface
     class ILayerZeroEndpoint interface
-```
+``` 

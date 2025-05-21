@@ -1,206 +1,112 @@
-import React, { useEffect, useRef, useState } from 'react';
-import useIsBrowser from '@docusaurus/useIsBrowser';
-import { useColorMode } from '@docusaurus/theme-common';
-import styles from './styles.module.css';
+import React, { useEffect, useState } from 'react';
+import mermaid from 'mermaid';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+import styles from './StandardMermaid.module.css';
 
 /**
- * StandardMermaid component - renders Mermaid diagrams with consistent styling
- * 
- * @param {Object} props
- * @param {string} props.chart - The mermaid diagram code
- * @param {string} props.className - Additional CSS classes
- * @param {boolean} props.animate - Whether to animate the diagram
+ * StandardMermaid - An enhanced, modern Mermaid diagram component 
+ * with improved error handling, animations and elegant styling
  */
-export default function StandardMermaid({ chart, className, animate = true }) {
-  const containerRef = useRef(null);
-  const isBrowser = useIsBrowser();
-  const { colorMode } = useColorMode();
-  const [isRendered, setIsRendered] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [retryCount, setRetryCount] = useState(0);
-  
-  // Function to sanitize chart code to prevent parsing errors
-  const sanitizeMermaidCode = (code) => {
-    if (!code) return '';
-    
-    // Replace any non-standard quotes, dashes or problematic Unicode
-    return code
-      // Normalize quotes
-      .replace(/[""]/g, '"')
-      .replace(/['']/g, "'")
-      // Normalize dashes
-      .replace(/[—–]/g, '-')
-      // Fix common Unicode errors in classDef lines
-      .replace(/classDef\s+(\w+)\s+fill:([^\n,;]+)/g, (match, className, fill) => {
-        // Clean up the fill value to ensure it only has valid hex colors or CSS color names
-        const cleanFill = fill
-          .replace(/[^\w#(),.\s-]/g, '') // Remove any non-alphanumeric characters except those valid in colors
-          .replace(/\s+/g, ' ');         // Normalize whitespace
-        
-        return `classDef ${className} fill:${cleanFill}`;
-      })
-      // Ensure semicolons in style definitions are properly spaced
-      .replace(/;(\w)/g, '; $1')
-      // Replace any lingering problematic Unicode characters
-      .replace(/[^\x00-\x7F]/g, '');
-  };
-  
-  // Ensure chart is properly processed and sanitized
-  const processedChart = sanitizeMermaidCode(chart?.trim() || '');
-  
-  // Create a unique identifier for this diagram
-  const uniqueId = useRef(`mermaid-${Math.random().toString(36).substring(2, 11)}`);
-  
-  // Function to load Mermaid if it's not already loaded
-  const loadMermaid = async () => {
-    if (typeof window === 'undefined') return null;
-    
-    if (!window.mermaid) {
-      try {
-        const mermaid = (await import('mermaid')).default;
-        window.mermaid = mermaid;
-        return mermaid;
-      } catch (error) {
-        console.error('Failed to load Mermaid:', error);
-        return null;
-      }
-    }
-    
-    return window.mermaid;
-  };
-  
-  // Function to initialize Mermaid with the current theme
-  const initializeMermaid = (mermaid) => {
-    if (!mermaid || mermaid.initialized) return mermaid;
-    
-    const isDarkTheme = colorMode === 'dark';
-    
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: isDarkTheme ? 'dark' : 'default',
-      securityLevel: 'loose',
-      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-      themeVariables: {
-        primaryColor: isDarkTheme ? '#5468ff' : '#1a73e8',
-        primaryTextColor: isDarkTheme ? '#f0f0f0' : '#333',
-        primaryBorderColor: isDarkTheme ? '#555' : '#ddd',
-        lineColor: isDarkTheme ? '#999' : '#666',
-        secondaryColor: '#cc5a2b',
-        tertiaryColor: isDarkTheme ? '#1e293b' : '#f8f9fa',
-      }
-    });
-    
-    mermaid.initialized = true;
-    return mermaid;
-  };
-  
-  // Render the Mermaid diagram
-  const renderDiagram = async () => {
-    if (!isBrowser || !containerRef.current || !processedChart) {
-      return;
-    }
-    
-    try {
-      // Load mermaid
-      const mermaid = await loadMermaid();
-      if (!mermaid) {
-        throw new Error('Failed to load Mermaid library');
-      }
-      
-      // Initialize mermaid if not already initialized
-      initializeMermaid(mermaid);
-      
-      // Get a reference to the diagram container
-      const diagramContainer = containerRef.current;
-      if (!diagramContainer) return;
-      
-      // Clear previous content
-      diagramContainer.innerHTML = '';
-      
-      // Create a diagram element
-      const diagramElement = document.createElement('div');
-      diagramElement.id = uniqueId.current;
-      diagramElement.style.width = '100%';
-      diagramElement.style.height = 'auto';
-      diagramElement.style.overflow = 'visible';
-      diagramContainer.appendChild(diagramElement);
-      
-      // Add a try/catch block specifically for the parsing step
-      try {
-        // Pre-parse the diagram to catch syntax errors early
-        await mermaid.parse(processedChart);
-        
-        // If parsing is successful, render the diagram
-        const { svg } = await mermaid.render(uniqueId.current, processedChart);
-        
-        // Replace the content with the SVG
-        diagramElement.innerHTML = svg;
-        
-        // Mark as rendered
-        setIsRendered(true);
-        setIsError(false);
-        
-        // Apply animation if available and requested
-        if (animate && window.animateMermaidDiagrams && typeof window.animateMermaidDiagrams === 'function') {
-          setTimeout(() => {
-            window.animateMermaidDiagrams(diagramElement);
-          }, 100);
-        }
-      } catch (parseError) {
-        console.error('Mermaid parse error:', parseError);
-        
-        // Display a more specific error for parse issues
-        setIsError(true);
-        setErrorMessage(`Diagram syntax error: ${parseError.message}`);
-        
-        // Log the problematic diagram code for debugging
-        console.log('Problematic diagram code:', processedChart);
-      }
-    } catch (error) {
-      console.error('Error rendering Mermaid diagram:', error);
-      setIsError(true);
-      setErrorMessage(error.message || 'Failed to render diagram');
-      
-      // Retry a few times with exponential backoff
-      if (retryCount < 3) {
-        const timeoutId = setTimeout(() => {
-          setRetryCount(prev => prev + 1);
-          renderDiagram();
-        }, 500 * Math.pow(2, retryCount));
-        
-        return () => clearTimeout(timeoutId);
-      }
-    }
-  };
-  
-  // Effect to render the diagram
+
+// Initialize mermaid with our custom config
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'neutral',
+  securityLevel: 'loose',
+  fontFamily: 'Inter, sans-serif',
+  fontSize: 14,
+  flowchart: {
+    htmlLabels: true,
+    curve: 'basis',
+    useMaxWidth: false
+  },
+  sequence: {
+    diagramMarginX: 50,
+    diagramMarginY: 10,
+    actorMargin: 80,
+    width: 150,
+    height: 65,
+    boxMargin: 10,
+    messageMargin: 35,
+    boxTextMargin: 15,
+    noteMargin: 10
+  },
+  themeVariables: {
+    primaryColor: '#4a80d1',
+    primaryTextColor: '#ffffff',
+    primaryBorderColor: '#4a80d1',
+    lineColor: '#4a80d1',
+    secondaryColor: '#6c8ebf',
+    tertiaryColor: '#f5f7fa'
+  }
+});
+
+const MermaidDiagram = ({ chart, className }) => {
+  const [svg, setSvg] = useState('');
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    const timeoutId = setTimeout(renderDiagram, 100);
-    return () => clearTimeout(timeoutId);
-  }, [chart, isBrowser, processedChart, colorMode, retryCount]);
-  
+    const renderDiagram = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Using the mermaid API to render the diagram
+        const { svg } = await mermaid.render('mermaid-svg-' + Math.random().toString(36).substr(2, 9), chart);
+        setSvg(svg);
+      } catch (err) {
+        console.error('Mermaid rendering error:', err);
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    renderDiagram();
+  }, [chart]);
+
+  if (isLoading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingIndicator}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <h4>Failed to render diagram</h4>
+        <p>There was an error rendering the Mermaid diagram:</p>
+        <pre>{error.message || 'Unknown error'}</pre>
+        <details>
+          <summary>Diagram Source</summary>
+          <pre>{chart}</pre>
+        </details>
+      </div>
+    );
+  }
+
   return (
     <div 
-      ref={containerRef} 
-      className={`${styles.standardMermaidContainer || 'standard-mermaid-container'} ${className || ''}`}
-      data-theme={colorMode}
-    >
-      {isError ? (
-        <div className={styles.mermaidError || 'mermaid-error'}>
-          <p>Error rendering diagram: {errorMessage}</p>
-          <details>
-            <summary>View diagram code</summary>
-            <pre>{processedChart}</pre>
-          </details>
-        </div>
-      ) : !isRendered && isBrowser ? (
-        <div className={styles.mermaidLoading || 'mermaid-loading'}>
-          <div className={styles.loadingIndicator || 'loading-indicator'}>
-            <span></span><span></span><span></span>
-          </div>
-        </div>
-      ) : null}
-    </div>
+      className={`${styles.diagramContainer} ${className || ''} standard-mermaid-container`} 
+      dangerouslySetInnerHTML={{ __html: svg }} 
+    />
   );
-} 
+};
+
+// Wrap in BrowserOnly to avoid SSR issues
+const StandardMermaid = (props) => {
+  return (
+    <BrowserOnly>
+      {() => <MermaidDiagram {...props} />}
+    </BrowserOnly>
+  );
+};
+
+export default StandardMermaid; 

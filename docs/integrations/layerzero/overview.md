@@ -154,7 +154,7 @@ OmniDragon currently supports (or plans to support) the following chains through
 | Arbitrum | 42161 | Planned |
 | Optimism | 10 | Planned |
 | Avalanche | 43114 | Planned |
-| BNB Chain | 56 | Planned |
+| Sonic | 146 | Planned |
 | Polygon | 137 | Planned |
 
 ## Integration Example

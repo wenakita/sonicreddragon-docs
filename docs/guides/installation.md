@@ -186,6 +186,6 @@ After successful installation:
 
 If you encounter issues not covered in this guide:
 
-- **Discord**: [discord.gg/omnidragon](https://discord.gg/omnidragon)
-- **GitHub Issues**: [github.com/omnidragon/omnidragon/issues](https://github.com/omnidragon/omnidragon/issues)
-- **Documentation**: [docs.omnidragon.io](https://docs.omnidragon.io)
+- **Discord**: [discord.gg/w75vaxDXuE](https://discord.gg/w75vaxDXuE)
+- **GitHub Issues**: [github.com/wenakita/sonicreddragon/issues](https://github.com/wenakita/sonicreddragon/issues)
+- **Documentation**: [docs.sonicreddragon.io](https://docs.sonicreddragon.io)

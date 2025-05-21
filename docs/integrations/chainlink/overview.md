@@ -72,7 +72,7 @@ OmniDragon implements chain-specific Chainlink VRF connectors for optimal perfor
 - Ethereum VRF configuration
 - Arbitrum VRF configuration
 - Polygon VRF configuration
-- BNB Chain VRF configuration
+- Sonic VRF configuration
 
 ## Technical Implementation
 
@@ -262,8 +262,8 @@ OmniDragon's Chainlink VRF integration is available on the following networks:
 |---------|------------------------------|--------|
 | Ethereum | TBD | Planned |
 | Arbitrum | TBD | Planned |
-| Polygon | TBD | Planned |
-| BNB Chain | TBD | Planned |
+| Base | TBD | Planned |
+| Sonic | TBD | Planned |
 
 ## Security Considerations
 

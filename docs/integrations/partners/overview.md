@@ -173,7 +173,7 @@ For non-blockchain applications, OmniDragon offers RESTful API endpoints:
 ```javascript
 // Example: Fetch OmniDragon token data
 async function getOmniDragonData() {
-  const response = await fetch('https://api.omnidragon.io/v1/token/data', {
+  const response = await fetch('https://api.sonicreddragon.io/v1/token/data', {
     headers: {
       'Authorization': `Bearer ${API_KEY}`,
       'Content-Type': 'application/json'
@@ -214,7 +214,7 @@ Service providers can incorporate:
 
 To become an OmniDragon partner:
 
-1. **Initial Contact**: Reach out via the [Partner Registration Form](https://forms.omnidragon.io/partner) (coming soon)
+1. **Initial Contact**: Reach out via the [Partner Registration Form](https://forms.sonicreddragon.io/partner) (coming soon)
 2. **Assessment**: Our team will assess the partnership potential
 3. **Technical Discussion**: Technical teams will discuss integration details
 4. **Agreement**: Finalize partnership terms and agreements
@@ -236,9 +236,9 @@ OmniDragon provides partners with comprehensive resources:
 
 For partnership inquiries:
 
-- **Email**: partnerships@omnidragon.io
-- **Discord**: Join our [Discord server](https://discord.gg/omnidragon) and message in the #partnerships channel
-- **Partner Registration**: Fill out our [Partner Form](https://forms.omnidragon.io/partner) (coming soon)
+- **Email**: partnerships@sonicreddragon.io
+- **Discord**: Join our [Discord server](https://discord.gg/w75vaxDXuE) and message in the #partnerships channel
+- **Partner Registration**: Fill out our [Partner Form](https://forms.sonicreddragon.io/partner) (coming soon)
 
 ## Success Stories
 

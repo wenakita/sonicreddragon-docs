@@ -34,6 +34,7 @@ flowchart TD
     TimeCalculations -->|"Synchronizes"| Market
     DistributionSystem -->|"Optimizes"| Tokenomics
     
+    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
     class CoreMath,DistributionSystem highlight
 ```
 

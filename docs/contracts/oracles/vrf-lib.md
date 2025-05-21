@@ -27,6 +27,7 @@ flowchart TD
     Proxy -->|"Manages"| ProxyAdmin["Proxy Admin"]
     ProxyAdmin -->|"Controls"| VRFConsumerProxy
     
+    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
     class Deploy,Config highlight
 ```
 

@@ -1,33 +1,374 @@
 ---
-title: OmniDragon Token
 sidebar_position: 1
+title: OmniDragon Token
+description: The main ERC20 token with cross-chain functionality, fee distributions, and jackpot system
 ---
 
-# OmniDragon Token Contract
+# OmniDragon Token
 
-The OmniDragon token (`OmniDragon.sol`) is the core smart contract of the ecosystem, implementing an ERC-20 token with LayerZero cross-chain capabilities, fee distribution, and jackpot mechanics.
+The `OmniDragon` token is the central component of the Sonic Red Dragon ecosystem. It's an ERC20 token with advanced features including cross-chain functionality, automated fee distributions, and integration with the jackpot lottery system.
 
-## Contract Overview
+## Overview
 
-The OmniDragon token contract implements several key features:
+```mermaid
+flowchart TD
+    Token["OmniDragon Token"] --> LZ["LayerZero V2"]
+    Token --> Governance["ve69LP Governance"]
+    Token --> JackpotSystem["Jackpot System"]
+    
+    subgraph "Cross-Chain Infrastructure"
+        LZ
+        MessageLib["Message Library"]
+        Endpoint["LZ Endpoint"]
+    end
+    
+    subgraph "Governance System"
+        Governance
+        Voting["Voting"]
+        Treasury["Treasury"]
+    end
+    
+    subgraph "Lottery & Jackpot"
+        JackpotSystem
+        SwapOracle["Swap Trigger Oracle"]
+        JackpotVault["Jackpot Vault"]
+        Distributor["Jackpot Distributor"]
+    end
+    
+    Token -->|"6.9% fee"| JackpotVault
+    Token -->|"2.41% fee"| Treasury
+    Token -->|"0.69% fee"| Burn["Token Burn"]
+    
+    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
+    class Token highlight
+```
 
-- **Cross-Chain Compatibility**: Token transfers across different blockchains via LayerZero
-- **Fee System**: Automatic fee collection and distribution to various ecosystem components
-- **Jackpot Mechanics**: Portion of fees directed to the jackpot system
-- **Burn Mechanism**: Small portion of tokens burned on transfers
+## Contract Implementation
 
-## Actual Implementation
-
-The contract inherits from OpenZeppelin's ERC20, Ownable, and ReentrancyGuard, and implements core functionality:
+The `OmniDragon` token implements several interfaces and inherits from core OpenZeppelin contracts:
 
 ```solidity
-// Core imports
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+contract OmniDragon is ERC20, Ownable, ReentrancyGuard, IOmniDragon {
+    using SafeERC20 for IERC20;
 
-// Constructor parameters
+    // ======== Storage ========
+    address public lzEndpoint;       // LayerZero endpoint
+    address public jackpotVault;     // Jackpot vault
+    address public revenueDistributor;  // Primary fee distributor
+    address public wrappedNativeToken;    // WrappedNativeToken/WETH
+    address public swapTrigger;      // Swap trigger for lottery entries
+    address public chainRegistry;    // Chain registry for chain ID verification
+    address public uniswapRouter;    // Uniswap router address
+    address public immutable thisAddress; // This contract's address
+    
+    // Dragon Partners integration
+    address public dragonPartnerRegistry;  // Registry for partner addresses
+    address public dragonPartnerFactory;   // Factory for creating partner pools
+    
+    // Fee structures
+    struct Fees {
+        uint256 jackpot;
+        uint256 ve69LP;
+        uint256 burn;
+        uint256 total;
+    }
+    
+    Fees public buyFees;
+    Fees public sellFees;
+    Fees public transferFees;
+    
+    // Multi-DEX support
+    enum DexType { UNKNOWN, UNISWAP_V2, UNISWAP_V3, BALANCER, CURVE }
+    
+    // Constants
+    uint256 public constant MAX_SUPPLY = 6942000 * 10**18;   // Max supply (6.942 million)
+    uint256 public constant INITIAL_SUPPLY = 6942000 * 10**18; // Initial supply to mint
+    uint16 public constant SONIC_CHAIN_ID = 332;  // Sonic's LayerZero chain ID
+    
+    // ... additional storage variables ...
+}
+```
+
+## Token Supply and Constants
+
+The token has a fixed maximum supply and various configuration constants:
+
+```solidity
+// Constants
+uint256 public constant MAX_SUPPLY = 6942000 * 10**18;   // Max supply (6.942 million)
+uint256 public constant INITIAL_SUPPLY = 6942000 * 10**18; // Initial supply to mint
+uint16 public constant SONIC_CHAIN_ID = 332;  // Sonic's LayerZero chain ID
+```
+
+## Fee Structure
+
+The token implements a sophisticated fee structure with different rates for buys, sells, and transfers:
+
+```solidity
+// Fee structures
+struct Fees {
+    uint256 jackpot;
+    uint256 ve69LP;
+    uint256 burn;
+    uint256 total;
+}
+
+Fees public buyFees;
+Fees public sellFees;
+Fees public transferFees;
+```
+
+The default fee configuration is:
+
+| Fee Type | Buy | Sell | Transfer |
+|----------|-----|------|----------|
+| Jackpot | 6.9% | 6.9% | 0% |
+| ve69LP | 2.41% | 2.41% | 0% |
+| Burn | 0.69% | 0.69% | 0.69% |
+| **Total** | **10%** | **10%** | **0.69%** |
+
+## Cross-Chain Functionality
+
+The token integrates with LayerZero to enable seamless cross-chain transfers:
+
+```solidity
+/**
+ * @dev OFTv2 functionality: Send tokens to another chain
+ */
+function sendTokens(
+    uint16 _dstChainId, 
+    bytes32 _toAddress, 
+    uint _amount, 
+    address payable _refundAddress, 
+    address _zroPaymentAddress, 
+    bytes calldata _adapterParams
+) external payable {
+    _debitFrom(msg.sender, _amount);
+    
+    bytes memory payload = abi.encode(_toAddress, _amount);
+    
+    _lzSend(
+        _dstChainId,
+        payload,
+        _refundAddress,
+        _zroPaymentAddress,
+        _adapterParams
+    );
+    
+    emit SendToChain(_dstChainId, msg.sender, abi.encodePacked(_toAddress), _amount);
+}
+```
+
+Key cross-chain features include:
+
+1. **Chain ID Verification**: Integration with ChainRegistry for secure chain identification
+2. **Trusted Remote Setting**: Configuration for trusted contracts on other chains
+3. **Fee Estimation**: Ability to estimate cross-chain transfer fees
+4. **LayerZero V2 Compatibility**: Latest OFT protocol compatibility
+
+## Jackpot and Lottery System
+
+The token integrates with the jackpot system through several mechanisms:
+
+```solidity
+/**
+ * @dev Process potential jackpot entry on token buy (swap)
+ * @param user The user who performed the swap
+ * @param amount The amount being swapped
+ */
+function _processPotentialJackpotEntry(address user, uint256 amount) internal {
+    // Only process if swap trigger is set and not excluded from fees
+    if (swapTrigger != address(0) && !isExcludedFromFees[user]) {
+        // Call the swap trigger oracle
+        try IOmniDragonSwapTriggerOracle(swapTrigger).onSwap(user, amount) {
+            // Success, entry processed
+        } catch {
+            // Failed to process entry, but we don't want to revert the swap
+        }
+    }
+}
+```
+
+The jackpot system works by:
+
+1. Recording transaction events in the SwapTriggerOracle
+2. Assigning win probabilities based on swap amount and market conditions
+3. Sending a portion of fees (6.9%) to the jackpot vault
+4. Allowing jackpot distribution through the dedicated distributor contract
+
+## Token Transfers and Fee Application
+
+The token overrides the standard ERC20 transfer functions to apply fees:
+
+```solidity
+/**
+ * @dev Override ERC20 _transfer to apply fees and special handling
+ */
+function _transfer(
+    address sender,
+    address recipient,
+    uint256 amount
+) internal override {
+    // Check if transfers are paused
+    if (transfersPaused) revert TransfersPaused();
+    
+    // Check for zero inputs
+    if (sender == address(0)) revert ZeroAddress();
+    if (recipient == address(0)) revert ZeroAddress();
+    if (amount == 0) revert ZeroAmount();
+
+    // Handle swap accumulation and auto-liquidity
+    if (!inSwap && swapEnabled && 
+        !isExcludedFromFees[sender] && 
+        !isExcludedFromFees[recipient]) {
+        // Auto-swap processing
+        _processSwapIfNeeded();
+    }
+    
+    // Determine if fees should be taken
+    bool takeFee = feesEnabled && 
+                   !isExcludedFromFees[sender] && 
+                   !isExcludedFromFees[recipient];
+                
+    // Detect transaction type and apply appropriate fees
+    if (takeFee) {
+        if (isPair[sender]) {
+            // This is a buy (from pair to user)
+            _transferWithFees(sender, recipient, amount, buyFees);
+            
+            // Process potential jackpot entry on buy
+            _processPotentialJackpotEntry(recipient, amount);
+            
+        } else if (isPair[recipient]) {
+            // This is a sell (from user to pair)
+            _transferWithFees(sender, recipient, amount, sellFees);
+            
+        } else {
+            // This is a regular transfer between wallets
+            _transferWithFees(sender, recipient, amount, transferFees);
+        }
+    } else {
+        // No fees, standard transfer
+        super._transfer(sender, recipient, amount);
+    }
+}
+```
+
+## Automatic Liquidity
+
+The contract implements automatic liquidity management:
+
+```solidity
+/**
+ * @dev Swap accumulated tokens for native tokens and add liquidity
+ */
+function _swapAndLiquify() private lockTheSwap {
+    // Cache the amount to be swapped
+    uint256 contractTokenBalance = balanceOf(address(this));
+    
+    // Check if we have enough accumulated tokens
+    if (contractTokenBalance >= minimumAmountForProcessing) {
+        // Convert half to wrapped native token
+        uint256 halfForLiquidity = contractTokenBalance / 2;
+        uint256 otherHalf = contractTokenBalance - halfForLiquidity;
+        
+        // Get initial wrapped native token balance
+        uint256 initialWrappedNativeBalance = IERC20(wrappedNativeToken).balanceOf(address(this));
+        
+        // Swap tokens for wrapped native token
+        _swapTokensForWrappedNative(halfForLiquidity);
+        
+        // Get the amount of wrapped native token received
+        uint256 wrappedNativeReceived = IERC20(wrappedNativeToken).balanceOf(address(this)) - initialWrappedNativeBalance;
+        
+        // Add liquidity to DEX
+        if (wrappedNativeReceived > 0) {
+            _addLiquidity(otherHalf, wrappedNativeReceived);
+            
+            emit SwapAndLiquify(halfForLiquidity, wrappedNativeReceived);
+        }
+    }
+}
+```
+
+## Partner Integration
+
+The token includes functionality for partner integrations:
+
+```solidity
+/**
+ * @dev Register a partner pool
+ * @param _pool Partner pool address
+ * @param _partnerId Partner ID
+ */
+function registerPartnerPool(address _pool, uint256 _partnerId) external onlyOwner {
+    if (_pool == address(0)) revert ZeroAddress();
+    if (isPartnerPool[_pool]) revert PartnerPoolAlreadyRegistered();
+    
+    isPartnerPool[_pool] = true;
+    partnerPoolIds[_pool] = _partnerId;
+    
+    // Exclude partner pool from fees
+    isExcludedFromFees[_pool] = true;
+    
+    emit PartnerPoolRegistered(_pool, _partnerId);
+}
+```
+
+## Security Features
+
+The contract implements multiple security features:
+
+1. **ReentrancyGuard**: Protection against reentrancy attacks
+2. **Ownership Controls**: Restricts critical functions to the owner
+3. **Error Handling**: Explicit error types for all potential failures
+4. **Fee Exemptions**: Ability to exclude addresses from fees
+5. **Swap Lock**: Prevents reentrant swaps during liquidity operations
+6. **Emergency Pause**: Ability to pause transfers in emergency situations
+
+## Error Types
+
+The contract defines specific error types for clear failure identification:
+
+```solidity
+// ======== Errors ========
+error JackpotVaultZeroAddress();
+error RevenueDistributorZeroAddress();
+error WrappedNativeTokenNotSet();
+error LzEndpointZeroAddress();
+error ChainRegistryZeroAddress();
+error ZeroAddress();
+error ZeroAmount();
+error NotAuthorized();
+error RegistrationFailed();
+error InvalidEndpoint();
+error InvalidPayload();
+error InvalidSource();
+error AlreadyConfigured();
+error NotSonicChain();
+error InitialMintingAlreadyDone();
+error MaxSupplyExceeded();
+error InvalidSender();
+error InvalidInputAmount();
+error InvalidOutputAmount();
+error TransfersPaused();
+error InsufficientWrappedNativeBalance();
+error CannotRecoverDragonTokens();
+error DragonPartnerRegistryZeroAddress();
+error DragonPartnerFactoryZeroAddress();
+error PartnerPoolAlreadyRegistered();
+error PartnerPoolNotFound();
+error NotPartnerPool();
+```
+
+## Constructor and Initialization
+
+The token is initialized with a specific supply and configuration:
+
+```solidity
+/**
+ * @dev Constructor to initialize the token
+ */
 constructor(
     string memory _name,
     string memory _symbol,
@@ -36,274 +377,67 @@ constructor(
     address _lzEndpoint,
     address _chainRegistry
 ) ERC20(_name, _symbol) Ownable() {
-    // Initialize contract with key components
+    if (_jackpotVault == address(0)) revert JackpotVaultZeroAddress();
+    if (_revenueDistributor == address(0)) revert RevenueDistributorZeroAddress();
+    if (_lzEndpoint == address(0)) revert InvalidEndpoint();
+    if (_chainRegistry == address(0)) revert ChainRegistryZeroAddress();
+    
+    jackpotVault = _jackpotVault;
+    revenueDistributor = _revenueDistributor;
+    lzEndpoint = _lzEndpoint;
+    chainRegistry = _chainRegistry;
+    thisAddress = address(this);
+    
+    // Use deployer address as placeholder for wrapped native token
+    wrappedNativeToken = msg.sender;
+    
+    // Initialize flag values
+    feesEnabled = true;
+    swapEnabled = true;
+    
+    // Set up default fees
+    // Buy fees (10%)
+    buyFees.jackpot = 690; // 6.9%
+    buyFees.ve69LP = 241; // 2.41%
+    buyFees.burn = 69;  // 0.69%
+    buyFees.total = 1000; // 10%
+    
+    // ... additional initialization ...
 }
 ```
 
-## Key Functions
+## Multi-Chain Deployment
 
-The contract implements several key functions for cross-chain functionality and fee handling:
+The token is deployed on multiple chains with identical functionality:
 
-```solidity
-// LayerZero integration for cross-chain transfers
-function lzReceive(
-    uint16 _srcChainId,
-    bytes calldata _srcAddress,
-    uint64 _nonce,
-    bytes calldata _payload
-) external;
+| Chain | Layer Type | Chain ID | LZ Chain ID | Primary Use Cases |
+|-------|------------|----------|------------|---------------------|
+| Ethereum | L1 | 1 | 101 | Governance, Security, Prime Liquidity |
+| Sonic | L1 | 146 | 332 | High Throughput, Lower Fees |
+| Arbitrum | L2 | 42161 | 110 | Scaling, Lower Fees |
+| Avalanche | L1 | 43114 | 106 | Fast Finality, EVM Compatible |
+| Base | L2 | 8453 | 184 | Scaling, Lower Fees |
 
-// Standard transfer with fee handling
-function transfer(address recipient, uint256 amount) 
-    public 
-    override 
-    returns (bool);
-
-// Transfer with custom fee processing
-function _transfer(
-    address sender, 
-    address recipient, 
-    uint256 amount
-) internal override;
-
-// Set peer function for LayerZero connections
-function setPeer(
-    uint16 _chainId,
-    bytes calldata _peer
-) external onlyOwner;
-```
-
-## Fee Structure
-
-The OmniDragon token implements the following fee structure:
-
-| Transaction Type | Total Fee | Jackpot | ve69LP | Burn |
-|------------------|-----------|---------|--------|------|
-| Buy | 10% | 6.9% | 2.41% | 0.69% |
-| Sell | 10% | 6.9% | 2.41% | 0.69% |
-| Transfer | 0.69% | 0% | 0% | 0.69% |
-
-## Cross-Chain Functionality
-
-OmniDragon integrates with LayerZero for cross-chain transfers:
-
-1. Tokens are burned on the source chain
-2. A message is sent through LayerZero to the destination chain
-3. Equivalent tokens are minted on the destination chain
-
-The contract specifies a maximum supply of 6,942,000 tokens.
-
-## Key Components Interaction
-
-```mermaid
-flowchart TB
-    classDef main fill:#4a80d1;stroke:#355899;color:#ffffff;font-weight:bold
-    classDef component fill:#42a5f5;stroke:#1e88e5;color:#ffffff
-    
-    OmniDragon["OmniDragon Token"]:::main
-    JackpotVault["JackpotVault"]:::component
-    RevenueDist["RevenueDistributor"]:::component
-    ChainRegistry["ChainRegistry"]:::component
-    LZEndpoint["LayerZero Endpoint"]:::component
-    
-    OmniDragon -->|"Sends fees"| JackpotVault
-    OmniDragon -->|"Distributes fees"| RevenueDist
-    OmniDragon -->|"Consults"| ChainRegistry
-    OmniDragon -->|"Cross-chain messaging"| LZEndpoint
-```
-
-## Security Features
-
-The contract implements several security features:
-
-- **Access Control**: Role-based permissions for sensitive operations
-- **Reentrancy Protection**: Guards against reentrancy attacks
-- **Fee Limits**: Maximum fee caps to protect against configuration errors
-- **Pausable Transfers**: Ability to pause transfers in emergencies
-
-## Implementation Notes
-
-- The token contract requires configuration of jackpot vault, revenue distributor, LayerZero endpoint, and chain registry
-- Fees can be enabled/disabled by the owner
-- Certain addresses (jackpot vault, revenue distributor, owner) are excluded from fees
-- The contract includes safety mechanisms to protect against common vulnerabilities
-
-## Architecture Diagram
-
-```mermaid
-flowchart TB
-    %% Main token contract
-    OmniDragon["OmniDragon Token<br/>(ERC-20)"]:::main
-    
-    %% Core components
-    subgraph Core ["Core Components"]
-        direction TB
-        ERC20["ERC-20 Standard"]:::standard
-        LZ["LayerZero Integration"]:::bridge
-        Fees["Fee Processor"]:::fee
-    end
-    
-    %% Fee distribution
-    subgraph Distribution ["Fee Distribution"]
-        direction TB
-        Jackpot["Jackpot Pool"]:::reward
-        ve69LP["ve69LP Staking"]:::reward
-        Burn["Token Burn"]:::mechanism
-    end
-    
-    %% Cross-chain
-    subgraph CrossChain ["Cross-Chain System"]
-        direction TB
-        Endpoint["LZ Endpoint"]:::external
-        Registry["Chain Registry"]:::component
-        Bridge["OmniDragon Bridge"]:::bridge
-    end
-    
-    %% Connect everything
-    Core --> OmniDragon
-    OmniDragon --> Distribution
-    OmniDragon --> CrossChain
-    
-    %% Detailed connections
-    ERC20 -.-> OmniDragon
-    LZ -.-> OmniDragon
-    Fees -.-> OmniDragon
-    
-    Fees -->|"Distributes"| Jackpot
-    Fees -->|"Rewards"| ve69LP
-    Fees -->|"Burns"| Burn
-    
-    OmniDragon -->|"Uses"| Endpoint
-    OmniDragon -->|"References"| Registry
-    Registry -->|"Configures"| Bridge
-    
-    %% External systems
-    DEX[("DEX Trading")]:::external
-    DEX -.->|"Generates fees"| Fees
-    
-    %% Styling
-    classDef main fill:#4a80d1;stroke:#355899;color:#ffffff;font-weight:bold
-    classDef standard fill:#42a5f5;stroke:#1e88e5;color:#ffffff
-    classDef fee fill:#66bb6a;stroke:#43a047;color:#ffffff
-    classDef bridge fill:#ab47bc;stroke:#8e24aa;color:#ffffff
-    classDef reward fill:#ffb74d;stroke:#ff9800;color:#ffffff
-    classDef external fill:#78909c;stroke:#455a64;color:#ffffff
-    classDef component fill:#5c6bc0;stroke:#3949ab;color:#ffffff
-    classDef mechanism fill:#f44336;stroke:#e53935;color:#ffffff
-    
-    %% Subgraph styling
-    style Core fill:rgba(33,150,243,0.1);stroke:#bbdefb;color:#1565c0
-    style Distribution fill:rgba(255,152,0,0.1);stroke:#ffecb3;color:#ff8f00
-    style CrossChain fill:rgba(156,39,176,0.1);stroke:#e1bee7;color:#6a1b9a
-```
-
-## Cross-Chain Functionality
-
-OmniDragon implements cross-chain transfers using LayerZero's messaging protocol:
+## Token Flow Example
 
 ```mermaid
 sequenceDiagram
     participant User
-    participant SourceChain as OmniDragon (Chain A)
-    participant LZ as LayerZero Network
-    participant DestChain as OmniDragon (Chain B)
+    participant DEX as DEX (Uniswap)
+    participant Token as OmniDragon Token
+    participant Jackpot as Jackpot Vault
+    participant Treasury as ve69LP Treasury
     
-    User->>SourceChain: sendToChain(chainB, recipient, amount)
-    SourceChain->>SourceChain: Calculate fees
-    SourceChain->>SourceChain: Burn tokens on source chain
-    SourceChain->>LZ: Send cross-chain message
-    LZ->>DestChain: Deliver message
-    DestChain->>DestChain: Verify message source
-    DestChain->>DestChain: Mint tokens to recipient
-    DestChain-->>User: Tokens received on Chain B
-```
-
-## Implementation Details
-
-The OmniDragon token was designed with multiple security considerations:
-
-- **Access Control**: Role-based permissions for sensitive operations
-- **Reentrancy Protection**: Guards against reentrancy attacks in critical functions
-- **Fee Limitations**: Maximum fee caps to protect against configuration errors
-- **Emergency Functions**: Circuit breakers that can pause operations if needed
-
-## Integration Example
-
-Here's an example of how to integrate with the OmniDragon token contract:
-
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-import "@omnidragon/contracts/interfaces/IOmniDragon.sol";
-
-contract OmniDragonIntegration {
-    IOmniDragon public omniDragon;
+    User->>DEX: Swap ETH for DRAGON
+    DEX->>Token: Call transfer()
     
-    constructor(address _omniDragonAddress) {
-        omniDragon = IOmniDragon(_omniDragonAddress);
-    }
+    Note over Token: Apply 10% buy fee
     
-    function transferTokens(address recipient, uint256 amount) external {
-        // Note: The caller must have approved this contract first
-        omniDragon.transferFrom(msg.sender, recipient, amount);
-    }
+    Token->>Token: Calculate fees
+    Token->>Jackpot: Send 6.9% to jackpot
+    Token->>Treasury: Send 2.41% to treasury
+    Token->>Token: Burn 0.69% of tokens
     
-    function sendCrossChain(
-        uint16 dstChainId,
-        bytes calldata destination,
-        uint256 amount
-    ) external payable {
-        // Note: The caller must have approved this contract first
-        omniDragon.transferFrom(msg.sender, address(this), amount);
-        omniDragon.sendToChain{value: msg.value}(
-            dstChainId,
-            destination,
-            amount,
-            payable(msg.sender), // refund address
-            address(0),          // zero payment address
-            ""                   // default adapter params
-        );
-    }
-}
-```
-
-## Interface
-
-The OmniDragon token exposes a comprehensive interface that extends the standard ERC-20 functionality:
-
-```solidity
-interface IOmniDragon is IERC20 {
-    // Cross-chain functionality
-    function sendToChain(
-        uint16 _dstChainId,
-        bytes calldata _destination,
-        uint256 _amount,
-        address payable _refundAddress,
-        address _zroPaymentAddress,
-        bytes calldata _adapterParams
-    ) external payable;
-    
-    // Fee configuration
-    function setFeeReceivers(
-        address _jackpotAddress,
-        address _stakingAddress
-    ) external;
-    
-    function setFeeRates(
-        uint256 _buyFeeRate,
-        uint256 _sellFeeRate,
-        uint256 _transferFeeRate
-    ) external;
-    
-    // LayerZero configuration
-    function setPeer(uint16 _chainId, bytes calldata _peer) external;
-    
-    // Fee distribution
-    function distributeFees() external;
-    
-    // View functions
-    function getFeesAccumulated() external view returns (uint256);
-    function getAmountAfterFees(uint256 _amount, uint8 _txType) external view returns (uint256);
-}
+    Token->>Token: Process jackpot entry
+    Token->>User: Deliver remaining tokens
 ``` 

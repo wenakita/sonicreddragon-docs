@@ -1,24 +1,35 @@
 ---
-title: Jackpot Vault
 sidebar_position: 1
+title: DragonJackpotVault
+description: The jackpot vault contract that manages and distributes lottery prizes
 ---
 
-# Jackpot Vault Contract
+# DragonJackpotVault
 
-The DragonJackpotVault (`DragonJackpotVault.sol`) is responsible for storing funds allocated to the OmniDragon jackpot system and handling the distribution of winnings to lucky participants.
+The `DragonJackpotVault` contract is responsible for securely storing and distributing jackpot funds within the Sonic Red Dragon ecosystem. It serves as the treasury for all jackpot winnings and interfaces with the lottery distribution system.
 
-## Contract Overview
+## Overview
 
-The Jackpot Vault is a key component of the OmniDragon ecosystem, providing:
+```mermaid
+flowchart TD
+    OmniDragon["OmniDragon Token"] -->|"Sends 6.9% of fees"| JackpotVault["DragonJackpotVault"]
+    Distributor["DragonJackpotDistributor"] -->|"Requests funds"| JackpotVault
+    JackpotVault -->|"Transfers prize"| Winner["Lottery Winner"]
+    
+    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
+    class JackpotVault highlight
+```
 
-- Secure storage for jackpot funds
-- Accounting for different token types in the jackpot
-- Simple distribution mechanism for jackpot payouts
-- Tracking of jackpot win history
+The vault is a simple yet secure smart contract that:
 
-## Actual Implementation
+1. **Accumulates funds** from transaction fees (primarily the 6.9% jackpot portion)
+2. **Tracks balances** for different tokens that might be used for jackpot rewards
+3. **Distributes winnings** to lottery winners when triggered by the distributor
+4. **Maintains records** of jackpot history and win timestamps
 
-The DragonJackpotVault contract is implemented as an Ownable contract with basic fund management:
+## Contract Implementation
+
+The `DragonJackpotVault` implements the `IDragonJackpotVault` interface and inherits from OpenZeppelin's `Ownable` contract:
 
 ```solidity
 contract DragonJackpotVault is IDragonJackpotVault, Ownable {
@@ -27,95 +38,164 @@ contract DragonJackpotVault is IDragonJackpotVault, Ownable {
     // Track jackpot balances by token
     mapping(address => uint256) public jackpotBalances;
     
-    // Wrapped native token (WETH, WrappedNativeToken)
+    // Wrapped native token (WETH, WBNB, etc.)
     address public wrappedNativeToken;
     
     // Last win timestamp
     uint256 public lastWinTimestamp;
+    
+    // Events
+    event JackpotAdded(address indexed token, uint256 amount);
+    event JackpotPaid(address indexed token, address indexed winner, uint256 amount);
+    event WrappedNativeTokenSet(address indexed oldToken, address indexed newToken);
+    
+    // ... functions ...
 }
 ```
 
-## Key Functions
+## Key Storage Variables
 
-The contract implements straightforward functions for managing the jackpot:
+| Variable | Type | Description |
+|----------|------|-------------|
+| `jackpotBalances` | `mapping(address => uint256)` | Tracks jackpot balance for each token |
+| `wrappedNativeToken` | `address` | The wrapped native token address (WETH, WBNB, etc.) |
+| `lastWinTimestamp` | `uint256` | Timestamp of the last jackpot win |
+
+## Core Functions
+
+### Adding to the Jackpot
 
 ```solidity
-// Add tokens to the jackpot (from token contract)
-function addToJackpot(uint256 amount) external override;
-
-// Add ERC20 tokens to the jackpot (from any address)
-function addERC20ToJackpot(address token, uint256 amount) external;
-
-// Get the current jackpot balance in wrapped native token
-function getJackpotBalance() external view override returns (uint256 balance);
-
-// Pay jackpot to winner with specific token
-function payJackpotWithToken(address token, address winner, uint256 amount) external onlyOwner;
-
-// Pay jackpot to winner using wrapped native token
-function payJackpot(address winner, uint256 amount) external override onlyOwner;
-
-// Get the time of the last jackpot win
-function getLastWinTime() external view override returns (uint256 timestamp);
-
-// Set the wrapped native token address
-function setWrappedNativeToken(address _wrappedNativeToken) external override onlyOwner;
+function addToJackpot(uint256 amount) external override {
+    address token = msg.sender;
+    jackpotBalances[token] += amount;
+    emit JackpotAdded(token, amount);
+}
 ```
 
-## Jackpot Flow
-
-The jackpot funds flow through the vault in a simple pattern:
-
-```mermaid
-flowchart TB
-    classDef main fill:#4a80d1,stroke:#355899,color:#ffffff,font-weight:bold
-    classDef component fill:#42a5f5,stroke:#1e88e5,color:#ffffff
-    
-    OmniDragon["OmniDragon Token"]:::component
-    JackpotVault["Jackpot Vault"]:::main
-    Winners["Lucky Winners"]:::component
-    
-    OmniDragon -->|"Sends fees<br>addToJackpot()"| JackpotVault
-    JackpotVault -->|"Distributes prizes<br>payJackpot()"| Winners
-```
-
-## Implementation Details
-
-The Jackpot Vault has several key design features:
-
-1. **Multi-Token Support**: Can hold different types of tokens in the jackpot pool
-2. **Owner-Only Distribution**: Only the owner (typically the OmniDragon token contract) can trigger payouts
-3. **Win Tracking**: Records the timestamp of the last jackpot win
-4. **Configuration Flexibility**: Allows configuration of the wrapped native token address
-
-## Usage Example
-
-Here's an example of how the OmniDragon ecosystem interacts with the Jackpot Vault:
+This function allows the OmniDragon token contract to add funds to the jackpot. The token address is identified as the calling contract.
 
 ```solidity
-// Example: OmniDragon sends fees to the jackpot
-function _sendJackpotFees(uint256 amount) internal {
-    // Transfer tokens to the jackpot vault
-    _transfer(address(this), jackpotVault, amount);
-    
-    // Notify the vault about the new funds
-    IDragonJackpotVault(jackpotVault).addToJackpot(amount);
-}
-
-// Example: Trigger a jackpot payout
-function triggerJackpot(address winner, uint256 amount) external onlyOwner {
-    // Pay the jackpot to the winner
-    IDragonJackpotVault(jackpotVault).payJackpot(winner, amount);
-    
-    emit JackpotPaid(winner, amount);
+function addERC20ToJackpot(address token, uint256 amount) external {
+    IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+    jackpotBalances[token] += amount;
+    emit JackpotAdded(token, amount);
 }
 ```
+
+This function allows any user to add ERC20 tokens to the jackpot (requires approval).
+
+### Distributing Jackpot Prizes
+
+```solidity
+function payJackpot(address winner, uint256 amount) external override onlyOwner {
+    require(wrappedNativeToken != address(0), "Wrapped token not set");
+    require(jackpotBalances[wrappedNativeToken] >= amount, "Insufficient balance");
+    
+    jackpotBalances[wrappedNativeToken] -= amount;
+    IERC20(wrappedNativeToken).safeTransfer(winner, amount);
+    lastWinTimestamp = block.timestamp;
+    
+    emit JackpotPaid(wrappedNativeToken, winner, amount);
+}
+```
+
+This function is called by the distributor contract to pay a jackpot winner using the wrapped native token.
+
+```solidity
+function payJackpotWithToken(address token, address winner, uint256 amount) external onlyOwner {
+    require(jackpotBalances[token] >= amount, "Insufficient balance");
+    jackpotBalances[token] -= amount;
+    IERC20(token).safeTransfer(winner, amount);
+    lastWinTimestamp = block.timestamp;
+    emit JackpotPaid(token, winner, amount);
+}
+```
+
+This function allows paying a jackpot with any supported token, not just the wrapped native token.
+
+### Configuration Functions
+
+```solidity
+function setWrappedNativeToken(address _wrappedNativeToken) external override onlyOwner {
+    require(_wrappedNativeToken != address(0), "Zero address");
+    address oldToken = wrappedNativeToken;
+    wrappedNativeToken = _wrappedNativeToken;
+    emit WrappedNativeTokenSet(oldToken, _wrappedNativeToken);
+}
+```
+
+This function sets the wrapped native token address, which can vary across different chains.
+
+### View Functions
+
+```solidity
+function getJackpotBalance() external view override returns (uint256 balance) {
+    if (wrappedNativeToken != address(0)) {
+        return jackpotBalances[wrappedNativeToken];
+    }
+    return 0;
+}
+```
+
+Returns the current jackpot balance in the wrapped native token.
+
+```solidity
+function getJackpotBalance(address token) external view returns (uint256) {
+    return jackpotBalances[token];
+}
+```
+
+Returns the jackpot balance for any specific token.
+
+```solidity
+function getLastWinTime() external view override returns (uint256 timestamp) {
+    return lastWinTimestamp;
+}
+```
+
+Returns the timestamp of the last jackpot win.
 
 ## Security Considerations
 
-The Jackpot Vault implements several security measures:
+1. **Access Control**: Only the owner (typically the distributor contract) can trigger jackpot payments
+2. **Balance Verification**: Checks are performed to ensure sufficient balance before payments
+3. **SafeERC20**: Uses SafeERC20 for all token transfers to prevent common vulnerabilities
+4. **ETH Reception**: Includes a `receive()` function to accept ETH transfers if needed
 
-- **Ownership Control**: Only the owner can trigger jackpot payouts
-- **Safe ERC20 Usage**: Uses SafeERC20 for all token transfers
-- **Balance Validation**: Verifies sufficient balance before payouts
-- **Contract Registration**: Includes a utility function `registerMe()` for network compatibility
+## Integration Points
+
+The DragonJackpotVault integrates with:
+
+1. **OmniDragon Token**: Receives jackpot fees from token transactions
+2. **DragonJackpotDistributor**: Receives payment requests when winners are selected
+3. **Multiple Tokens**: Can hold and distribute various tokens as prizes
+
+## Events
+
+| Event | Description |
+|-------|-------------|
+| `JackpotAdded(address indexed token, uint256 amount)` | Emitted when funds are added to the jackpot |
+| `JackpotPaid(address indexed token, address indexed winner, uint256 amount)` | Emitted when a jackpot prize is paid to a winner |
+| `WrappedNativeTokenSet(address indexed oldToken, address indexed newToken)` | Emitted when the wrapped native token address is updated |
+
+## Jackpot Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant OmniDragon
+    participant Vault as DragonJackpotVault
+    participant Distributor
+    participant Winner
+    
+    User->>OmniDragon: Trade Token (generates fees)
+    OmniDragon->>Vault: addToJackpot(amount)
+    Note over Vault: Jackpot balance increases
+    
+    User->>OmniDragon: Makes winning trade
+    OmniDragon->>Distributor: Notifies of winner
+    Distributor->>Vault: payJackpot(winner, amount)
+    Vault->>Winner: Transfer jackpot amount
+    Note over Vault: Update lastWinTimestamp
+```

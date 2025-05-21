@@ -45,6 +45,7 @@ flowchart TB
     Integrator -->|"Provide Randomness"| OmniConsumer
     OmniConsumer -->|"Aggregated Randomness"| Applications
     
+    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
     class Relay,Integrator highlight
 ```
 

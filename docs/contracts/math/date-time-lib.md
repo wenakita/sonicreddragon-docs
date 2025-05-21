@@ -43,6 +43,7 @@ flowchart TB
     TimeScheduling --> JackpotScheduling
     TimeScheduling --> MarketAnalysis
     
+    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
     class TimestampConversion,DurationCalculation highlight
 ```
 

@@ -1,14 +1,16 @@
 ---
-sidebar_position: 2
+sidebar_position: 1
+title: Animated Ecosystem Diagrams
+description: Interactive visualizations of the Sonic Red Dragon ecosystem with animation controls
 ---
 
-# Architecture
+# Animated Ecosystem Diagrams
 
-The Sonic Red Dragon ecosystem is built on a modular, extensible architecture designed for cross-chain compatibility, security, and scalability.
+This page demonstrates our interactive ecosystem diagrams with animation controls. Click the Play button below each diagram to see the flow animation.
 
-## System Overview
+## System Architecture
 
-At a high level, the Sonic Red Dragon architecture consists of several interconnected components:
+The Sonic Red Dragon architecture consists of several interconnected components that work together to provide cross-chain functionality, governance, and the jackpot system:
 
 ```mermaid
 flowchart TD
@@ -57,21 +59,9 @@ flowchart TD
     style Governance fill:#e0f7fa,stroke:#00acc1,stroke-width:2px,color:#333
 ```
 
-## Core Components
+## Cross-Chain Message Flow
 
-### OmniDragon Token
-
-The OmniDragon token serves as the foundation of the ecosystem. It implements:
-
-- ERC-20 standard functionality
-- Cross-chain compatibility via LayerZero V2
-- Fee collection and distribution
-- Jackpot entry triggering for buy transactions
-- Governance integration
-
-### Cross-Chain Infrastructure
-
-The cross-chain functionality is powered by LayerZero V2:
+This sequence diagram shows how cross-chain messaging works through LayerZero V2:
 
 ```mermaid
 sequenceDiagram
@@ -96,7 +86,7 @@ sequenceDiagram
     TokenB->>UserB: Token received
 ```
 
-### Governance System
+## Governance System
 
 The governance system is based on the ve69LP (vote-escrowed) model:
 
@@ -115,9 +105,9 @@ flowchart TD
     class ve69LP highlight
 ```
 
-### Jackpot System
+## Jackpot System Flow
 
-The jackpot system provides on-chain lottery functionality:
+The jackpot system provides on-chain lottery functionality through this process flow:
 
 ```mermaid
 flowchart TD
@@ -134,7 +124,7 @@ flowchart TD
     class SwapOracle,JackpotVault,Distributor highlight
 ```
 
-## Technical Relationships
+## Technical Contract Relationships
 
 The relationship between the contracts can be visualized as follows:
 
@@ -190,29 +180,40 @@ classDiagram
     DragonJackpotDistributor --> DragonJackpotVault : requests funds
 ```
 
-## Multi-Chain Deployment
+## Tokenomics Flow
 
-The Sonic Red Dragon ecosystem is deployed on multiple blockchains with identical functionality on each chain:
+The economic flywheel of the OmniDragon ecosystem:
 
-| Chain | Layer Type | Chain ID | LZ Chain ID | Primary Use Cases |
-|-------|------------|----------|------------|------------------|
-| Ethereum | L1 | 1 | 101 | Governance, Security, Prime Liquidity |
-| Sonic | L1 | 146 | 332 | High Throughput, Lower Fees |
-| Arbitrum | L2 | 42161 | 110 | Scaling, Lower Fees |
-| Avalanche | L1 | 43114 | 106 | Fast Finality, EVM Compatible |
-| Base | L2 | 8453 | 184 | Scaling, Lower Fees |
+```mermaid
+flowchart TD
+    Transactions["Transaction Volume"]
+    Fees["Transaction Fees"]
+    Jackpot["Jackpot Pool"]
+    Staking["ve69LP Staking"]
+    Burn["Token Burns"]
+    Price["Token Price"]
+    
+    Transactions -->|"Generate"| Fees
+    Fees -->|"Fund"| Jackpot
+    Fees -->|"Reward"| Staking
+    Fees -->|"Fuel"| Burn
+    
+    Jackpot -->|"Attracts"| Users["Users & Liquidity"]
+    Staking -->|"Locks"| Liquidity["Liquidity"]
+    Burn -->|"Reduces"| Supply["Circulating Supply"]
+    
+    Users -->|"Increase"| Transactions
+    Liquidity -->|"Improves"| TradingExperience["Trading Experience"]
+    Supply -->|"With Growing Demand"| Price
+    
+    TradingExperience -->|"Encourages"| Transactions
+    Price -->|"Attracts"| Users
+    
+    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
+    class Transactions,Fees,Jackpot highlight
+```
 
-## Security Model
-
-The security architecture is built on several principles:
-
-1. **Multi-Layered Access Controls**: Role-based permissions with strict validation
-2. **Economic Security**: Fee mechanism and incentive alignment
-3. **Oracle Diversity**: Multiple price feeds for reliable market data
-4. **Governance Time-Locks**: Delay periods for critical changes
-5. **External Verification**: LayerZero DVN provides additional security layer
-
-## Fee Flow
+## Fee Distribution
 
 The token implements a fee model that distributes transaction fees as follows:
 
@@ -223,11 +224,4 @@ pie title Fee Distribution
     "Burn (0.69%)" : 0.69
 ```
 
-## Integration Points
-
-The system exposes several integration points for partners and extensions:
-
-1. **Partner Jackpot Program**: Special jackpot entries for integrated pools
-2. **Cross-Chain Messaging**: LayerZero integration for cross-chain communication
-3. **Governance Hooks**: Extensible governance for protocol evolution
-4. **Oracle Aggregation**: Multiple price feed sources for reliability
+Each time you press the Play button, you'll see an animated visualization of the diagram that helps you understand the flow and relationships between different components. 
