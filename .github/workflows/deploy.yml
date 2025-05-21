@@ -35,22 +35,22 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
-          cache-dependency-path: 'new-docs/package-lock.json'
+          cache-dependency-path: package-lock.json
       
       - name: Install dependencies
-        working-directory: new-docs
+        
         run: |
           npm ci --no-audit --no-fund
         
       - name: Build website
-        working-directory: new-docs
+        
         env:
           NODE_OPTIONS: --max-old-space-size=8192
         run: |
           npm run build
           
       - name: Check for build errors
-        working-directory: new-docs
+        
         run: |
           if [ ! -d "build" ]; then
             echo "Build directory does not exist. Build failed."
@@ -74,7 +74,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: new-docs/build
+          path: build
 
   deploy:
     if: github.event_name != 'pull_request'
