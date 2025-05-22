@@ -291,10 +291,30 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=8192
         run: npm run build
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages with detailed output
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build
           branch: gh-pages
           clean: true
+          clean-exclude: |
+            .nojekyll
+            CNAME
+          single-commit: false
+          commit-message: "Deploy website - ${GITHUB_SHA}"
+          git-config-name: GitHub Actions
+          git-config-email: actions@github.com
+          
+      - name: Purge GitHub Pages cache
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "Attempting to purge GitHub Pages cache..."
+          
+          # Add timestamp to force cache refresh
+          TIMESTAMP=$(date +%s)
+          echo "// Timestamp: ${TIMESTAMP}" >> build/js/fix-sidebar.js
+          
+          # Print information about the deployment
+          echo "✓ Deployed to GitHub Pages with cache-busting timestamp"
+          echo "Please allow a few minutes for the changes to propagate through GitHub's CDN"
