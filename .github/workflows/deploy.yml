@@ -35,196 +35,256 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
         
-      - name: Create direct sidebar fix with custom head file
+      - name: Add critical CSS fix to custom.css
         run: |
-          echo "Creating custom head file for sidebar fix..."
+          echo "Adding critical sidebar CSS fixes directly to custom.css..."
           
-          # Create directory if it doesn't exist
-          mkdir -p src/theme
+          # Add CSS directly to custom.css
+          cat >> src/css/custom.css << 'EOL'
           
-          # Create custom head component
-          cat > src/theme/Head.js << 'EOL'
+          /* Critical sidebar positioning - HIGHEST PRIORITY */
+          @media (min-width: 997px) {
+            .theme-doc-sidebar-container {
+              position: fixed !important;
+              top: var(--ifm-navbar-height) !important;
+              left: 0 !important;
+              bottom: 0 !important;
+              width: 250px !important;
+              height: calc(100vh - var(--ifm-navbar-height)) !important;
+              overflow-y: auto !important;
+              z-index: 200 !important;
+              border-right: 1px solid var(--ifm-toc-border-color) !important;
+            }
+            
+            [class*="docMainContainer"] {
+              margin-left: 250px !important;
+              width: calc(100% - 250px) !important;
+              max-width: calc(100% - 250px) !important;
+            }
+          
+            /* Fix any nested container elements */
+            [class*="docMainContainer"] .container,
+            [class*="docMainContainer"] .row,
+            [class*="docMainContainer"] [class*="docItemCol"] {
+              width: 100% !important;
+              max-width: 100% !important;
+              margin-left: 0 !important;
+            }
+          }
+          
+          /* Mobile sidebar positioning */
+          @media (max-width: 996px) {
+            .theme-doc-sidebar-container {
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
+              bottom: 0 !important;
+              width: 85% !important;
+              max-width: 300px !important;
+              height: 100% !important;
+              z-index: 10000 !important;
+              transform: translateX(-100%) !important;
+              transition: transform 0.3s ease !important;
+              background-color: var(--ifm-background-surface-color) !important;
+              border-right: 1px solid var(--ifm-toc-border-color) !important;
+              box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
+            }
+          
+            body.sidebar-shown .theme-doc-sidebar-container {
+              transform: translateX(0) !important;
+            }
+          
+            [class*="docMainContainer"] {
+              margin-left: 0 !important;
+              width: 100% !important;
+              max-width: 100% !important;
+            }
+          
+            .sidebar-overlay {
+              display: none;
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background-color: rgba(0, 0, 0, 0.7);
+              z-index: 9999;
+            }
+          
+            body.sidebar-shown .sidebar-overlay {
+              display: block;
+            }
+          
+            body.sidebar-shown {
+              overflow: hidden;
+            }
+          }
+          EOL
+          
+          echo "✓ Critical CSS added to custom.css"
+          
+      - name: Create safe browser-only sidebar interaction script
+        run: |
+          echo "Creating browser-only sidebar interaction component..."
+          
+          # Create directory structure if it doesn't exist
+          mkdir -p src/components
+          
+          # Create a safe browser-only component for sidebar interaction
+          cat > src/components/SidebarHandler.js << 'EOL'
           /**
-           * Custom Head component with sidebar fix
+           * Sidebar handler component - browser only to avoid SSR issues
+           */
+          import React, { useEffect } from 'react';
+          import BrowserOnly from '@docusaurus/BrowserOnly';
+          
+          // The actual implementation, only used in browser
+          function SidebarInteractions() {
+            useEffect(() => {
+              // Setup sidebar interactions
+              function setupSidebar() {
+                // Create overlay for mobile sidebar
+                let overlay = document.querySelector('.sidebar-overlay');
+                if (!overlay) {
+                  overlay = document.createElement('div');
+                  overlay.className = 'sidebar-overlay';
+                  document.body.appendChild(overlay);
+                  
+                  // Close sidebar when clicking overlay
+                  overlay.addEventListener('click', function() {
+                    document.body.classList.remove('sidebar-shown');
+                  });
+                }
+                
+                // Setup toggle buttons for mobile
+                const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
+                toggleButtons.forEach(btn => {
+                  btn.addEventListener('click', function() {
+                    document.body.classList.toggle('sidebar-shown');
+                  });
+                });
+                
+                // Add keyboard support
+                document.addEventListener('keydown', function(e) {
+                  if (e.key === 'Escape' && document.body.classList.contains('sidebar-shown')) {
+                    document.body.classList.remove('sidebar-shown');
+                  }
+                });
+              }
+              
+              // Run setup
+              setupSidebar();
+              
+              // Cleanup function
+              return () => {
+                // Remove event listeners if needed
+                const overlay = document.querySelector('.sidebar-overlay');
+                if (overlay) {
+                  overlay.removeEventListener('click', function() {
+                    document.body.classList.remove('sidebar-shown');
+                  });
+                }
+                
+                document.removeEventListener('keydown', function(e) {
+                  if (e.key === 'Escape' && document.body.classList.contains('sidebar-shown')) {
+                    document.body.classList.remove('sidebar-shown');
+                  }
+                });
+              };
+            }, []);
+            
+            // Return empty fragment - this component only adds behavior, not UI
+            return null;
+          }
+          
+          // Wrapper with BrowserOnly to prevent SSR issues
+          export default function SidebarHandler() {
+            return (
+              <BrowserOnly>
+                {() => <SidebarInteractions />}
+              </BrowserOnly>
+            );
+          }
+          EOL
+          
+          echo "✓ SidebarHandler component created"
+          
+      - name: Create Root component to inject SidebarHandler
+        run: |
+          echo "Creating Root component to inject SidebarHandler..."
+          
+          # Create Root component to inject our handler
+          mkdir -p src/theme
+          cat > src/theme/Root.js << 'EOL'
+          /**
+           * Root component that injects our SidebarHandler
            */
           import React from 'react';
-          import Head from '@docusaurus/Head';
-
-          export default function CustomHead(props) {
+          import SidebarHandler from '../components/SidebarHandler';
+          
+          // Root component wraps the entire app
+          export default function Root({children}) {
             return (
               <>
-                <Head {...props} />
-                {/* Critical sidebar fix CSS - highest priority */}
-                <style>
-                  {`
-                  /* Desktop sidebar positioning - enforced with !important */
-                  @media (min-width: 997px) {
-                    .theme-doc-sidebar-container {
-                      position: fixed !important;
-                      top: var(--ifm-navbar-height) !important;
-                      left: 0 !important;
-                      bottom: 0 !important;
-                      width: 250px !important;
-                      height: calc(100vh - var(--ifm-navbar-height)) !important;
-                      overflow-y: auto !important;
-                      z-index: 200 !important;
-                      border-right: 1px solid var(--ifm-toc-border-color) !important;
-                    }
-                    
-                    [class*="docMainContainer"] {
-                      margin-left: 250px !important;
-                      width: calc(100% - 250px) !important;
-                      max-width: calc(100% - 250px) !important;
-                    }
-                
-                    /* Fix any nested container elements */
-                    [class*="docMainContainer"] .container,
-                    [class*="docMainContainer"] .row,
-                    [class*="docMainContainer"] [class*="docItemCol"] {
-                      width: 100% !important;
-                      max-width: 100% !important;
-                      margin-left: 0 !important;
-                    }
-                  }
-                
-                  /* Mobile sidebar positioning */
-                  @media (max-width: 996px) {
-                    .theme-doc-sidebar-container {
-                      position: fixed !important;
-                      top: 0 !important;
-                      left: 0 !important;
-                      bottom: 0 !important;
-                      width: 85% !important;
-                      max-width: 300px !important;
-                      height: 100% !important;
-                      z-index: 10000 !important;
-                      transform: translateX(-100%) !important;
-                      transition: transform 0.3s ease !important;
-                      background-color: var(--ifm-background-surface-color) !important;
-                      border-right: 1px solid var(--ifm-toc-border-color) !important;
-                      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
-                    }
-                
-                    body.sidebar-shown .theme-doc-sidebar-container {
-                      transform: translateX(0) !important;
-                    }
-                
-                    [class*="docMainContainer"] {
-                      margin-left: 0 !important;
-                      width: 100% !important;
-                      max-width: 100% !important;
-                    }
-                
-                    .sidebar-overlay {
-                      display: none;
-                      position: fixed;
-                      top: 0;
-                      left: 0;
-                      right: 0;
-                      bottom: 0;
-                      background-color: rgba(0, 0, 0, 0.7);
-                      z-index: 9999;
-                    }
-                
-                    body.sidebar-shown .sidebar-overlay {
-                      display: block;
-                    }
-                
-                    body.sidebar-shown {
-                      overflow: hidden;
-                    }
-                  }
-                  `}
-                </style>
-                {/* Dynamic JS for handling sidebar toggle */}
-                <script>
-                  {`
-                  (function() {
-                    function setupSidebar() {
-                      // Create overlay for mobile sidebar
-                      let overlay = document.querySelector('.sidebar-overlay');
-                      if (!overlay) {
-                        overlay = document.createElement('div');
-                        overlay.className = 'sidebar-overlay';
-                        document.body.appendChild(overlay);
-                        
-                        // Close sidebar when clicking overlay
-                        overlay.addEventListener('click', function() {
-                          document.body.classList.remove('sidebar-shown');
-                        });
-                      }
-                      
-                      // Setup toggle buttons for mobile
-                      const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
-                      toggleButtons.forEach(btn => {
-                        btn.addEventListener('click', function() {
-                          document.body.classList.toggle('sidebar-shown');
-                        });
-                      });
-                      
-                      // Add keyboard support
-                      document.addEventListener('keydown', function(e) {
-                        if (e.key === 'Escape' && document.body.classList.contains('sidebar-shown')) {
-                          document.body.classList.remove('sidebar-shown');
-                        }
-                      });
-                    }
-                    
-                    // Run setup when DOM is ready
-                    if (document.readyState === 'loading') {
-                      document.addEventListener('DOMContentLoaded', setupSidebar);
-                    } else {
-                      setupSidebar();
-                    }
-                  })();
-                  `}
-                </script>
+                {children}
+                <SidebarHandler />
               </>
             );
           }
           EOL
           
-          echo "✓ Custom Head component created with sidebar fix"
+          echo "✓ Root component created"
           
-          # Also create a fix-sidebar.js script as backup
+      - name: Create simple external script for sidebar handling
+        run: |
+          echo "Creating external script for sidebar handling..."
+          
+          # Create a simple script as a backup approach
           mkdir -p static/js
           cat > static/js/fix-sidebar.js << 'EOL'
-          // Sidebar fix - backup approach
+          // Safe sidebar fix script - executes only in browser
           (function() {
-            function setupSidebar() {
-              // Create overlay for mobile sidebar
-              let overlay = document.querySelector('.sidebar-overlay');
-              if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.className = 'sidebar-overlay';
-                document.body.appendChild(overlay);
-                
-                // Close sidebar when clicking overlay
-                overlay.addEventListener('click', function() {
-                  document.body.classList.remove('sidebar-shown');
-                });
-              }
-              
-              // Setup toggle buttons for mobile
+            // Make sure we're in a browser environment
+            if (typeof window === 'undefined' || typeof document === 'undefined') {
+              return;
+            }
+            
+            // Wait for DOM to be fully loaded
+            function handleSidebar() {
+              // Setup toggle buttons for mobile sidebar
               const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
               toggleButtons.forEach(btn => {
                 btn.addEventListener('click', function() {
                   document.body.classList.toggle('sidebar-shown');
                 });
               });
+              
+              // Create and handle overlay
+              let overlay = document.querySelector('.sidebar-overlay');
+              if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                document.body.appendChild(overlay);
+                
+                overlay.addEventListener('click', function() {
+                  document.body.classList.remove('sidebar-shown');
+                });
+              }
             }
             
-            // Run setup when DOM is ready
+            // Run when the DOM is ready
             if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', setupSidebar);
+              document.addEventListener('DOMContentLoaded', handleSidebar);
             } else {
-              setupSidebar();
+              handleSidebar();
             }
           })();
           EOL
           
-          # Update scripts in docusaurus.config.ts (using a safe regex pattern)
-          sed -i "s|scripts: \[\(.*\)\]|scripts: [\n    {\n      src: '/js/fix-sidebar.js',\n      async: false,\n      defer: false\n    }\1]|" docusaurus.config.ts
+          # Update docusaurus.config.ts to include the script
+          sed -i "s|scripts: \[\(.*\)\]|scripts: [\n    {\n      src: '/js/fix-sidebar.js',\n      async: true,\n      defer: true\n    }\1]|" docusaurus.config.ts
+          
+          echo "✓ External script created and added to config"
 
       - name: Build website
         env:
