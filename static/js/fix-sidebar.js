@@ -1,4 +1,4 @@
-// CRITICAL EMERGENCY FIX FOR SIDEBAR LAYOUT ISSUES
+// CRITICAL EMERGENCY FIX FOR SIDEBAR LAYOUT ISSUES - v1.0.1 (FORCE REBUILD)
 (function() {
   // Create a style element
   function injectEmergencyCSS() {
