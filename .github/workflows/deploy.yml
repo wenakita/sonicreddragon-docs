@@ -35,29 +35,63 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
       
-      - name: Update docusaurus.config.ts
+      - name: Create SSR-safe sidebar script
         run: |
-          echo "Updating script configuration in docusaurus.config.ts..."
-          # Use a direct approach with grep and cat
-          grep -v "scripts:" docusaurus.config.ts > temp-config.ts
-          cat temp-config.ts > docusaurus.config.ts
+          echo "Creating SSR-safe sidebar script..."
+          mkdir -p static/js
+          cat > static/js/fix-sidebar.js << 'EOL'
+          // Safe sidebar fix script - executes only in browser
+          // Version with timestamp: 2023-11-01-005
           
-          # Insert the scripts section in the right place
-          sed -i '/clientModules:/a \
-          \
-          // Add script for sidebar fix - exclude from SSR to prevent '\''document is not defined'\'' errors\
-          scripts: [\
-            {\
-              src: "/js/fix-sidebar.js?v=5.0.0",\
-              async: true,\
-              defer: true,\
-              '\''data-ssr'\'': '\''exclude'\'',\
-            },\
-          ],' docusaurus.config.ts
+          // IMPORTANT: SSR safety check - run only in browser environment
+          // This prevents "document is not defined" errors during build
+          (function() {
+            // Skip execution during SSR
+            if (typeof window === 'undefined' || typeof document === 'undefined') {
+              return;
+            }
+            
+            // Delay execution until after page load
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', initSidebar);
+            } else {
+              setTimeout(initSidebar, 10);
+            }
+            
+            function initSidebar() {
+              try {
+                // Setup mobile toggle buttons
+                const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
+                toggleButtons.forEach(btn => {
+                  btn.addEventListener('click', function() {
+                    document.body.classList.toggle('sidebar-shown');
+                  });
+                });
+                
+                // Create overlay for mobile
+                let overlay = document.querySelector('.sidebar-overlay');
+                if (!overlay) {
+                  overlay = document.createElement('div');
+                  overlay.className = 'sidebar-overlay';
+                  document.body.appendChild(overlay);
+                  
+                  overlay.addEventListener('click', function() {
+                    document.body.classList.remove('sidebar-shown');
+                  });
+                }
+              } catch (error) {
+                console.error('[Sidebar Fix] Error:', error);
+              }
+            }
+          })();
           
-          # Clean up
-          rm temp-config.ts
-          echo "✓ Updated docusaurus.config.ts successfully"
+          // Cache-busting timestamp
+          // TIMESTAMP_PLACEHOLDER
+          EOL
+          
+          # Add actual timestamp for cache busting
+          TIMESTAMP=$(date +%s)
+          sed -i "s|// TIMESTAMP_PLACEHOLDER|// Build timestamp: ${TIMESTAMP}|" static/js/fix-sidebar.js
 
       - name: Add critical CSS to custom.css
         run: |
@@ -143,63 +177,28 @@ jobs:
           }
           EOL
 
-      - name: Create SSR-safe sidebar script
+      - name: Create tsconfig for docusaurus
         run: |
-          echo "Creating SSR-safe sidebar script..."
-          mkdir -p static/js
-          cat > static/js/fix-sidebar.js << 'EOL'
-          // Safe sidebar fix script - executes only in browser
-          // Version with timestamp: 2023-11-01-004
-          
-          // IMPORTANT: SSR safety check - run only in browser environment
-          // This prevents "document is not defined" errors during build
-          (function() {
-            // Skip execution during SSR
-            if (typeof window === 'undefined' || typeof document === 'undefined') {
-              return;
+          echo "Creating temporary tsconfig file..."
+          cat > tsconfig.json << 'EOL'
+          {
+            "compilerOptions": {
+              "target": "ES2020",
+              "module": "ESNext",
+              "moduleResolution": "node",
+              "esModuleInterop": true,
+              "skipLibCheck": true,
+              "allowJs": true,
+              "jsx": "react",
+              "declaration": true,
+              "declarationMap": true,
+              "sourceMap": true,
+              "strict": true,
+              "lib": ["DOM", "ESNext"],
+              "types": ["node"]
             }
-            
-            // Delay execution until after page load
-            if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', initSidebar);
-            } else {
-              setTimeout(initSidebar, 10);
-            }
-            
-            function initSidebar() {
-              try {
-                // Setup mobile toggle buttons
-                const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
-                toggleButtons.forEach(btn => {
-                  btn.addEventListener('click', function() {
-                    document.body.classList.toggle('sidebar-shown');
-                  });
-                });
-                
-                // Create overlay for mobile
-                let overlay = document.querySelector('.sidebar-overlay');
-                if (!overlay) {
-                  overlay = document.createElement('div');
-                  overlay.className = 'sidebar-overlay';
-                  document.body.appendChild(overlay);
-                  
-                  overlay.addEventListener('click', function() {
-                    document.body.classList.remove('sidebar-shown');
-                  });
-                }
-              } catch (error) {
-                console.error('[Sidebar Fix] Error:', error);
-              }
-            }
-          })();
-          
-          // Cache-busting timestamp
-          // TIMESTAMP_PLACEHOLDER
+          }
           EOL
-          
-          # Add actual timestamp for cache busting
-          TIMESTAMP=$(date +%s)
-          sed -i "s|// TIMESTAMP_PLACEHOLDER|// Build timestamp: ${TIMESTAMP}|" static/js/fix-sidebar.js
 
       - name: Clean up unused files
         run: |
@@ -208,6 +207,61 @@ jobs:
           rm -f src/clientModules/sidebarEnhancer.js || true
           rm -f src/css/global-sidebar-fix.css || true
           rm -f src/clientModules/sidebarFixer.js || true
+
+      - name: Update docusaurus.config.ts manually
+        run: |
+          echo "Manually editing the config file..."
+          # Create a temporary TypeScript file to edit the config
+          cat > edit-config.ts << 'EOL'
+          import * as fs from 'fs';
+
+          // Read the original file
+          let content = fs.readFileSync('docusaurus.config.ts', 'utf8');
+
+          // Replace the scripts section using string operations to ensure correct TypeScript syntax
+          const scriptsSectionStart = content.indexOf('scripts:');
+          
+          if (scriptsSectionStart !== -1) {
+            // Find the end of the scripts section (the closing bracket and comma)
+            const scriptsSectionEnd = content.indexOf('],', scriptsSectionStart);
+            
+            if (scriptsSectionEnd !== -1) {
+              // Create the replacement text
+              const newScriptsSection = `scripts: [
+    {
+      src: '/js/fix-sidebar.js?v=5.0.0',
+      async: true,
+      defer: true,
+      'data-ssr': 'exclude',
+    },
+  ]`;
+              
+              // Replace the section
+              content = content.substring(0, scriptsSectionStart) + 
+                        newScriptsSection +
+                        content.substring(scriptsSectionEnd + 2);
+              
+              // Write the file back
+              fs.writeFileSync('docusaurus.config.ts', content);
+              console.log('Successfully updated scripts section');
+            } else {
+              console.error('Could not find end of scripts section');
+              process.exit(1);
+            }
+          } else {
+            console.error('Could not find scripts section');
+            process.exit(1);
+          }
+          EOL
+          
+          # Compile and run the TypeScript file
+          npx -y typescript edit-config.ts
+          node edit-config.js
+          
+          # Check if the file is valid
+          echo "Verifying TypeScript syntax..."
+          cat docusaurus.config.ts | grep -A 10 "scripts:"
+          echo "TypeScript check done"
 
       - name: Build website
         env:
