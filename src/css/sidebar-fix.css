@@ -1,6 +1,6 @@
-/* EMERGENCY SIDEBAR FIX - Force horizontal text */
+/* CRITICAL SIDEBAR FIX - Force proper layout and prevent overlapping */
 
-/* Target all possible elements that could have vertical text */
+/* Force horizontal text rendering - fix for vertical text issue */
 * {
   writing-mode: horizontal-tb !important;
   text-orientation: mixed !important;
@@ -44,111 +44,154 @@ aside,
   line-height: 1.5 !important;
 }
 
-/* Force all headings and content in TOC to be horizontal */
-h1, h2, h3, h4, h5, h6, p, span, a, div, li, ul, ol {
-  writing-mode: horizontal-tb !important;
-  text-orientation: mixed !important;
-  direction: ltr !important;
+/* Layout structure fixes */
+.navbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 200 !important;
 }
 
-/* Force horizontal display for all elements in the page */
-html body main article *,
-html body main aside *,
-html body main nav *,
-html body main div *,
-html body main span *,
-html body main ul *,
-html body main li * {
-  writing-mode: horizontal-tb !important;
-  text-orientation: mixed !important;
-  direction: ltr !important;
-}
-
-/* Force all characters to be horizontal, not vertical */
-span, a, p, li, div {
-  letter-spacing: normal !important;
-  text-transform: none !important;
-  text-orientation: mixed !important;
-  writing-mode: horizontal-tb !important;
-}
-
-/* Target the actual element that seems to be causing the issue */
-.theme-doc-toc-desktop .table-of-contents {
-  overflow-y: auto !important;
-  padding: 0.5rem !important;
-  text-align: left !important;
-}
-
-/* Force main area width to prevent sidebar issues */
 .main-wrapper {
-  max-width: 100% !important;
   display: flex !important;
   flex-direction: row !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
 }
 
-/* Ensure sidebar is properly contained */
+/* Left sidebar - using percentage width */
 .theme-doc-sidebar-container {
+  width: 18% !important; /* Default - will be overridden by media queries */
+  max-width: 18% !important;
+  min-width: 18% !important;
+  margin-right: 0 !important;
+  position: sticky !important;
+  top: var(--ifm-navbar-height, 60px) !important;
+  height: calc(100vh - var(--ifm-navbar-height, 60px)) !important;
   overflow-y: auto !important;
-  max-width: 300px !important;
-  width: var(--doc-sidebar-width) !important;
+  z-index: 100 !important;
+  flex: 0 0 auto !important;
+  background-color: var(--ifm-background-surface-color) !important;
+  border-right: 1px solid var(--ifm-toc-border-color) !important;
 }
 
-/* Emergency fix for any element with vertical text */
-[style*="writing-mode"],
-[style*="text-orientation"] {
-  writing-mode: horizontal-tb !important;
-  text-orientation: mixed !important;
-  direction: ltr !important;
-  letter-spacing: normal !important;
+/* Main content container */
+.docMainContainer {
+  flex: 1 1 auto !important;
+  width: 0 !important; /* Force flexbox sizing */
+  min-width: 0 !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  overflow-x: hidden !important;
 }
 
-/* Corrects specific right sidebar elements */
-.theme-doc-toc-desktop,
-.table-of-contents__title,
-.Key,
-.Features,
-.Usage,
-.Examples,
-.API,
-.Reference,
-.Overview {
-  writing-mode: horizontal-tb !important;
-  text-orientation: mixed !important;
-  letter-spacing: normal !important;
+/* Main content page wrapper */
+.docPage {
+  display: flex !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Right sidebar wrapper */
+.docSidebarContainer_src-theme-DocPage-Layout-Sidebar-styles-module,
+.docSidebarContainer {
   display: block !important;
-  word-break: normal !important;
-  white-space: normal !important;
-  text-align: left !important;
+  flex: 0 0 auto !important;
+  width: 18% !important; /* Match left sidebar */
+  margin: 0 !important;
 }
 
-/* Fix for buttons in headings */
-button, 
-input, 
-optgroup, 
-select, 
-textarea {
-  writing-mode: horizontal-tb !important;
-  text-orientation: mixed !important;
+/* Main document content area */
+.docItemContainer {
+  flex: 1 1 auto !important;
+  min-width: 0 !important; /* Required for proper flexbox behavior */
+  max-width: none !important;
+  overflow-x: hidden !important;
+  padding: 0 1.5rem !important;
 }
 
-/* Specific docusaurus class fixes */
-[class*="docTitle"],
-[class*="tableOfContents"],
-[class*="tocTitle"],
-[class*="tocItem"],
-[class*="docItemContainer"],
-[class*="docSidebarContainer"],
-[class*="docMainContainer"] {
-  writing-mode: horizontal-tb !important;
-  text-orientation: mixed !important;
-  text-align: left !important;
+/* Mobile fixes */
+@media (max-width: 996px) {
+  /* Mobile sidebar positioning */
+  .theme-doc-sidebar-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease !important;
+    z-index: 9999 !important;
+    width: 85% !important; /* Take most of screen width on mobile */
+    max-width: 320px !important; /* But cap at reasonable size */
+    height: 100% !important;
+  }
+  
+  /* When sidebar is shown */
+  .theme-doc-sidebar-container.menu--show {
+    transform: translateX(0) !important;
+  }
+  
+  /* Make sure content takes full width */
+  .docMainContainer,
+  .docPage,
+  .docItemContainer {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* Overlay backdrop when sidebar is open */
+  .overlay-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    z-index: 9000 !important;
+  }
 }
 
-/* Last-resort !important selector */
-body .table-of-contents__left-border,
-body .theme-doc-toc-desktop,
-body aside {
-  writing-mode: horizontal-tb !important;
-  text-orientation: mixed !important;
-  transform: none !important;
+/* Medium screens (tablets) */
+@media (min-width: 997px) and (max-width: 1200px) {
+  .theme-doc-sidebar-container,
+  .docSidebarContainer_src-theme-DocPage-Layout-Sidebar-styles-module,
+  .docSidebarContainer {
+    width: 22% !important;
+    max-width: 22% !important;
+    min-width: 22% !important;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1201px) {
+  .theme-doc-sidebar-container,
+  .docSidebarContainer_src-theme-DocPage-Layout-Sidebar-styles-module,
+  .docSidebarContainer {
+    width: 18% !important;
+    max-width: 18% !important;
+    min-width: 18% !important;
+  }
+}
+
+/* Extra large screens */
+@media (min-width: 1600px) {
+  .theme-doc-sidebar-container,
+  .docSidebarContainer_src-theme-DocPage-Layout-Sidebar-styles-module,
+  .docSidebarContainer {
+    width: 15% !important;
+    max-width: 15% !important;
+    min-width: 15% !important;
+  }
+}
+
+/* Right sidebar TOC fix */
+.theme-doc-toc-desktop .table-of-contents {
+  overflow-y: auto !important;
+  max-height: calc(100vh - var(--ifm-navbar-height) - 2rem) !important;
+  position: sticky !important;
+  top: calc(var(--ifm-navbar-height) + 1rem) !important;
 }
