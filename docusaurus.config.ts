@@ -43,7 +43,6 @@ const config: Config = {
   clientModules: [
     require.resolve('./src/clientModules/mermaidInit.js'),
     require.resolve('./src/clientModules/animeInitializer.js'),
-    require.resolve('./src/js/mermaid-enhancements.js'),
   ],
 
   // Add script for emergency sidebar fix - prioritized with cache busting
