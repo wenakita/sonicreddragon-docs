@@ -1,13 +1,20 @@
+/**
+ * Simplified sidebar component that lets our custom JS handle positioning
+ */
 import React from 'react';
-import { useDocsSidebar } from '@docusaurus/theme-common/internal';
+import DocSidebar from '@theme/DocSidebar';
+import {useLocation} from '@docusaurus/router';
 
-// Import the original sidebar to reuse its content
-import OriginalSidebar from '@theme-original/DocPage/Layout/Sidebar';
+export default function DocPageLayoutSidebar({sidebar, className}) {
+  const {pathname} = useLocation();
 
-// Simple wrapper component that lets the global CSS/JS handle positioning
-export default function Sidebar(props) {
-  const sidebar = useDocsSidebar();
-  
-  // Just render the original sidebar - positioning handled by CSS/JS
-  return sidebar ? <OriginalSidebar {...props} /> : null;
+  return (
+    <aside className={className}>
+      <DocSidebar 
+        sidebar={sidebar}
+        path={pathname}
+        className="docs-doc-sidebar"
+      />
+    </aside>
+  );
 } 
