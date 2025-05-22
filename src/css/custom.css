@@ -1102,6 +1102,45 @@ article {
   }
 }
 
+/* Fix for right sidebar and table of contents */
+.table-of-contents {
+  position: relative;
+  overflow-y: auto;
+}
+
+/* Fix for vertical text in right sidebar */
+.table-of-contents__link span,
+.toc-highlight {
+  display: inline-block !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  vertical-align: baseline !important;
+  text-orientation: initial !important;
+  writing-mode: horizontal-tb !important;
+}
+
+/* Ensure proper display for right sidebar headings and content */
+.theme-doc-toc-desktop .toc-title,
+.theme-doc-toc-desktop .table-of-contents,
+.theme-doc-toc-desktop .table-of-contents__link,
+.theme-doc-toc-desktop .table-of-contents__link code {
+  writing-mode: horizontal-tb !important;
+  text-orientation: initial !important;
+  letter-spacing: normal !important;
+  font-size: inherit !important;
+  line-height: 1.5 !important;
+}
+
+/* Fix any nested items in right sidebar */
+.table-of-contents ul,
+.table-of-contents li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  white-space: normal !important;
+  display: block !important;
+}
+
 /* Ensure backdrop covers all content */
 .navbar-sidebar__backdrop {
   z-index: 9999 !important; /* Just below sidebar but above everything else */
@@ -1113,7 +1152,7 @@ article {
   bottom: 0 !important;
 }
 
-/* Fix docusaurus specific issues */
+/* Fix Docusaurus specific issues */
 :root {
   --ifm-navbar-sidebar-width: 280px !important; /* Reduced width for desktop */
   --doc-sidebar-width: 280px !important; /* Reduced width for desktop */
@@ -1394,4 +1433,61 @@ body {
     padding-left: 1rem;
     padding-right: 1rem;
   }
+}
+
+/* Fix for any elements with vertical text in right sidebar and TOC */
+.markdown h1, 
+.markdown h2, 
+.markdown h3, 
+.markdown h4, 
+.markdown h5, 
+.markdown h6,
+.markdown p,
+.markdown ul,
+.markdown ol,
+.markdown li,
+.markdown a,
+.markdown span,
+.markdown div,
+.theme-doc-toc-desktop,
+.theme-doc-sidebar-item-category-level-1,
+.theme-doc-sidebar-item-link-level-1,
+.theme-doc-sidebar-item-link-level-2,
+.theme-doc-sidebar-item-category-level-2,
+.menu__link,
+.menu__list-item-collapsible,
+aside {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  vertical-align: baseline !important;
+  white-space: normal !important;
+}
+
+/* Fix for overview section displaying vertically */
+.overview,
+.Key,
+.Features,
+.overview *,
+.theme-doc-toc-mobile button,
+.theme-doc-toc-mobile span,
+.menu__caret::before,
+.menu__link--active,
+.navbar__items,
+.navbar__link,
+.navbar__item,
+.breadcrumbs__item {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  text-align: left !important;
+  letter-spacing: normal !important;
+  white-space: normal !important;
+}
+
+/* Force fix for content inside TOC */
+aside[class^="theme-doc-toc-"] *,
+aside[class*=" theme-doc-toc-"] * {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  white-space: normal !important;
+  display: block !important;
 }
