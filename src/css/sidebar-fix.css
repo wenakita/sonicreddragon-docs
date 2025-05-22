@@ -1,10 +1,148 @@
-/* CRITICAL SIDEBAR FIX - Force proper layout and prevent overlapping */
+/* EMERGENCY SIDEBAR FIX - OVERRIDE ALL DOCUSAURUS STYLES */
 
-/* Force horizontal text rendering - fix for vertical text issue */
+/* Critical Sidebar and Content Layout Fix */
+:root {
+  --sidebar-width: 250px !important;
+}
+
+/* Force text direction */
 * {
   writing-mode: horizontal-tb !important;
   text-orientation: mixed !important;
   direction: ltr !important;
+}
+
+/* DISABLE FLEXBOX LAYOUT - Use fixed positioning instead */
+.main-wrapper {
+  display: block !important;
+  width: 100% !important;
+  position: relative !important;
+  min-height: 100vh !important;
+}
+
+/* Set navbar to stay on top */
+.navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 500 !important;
+}
+
+/* CRITICAL: Position sidebar with fixed width */
+.theme-doc-sidebar-container,
+[class*="docSidebarContainer"] {
+  position: fixed !important;
+  top: var(--ifm-navbar-height, 60px) !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  width: var(--sidebar-width) !important;
+  min-width: var(--sidebar-width) !important;
+  max-width: var(--sidebar-width) !important;
+  background-color: var(--ifm-background-surface-color) !important;
+  border-right: 1px solid var(--ifm-toc-border-color) !important;
+  overflow-y: auto !important;
+  z-index: 400 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  transition: transform 0.3s ease !important;
+  transform: translateX(0) !important;
+}
+
+/* Position main content with margin left */
+.docPage_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-styles-module,
+.docPage_src-theme-DocPage-Layout-styles-module,
+.docPage_WvG3,
+[class*="docPage"],
+.docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
+.docMainContainer_src-theme-DocPage-Layout-Main-styles-module,
+.docMainContainer_gTbr,
+.docMainContainer_N2Fh,
+[class*="docMainContainer"] {
+  margin-left: var(--sidebar-width) !important;
+  width: calc(100% - var(--sidebar-width)) !important;
+  max-width: calc(100% - var(--sidebar-width)) !important;
+  padding-top: var(--ifm-navbar-height, 60px) !important;
+  position: relative !important;
+  display: block !important;
+  overflow-x: hidden !important;
+}
+
+/* Fix content containers */
+.container {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure rows don't mess up layout */
+.row {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+/* Columns layout */
+.col {
+  display: block !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+/* Mobile styles */
+@media (max-width: 996px) {
+  /* Hide sidebar by default on mobile */
+  .theme-doc-sidebar-container,
+  [class*="docSidebarContainer"] {
+    transform: translateX(-100%) !important;
+    width: 85% !important;
+    max-width: 300px !important;
+    z-index: 999 !important;
+  }
+  
+  /* Show sidebar when toggled */
+  .theme-doc-sidebar-container.menu--show,
+  [class*="docSidebarContainer"].menu--show {
+    transform: translateX(0) !important;
+  }
+  
+  /* Reset content position on mobile */
+  .docPage_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-styles-module,
+  .docPage_src-theme-DocPage-Layout-styles-module,
+  .docPage_WvG3,
+  [class*="docPage"],
+  .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
+  .docMainContainer_src-theme-DocPage-Layout-Main-styles-module,
+  .docMainContainer_gTbr,
+  .docMainContainer_N2Fh,
+  [class*="docMainContainer"] {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* Overlay for mobile sidebar */
+  .overlay-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    z-index: 990 !important;
+    display: none !important;
+  }
+  
+  .menu--show + .overlay-container,
+  .overlay-container.visible {
+    display: block !important;
+  }
 }
 
 /* Target specific sidebar components */
@@ -110,49 +248,6 @@ aside,
   max-width: none !important;
   overflow-x: hidden !important;
   padding: 0 1.5rem !important;
-}
-
-/* Mobile fixes */
-@media (max-width: 996px) {
-  /* Mobile sidebar positioning */
-  .theme-doc-sidebar-container {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    bottom: 0 !important;
-    transform: translateX(-100%) !important;
-    transition: transform 0.3s ease !important;
-    z-index: 9999 !important;
-    width: 85% !important; /* Take most of screen width on mobile */
-    max-width: 320px !important; /* But cap at reasonable size */
-    height: 100% !important;
-  }
-  
-  /* When sidebar is shown */
-  .theme-doc-sidebar-container.menu--show {
-    transform: translateX(0) !important;
-  }
-  
-  /* Make sure content takes full width */
-  .docMainContainer,
-  .docPage,
-  .docItemContainer {
-    max-width: 100% !important;
-    width: 100% !important;
-    margin: 0 !important;
-    overflow-x: hidden !important;
-  }
-  
-  /* Overlay backdrop when sidebar is open */
-  .overlay-container {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    background-color: rgba(0, 0, 0, 0.5) !important;
-    z-index: 9000 !important;
-  }
 }
 
 /* Medium screens (tablets) */
