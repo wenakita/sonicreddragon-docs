@@ -1,291 +1,71 @@
-/* EMERGENCY SIDEBAR FIX - OVERRIDE ALL DOCUSAURUS STYLES */
+/* Minimal sidebar CSS - positioning handled by JS */
 
-/* Critical Sidebar and Content Layout Fix */
+/* Base styling only - no positioning */
 :root {
-  --sidebar-width: 250px !important;
+  --sidebar-width: 250px;
   --ifm-navbar-height: 60px;
 }
 
-/* Force text direction */
-* {
-  writing-mode: horizontal-tb !important;
-  text-orientation: mixed !important;
-  direction: ltr !important;
+/* Overlay for mobile sidebar */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 199;
+  display: none;
 }
 
-/* DISABLE FLEXBOX LAYOUT - Use fixed positioning instead */
-.main-wrapper {
-  display: block !important;
-  width: 100% !important;
-  position: relative !important;
-  min-height: 100vh !important;
+/* Mobile sidebar state class */
+body.sidebar-shown {
+  overflow: hidden;
 }
 
-/* Set navbar to stay on top */
-.navbar {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 500 !important;
+/* Theme-specific styling for sidebar content */
+.theme-doc-sidebar-menu {
+  padding: 0.5rem;
 }
 
-/* CRITICAL: Position sidebar with fixed width */
-.theme-doc-sidebar-container,
-[class*="docSidebarContainer"] {
-  position: fixed !important;
-  top: var(--ifm-navbar-height) !important;
-  left: 0 !important;
-  bottom: 0 !important;
-  width: var(--sidebar-width) !important;
-  max-width: var(--sidebar-width) !important;
-  min-width: var(--sidebar-width) !important;
-  z-index: 200 !important;
-  background: var(--ifm-background-surface-color) !important;
-  border-right: 1px solid var(--ifm-toc-border-color) !important;
-  overflow-y: auto !important;
-  height: calc(100vh - var(--ifm-navbar-height)) !important;
-  transition: transform 0.3s ease !important;
-  transform: translateX(0) !important;
+.menu__link {
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.2s ease;
 }
 
-/* Position main content with margin left */
-.docPage_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-styles-module,
-.docPage_src-theme-DocPage-Layout-styles-module,
-.docPage_WvG3,
-[class*="docPage"],
-.docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
-.docMainContainer_src-theme-DocPage-Layout-Main-styles-module,
-.docMainContainer_gTbr,
-.docMainContainer_N2Fh,
-[class*="docMainContainer"] {
-  margin-left: var(--sidebar-width) !important;
-  width: calc(100% - var(--sidebar-width)) !important;
-  max-width: calc(100% - var(--sidebar-width)) !important;
-  padding-top: 0 !important;
-  position: relative !important;
-  display: block !important;
-  overflow-x: hidden !important;
+.menu__link:hover {
+  background-color: var(--ifm-color-emphasis-100);
 }
 
-/* Fix content containers */
-.container {
-  width: 100% !important;
-  max-width: 100% !important;
-  padding-left: 2rem !important;
-  padding-right: 2rem !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  box-sizing: border-box !important;
+.menu__link--active {
+  font-weight: 600;
+  background-color: var(--ifm-color-emphasis-100);
+  border-left: 2px solid var(--ifm-color-primary);
 }
 
-/* Ensure rows don't mess up layout */
-.row {
-  display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
+/* Mobile toggle */
+.navbar__toggle {
+  display: none;
 }
 
-/* Columns layout */
-.col {
-  display: block !important;
-  max-width: 100% !important;
-  padding: 0 !important;
-}
-
-/* Mobile styles */
 @media (max-width: 996px) {
-  /* Hide sidebar by default on mobile */
-  .theme-doc-sidebar-container,
-  [class*="docSidebarContainer"] {
-    transform: translateX(-100%) !important;
-    width: 85% !important;
-    max-width: 300px !important;
-    z-index: 999 !important;
+  .navbar__toggle {
+    display: block;
+  }
+}
+
+/* Print styles */
+@media print {
+  .theme-doc-sidebar-container {
+    display: none !important;
   }
   
-  /* Show sidebar when toggled */
-  .theme-doc-sidebar-container.menu--show,
-  [class*="docSidebarContainer"].menu--show {
-    transform: translateX(0) !important;
-  }
-  
-  /* Reset content position on mobile */
-  .docPage_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-styles-module,
-  .docPage_src-theme-DocPage-Layout-styles-module,
-  .docPage_WvG3,
-  [class*="docPage"],
-  .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
-  .docMainContainer_src-theme-DocPage-Layout-Main-styles-module,
-  .docMainContainer_gTbr,
-  .docMainContainer_N2Fh,
   [class*="docMainContainer"] {
     margin-left: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
   }
-  
-  /* Overlay for mobile sidebar */
-  .overlay-container {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    background-color: rgba(0, 0, 0, 0.5) !important;
-    z-index: 990 !important;
-    display: none !important;
-  }
-  
-  .menu--show + .overlay-container,
-  .overlay-container.visible {
-    display: block !important;
-  }
-}
-
-/* Target specific sidebar components */
-.theme-doc-sidebar-menu,
-.menu__list,
-.menu__link,
-.menu__list-item,
-.menu__list-item-collapsible,
-nav,
-aside,
-.table-of-contents,
-.table-of-contents__link,
-.table-of-contents__link span,
-.toc-highlight,
-.theme-doc-toc-desktop,
-.theme-doc-toc-mobile,
-.theme-doc-sidebar-container,
-.navbar-sidebar,
-.navbar-sidebar__items,
-[class*="sidebar"],
-[class*="menu"],
-[class*="toc"],
-.docSidebarContainer,
-[class*="tableOfContents"] {
-  display: block !important;
-  text-orientation: mixed !important;
-  writing-mode: horizontal-tb !important;
-  letter-spacing: normal !important;
-  text-align: left !important;
-  white-space: normal !important;
-  word-break: normal !important;
-  transform: none !important;
-  direction: ltr !important;
-  -webkit-transform: none !important;
-  -ms-transform: none !important;
-  font-size: inherit !important;
-  line-height: 1.5 !important;
-}
-
-/* Layout structure fixes */
-.navbar {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 200 !important;
-}
-
-.main-wrapper {
-  display: flex !important;
-  flex-direction: row !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-}
-
-/* Left sidebar - using percentage width */
-.theme-doc-sidebar-container {
-  width: 18% !important; /* Default - will be overridden by media queries */
-  max-width: 18% !important;
-  min-width: 18% !important;
-  margin-right: 0 !important;
-  position: sticky !important;
-  top: var(--ifm-navbar-height) !important;
-  height: calc(100vh - var(--ifm-navbar-height)) !important;
-  overflow-y: auto !important;
-  z-index: 100 !important;
-  flex: 0 0 auto !important;
-  background-color: var(--ifm-background-surface-color) !important;
-  border-right: 1px solid var(--ifm-toc-border-color) !important;
-}
-
-/* Main content container */
-.docMainContainer {
-  flex: 1 1 auto !important;
-  width: 0 !important; /* Force flexbox sizing */
-  min-width: 0 !important;
-  max-width: none !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  overflow-x: hidden !important;
-}
-
-/* Main content page wrapper */
-.docPage {
-  display: flex !important;
-  width: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-/* Right sidebar wrapper */
-.docSidebarContainer_src-theme-DocPage-Layout-Sidebar-styles-module,
-.docSidebarContainer {
-  display: block !important;
-  flex: 0 0 auto !important;
-  width: 18% !important; /* Match left sidebar */
-  margin: 0 !important;
-}
-
-/* Main document content area */
-.docItemContainer {
-  flex: 1 1 auto !important;
-  min-width: 0 !important; /* Required for proper flexbox behavior */
-  max-width: none !important;
-  overflow-x: hidden !important;
-  padding: 0 1.5rem !important;
-}
-
-/* Medium screens (tablets) */
-@media (min-width: 997px) and (max-width: 1200px) {
-  .theme-doc-sidebar-container,
-  .docSidebarContainer_src-theme-DocPage-Layout-Sidebar-styles-module,
-  .docSidebarContainer {
-    width: 22% !important;
-    max-width: 22% !important;
-    min-width: 22% !important;
-  }
-}
-
-/* Large screens */
-@media (min-width: 1201px) {
-  .theme-doc-sidebar-container,
-  .docSidebarContainer_src-theme-DocPage-Layout-Sidebar-styles-module,
-  .docSidebarContainer {
-    width: 18% !important;
-    max-width: 18% !important;
-    min-width: 18% !important;
-  }
-}
-
-/* Extra large screens */
-@media (min-width: 1600px) {
-  .theme-doc-sidebar-container,
-  .docSidebarContainer_src-theme-DocPage-Layout-Sidebar-styles-module,
-  .docSidebarContainer {
-    width: 15% !important;
-    max-width: 15% !important;
-    min-width: 15% !important;
-  }
-}
-
-/* Right sidebar TOC fix */
-.theme-doc-toc-desktop .table-of-contents {
-  overflow-y: auto !important;
-  max-height: calc(100vh - var(--ifm-navbar-height) - 2rem) !important;
-  position: sticky !important;
-  top: calc(var(--ifm-navbar-height) + 1rem) !important;
 }

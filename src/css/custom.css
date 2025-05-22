@@ -10,6 +10,26 @@
 /* Import sidebar fix */
 @import url('./sidebar-fix.css');
 
+/* Critical sidebar fix - fallback if JS doesn't load immediately */
+@media (min-width: 997px) {
+  .theme-doc-sidebar-container {
+    position: fixed;
+    top: var(--ifm-navbar-height);
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    height: calc(100vh - var(--ifm-navbar-height));
+    overflow-y: auto;
+    z-index: 200;
+  }
+  
+  [class*="docMainContainer"] {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    max-width: calc(100% - 250px);
+  }
+}
+
 /* Modern color scheme - Light mode */
 :root {
   --ifm-color-primary: #4a80d1;

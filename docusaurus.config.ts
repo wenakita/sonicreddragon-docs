@@ -48,7 +48,7 @@ const config: Config = {
   // Add script for optimized sidebar fix - prioritized with cache busting
   scripts: [
     {
-      src: '/js/sidebar-fix.js?v=2.0.0',
+      src: '/js/fix-sidebar.js?v=3.0.0',
       async: false,
       defer: false,
       strategy: 'beforeInteractive',
