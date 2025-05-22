@@ -1,0 +1,154 @@
+/* EMERGENCY SIDEBAR FIX - Force horizontal text */
+
+/* Target all possible elements that could have vertical text */
+* {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+}
+
+/* Target specific sidebar components */
+.theme-doc-sidebar-menu,
+.menu__list,
+.menu__link,
+.menu__list-item,
+.menu__list-item-collapsible,
+nav,
+aside,
+.table-of-contents,
+.table-of-contents__link,
+.table-of-contents__link span,
+.toc-highlight,
+.theme-doc-toc-desktop,
+.theme-doc-toc-mobile,
+.theme-doc-sidebar-container,
+.navbar-sidebar,
+.navbar-sidebar__items,
+[class*="sidebar"],
+[class*="menu"],
+[class*="toc"],
+.docSidebarContainer,
+[class*="tableOfContents"] {
+  display: block !important;
+  text-orientation: mixed !important;
+  writing-mode: horizontal-tb !important;
+  letter-spacing: normal !important;
+  text-align: left !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  transform: none !important;
+  direction: ltr !important;
+  -webkit-transform: none !important;
+  -ms-transform: none !important;
+  font-size: inherit !important;
+  line-height: 1.5 !important;
+}
+
+/* Force all headings and content in TOC to be horizontal */
+h1, h2, h3, h4, h5, h6, p, span, a, div, li, ul, ol {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+}
+
+/* Force horizontal display for all elements in the page */
+html body main article *,
+html body main aside *,
+html body main nav *,
+html body main div *,
+html body main span *,
+html body main ul *,
+html body main li * {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+}
+
+/* Force all characters to be horizontal, not vertical */
+span, a, p, li, div {
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  text-orientation: mixed !important;
+  writing-mode: horizontal-tb !important;
+}
+
+/* Target the actual element that seems to be causing the issue */
+.theme-doc-toc-desktop .table-of-contents {
+  overflow-y: auto !important;
+  padding: 0.5rem !important;
+  text-align: left !important;
+}
+
+/* Force main area width to prevent sidebar issues */
+.main-wrapper {
+  max-width: 100% !important;
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+/* Ensure sidebar is properly contained */
+.theme-doc-sidebar-container {
+  overflow-y: auto !important;
+  max-width: 300px !important;
+  width: var(--doc-sidebar-width) !important;
+}
+
+/* Emergency fix for any element with vertical text */
+[style*="writing-mode"],
+[style*="text-orientation"] {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+  letter-spacing: normal !important;
+}
+
+/* Corrects specific right sidebar elements */
+.theme-doc-toc-desktop,
+.table-of-contents__title,
+.Key,
+.Features,
+.Usage,
+.Examples,
+.API,
+.Reference,
+.Overview {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  letter-spacing: normal !important;
+  display: block !important;
+  word-break: normal !important;
+  white-space: normal !important;
+  text-align: left !important;
+}
+
+/* Fix for buttons in headings */
+button, 
+input, 
+optgroup, 
+select, 
+textarea {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+/* Specific docusaurus class fixes */
+[class*="docTitle"],
+[class*="tableOfContents"],
+[class*="tocTitle"],
+[class*="tocItem"],
+[class*="docItemContainer"],
+[class*="docSidebarContainer"],
+[class*="docMainContainer"] {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  text-align: left !important;
+}
+
+/* Last-resort !important selector */
+body .table-of-contents__left-border,
+body .theme-doc-toc-desktop,
+body aside {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  transform: none !important;
+}

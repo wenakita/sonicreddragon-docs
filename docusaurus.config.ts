@@ -47,6 +47,14 @@ const config: Config = {
     require.resolve('./src/js/mermaid-enhancements.js'),
   ],
 
+  // Add script for emergency sidebar fix
+  scripts: [
+    {
+      src: '/js/fix-sidebar.js',
+      async: true,
+    },
+  ],
+
   presets: [
     [
       'classic',
@@ -65,7 +73,10 @@ const config: Config = {
         },
         blog: false,
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: [
+            './src/css/custom.css',
+            './src/css/sidebar-fix.css'
+          ],
         },
       } satisfies Preset.Options,
     ],
