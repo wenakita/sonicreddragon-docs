@@ -34,34 +34,39 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
-        
-      - name: Create/update docusaurus.config.ts
+      
+      - name: Update docusaurus.config.ts
         run: |
-          echo "Ensuring the script is properly included in docusaurus.config.ts..."
+          echo "Updating script configuration in docusaurus.config.ts..."
+          # Use node to update the config file - avoids sed/awk issues
+          cat > update-config.js << 'EOL'
+          const fs = require("fs");
+          const path = require("path");
+          const configPath = path.join(process.cwd(), "docusaurus.config.ts");
+          let content = fs.readFileSync(configPath, "utf8");
           
-          # Create a safer client-only script entry for docusaurus.config.ts
-          cat > temp_script_config.txt << 'EOL'
-          scripts: [
-            {
-              src: '/js/fix-sidebar.js',
-              async: true,
-              defer: true,
-              'data-ssr': 'exclude'  // This tells Docusaurus to exclude this script during SSR
-            }
-          ],
+          // Replace the scripts section with a safe version
+          const scriptsSectionRegex = /scripts:\s*\[[\s\S]*?\],/;
+          const newScriptsSection = `scripts: [
+    {
+      src: "/js/fix-sidebar.js?v=5.0.0",
+      async: true,
+      defer: true,
+      "data-ssr": "exclude",
+    },
+  ],`;
+          
+          content = content.replace(scriptsSectionRegex, newScriptsSection);
+          fs.writeFileSync(configPath, content);
+          console.log("✓ Updated docusaurus.config.ts successfully");
           EOL
           
-          # Use sed to replace the scripts section in docusaurus.config.ts
-          sed -i '/scripts:/,/],/c\'"$(cat temp_script_config.txt)" docusaurus.config.ts
-          rm temp_script_config.txt
-          
-          echo "✓ Updated docusaurus.config.ts with SSR-safe script inclusion"
-        
-      - name: Add critical CSS fix to custom.css
+          # Run the script
+          node update-config.js
+
+      - name: Add critical CSS to custom.css
         run: |
-          echo "Adding critical sidebar CSS fixes directly to custom.css..."
-          
-          # Add CSS directly to custom.css
+          echo "Adding critical CSS fixes to custom.css..."
           cat >> src/css/custom.css << 'EOL'
           
           /* Critical sidebar positioning - HIGHEST PRIORITY */
@@ -142,140 +147,33 @@ jobs:
             }
           }
           EOL
-          
-          echo "✓ Critical CSS added to custom.css"
-          
-      - name: Create safe browser-only sidebar interaction component
+
+      - name: Create SSR-safe sidebar script
         run: |
-          echo "Creating browser-only sidebar interaction component..."
-          
-          # Create directory structure if it doesn't exist
-          mkdir -p src/components
-          
-          # Create a safe browser-only component for sidebar interaction
-          cat > src/components/SidebarHandler.js << 'EOL'
-          /**
-           * Sidebar handler component - browser only to avoid SSR issues
-           */
-          import React, { useEffect } from 'react';
-          import BrowserOnly from '@docusaurus/BrowserOnly';
-          
-          // The actual implementation, only used in browser
-          function SidebarInteractions() {
-            useEffect(() => {
-              // Setup sidebar interactions
-              function setupSidebar() {
-                // Create overlay for mobile sidebar
-                let overlay = document.querySelector('.sidebar-overlay');
-                if (!overlay) {
-                  overlay = document.createElement('div');
-                  overlay.className = 'sidebar-overlay';
-                  document.body.appendChild(overlay);
-                  
-                  // Close sidebar when clicking overlay
-                  overlay.addEventListener('click', function() {
-                    document.body.classList.remove('sidebar-shown');
-                  });
-                }
-                
-                // Setup toggle buttons for mobile
-                const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
-                toggleButtons.forEach(btn => {
-                  btn.addEventListener('click', function() {
-                    document.body.classList.toggle('sidebar-shown');
-                  });
-                });
-                
-                // Add keyboard support
-                document.addEventListener('keydown', function(e) {
-                  if (e.key === 'Escape' && document.body.classList.contains('sidebar-shown')) {
-                    document.body.classList.remove('sidebar-shown');
-                  }
-                });
-              }
-              
-              // Run setup
-              setupSidebar();
-              
-              // Cleanup function
-              return () => {
-                // Remove event listeners if needed
-                const overlay = document.querySelector('.sidebar-overlay');
-                if (overlay) {
-                  overlay.removeEventListener('click', function() {
-                    document.body.classList.remove('sidebar-shown');
-                  });
-                }
-                
-                document.removeEventListener('keydown', function(e) {
-                  if (e.key === 'Escape' && document.body.classList.contains('sidebar-shown')) {
-                    document.body.classList.remove('sidebar-shown');
-                  }
-                });
-              };
-            }, []);
-            
-            // Return empty fragment - this component only adds behavior, not UI
-            return null;
-          }
-          
-          // Wrapper with BrowserOnly to prevent SSR issues
-          export default function SidebarHandler() {
-            return (
-              <BrowserOnly>
-                {() => <SidebarInteractions />}
-              </BrowserOnly>
-            );
-          }
-          EOL
-          
-          echo "✓ SidebarHandler component created"
-          
-      - name: Create Root component to inject SidebarHandler
-        run: |
-          echo "Creating Root component to inject SidebarHandler..."
-          
-          # Create Root component to inject our handler
-          mkdir -p src/theme
-          cat > src/theme/Root.js << 'EOL'
-          /**
-           * Root component that injects our SidebarHandler
-           */
-          import React from 'react';
-          import SidebarHandler from '../components/SidebarHandler';
-          
-          // Root component wraps the entire app
-          export default function Root({children}) {
-            return (
-              <>
-                {children}
-                <SidebarHandler />
-              </>
-            );
-          }
-          EOL
-          
-          echo "✓ Root component created"
-          
-      - name: Create simple external script for sidebar handling
-        run: |
-          echo "Creating external script for sidebar handling..."
-          
-          # Create a simple script as a backup approach
+          echo "Creating SSR-safe sidebar script..."
           mkdir -p static/js
           cat > static/js/fix-sidebar.js << 'EOL'
           // Safe sidebar fix script - executes only in browser
-          // Version with timestamp: 2023-11-01-003
+          // Version with timestamp: 2023-11-01-004
+          
+          // IMPORTANT: SSR safety check - run only in browser environment
+          // This prevents "document is not defined" errors during build
           (function() {
-            // SSR safety check - CRITICAL: This prevents SSR errors
+            // Skip execution during SSR
             if (typeof window === 'undefined' || typeof document === 'undefined') {
               return;
             }
             
-            // Run after a small delay to ensure DOM is ready and SSR is complete
-            setTimeout(function() {
+            // Delay execution until after page load
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', initSidebar);
+            } else {
+              setTimeout(initSidebar, 10);
+            }
+            
+            function initSidebar() {
               try {
-                // Setup toggle buttons for mobile sidebar
+                // Setup mobile toggle buttons
                 const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
                 toggleButtons.forEach(btn => {
                   btn.addEventListener('click', function() {
@@ -283,7 +181,7 @@ jobs:
                   });
                 });
                 
-                // Create and handle overlay
+                // Create overlay for mobile
                 let overlay = document.querySelector('.sidebar-overlay');
                 if (!overlay) {
                   overlay = document.createElement('div');
@@ -297,24 +195,31 @@ jobs:
               } catch (error) {
                 console.error('[Sidebar Fix] Error:', error);
               }
-            }, 10);
+            }
           })();
           
-          // Cache-busting timestamp: BUILD_TIMESTAMP
+          // Cache-busting timestamp
+          // TIMESTAMP_PLACEHOLDER
           EOL
           
-          # Replace placeholder with actual timestamp
+          # Add actual timestamp for cache busting
           TIMESTAMP=$(date +%s)
-          sed -i "s/BUILD_TIMESTAMP/$TIMESTAMP/" static/js/fix-sidebar.js
-          
-          echo "✓ External script created with proper SSR safeguards"
+          sed -i "s|// TIMESTAMP_PLACEHOLDER|// Build timestamp: ${TIMESTAMP}|" static/js/fix-sidebar.js
+
+      - name: Clean up unused files
+        run: |
+          echo "Removing unused files and folders..."
+          # Remove deleted files if they exist (won't fail if they don't)
+          rm -f src/clientModules/sidebarEnhancer.js || true
+          rm -f src/css/global-sidebar-fix.css || true
+          rm -f src/clientModules/sidebarFixer.js || true
 
       - name: Build website
         env:
           NODE_OPTIONS: --max-old-space-size=8192
         run: npm run build
 
-      - name: Deploy to GitHub Pages with detailed output
+      - name: Deploy to GitHub Pages
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -324,20 +229,6 @@ jobs:
           clean-exclude: |
             .nojekyll
             CNAME
-          single-commit: false
           commit-message: "Deploy website - ${GITHUB_SHA}"
           git-config-name: GitHub Actions
           git-config-email: actions@github.com
-          
-      - name: Purge GitHub Pages cache
-        if: github.event_name != 'pull_request'
-        run: |
-          echo "Attempting to purge GitHub Pages cache..."
-          
-          # Add timestamp to force cache refresh
-          TIMESTAMP=$(date +%s)
-          echo "// Timestamp: ${TIMESTAMP}" >> build/js/fix-sidebar.js
-          
-          # Print information about the deployment
-          echo "✓ Deployed to GitHub Pages with cache-busting timestamp"
-          echo "Please allow a few minutes for the changes to propagate through GitHub's CDN"
