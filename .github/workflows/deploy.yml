@@ -35,102 +35,162 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
         
-      - name: Create sidebar fix script reference in docusaurus.config.ts
+      - name: Create direct sidebar fix with custom head file
         run: |
-          echo "Adding sidebar fix script to docusaurus.config.ts..."
+          echo "Creating custom head file for sidebar fix..."
           
-          # Create an inline script that will be injected into the head
-          cat > static/js/inline-sidebar-fix.js << 'EOL'
-          // Sidebar fix directly loaded in head
-          // This ensures it runs before any other scripts or styles
-          (function() {
-            // Create style element with our fixes
-            const style = document.createElement('style');
-            style.id = 'direct-sidebar-fix';
-            style.textContent = `
-              /* Desktop sidebar positioning - enforced with !important */
-              @media (min-width: 997px) {
-                .theme-doc-sidebar-container {
-                  position: fixed !important;
-                  top: var(--ifm-navbar-height) !important;
-                  left: 0 !important;
-                  bottom: 0 !important;
-                  width: 250px !important;
-                  height: calc(100vh - var(--ifm-navbar-height)) !important;
-                  overflow-y: auto !important;
-                  z-index: 200 !important;
-                  border-right: 1px solid var(--ifm-toc-border-color) !important;
-                }
+          # Create directory if it doesn't exist
+          mkdir -p src/theme
+          
+          # Create custom head component
+          cat > src/theme/Head.js << 'EOL'
+          /**
+           * Custom Head component with sidebar fix
+           */
+          import React from 'react';
+          import Head from '@docusaurus/Head';
+
+          export default function CustomHead(props) {
+            return (
+              <>
+                <Head {...props} />
+                {/* Critical sidebar fix CSS - highest priority */}
+                <style>
+                  {`
+                  /* Desktop sidebar positioning - enforced with !important */
+                  @media (min-width: 997px) {
+                    .theme-doc-sidebar-container {
+                      position: fixed !important;
+                      top: var(--ifm-navbar-height) !important;
+                      left: 0 !important;
+                      bottom: 0 !important;
+                      width: 250px !important;
+                      height: calc(100vh - var(--ifm-navbar-height)) !important;
+                      overflow-y: auto !important;
+                      z-index: 200 !important;
+                      border-right: 1px solid var(--ifm-toc-border-color) !important;
+                    }
+                    
+                    [class*="docMainContainer"] {
+                      margin-left: 250px !important;
+                      width: calc(100% - 250px) !important;
+                      max-width: calc(100% - 250px) !important;
+                    }
                 
-                [class*="docMainContainer"] {
-                  margin-left: 250px !important;
-                  width: calc(100% - 250px) !important;
-                  max-width: calc(100% - 250px) !important;
-                }
-            
-                /* Fix any nested container elements */
-                [class*="docMainContainer"] .container,
-                [class*="docMainContainer"] .row,
-                [class*="docMainContainer"] [class*="docItemCol"] {
-                  width: 100% !important;
-                  max-width: 100% !important;
-                  margin-left: 0 !important;
-                }
-              }
-            
-              /* Mobile sidebar positioning */
-              @media (max-width: 996px) {
-                .theme-doc-sidebar-container {
-                  position: fixed !important;
-                  top: 0 !important;
-                  left: 0 !important;
-                  bottom: 0 !important;
-                  width: 85% !important;
-                  max-width: 300px !important;
-                  height: 100% !important;
-                  z-index: 10000 !important;
-                  transform: translateX(-100%) !important;
-                  transition: transform 0.3s ease !important;
-                  background-color: var(--ifm-background-surface-color) !important;
-                  border-right: 1px solid var(--ifm-toc-border-color) !important;
-                  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
-                }
-            
-                body.sidebar-shown .theme-doc-sidebar-container {
-                  transform: translateX(0) !important;
-                }
-            
-                [class*="docMainContainer"] {
-                  margin-left: 0 !important;
-                  width: 100% !important;
-                  max-width: 100% !important;
-                }
-            
-                .sidebar-overlay {
-                  display: none;
-                  position: fixed;
-                  top: 0;
-                  left: 0;
-                  right: 0;
-                  bottom: 0;
-                  background-color: rgba(0, 0, 0, 0.7);
-                  z-index: 9999;
-                }
-            
-                body.sidebar-shown .sidebar-overlay {
-                  display: block;
-                }
-            
-                body.sidebar-shown {
-                  overflow: hidden;
-                }
-              }
-            `;
-            
-            // Insert at the beginning of head for highest priority
-            document.head.insertBefore(style, document.head.firstChild);
-            
-            // Setup function to be called when DOM is ready
+                    /* Fix any nested container elements */
+                    [class*="docMainContainer"] .container,
+                    [class*="docMainContainer"] .row,
+                    [class*="docMainContainer"] [class*="docItemCol"] {
+                      width: 100% !important;
+                      max-width: 100% !important;
+                      margin-left: 0 !important;
+                    }
+                  }
+                
+                  /* Mobile sidebar positioning */
+                  @media (max-width: 996px) {
+                    .theme-doc-sidebar-container {
+                      position: fixed !important;
+                      top: 0 !important;
+                      left: 0 !important;
+                      bottom: 0 !important;
+                      width: 85% !important;
+                      max-width: 300px !important;
+                      height: 100% !important;
+                      z-index: 10000 !important;
+                      transform: translateX(-100%) !important;
+                      transition: transform 0.3s ease !important;
+                      background-color: var(--ifm-background-surface-color) !important;
+                      border-right: 1px solid var(--ifm-toc-border-color) !important;
+                      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
+                    }
+                
+                    body.sidebar-shown .theme-doc-sidebar-container {
+                      transform: translateX(0) !important;
+                    }
+                
+                    [class*="docMainContainer"] {
+                      margin-left: 0 !important;
+                      width: 100% !important;
+                      max-width: 100% !important;
+                    }
+                
+                    .sidebar-overlay {
+                      display: none;
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      bottom: 0;
+                      background-color: rgba(0, 0, 0, 0.7);
+                      z-index: 9999;
+                    }
+                
+                    body.sidebar-shown .sidebar-overlay {
+                      display: block;
+                    }
+                
+                    body.sidebar-shown {
+                      overflow: hidden;
+                    }
+                  }
+                  `}
+                </style>
+                {/* Dynamic JS for handling sidebar toggle */}
+                <script>
+                  {`
+                  (function() {
+                    function setupSidebar() {
+                      // Create overlay for mobile sidebar
+                      let overlay = document.querySelector('.sidebar-overlay');
+                      if (!overlay) {
+                        overlay = document.createElement('div');
+                        overlay.className = 'sidebar-overlay';
+                        document.body.appendChild(overlay);
+                        
+                        // Close sidebar when clicking overlay
+                        overlay.addEventListener('click', function() {
+                          document.body.classList.remove('sidebar-shown');
+                        });
+                      }
+                      
+                      // Setup toggle buttons for mobile
+                      const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
+                      toggleButtons.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                          document.body.classList.toggle('sidebar-shown');
+                        });
+                      });
+                      
+                      // Add keyboard support
+                      document.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape' && document.body.classList.contains('sidebar-shown')) {
+                          document.body.classList.remove('sidebar-shown');
+                        }
+                      });
+                    }
+                    
+                    // Run setup when DOM is ready
+                    if (document.readyState === 'loading') {
+                      document.addEventListener('DOMContentLoaded', setupSidebar);
+                    } else {
+                      setupSidebar();
+                    }
+                  })();
+                  `}
+                </script>
+              </>
+            );
+          }
+          EOL
+          
+          echo "✓ Custom Head component created with sidebar fix"
+          
+          # Also create a fix-sidebar.js script as backup
+          mkdir -p static/js
+          cat > static/js/fix-sidebar.js << 'EOL'
+          // Sidebar fix - backup approach
+          (function() {
             function setupSidebar() {
               // Create overlay for mobile sidebar
               let overlay = document.querySelector('.sidebar-overlay');
@@ -152,16 +212,9 @@ jobs:
                   document.body.classList.toggle('sidebar-shown');
                 });
               });
-              
-              // Add keyboard support
-              document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && document.body.classList.contains('sidebar-shown')) {
-                  document.body.classList.remove('sidebar-shown');
-                }
-              });
             }
             
-            // Run as soon as possible, and again when DOM is ready
+            // Run setup when DOM is ready
             if (document.readyState === 'loading') {
               document.addEventListener('DOMContentLoaded', setupSidebar);
             } else {
@@ -170,10 +223,8 @@ jobs:
           })();
           EOL
           
-          # Modify docusaurus.config.ts to include both the external and inline scripts
-          sed -i "s|scripts: \[|scripts: [\n    {\n      src: '/js/inline-sidebar-fix.js',\n      async: false,\n      defer: false,\n      strategy: 'beforeInteractive',\n    },\n    {\n      content: \`// Inject sidebar fix inline\n      (function() {\n        const style = document.createElement('style');\n        style.id = 'early-sidebar-fix';\n        style.textContent = '.theme-doc-sidebar-container{position:fixed!important;top:var(--ifm-navbar-height)!important;left:0!important;bottom:0!important;width:250px!important;height:calc(100vh - var(--ifm-navbar-height))!important;overflow-y:auto!important;z-index:200!important;}[class*=\"docMainContainer\"]{margin-left:250px!important;width:calc(100% - 250px)!important;max-width:calc(100% - 250px)!important;}@media(max-width:996px){.theme-doc-sidebar-container{transform:translateX(-100%)!important;}body.sidebar-shown .theme-doc-sidebar-container{transform:translateX(0)!important;}[class*=\"docMainContainer\"]{margin-left:0!important;width:100%!important;max-width:100%!important;}}';\n        document.head.insertBefore(style, document.head.firstChild);\n      })();\`,\n      async: false,\n      defer: false,\n    },|" docusaurus.config.ts
-          
-          echo "✓ Sidebar fix scripts added to docusaurus.config.ts"
+          # Update scripts in docusaurus.config.ts (using a safe regex pattern)
+          sed -i "s|scripts: \[\(.*\)\]|scripts: [\n    {\n      src: '/js/fix-sidebar.js',\n      async: false,\n      defer: false\n    }\1]|" docusaurus.config.ts
 
       - name: Build website
         env:
