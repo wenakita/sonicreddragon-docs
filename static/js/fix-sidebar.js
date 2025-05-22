@@ -1,198 +1,135 @@
-// Ultimate Sidebar Fix - v4.0.0
+// Safe sidebar fix script - executes only in browser
+// Version with timestamp: 2023-11-01-001
 (function() {
-  // Configuration
-  const config = {
-    sidebarWidth: '250px',
-    mobileBreakpoint: 996, // Match Docusaurus mobile breakpoint
-    sidebarSelector: '.theme-doc-sidebar-container',
-    mainContentSelector: '[class*="docMainContainer"]',
-    toggleButtonSelectors: '.navbar__toggle, .navbar-sidebar__close',
-    fixInterval: 100 // Shorter interval for more frequent checks
-  };
-
-  // Core fix function that applies all necessary layout adjustments
-  function applySidebarFix() {
-    const sidebar = document.querySelector(config.sidebarSelector);
-    const mainContent = document.querySelector(config.mainContentSelector);
-    const isMobile = window.innerWidth <= config.mobileBreakpoint;
+  // Make sure we're in a browser environment
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return;
+  }
+  
+  // Wait for DOM to be fully loaded
+  function handleSidebar() {
+    console.log('[Sidebar Fix] Initializing sidebar fix script...');
     
-    if (!sidebar || !mainContent) return; // Exit if elements not found
-    
-    // 1. Fix the sidebar positioning - with !important flags
-    Object.assign(sidebar.style, {
-      position: 'fixed !important',
-      top: 'var(--ifm-navbar-height) !important',
-      left: '0 !important',
-      bottom: '0 !important',
-      width: config.sidebarWidth + ' !important',
-      maxWidth: config.sidebarWidth + ' !important',
-      height: 'calc(100vh - var(--ifm-navbar-height)) !important',
-      zIndex: '200 !important',
-      overflowY: 'auto !important',
-      overflowX: 'hidden !important',
-      borderRight: '1px solid var(--ifm-toc-border-color) !important',
-      transform: isMobile ? 'translateX(-100%) !important' : 'none !important',
-      transition: 'transform 0.3s ease !important',
-      boxShadow: isMobile ? '2px 0 8px rgba(0,0,0,0.15) !important' : 'none !important'
+    // Setup toggle buttons for mobile sidebar
+    const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
+    toggleButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        console.log('[Sidebar Fix] Toggle button clicked');
+        document.body.classList.toggle('sidebar-shown');
+      });
     });
     
-    // Special mobile styling
-    if (isMobile) {
-      if (document.body.classList.contains('sidebar-shown')) {
-        sidebar.style.transform = 'translateX(0) !important';
-      }
-    }
-    
-    // 2. Fix the main content positioning - with !important flags
-    Object.assign(mainContent.style, {
-      marginLeft: isMobile ? '0 !important' : config.sidebarWidth + ' !important',
-      width: isMobile ? '100% !important' : `calc(100% - ${config.sidebarWidth}) !important`,
-      maxWidth: isMobile ? '100% !important' : `calc(100% - ${config.sidebarWidth}) !important`,
-      transition: 'margin-left 0.3s ease, width 0.3s ease, max-width 0.3s ease !important'
-    });
-    
-    // Also directly set CSS custom properties that Docusaurus might use
-    document.documentElement.style.setProperty('--doc-sidebar-width', config.sidebarWidth);
-    
-    // Force fix any nested container elements that might have their own margins/widths
-    const containerElements = mainContent.querySelectorAll('.container, .row, [class*="docItemCol"]');
-    containerElements.forEach(container => {
-      if (container) {
-        container.style.width = '100% !important';
-        container.style.maxWidth = '100% !important';
-        container.style.marginLeft = '0 !important';
-        container.style.paddingLeft = 'var(--ifm-spacing-horizontal) !important';
-      }
-    });
-    
-    // 3. Create/manage overlay for mobile
+    // Create and handle overlay
     let overlay = document.querySelector('.sidebar-overlay');
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.className = 'sidebar-overlay';
       document.body.appendChild(overlay);
       
-      // Close sidebar when clicking overlay
       overlay.addEventListener('click', function() {
+        console.log('[Sidebar Fix] Overlay clicked');
         document.body.classList.remove('sidebar-shown');
-        applySidebarFix(); // Apply immediately on toggle
       });
     }
     
-    // Update overlay visibility
-    overlay.style.display = (isMobile && document.body.classList.contains('sidebar-shown')) 
-      ? 'block' 
-      : 'none';
-  }
-  
-  // Initialize toggle buttons for mobile sidebar
-  function setupToggleButtons() {
-    const toggleButtons = document.querySelectorAll(config.toggleButtonSelectors);
-    
-    toggleButtons.forEach(btn => {
-      // Use event delegation or remove existing listeners to avoid duplicates
-      const newBtn = btn.cloneNode(true);
-      if (btn.parentNode) {
-        btn.parentNode.replaceChild(newBtn, btn);
-      }
+    // Apply critical CSS for desktop if not already applied
+    const criticalCSS = `
+      @media (min-width: 997px) {
+        .theme-doc-sidebar-container {
+          position: fixed !important;
+          top: var(--ifm-navbar-height) !important;
+          left: 0 !important;
+          bottom: 0 !important;
+          width: 250px !important;
+          height: calc(100vh - var(--ifm-navbar-height)) !important;
+          overflow-y: auto !important;
+          z-index: 200 !important;
+          border-right: 1px solid var(--ifm-toc-border-color) !important;
+        }
+        
+        [class*="docMainContainer"] {
+          margin-left: 250px !important;
+          width: calc(100% - 250px) !important;
+          max-width: calc(100% - 250px) !important;
+        }
       
-      newBtn.addEventListener('click', function() {
-        document.body.classList.toggle('sidebar-shown');
-        applySidebarFix(); // Apply immediately on toggle
-      });
-    });
-    
-    // Add keyboard support for closing sidebar with ESC
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && document.body.classList.contains('sidebar-shown')) {
-        document.body.classList.remove('sidebar-shown');
-        applySidebarFix();
-      }
-    });
-  }
-  
-  // Add CSS classes for specific browsers to handle potential quirks
-  function addBrowserSpecificFixes() {
-    const html = document.documentElement;
-    
-    // Detect Chrome
-    if (navigator.userAgent.indexOf("Chrome") > -1) {
-      html.classList.add('browser-chrome');
-    }
-    // Detect Firefox
-    else if (navigator.userAgent.indexOf("Firefox") > -1) {
-      html.classList.add('browser-firefox');
-    }
-    // Detect Safari
-    else if (navigator.userAgent.indexOf("Safari") > -1) {
-      html.classList.add('browser-safari');
-    }
-    // Detect Edge
-    else if (navigator.userAgent.indexOf("Edg") > -1) {
-      html.classList.add('browser-edge');
-    }
-  }
-  
-  // Initialize everything
-  function init() {
-    // Add browser-specific classes
-    addBrowserSpecificFixes();
-    
-    // Apply fix immediately and again after a small delay
-    // (helps with race conditions during page load)
-    applySidebarFix();
-    
-    // Apply again after a small delay to ensure DOM is fully rendered
-    setTimeout(applySidebarFix, 50);
-    setTimeout(applySidebarFix, 200);
-    setTimeout(applySidebarFix, 500);
-    
-    // Setup toggle buttons
-    setupToggleButtons();
-    
-    // Apply fix on window resize
-    window.addEventListener('resize', applySidebarFix);
-    
-    // Set interval to continually ensure layout is correct
-    // This helps override any Docusaurus dynamic changes
-    const intervalId = setInterval(applySidebarFix, config.fixInterval);
-    
-    // Store interval ID for potential cleanup
-    window._sidebarFixInterval = intervalId;
-  }
-  
-  // Run on page load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-  
-  // Handle SPA navigation by watching for DOM changes
-  const observer = new MutationObserver(function(mutations) {
-    let shouldApplyFix = false;
-    
-    mutations.forEach(function(mutation) {
-      if (mutation.type === 'childList' && mutation.addedNodes.length) {
-        // Check if navigation occurred
-        if (mutation.target.tagName === 'BODY' || 
-            mutation.target.classList.contains('main-wrapper')) {
-          shouldApplyFix = true;
+        /* Fix any nested container elements */
+        [class*="docMainContainer"] .container,
+        [class*="docMainContainer"] .row,
+        [class*="docMainContainer"] [class*="docItemCol"] {
+          width: 100% !important;
+          max-width: 100% !important;
+          margin-left: 0 !important;
         }
       }
-    });
+      
+      /* Mobile sidebar positioning */
+      @media (max-width: 996px) {
+        .theme-doc-sidebar-container {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          bottom: 0 !important;
+          width: 85% !important;
+          max-width: 300px !important;
+          height: 100% !important;
+          z-index: 10000 !important;
+          transform: translateX(-100%) !important;
+          transition: transform 0.3s ease !important;
+          background-color: var(--ifm-background-surface-color) !important;
+          border-right: 1px solid var(--ifm-toc-border-color) !important;
+          box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
+        }
+      
+        body.sidebar-shown .theme-doc-sidebar-container {
+          transform: translateX(0) !important;
+        }
+      
+        [class*="docMainContainer"] {
+          margin-left: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+      
+        .sidebar-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.7);
+          z-index: 9999;
+        }
+      
+        body.sidebar-shown .sidebar-overlay {
+          display: block;
+        }
+      
+        body.sidebar-shown {
+          overflow: hidden;
+        }
+      }
+    `;
     
-    if (shouldApplyFix) {
-      // Apply multiple times with delays to ensure it catches
-      applySidebarFix();
-      setTimeout(applySidebarFix, 50);
-      setTimeout(applySidebarFix, 200);
-      setTimeout(setupToggleButtons, 100);
+    // Add the CSS
+    const style = document.createElement('style');
+    style.textContent = criticalCSS;
+    style.setAttribute('id', 'sidebar-critical-css');
+    if (!document.getElementById('sidebar-critical-css')) {
+      document.head.appendChild(style);
+      console.log('[Sidebar Fix] Critical CSS injected');
     }
-  });
+    
+    console.log('[Sidebar Fix] Sidebar fix script initialized successfully');
+  }
   
-  observer.observe(document.body, { childList: true, subtree: true });
-  
-  // Also expose a global function that can be called manually if needed
-  window.fixDocusaurusSidebar = applySidebarFix;
-})(); 
+  // Run when the DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', handleSidebar);
+  } else {
+    handleSidebar();
+  }
+})();
+
+// Cache-busting timestamp: ${Date.now()} 
