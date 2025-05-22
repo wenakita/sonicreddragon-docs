@@ -7,29 +7,8 @@
 /* Import modern fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* Import sidebar fix */
+/* Import sidebar styling (appearance only) */
 @import url('./sidebar-fix.css');
-
-/* Fallback sidebar positioning if JS is disabled or slow to load */
-@media (min-width: 997px) {
-  .theme-doc-sidebar-container {
-    position: fixed !important;
-    top: var(--ifm-navbar-height) !important;
-    left: 0 !important;
-    bottom: 0 !important;
-    width: 250px !important;
-    height: calc(100vh - var(--ifm-navbar-height)) !important;
-    overflow-y: auto !important;
-    z-index: 200 !important;
-    border-right: 1px solid var(--ifm-toc-border-color) !important;
-  }
-  
-  [class*="docMainContainer"] {
-    margin-left: 250px !important;
-    width: calc(100% - 250px) !important;
-    max-width: calc(100% - 250px) !important;
-  }
-}
 
 /* Modern color scheme - Light mode */
 :root {
@@ -62,7 +41,7 @@
   --ifm-card-background-color: var(--card-bg);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   
-  /* Fixed sidebar width for all viewports - simple px value for reliability */
+  /* Fixed sidebar width - this will be controlled by JS */
   --doc-sidebar-width: 250px !important;
 }
 

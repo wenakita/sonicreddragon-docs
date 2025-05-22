@@ -1,29 +1,12 @@
-/* Minimal sidebar CSS - base styling only */
+/* Minimal sidebar styling - NO positioning */
 
-/* Base variables - no positioning */
+/* Base variables only */
 :root {
   --sidebar-width: 250px;
   --ifm-navbar-height: 60px;
 }
 
-/* Mobile sidebar state class */
-body.sidebar-shown {
-  overflow: hidden;
-}
-
-/* Overlay for mobile sidebar */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 199;
-  display: none;
-}
-
-/* Theme-specific styling for sidebar content - appearance only */
+/* Improve sidebar content appearance only */
 .theme-doc-sidebar-menu {
   padding: 0.5rem;
 }
@@ -44,17 +27,6 @@ body.sidebar-shown {
   font-weight: 600;
   background-color: var(--ifm-color-emphasis-100);
   border-left: 2px solid var(--ifm-color-primary);
-}
-
-/* Mobile toggle */
-.navbar__toggle {
-  display: none;
-}
-
-@media (max-width: 996px) {
-  .navbar__toggle {
-    display: block;
-  }
 }
 
 /* Print styles */
