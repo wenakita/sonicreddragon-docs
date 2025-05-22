@@ -59,20 +59,10 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=8192
         run: npm run build
 
-      - name: Upload build artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: build
-
-  deploy:
-    name: Deploy to GitHub Pages
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name != 'pull_request'
-    steps:
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+        if: github.event_name != 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build
+          branch: gh-pages
+          clean: true
