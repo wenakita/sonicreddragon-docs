@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { animateMermaidDiagram } from '../utils/animeUtils';
 import useIsBrowser from '@docusaurus/useIsBrowser';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 import styles from './styles.module.css';
 
 /**
@@ -15,7 +16,17 @@ import styles from './styles.module.css';
  * @param {string} props.pulseSelector - CSS selector for elements that should pulse
  * @param {Object} props.animationOptions - Custom animation options
  */
-export default function EnhancedMermaid({
+export default function EnhancedMermaid(props) {
+  // Use BrowserOnly to completely avoid running component code during SSR
+  return (
+    <BrowserOnly fallback={<div className="mermaid-loading">Loading diagram...</div>}>
+      {() => <MermaidRenderer {...props} />}
+    </BrowserOnly>
+  );
+}
+
+// The actual renderer component, only used in browser context
+function MermaidRenderer({
   chart,
   title,
   caption,
@@ -25,7 +36,6 @@ export default function EnhancedMermaid({
   animationOptions = {},
 }) {
   const containerRef = useRef(null);
-  const isBrowser = useIsBrowser();
   const [renderAttempts, setRenderAttempts] = useState(0);
   const [renderError, setRenderError] = useState(null);
   const [isRendered, setIsRendered] = useState(false);
@@ -34,14 +44,14 @@ export default function EnhancedMermaid({
   const processedChart = chart?.trim() || '';
   
   useEffect(() => {
-    if (!isBrowser || !containerRef.current) return;
+    if (!containerRef.current) return;
     
     // Reset error state on new render attempts
     setRenderError(null);
     setIsRendered(false);
     
-    // Only run in browser
-    if (typeof window !== 'undefined' && window.mermaid) {
+    // Only run if mermaid is available
+    if (window.mermaid) {
       try {
         // Get current theme from HTML attribute
         const isDarkTheme = document.documentElement.dataset.theme === 'dark';
@@ -97,8 +107,10 @@ export default function EnhancedMermaid({
         console.error('Failed to initialize mermaid:', error);
         setRenderError(error.message);
       }
+    } else {
+      setRenderError('Mermaid library not available');
     }
-  }, [chart, isBrowser, renderAttempts, animated, pulseSelector]);
+  }, [chart, renderAttempts, animated, pulseSelector]);
 
   // Minimalist container style
   const containerClasses = [

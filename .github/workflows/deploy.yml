@@ -35,6 +35,58 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
         
+      - name: Add emergency sidebar fix
+        run: |
+          echo "/* Emergency sidebar fix for GitHub Pages deployment */" >> src/css/emergency-fix.css
+          echo ":root { --sidebar-width: 250px !important; }" >> src/css/emergency-fix.css
+          echo "body { overflow-x: hidden; }" >> src/css/emergency-fix.css
+          echo ".theme-doc-sidebar-container { position: fixed !important; top: var(--ifm-navbar-height) !important; left: 0 !important; bottom: 0 !important; width: 250px !important; max-width: 250px !important; overflow-y: auto !important; z-index: 200 !important; }" >> src/css/emergency-fix.css
+          echo "[class*=\"docMainContainer\"] { margin-left: 250px !important; width: calc(100% - 250px) !important; max-width: calc(100% - 250px) !important; }" >> src/css/emergency-fix.css
+          echo "@media (max-width: 996px) { .theme-doc-sidebar-container { transform: translateX(-100%) !important; } .theme-doc-sidebar-container.menu--show { transform: translateX(0) !important; } [class*=\"docMainContainer\"] { margin-left: 0 !important; width: 100% !important; max-width: 100% !important; } }" >> src/css/emergency-fix.css
+          echo "@import url('./emergency-fix.css');" >> src/css/custom.css
+      
+      - name: Create inline sidebar fix script
+        run: |
+          mkdir -p static/js
+          cat > static/js/emergency-sidebar-fix.js << 'EOL'
+          // Emergency sidebar fix for GitHub Pages
+          (function() {
+            function applySidebarFix() {
+              const sidebar = document.querySelector('.theme-doc-sidebar-container');
+              const mainContent = document.querySelector('[class*="docMainContainer"]');
+              if (!sidebar || !mainContent) return;
+              
+              // Fix sidebar
+              Object.assign(sidebar.style, {
+                position: 'fixed',
+                top: 'var(--ifm-navbar-height)',
+                left: '0',
+                bottom: '0',
+                width: '250px',
+                maxWidth: '250px',
+                overflowY: 'auto',
+                zIndex: '200',
+              });
+              
+              // Fix main content
+              const isMobile = window.innerWidth <= 996;
+              Object.assign(mainContent.style, {
+                marginLeft: isMobile ? '0' : '250px',
+                width: isMobile ? '100%' : 'calc(100% - 250px)',
+                maxWidth: isMobile ? '100%' : 'calc(100% - 250px)',
+              });
+            }
+            
+            // Apply immediately and periodically
+            applySidebarFix();
+            setInterval(applySidebarFix, 200);
+            window.addEventListener('resize', applySidebarFix);
+          })();
+          EOL
+          
+          # Add script to docusaurus.config.js
+          sed -i "s|scripts: \[|scripts: \[\n    {\n      src: '/js/emergency-sidebar-fix.js',\n      async: false,\n      defer: false,\n    },|" docusaurus.config.ts
+        
       - name: Build website
         env:
           NODE_OPTIONS: --max-old-space-size=8192
