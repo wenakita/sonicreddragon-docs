@@ -46,11 +46,13 @@ const config: Config = {
     require.resolve('./src/js/mermaid-enhancements.js'),
   ],
 
-  // Add script for emergency sidebar fix
+  // Add script for emergency sidebar fix - prioritized with cache busting
   scripts: [
     {
-      src: '/js/fix-sidebar.js',
+      src: '/js/fix-sidebar.js?v=1.0.1',
       async: false,
+      defer: false,
+      strategy: 'beforeInteractive',
     },
   ],
 
