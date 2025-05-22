@@ -1,5 +1,6 @@
+/* This file is intentionally minimal as sidebar styling is handled by src/css/sidebar-fix.css */
 .customSidebar {
-  /* This class is used to access the sidebar container */
+  /* Class retained for compatibility with existing references */
 }
 
 /* These styles are applied globally */

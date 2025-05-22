@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import anime from 'animejs/lib/anime.es.js'; // Use explicit ES module import
-import styles from './styles.module.css';
 import useIsBrowser from '@docusaurus/useIsBrowser';
+import { getAnime } from '../utils/animeUtils';
+import styles from './styles.module.css';
 
 /**
  * Simple component to test anime.js animations
@@ -15,7 +15,7 @@ export default function AnimeTester() {
     if (!isBrowser || !containerRef.current) return;
     
     // Simple animation that doesn't rely on other elements
-    const animation = anime({
+    const animation = getAnime()({
       targets: '.anime-test-box',
       translateX: 250,
       rotate: '1turn',

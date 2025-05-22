@@ -7,6 +7,9 @@
 /* Import modern fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* Import sidebar fix */
+@import url('./sidebar-fix.css');
+
 /* Modern color scheme - Light mode */
 :root {
   --ifm-color-primary: #4a80d1;

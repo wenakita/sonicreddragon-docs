@@ -1,7 +1,30 @@
 /**
- * Animation utilities using Anime.js
+ * Consolidated Animation Utilities
+ * This is the main anime.js utility file for the entire application
  */
 import anime from 'animejs/lib/anime.es.js';
+
+// Cache the anime instance globally for efficiency
+let animeInstance = null;
+
+/**
+ * Get the anime.js instance (lazy loaded)
+ * @returns {Object} The anime.js instance
+ */
+export function getAnime() {
+  if (!animeInstance) {
+    animeInstance = anime;
+  }
+  return animeInstance;
+}
+
+/**
+ * Check if we're in browser environment
+ * @returns {boolean} True if in browser
+ */
+export function isBrowser() {
+  return typeof window !== 'undefined';
+}
 
 /**
  * Creates a fade-in animation for elements
@@ -10,12 +33,12 @@ import anime from 'animejs/lib/anime.es.js';
  * @returns {Object} Animation instance
  */
 export function fadeIn(targets, options = {}) {
-  return anime({
+  return getAnime()({
     targets,
     opacity: [0, 1],
     translateY: [15, 0],
     duration: options.duration || 800,
-    delay: options.delay || anime.stagger(100),
+    delay: options.delay || getAnime().stagger(100),
     easing: options.easing || 'easeOutCubic',
     ...options
   });
@@ -28,11 +51,11 @@ export function fadeIn(targets, options = {}) {
  * @returns {Object} Animation instance
  */
 export function drawPath(targets, options = {}) {
-  return anime({
+  return getAnime()({
     targets,
-    strokeDashoffset: [anime.setDashoffset, 0],
+    strokeDashoffset: [getAnime().setDashoffset, 0],
     duration: options.duration || 1200,
-    delay: options.delay || anime.stagger(150, { start: options.startDelay || 300 }),
+    delay: options.delay || getAnime().stagger(150, { start: options.startDelay || 300 }),
     easing: options.easing || 'easeInOutSine',
     ...options
   });
@@ -45,7 +68,7 @@ export function drawPath(targets, options = {}) {
  * @returns {Object} Animation instance
  */
 export function pulse(targets, options = {}) {
-  return anime({
+  return getAnime()({
     targets,
     scale: [1, options.scale || 1.05, 1],
     opacity: [1, options.opacityMin || 0.8, 1],
@@ -53,7 +76,7 @@ export function pulse(targets, options = {}) {
     loop: true,
     direction: 'alternate',
     easing: options.easing || 'easeInOutSine',
-    delay: options.delay || anime.stagger(100),
+    delay: options.delay || getAnime().stagger(100),
     ...options
   });
 }
@@ -94,7 +117,7 @@ export function typeText(element, text, options = {}) {
  */
 export function animateDiagram(container, options = {}) {
   // Create animation timeline
-  const timeline = anime.timeline({
+  const timeline = getAnime().timeline({
     easing: options.easing || 'easeOutExpo',
     duration: options.duration || 800,
     loop: options.loop || false,
@@ -107,7 +130,7 @@ export function animateDiagram(container, options = {}) {
       targets: container.querySelectorAll('.animated-element'),
       translateY: [20, 0],
       opacity: [0, 1],
-      delay: anime.stagger(150)
+      delay: getAnime().stagger(150)
     });
   }
   
@@ -115,7 +138,7 @@ export function animateDiagram(container, options = {}) {
   if (container.querySelectorAll('.connection-line').length > 0) {
     timeline.add({
       targets: container.querySelectorAll('.connection-line'),
-      strokeDashoffset: [anime.setDashoffset, 0],
+      strokeDashoffset: [getAnime().setDashoffset, 0],
       easing: 'easeInOutSine',
       duration: 700,
       delay: function(el, i) { return i * 250 }
@@ -143,82 +166,135 @@ export function animateDiagram(container, options = {}) {
 }
 
 /**
- * Animate Mermaid diagram elements after rendering
+ * Animate Mermaid diagram elements
  * @param {HTMLElement} container - Mermaid container element
  * @param {Object} options - Animation options
  */
 export function animateMermaidDiagram(container, options = {}) {
-  // Wait for Mermaid to fully render
-  setTimeout(() => {
-    // Find the SVG element
-    const svg = container.querySelector('svg');
-    if (!svg) return;
-    
-    // Create animation timeline
-    const timeline = anime.timeline({
-      easing: 'easeOutExpo',
-      duration: 800
+  if (!isBrowser() || !container) return;
+  
+  // Find the SVG element (either direct or within the container)
+  const svg = container?.tagName === 'svg' ? container : container?.querySelector('svg');
+  if (!svg) return;
+  
+  // Don't animate if already animated
+  if (container.dataset.animated === 'true') return;
+  container.dataset.animated = 'true';
+  
+  // Create animation timeline
+  const timeline = getAnime().timeline({
+    easing: 'easeOutExpo',
+    duration: 800
+  });
+  
+  // Apply initial opacity to prevent flashing
+  const animatableElements = svg.querySelectorAll(
+    'g.node rect, g.node circle, g.node ellipse, .actor, ' +
+    'g.node .label, .messageText, .loopText, text:not(.actor), ' +
+    '.edgePath path, .messageLine0, .messageLine1, ' +
+    'marker, .marker'
+  );
+  
+  // Initially hide elements to prevent flash
+  animatableElements.forEach(el => {
+    if (el.style) {
+      el.style.opacity = '0';
+    } else if (el.setAttribute) {
+      el.setAttribute('opacity', '0');
+    }
+  });
+  
+  // Nodes (rect, circle, ellipse)
+  const nodes = svg.querySelectorAll('g.node rect, g.node circle, g.node ellipse, .actor');
+  if (nodes.length) {
+    timeline.add({
+      targets: nodes,
+      opacity: [0, 1],
+      scale: [0.85, 1],
+      duration: 800,
+      delay: getAnime().stagger(70)
+    });
+  }
+  
+  // Labels and text
+  const labels = svg.querySelectorAll('g.node .label, .messageText, .loopText, text:not(.actor)');
+  if (labels.length) {
+    timeline.add({
+      targets: labels,
+      opacity: [0, 1],
+      duration: 600,
+      delay: getAnime().stagger(50)
+    }, '-=600');
+  }
+  
+  // Edges/paths
+  const edges = svg.querySelectorAll('.edgePath path, .messageLine0, .messageLine1');
+  if (edges.length) {
+    // Set up stroke-dasharray and stroke-dashoffset for paths
+    edges.forEach(path => {
+      if (path.getTotalLength) {
+        const length = path.getTotalLength();
+        path.style.strokeDasharray = length;
+        path.style.strokeDashoffset = length;
+      }
     });
     
-    // Nodes (rect, circle, ellipse)
-    const nodes = svg.querySelectorAll('g.node rect, g.node circle, g.node ellipse, .actor');
-    if (nodes.length) {
+    timeline.add({
+      targets: edges,
+      strokeDashoffset: [getAnime().setDashoffset, 0],
+      duration: 800,
+      delay: getAnime().stagger(100),
+      easing: 'easeInOutSine'
+    }, '-=400');
+  }
+  
+  // Arrowheads
+  const markers = svg.querySelectorAll('marker, .marker');
+  if (markers.length) {
+    timeline.add({
+      targets: markers,
+      opacity: [0, 1],
+      duration: 300
+    }, '-=200');
+  }
+  
+  // Apply pulsing effect to specific nodes if requested
+  if (options.pulseSelector) {
+    const pulseNodes = svg.querySelectorAll(options.pulseSelector);
+    if (pulseNodes.length) {
       timeline.add({
-        targets: nodes,
-        opacity: [0, 1],
-        scale: [0.8, 1],
-        duration: 800,
-        delay: anime.stagger(100)
+        targets: pulseNodes,
+        scale: [1, 1.05, 1],
+        opacity: [1, 0.9, 1],
+        duration: 2000,
+        loop: true,
+        direction: 'alternate',
+        easing: 'easeInOutSine'
       });
     }
-    
-    // Labels and text
-    const labels = svg.querySelectorAll('g.node .label, .messageText, .loopText, text:not(.actor)');
-    if (labels.length) {
-      timeline.add({
-        targets: labels,
-        opacity: [0, 1],
-        duration: 600,
-        delay: anime.stagger(80)
-      }, '-=600');
+  }
+}
+
+/**
+ * Initialize animations for all Mermaid diagrams on the page
+ */
+export function initializeMermaidAnimations() {
+  if (!isBrowser()) return;
+  
+  // Find all mermaid containers that need animation
+  const containers = document.querySelectorAll(
+    '.mermaid-diagram-container .mermaid, .mermaid, ' +
+    '.standard-mermaid-container, .standardMermaidContainer, ' +
+    '.docusaurus-mermaid-container'
+  );
+  
+  // Animate each container
+  containers.forEach(container => {
+    if (!container.dataset.animated && container.querySelector('svg')) {
+      animateMermaidDiagram(container);
     }
-    
-    // Edges/paths
-    const edges = svg.querySelectorAll('.edgePath path, .messageLine0, .messageLine1');
-    if (edges.length) {
-      timeline.add({
-        targets: edges,
-        strokeDashoffset: [anime.setDashoffset, 0],
-        duration: 1000,
-        delay: anime.stagger(150),
-        easing: 'easeInOutSine'
-      }, '-=500');
-    }
-    
-    // Arrowheads
-    const markers = svg.querySelectorAll('marker, .marker');
-    if (markers.length) {
-      timeline.add({
-        targets: markers,
-        opacity: [0, 1],
-        duration: 300
-      }, '-=200');
-    }
-    
-    // Apply pulsing effect to specific nodes if requested
-    if (options.pulseSelector) {
-      const pulseNodes = svg.querySelectorAll(options.pulseSelector);
-      if (pulseNodes.length) {
-        timeline.add({
-          targets: pulseNodes,
-          scale: [1, 1.05, 1],
-          opacity: [1, 0.9, 1],
-          duration: 2000,
-          loop: true,
-          direction: 'alternate',
-          easing: 'easeInOutSine'
-        });
-      }
-    }
-  }, options.delay || 1000);
-} 
+  });
+}
+
+// Export default instance for compatibility
+export default anime; 

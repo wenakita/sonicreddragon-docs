@@ -42,13 +42,13 @@ const config: Config = {
   // Configure client modules for browser execution
   clientModules: [
     require.resolve('./src/clientModules/mermaidInit.js'),
-    require.resolve('./src/clientModules/animeInitializer.js'),
+    require.resolve('./src/clientModules/animeModule.js'),
   ],
 
-  // Add script for emergency sidebar fix - prioritized with cache busting
+  // Add script for optimized sidebar fix - prioritized with cache busting
   scripts: [
     {
-      src: '/js/fix-sidebar.js?v=1.0.1',
+      src: '/js/sidebar-fix.js?v=2.0.0',
       async: false,
       defer: false,
       strategy: 'beforeInteractive',
