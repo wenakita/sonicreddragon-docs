@@ -1,4 +1,4 @@
-// Ultimate Sidebar Fix - v3.0.0
+// Ultimate Sidebar Fix - v4.0.0
 (function() {
   // Configuration
   const config = {
@@ -7,7 +7,7 @@
     sidebarSelector: '.theme-doc-sidebar-container',
     mainContentSelector: '[class*="docMainContainer"]',
     toggleButtonSelectors: '.navbar__toggle, .navbar-sidebar__close',
-    fixInterval: 200 // ms between checks/fixes
+    fixInterval: 100 // Shorter interval for more frequent checks
   };
 
   // Core fix function that applies all necessary layout adjustments
@@ -18,36 +18,51 @@
     
     if (!sidebar || !mainContent) return; // Exit if elements not found
     
-    // 1. Fix the sidebar positioning
+    // 1. Fix the sidebar positioning - with !important flags
     Object.assign(sidebar.style, {
-      position: 'fixed',
-      top: 'var(--ifm-navbar-height)',
-      left: '0',
-      bottom: '0',
-      width: config.sidebarWidth,
-      maxWidth: config.sidebarWidth,
-      height: 'calc(100vh - var(--ifm-navbar-height))',
-      zIndex: '200',
-      overflowY: 'auto',
-      overflowX: 'hidden',
-      borderRight: '1px solid var(--ifm-toc-border-color)',
-      transform: isMobile ? 'translateX(-100%)' : 'none',
-      transition: 'transform 0.3s ease'
+      position: 'fixed !important',
+      top: 'var(--ifm-navbar-height) !important',
+      left: '0 !important',
+      bottom: '0 !important',
+      width: config.sidebarWidth + ' !important',
+      maxWidth: config.sidebarWidth + ' !important',
+      height: 'calc(100vh - var(--ifm-navbar-height)) !important',
+      zIndex: '200 !important',
+      overflowY: 'auto !important',
+      overflowX: 'hidden !important',
+      borderRight: '1px solid var(--ifm-toc-border-color) !important',
+      transform: isMobile ? 'translateX(-100%) !important' : 'none !important',
+      transition: 'transform 0.3s ease !important',
+      boxShadow: isMobile ? '2px 0 8px rgba(0,0,0,0.15) !important' : 'none !important'
     });
     
     // Special mobile styling
     if (isMobile) {
       if (document.body.classList.contains('sidebar-shown')) {
-        sidebar.style.transform = 'translateX(0)';
+        sidebar.style.transform = 'translateX(0) !important';
       }
     }
     
-    // 2. Fix the main content positioning
+    // 2. Fix the main content positioning - with !important flags
     Object.assign(mainContent.style, {
-      marginLeft: isMobile ? '0' : config.sidebarWidth,
-      width: isMobile ? '100%' : `calc(100% - ${config.sidebarWidth})`,
-      maxWidth: isMobile ? '100%' : `calc(100% - ${config.sidebarWidth})`,
-      transition: 'margin-left 0.3s ease, width 0.3s ease, max-width 0.3s ease'
+      marginLeft: isMobile ? '0 !important' : config.sidebarWidth + ' !important',
+      width: isMobile ? '100% !important' : `calc(100% - ${config.sidebarWidth}) !important`,
+      maxWidth: isMobile ? '100% !important' : `calc(100% - ${config.sidebarWidth}) !important`,
+      transition: 'margin-left 0.3s ease, width 0.3s ease, max-width 0.3s ease !important'
+    });
+    
+    // Also directly set CSS custom properties that Docusaurus might use
+    document.documentElement.style.setProperty('--doc-sidebar-width', config.sidebarWidth);
+    
+    // Force fix any nested container elements that might have their own margins/widths
+    const containerElements = mainContent.querySelectorAll('.container, .row, [class*="docItemCol"]');
+    containerElements.forEach(container => {
+      if (container) {
+        container.style.width = '100% !important';
+        container.style.maxWidth = '100% !important';
+        container.style.marginLeft = '0 !important';
+        container.style.paddingLeft = 'var(--ifm-spacing-horizontal) !important';
+      }
     });
     
     // 3. Create/manage overlay for mobile
@@ -60,6 +75,7 @@
       // Close sidebar when clicking overlay
       overlay.addEventListener('click', function() {
         document.body.classList.remove('sidebar-shown');
+        applySidebarFix(); // Apply immediately on toggle
       });
     }
     
@@ -95,10 +111,41 @@
     });
   }
   
+  // Add CSS classes for specific browsers to handle potential quirks
+  function addBrowserSpecificFixes() {
+    const html = document.documentElement;
+    
+    // Detect Chrome
+    if (navigator.userAgent.indexOf("Chrome") > -1) {
+      html.classList.add('browser-chrome');
+    }
+    // Detect Firefox
+    else if (navigator.userAgent.indexOf("Firefox") > -1) {
+      html.classList.add('browser-firefox');
+    }
+    // Detect Safari
+    else if (navigator.userAgent.indexOf("Safari") > -1) {
+      html.classList.add('browser-safari');
+    }
+    // Detect Edge
+    else if (navigator.userAgent.indexOf("Edg") > -1) {
+      html.classList.add('browser-edge');
+    }
+  }
+  
   // Initialize everything
   function init() {
-    // Apply fix immediately
+    // Add browser-specific classes
+    addBrowserSpecificFixes();
+    
+    // Apply fix immediately and again after a small delay
+    // (helps with race conditions during page load)
     applySidebarFix();
+    
+    // Apply again after a small delay to ensure DOM is fully rendered
+    setTimeout(applySidebarFix, 50);
+    setTimeout(applySidebarFix, 200);
+    setTimeout(applySidebarFix, 500);
     
     // Setup toggle buttons
     setupToggleButtons();
@@ -136,13 +183,16 @@
     });
     
     if (shouldApplyFix) {
-      // Small delay to ensure DOM is fully updated
-      setTimeout(function() {
-        applySidebarFix();
-        setupToggleButtons();
-      }, 100);
+      // Apply multiple times with delays to ensure it catches
+      applySidebarFix();
+      setTimeout(applySidebarFix, 50);
+      setTimeout(applySidebarFix, 200);
+      setTimeout(setupToggleButtons, 100);
     }
   });
   
   observer.observe(document.body, { childList: true, subtree: true });
+  
+  // Also expose a global function that can be called manually if needed
+  window.fixDocusaurusSidebar = applySidebarFix;
 })(); 

@@ -45,13 +45,15 @@ const config: Config = {
     require.resolve('./src/clientModules/animeModule.js'),
   ],
 
-  // Add script for optimized sidebar fix - prioritized with cache busting
+  // Add script for sidebar fix - highest priority loading
   scripts: [
     {
-      src: '/js/fix-sidebar.js?v=3.0.0',
+      src: '/js/fix-sidebar.js?v=4.0.0',
       async: false,
       defer: false,
       strategy: 'beforeInteractive',
+      id: 'sidebar-fix-script',
+      'data-priority': 'high',
     },
   ],
 

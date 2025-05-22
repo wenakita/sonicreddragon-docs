@@ -1,9 +1,14 @@
-/* Minimal sidebar CSS - positioning handled by JS */
+/* Minimal sidebar CSS - base styling only */
 
-/* Base styling only - no positioning */
+/* Base variables - no positioning */
 :root {
   --sidebar-width: 250px;
   --ifm-navbar-height: 60px;
+}
+
+/* Mobile sidebar state class */
+body.sidebar-shown {
+  overflow: hidden;
 }
 
 /* Overlay for mobile sidebar */
@@ -18,12 +23,7 @@
   display: none;
 }
 
-/* Mobile sidebar state class */
-body.sidebar-shown {
-  overflow: hidden;
-}
-
-/* Theme-specific styling for sidebar content */
+/* Theme-specific styling for sidebar content - appearance only */
 .theme-doc-sidebar-menu {
   padding: 0.5rem;
 }
