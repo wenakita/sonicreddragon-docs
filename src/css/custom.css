@@ -1491,3 +1491,104 @@ aside[class*=" theme-doc-toc-"] * {
   white-space: normal !important;
   display: block !important;
 }
+
+/* Add even more aggressive fixes for right sidebar text orientation */
+/* Direct fix for right sidebar content */
+.theme-doc-sidebar-container nav,
+.theme-doc-sidebar-container a,
+.theme-doc-sidebar-container div,
+.theme-doc-sidebar-container span,
+.theme-doc-sidebar-container li,
+.theme-doc-sidebar-container ul,
+.theme-doc-sidebar-container p,
+.theme-doc-sidebar-container h1,
+.theme-doc-sidebar-container h2,
+.theme-doc-sidebar-container h3,
+.theme-doc-sidebar-container h4,
+.theme-doc-sidebar-container h5,
+.theme-doc-sidebar-container h6,
+.theme-doc-toc-desktop,
+.table-of-contents,
+.table-of-contents__link,
+.toc-highlight,
+.toc-highlight-target,
+.theme-doc-toc-desktop,
+.theme-doc-toc-mobile,
+.theme-doc-toc,
+.Overview,
+.Key,
+.Features,
+.Key\ Features,
+[class*="tocCollapsible"],
+[class*="tocCollapsible"] *,
+[class*="tableOfContents"],
+[class*="tableOfContents"] * {
+  display: block !important;
+  text-orientation: mixed !important;
+  writing-mode: horizontal-tb !important;
+  letter-spacing: normal !important;
+  text-align: left !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  transform: none !important;
+  direction: ltr !important;
+  -webkit-transform: none !important;
+  -ms-transform: none !important;
+}
+
+/* Force style inheritance prevention for TOC items */
+.table-of-contents *,
+.theme-doc-sidebar-container *,
+.theme-doc-sidebar-menu * {
+  text-orientation: mixed !important;
+  writing-mode: horizontal-tb !important;
+  letter-spacing: normal !important;
+  text-align: left !important;
+  text-transform: none !important;
+  vertical-align: baseline !important;
+  font-size: inherit !important;
+  line-height: 1.5 !important;
+}
+
+/* Target all right sidebar content with high specificity */
+body [class*="docSidebarContainer"],
+body [class*="tocCollapsible"],
+body [class*="tableOfContents"],
+body aside,
+body [class*="sidebar"],
+body [class*="menu"] {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  direction: ltr !important;
+}
+
+/* Ensure all TOC elements are displayed properly */
+html body .theme-doc-toc-desktop *,
+html body .table-of-contents * {
+  display: block !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  white-space: normal !important;
+}
+
+/* Force normal display for headings in TOC */
+.table-of-contents__title,
+aside h2,
+aside h3,
+[class*="tocTitle"],
+[class*="tocHeading"] {
+  display: block !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.5rem !important;
+  text-align: left !important;
+  writing-mode: horizontal-tb !important;
+}
+
+/* Fix bullet points in TOC */
+.table-of-contents li::before {
+  content: "•";
+  display: inline-block;
+  margin-right: 0.5rem;
+  color: var(--ifm-color-primary);
+}
