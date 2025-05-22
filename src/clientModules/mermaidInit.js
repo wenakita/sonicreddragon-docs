@@ -1,5 +1,6 @@
 // Enhanced mermaid initialization
 import mermaid from 'mermaid';
+import anime from 'animejs/lib/anime.es.js';
 
 // Function to sanitize mermaid diagram code at runtime
 function sanitizeMermaidDiagram(element) {
@@ -44,6 +45,164 @@ function sanitizeMermaidDiagram(element) {
     element.textContent = sanitized;
   }
 }
+
+// --- ANIMATION LOGIC ---
+function animateMermaidElements(container) {
+  const svg = container?.tagName === 'svg' ? container : container?.querySelector('svg');
+  if (!svg) return;
+  const timeline = anime.timeline({ easing: 'easeOutExpo', duration: 800 });
+  const nodes = svg.querySelectorAll('g.node rect, g.node circle, g.node ellipse, .actor');
+  if (nodes.length) {
+    timeline.add({ targets: nodes, opacity: [0, 1], scale: [0.85, 1], duration: 800, delay: anime.stagger(70) });
+  }
+  const labels = svg.querySelectorAll('g.node .label, .messageText, .loopText, text:not(.actor)');
+  if (labels.length) {
+    timeline.add({ targets: labels, opacity: [0, 1], duration: 600, delay: anime.stagger(50) }, '-=600');
+  }
+  const edges = svg.querySelectorAll('.edgePath path, .messageLine0, .messageLine1');
+  if (edges.length) {
+    edges.forEach(path => { if (path.getTotalLength) { const length = path.getTotalLength(); path.style.strokeDasharray = length; path.style.strokeDashoffset = length; } });
+    timeline.add({ targets: edges, strokeDashoffset: [anime.setDashoffset, 0], duration: 800, delay: anime.stagger(100), easing: 'easeInOutSine' }, '-=400');
+  }
+  const markers = svg.querySelectorAll('marker, .marker');
+  if (markers.length) {
+    timeline.add({ targets: markers, opacity: [0, 1], duration: 300 }, '-=200');
+  }
+}
+
+function initializeAllAnimations(targetElement) {
+  if (targetElement) {
+    if (!targetElement.dataset.animated) {
+      targetElement.dataset.animated = 'true';
+      animateMermaidElements(targetElement);
+    }
+    return;
+  }
+  document.querySelectorAll('.mermaid').forEach(el => {
+    if (!el.dataset.animated && el.querySelector('svg')) {
+      el.dataset.animated = 'true';
+      animateMermaidElements(el);
+    }
+  });
+}
+
+// --- INTERACTIVE CONTROLS ---
+function setupMermaidDiagrams() {
+  const mermaidDivs = document.querySelectorAll('.mermaid');
+  mermaidDivs.forEach((mermaidDiv, index) => {
+    if (mermaidDiv.parentElement.classList.contains('mermaid-wrapper')) return;
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mermaid-wrapper expandable';
+    wrapper.setAttribute('data-diagram-id', `diagram-${index}`);
+    mermaidDiv.parentNode.insertBefore(wrapper, mermaidDiv);
+    wrapper.appendChild(mermaidDiv);
+    // Controls
+    const controls = document.createElement('div');
+    controls.className = 'mermaid-controls';
+    controls.style.display = 'flex';
+    controls.style.justifyContent = 'center';
+    controls.style.background = 'rgba(0,0,0,0.05)';
+    controls.style.borderRadius = '8px 8px 0 0';
+    // Zoom in/out
+    const zoomIn = document.createElement('button');
+    zoomIn.className = 'mermaid-control zoom-in';
+    zoomIn.innerHTML = '🔍+';
+    zoomIn.title = 'Zoom in';
+    zoomIn.onclick = () => {
+      const svg = mermaidDiv.querySelector('svg');
+      if (svg) svg.style.transform = `scale(${(parseFloat(svg.style.transform?.replace('scale(',''))||1)+0.1})`;
+    };
+    const zoomOut = document.createElement('button');
+    zoomOut.className = 'mermaid-control zoom-out';
+    zoomOut.innerHTML = '🔍-';
+    zoomOut.title = 'Zoom out';
+    zoomOut.onclick = () => {
+      const svg = mermaidDiv.querySelector('svg');
+      if (svg) svg.style.transform = `scale(${Math.max((parseFloat(svg.style.transform?.replace('scale(',''))||1)-0.1,0.1)})`;
+    };
+    // Reset zoom
+    const resetZoom = document.createElement('button');
+    resetZoom.className = 'mermaid-control reset-zoom';
+    resetZoom.innerHTML = '🔄';
+    resetZoom.title = 'Reset zoom';
+    resetZoom.onclick = () => {
+      const svg = mermaidDiv.querySelector('svg');
+      if (svg) svg.style.transform = 'scale(1)';
+    };
+    // Export as image
+    const exportImg = document.createElement('button');
+    exportImg.className = 'mermaid-control export-img';
+    exportImg.innerHTML = '📥';
+    exportImg.title = 'Export as image';
+    exportImg.onclick = () => {
+      const svg = mermaidDiv.querySelector('svg');
+      if (!svg) return;
+      const serializer = new XMLSerializer();
+      const source = serializer.serializeToString(svg);
+      const svgBlob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'diagram.svg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+    // Copy source
+    const copySource = document.createElement('button');
+    copySource.className = 'mermaid-control copy-source';
+    copySource.innerHTML = '📋';
+    copySource.title = 'Copy source';
+    copySource.onclick = () => {
+      navigator.clipboard.writeText(mermaidDiv.textContent || '');
+    };
+    // Expand
+    const expand = document.createElement('button');
+    expand.className = 'mermaid-control expand';
+    expand.innerHTML = '⛶';
+    expand.title = 'Expand';
+    expand.onclick = () => {
+      wrapper.classList.add('expanded');
+      let backdrop = document.querySelector('.mermaid-backdrop');
+      if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.className = 'mermaid-backdrop visible';
+        document.body.appendChild(backdrop);
+      }
+      backdrop.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+      backdrop.onclick = () => {
+        wrapper.classList.remove('expanded');
+        backdrop.classList.remove('visible');
+        document.body.style.overflow = '';
+      };
+    };
+    // Animation play
+    const play = document.createElement('button');
+    play.className = 'mermaid-control play';
+    play.innerHTML = '▶️';
+    play.title = 'Play animation';
+    play.onclick = () => animateMermaidElements(mermaidDiv);
+    // Add all controls
+    [zoomIn, zoomOut, resetZoom, exportImg, copySource, expand, play].forEach(btn => controls.appendChild(btn));
+    wrapper.insertBefore(controls, mermaidDiv);
+  });
+}
+
+// --- KEYBOARD ACCESSIBILITY ---
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const expandedDiagram = document.querySelector('.mermaid-wrapper.expanded');
+    if (expandedDiagram) {
+      expandedDiagram.classList.remove('expanded');
+      const backdrop = document.querySelector('.mermaid-backdrop');
+      if (backdrop) backdrop.classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+  }
+});
 
 // This runs on client-side browser only
 export default {
@@ -175,6 +334,9 @@ export default {
       
       // Start observing theme changes
       observer.observe(document.documentElement, { attributes: true });
+      
+      // Initialize animations
+      initializeAllAnimations();
       
     } catch (error) {
       console.error('Mermaid initialization error:', error);
