@@ -38,31 +38,26 @@ jobs:
       - name: Update docusaurus.config.ts
         run: |
           echo "Updating script configuration in docusaurus.config.ts..."
-          # Use node to update the config file - avoids sed/awk issues
-          cat > update-config.js << 'EOL'
-          const fs = require("fs");
-          const path = require("path");
-          const configPath = path.join(process.cwd(), "docusaurus.config.ts");
-          let content = fs.readFileSync(configPath, "utf8");
+          # Use a direct approach with grep and cat
+          grep -v "scripts:" docusaurus.config.ts > temp-config.ts
+          cat temp-config.ts > docusaurus.config.ts
           
-          // Replace the scripts section with a safe version
-          const scriptsSectionRegex = /scripts:\s*\[[\s\S]*?\],/;
-          const newScriptsSection = `scripts: [
-    {
-      src: "/js/fix-sidebar.js?v=5.0.0",
-      async: true,
-      defer: true,
-      "data-ssr": "exclude",
-    },
-  ],`;
+          # Insert the scripts section in the right place
+          sed -i '/clientModules:/a \
+          \
+          // Add script for sidebar fix - exclude from SSR to prevent '\''document is not defined'\'' errors\
+          scripts: [\
+            {\
+              src: "/js/fix-sidebar.js?v=5.0.0",\
+              async: true,\
+              defer: true,\
+              '\''data-ssr'\'': '\''exclude'\'',\
+            },\
+          ],' docusaurus.config.ts
           
-          content = content.replace(scriptsSectionRegex, newScriptsSection);
-          fs.writeFileSync(configPath, content);
-          console.log("✓ Updated docusaurus.config.ts successfully");
-          EOL
-          
-          # Run the script
-          node update-config.js
+          # Clean up
+          rm temp-config.ts
+          echo "✓ Updated docusaurus.config.ts successfully"
 
       - name: Add critical CSS to custom.css
         run: |
