@@ -43,7 +43,6 @@ const config: Config = {
   clientModules: [
     require.resolve('./src/clientModules/mermaidInit.js'),
     require.resolve('./src/clientModules/animeInitializer.js'),
-    require.resolve('./src/clientModules/sidebarEnhancer.js'),
     require.resolve('./src/js/mermaid-enhancements.js'),
   ],
 
@@ -51,7 +50,7 @@ const config: Config = {
   scripts: [
     {
       src: '/js/fix-sidebar.js',
-      async: true,
+      async: false,
     },
   ],
 
@@ -75,7 +74,6 @@ const config: Config = {
         theme: {
           customCss: [
             './src/css/custom.css',
-            './src/css/sidebar-fix.css'
           ],
         },
       } satisfies Preset.Options,

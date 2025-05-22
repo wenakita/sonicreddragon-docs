@@ -1,0 +1,49 @@
+.docMainContainer {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  margin-left: 250px !important;
+  width: calc(100% - 250px) !important;
+  max-width: calc(100% - 250px) !important;
+  padding: 0 !important;
+}
+
+.docMainContainerEnhanced {
+  min-height: calc(100vh - var(--ifm-navbar-height));
+}
+
+.docItemWrapper {
+  width: 100%;
+}
+
+.docItemWrapperEnhanced {
+  max-width: calc(var(--ifm-container-width) + var(--doc-sidebar-width));
+}
+
+/* Mobile styles */
+@media (max-width: 996px) {
+  .docMainContainer {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Ensure these are also applied globally */
+:global(.doc-main-container) {
+  display: flex !important;
+  width: 100% !important;
+  flex-direction: column !important;
+  margin-left: 250px !important;
+  width: calc(100% - 250px) !important;
+  max-width: calc(100% - 250px) !important;
+  padding: 0 !important;
+}
+
+@media (max-width: 996px) {
+  :global(.doc-main-container) {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+} 
