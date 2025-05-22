@@ -45,15 +45,13 @@ const config: Config = {
     require.resolve('./src/clientModules/animeModule.js'),
   ],
 
-  // Add script for sidebar fix - highest priority loading
+  // Add script for sidebar fix - exclude from SSR to prevent 'document is not defined' errors
   scripts: [
     {
-      src: '/js/fix-sidebar.js?v=4.0.0',
-      async: false,
-      defer: false,
-      strategy: 'beforeInteractive',
-      id: 'sidebar-fix-script',
-      'data-priority': 'high',
+      src: '/js/fix-sidebar.js?v=5.0.0',
+      async: true,
+      defer: true,
+      'data-ssr': 'exclude',
     },
   ],
 

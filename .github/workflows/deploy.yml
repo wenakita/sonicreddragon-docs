@@ -35,6 +35,28 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
         
+      - name: Create/update docusaurus.config.ts
+        run: |
+          echo "Ensuring the script is properly included in docusaurus.config.ts..."
+          
+          # Create a safer client-only script entry for docusaurus.config.ts
+          cat > temp_script_config.txt << 'EOL'
+          scripts: [
+            {
+              src: '/js/fix-sidebar.js',
+              async: true,
+              defer: true,
+              'data-ssr': 'exclude'  // This tells Docusaurus to exclude this script during SSR
+            }
+          ],
+          EOL
+          
+          # Use sed to replace the scripts section in docusaurus.config.ts
+          sed -i '/scripts:/,/],/c\'"$(cat temp_script_config.txt)" docusaurus.config.ts
+          rm temp_script_config.txt
+          
+          echo "✓ Updated docusaurus.config.ts with SSR-safe script inclusion"
+        
       - name: Add critical CSS fix to custom.css
         run: |
           echo "Adding critical sidebar CSS fixes directly to custom.css..."
@@ -123,7 +145,7 @@ jobs:
           
           echo "✓ Critical CSS added to custom.css"
           
-      - name: Create safe browser-only sidebar interaction script
+      - name: Create safe browser-only sidebar interaction component
         run: |
           echo "Creating browser-only sidebar interaction component..."
           
@@ -243,48 +265,49 @@ jobs:
           mkdir -p static/js
           cat > static/js/fix-sidebar.js << 'EOL'
           // Safe sidebar fix script - executes only in browser
+          // Version with timestamp: 2023-11-01-003
           (function() {
-            // Make sure we're in a browser environment
+            // SSR safety check - CRITICAL: This prevents SSR errors
             if (typeof window === 'undefined' || typeof document === 'undefined') {
               return;
             }
             
-            // Wait for DOM to be fully loaded
-            function handleSidebar() {
-              // Setup toggle buttons for mobile sidebar
-              const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
-              toggleButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                  document.body.classList.toggle('sidebar-shown');
+            // Run after a small delay to ensure DOM is ready and SSR is complete
+            setTimeout(function() {
+              try {
+                // Setup toggle buttons for mobile sidebar
+                const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
+                toggleButtons.forEach(btn => {
+                  btn.addEventListener('click', function() {
+                    document.body.classList.toggle('sidebar-shown');
+                  });
                 });
-              });
-              
-              // Create and handle overlay
-              let overlay = document.querySelector('.sidebar-overlay');
-              if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.className = 'sidebar-overlay';
-                document.body.appendChild(overlay);
                 
-                overlay.addEventListener('click', function() {
-                  document.body.classList.remove('sidebar-shown');
-                });
+                // Create and handle overlay
+                let overlay = document.querySelector('.sidebar-overlay');
+                if (!overlay) {
+                  overlay = document.createElement('div');
+                  overlay.className = 'sidebar-overlay';
+                  document.body.appendChild(overlay);
+                  
+                  overlay.addEventListener('click', function() {
+                    document.body.classList.remove('sidebar-shown');
+                  });
+                }
+              } catch (error) {
+                console.error('[Sidebar Fix] Error:', error);
               }
-            }
-            
-            // Run when the DOM is ready
-            if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', handleSidebar);
-            } else {
-              handleSidebar();
-            }
+            }, 10);
           })();
+          
+          // Cache-busting timestamp: BUILD_TIMESTAMP
           EOL
           
-          # Update docusaurus.config.ts to include the script
-          sed -i "s|scripts: \[\(.*\)\]|scripts: [\n    {\n      src: '/js/fix-sidebar.js',\n      async: true,\n      defer: true\n    }\1]|" docusaurus.config.ts
+          # Replace placeholder with actual timestamp
+          TIMESTAMP=$(date +%s)
+          sed -i "s/BUILD_TIMESTAMP/$TIMESTAMP/" static/js/fix-sidebar.js
           
-          echo "✓ External script created and added to config"
+          echo "✓ External script created with proper SSR safeguards"
 
       - name: Build website
         env:
