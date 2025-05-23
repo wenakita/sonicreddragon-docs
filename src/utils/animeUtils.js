@@ -175,17 +175,17 @@ export function animateMermaidDiagram(container, options = {}) {
   
   // Find the SVG element (either direct or within the container)
   const svg = container?.tagName === 'svg' ? container : container?.querySelector('svg');
-  if (!svg) return;
+    if (!svg) return;
   
   // Don't animate if already animated
   if (container.dataset.animated === 'true') return;
   container.dataset.animated = 'true';
-  
-  // Create animation timeline
+    
+    // Create animation timeline
   const timeline = getAnime().timeline({
-    easing: 'easeOutExpo',
-    duration: 800
-  });
+      easing: 'easeOutExpo',
+      duration: 800
+    });
   
   // Apply initial opacity to prevent flashing
   const animatableElements = svg.querySelectorAll(
@@ -203,33 +203,33 @@ export function animateMermaidDiagram(container, options = {}) {
       el.setAttribute('opacity', '0');
     }
   });
-  
-  // Nodes (rect, circle, ellipse)
-  const nodes = svg.querySelectorAll('g.node rect, g.node circle, g.node ellipse, .actor');
-  if (nodes.length) {
-    timeline.add({
-      targets: nodes,
-      opacity: [0, 1],
+    
+    // Nodes (rect, circle, ellipse)
+    const nodes = svg.querySelectorAll('g.node rect, g.node circle, g.node ellipse, .actor');
+    if (nodes.length) {
+      timeline.add({
+        targets: nodes,
+        opacity: [0, 1],
       scale: [0.85, 1],
-      duration: 800,
+        duration: 800,
       delay: getAnime().stagger(70)
-    });
-  }
-  
-  // Labels and text
-  const labels = svg.querySelectorAll('g.node .label, .messageText, .loopText, text:not(.actor)');
-  if (labels.length) {
-    timeline.add({
-      targets: labels,
-      opacity: [0, 1],
-      duration: 600,
+      });
+    }
+    
+    // Labels and text
+    const labels = svg.querySelectorAll('g.node .label, .messageText, .loopText, text:not(.actor)');
+    if (labels.length) {
+      timeline.add({
+        targets: labels,
+        opacity: [0, 1],
+        duration: 600,
       delay: getAnime().stagger(50)
-    }, '-=600');
-  }
-  
-  // Edges/paths
-  const edges = svg.querySelectorAll('.edgePath path, .messageLine0, .messageLine1');
-  if (edges.length) {
+      }, '-=600');
+    }
+    
+    // Edges/paths
+    const edges = svg.querySelectorAll('.edgePath path, .messageLine0, .messageLine1');
+    if (edges.length) {
     // Set up stroke-dasharray and stroke-dashoffset for paths
     edges.forEach(path => {
       if (path.getTotalLength) {
@@ -239,40 +239,40 @@ export function animateMermaidDiagram(container, options = {}) {
       }
     });
     
-    timeline.add({
-      targets: edges,
+      timeline.add({
+        targets: edges,
       strokeDashoffset: [getAnime().setDashoffset, 0],
       duration: 800,
       delay: getAnime().stagger(100),
-      easing: 'easeInOutSine'
-    }, '-=400');
-  }
-  
-  // Arrowheads
-  const markers = svg.querySelectorAll('marker, .marker');
-  if (markers.length) {
-    timeline.add({
-      targets: markers,
-      opacity: [0, 1],
-      duration: 300
-    }, '-=200');
-  }
-  
-  // Apply pulsing effect to specific nodes if requested
-  if (options.pulseSelector) {
-    const pulseNodes = svg.querySelectorAll(options.pulseSelector);
-    if (pulseNodes.length) {
-      timeline.add({
-        targets: pulseNodes,
-        scale: [1, 1.05, 1],
-        opacity: [1, 0.9, 1],
-        duration: 2000,
-        loop: true,
-        direction: 'alternate',
         easing: 'easeInOutSine'
-      });
+    }, '-=400');
     }
-  }
+    
+    // Arrowheads
+    const markers = svg.querySelectorAll('marker, .marker');
+    if (markers.length) {
+      timeline.add({
+        targets: markers,
+        opacity: [0, 1],
+        duration: 300
+      }, '-=200');
+    }
+    
+    // Apply pulsing effect to specific nodes if requested
+    if (options.pulseSelector) {
+      const pulseNodes = svg.querySelectorAll(options.pulseSelector);
+      if (pulseNodes.length) {
+        timeline.add({
+          targets: pulseNodes,
+          scale: [1, 1.05, 1],
+          opacity: [1, 0.9, 1],
+          duration: 2000,
+          loop: true,
+          direction: 'alternate',
+          easing: 'easeInOutSine'
+        });
+      }
+    }
 }
 
 /**

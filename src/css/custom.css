@@ -1519,7 +1519,7 @@ body {
 .docPage_WvG3,
 .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
 .docMainContainer_src-theme-DocPage-Layout-Main-styles-module,
-.docMainContainer_gTbr,
+  .docMainContainer_gTbr,
 .docMainContainer_N2Fh,
 .docItemCol_node_modules-\@docusaurus-theme-classic-lib-theme-DocItem-Layout-styles-module,
 .docItemCol_src-theme-DocItem-Layout-styles-module,
@@ -1716,7 +1716,7 @@ body {
     margin-left: 250px !important;
     width: calc(100% - 250px) !important;
     max-width: calc(100% - 250px) !important;
-  }
+}
 
   [class*="docMainContainer"] .container,
   [class*="docMainContainer"] .row,
@@ -1772,6 +1772,6 @@ body {
 
   body.sidebar-shown {
     overflow: hidden;
-  }
+}
 }
 /* === SIDEBAR FIX - END === */
