@@ -41,7 +41,7 @@ mermaid.initialize({
   }
 });
 
-const MermaidDiagram = ({ chart, className }) => {
+const DiagramRenderer = ({ chart, className }) => {
   const [svg, setSvg] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -104,7 +104,7 @@ const MermaidDiagram = ({ chart, className }) => {
 const StandardMermaid = (props) => {
   return (
     <BrowserOnly>
-      {() => <MermaidDiagram {...props} />}
+      {() => <DiagramRenderer {...props} />}
     </BrowserOnly>
   );
 };

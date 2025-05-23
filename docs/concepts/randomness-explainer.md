@@ -5,7 +5,7 @@ description: Interactive explanation of OmniDragon's multi-source cross-chain ra
 ---
 
 import CrossChainRandomnessAnimation from '@site/src/components/CrossChainRandomnessAnimation';
-import MermaidDiagram from '@site/src/components/MermaidDiagram';
+import EnhancedMermaid from '@site/src/components/EnhancedMermaid';
 
 # OmniDragon Randomness System Explained
 
@@ -87,7 +87,7 @@ This component:
 
 ## Multi-Chain Flow
 
-<MermaidDiagram 
+<EnhancedMermaid 
   title="Cross-Chain Randomness Flow"
   chart={`
     sequenceDiagram

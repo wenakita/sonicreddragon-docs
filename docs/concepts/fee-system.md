@@ -5,7 +5,7 @@ description: Detailed explanation of OmniDragon's token fee structure with visua
 ---
 
 import TokenFeeAnimation from '@site/src/components/TokenFeeAnimation';
-import MermaidDiagram from '@site/src/components/MermaidDiagram';
+import EnhancedMermaid from '@site/src/components/EnhancedMermaid';
 
 # OmniDragon Token Fee System
 

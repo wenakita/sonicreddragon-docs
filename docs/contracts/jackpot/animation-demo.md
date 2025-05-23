@@ -97,12 +97,12 @@ Both the Mermaid diagrams and anime.js animations are implemented as React compo
 
 ```jsx
 // Import components
-import MermaidDiagram from '@site/src/components/MermaidDiagram';
+import EnhancedMermaid from '@site/src/components/EnhancedMermaid';
 import AnimatedDiagram from '@site/src/components/AnimatedDiagram';
 import anime from 'animejs/lib/anime.es.js';
 
 // Use in your MDX documentation
-<MermaidDiagram 
+<EnhancedMermaid 
   chart={`flowchart TB
     A --> B
     B --> C`} 
