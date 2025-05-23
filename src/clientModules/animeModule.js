@@ -41,15 +41,16 @@ function setupMutationObserver() {
   return observer;
 }
 
-// Add the animation initializer to window load event
-if (isBrowser()) {
-  window.addEventListener('load', initializeAnimations);
-}
-
 // Export the required Docusaurus client module methods
 export default {
   onRouteUpdate() {
     initializeAnimations();
+    
+    // Add the animation initializer to window load event (only once)
+    if (isBrowser() && !window._animeLoadListenerAdded) {
+      window._animeLoadListenerAdded = true;
+      window.addEventListener('load', initializeAnimations);
+    }
   },
   
   onRouteDidUpdate() {

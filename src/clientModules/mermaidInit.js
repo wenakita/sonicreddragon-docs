@@ -191,25 +191,29 @@ function setupMermaidDiagrams() {
   });
 }
 
-// --- KEYBOARD ACCESSIBILITY ---
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    const expandedDiagram = document.querySelector('.mermaid-wrapper.expanded');
-    if (expandedDiagram) {
-      expandedDiagram.classList.remove('expanded');
-      const backdrop = document.querySelector('.mermaid-backdrop');
-      if (backdrop) backdrop.classList.remove('visible');
-      document.body.style.overflow = '';
-    }
-  }
-});
-
 // This runs on client-side browser only
 export default {
   onRouteUpdate() {
     if (typeof window === 'undefined') return;
     
     console.log('Initializing mermaid from client module');
+    
+    // --- KEYBOARD ACCESSIBILITY ---
+    // Set up keyboard event listener (only once)
+    if (!window._mermaidKeyboardListenerAdded) {
+      window._mermaidKeyboardListenerAdded = true;
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          const expandedDiagram = document.querySelector('.mermaid-wrapper.expanded');
+          if (expandedDiagram) {
+            expandedDiagram.classList.remove('expanded');
+            const backdrop = document.querySelector('.mermaid-backdrop');
+            if (backdrop) backdrop.classList.remove('visible');
+            document.body.style.overflow = '';
+          }
+        }
+      });
+    }
     
     try {
       // Get current theme
