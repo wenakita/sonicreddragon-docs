@@ -46,6 +46,15 @@ const config: Config = {
     require.resolve('./src/clientModules/sidebarFixer.js'),
   ],
 
+  // Emergency sidebar fix - loads immediately
+  scripts: [
+    {
+      src: '/js/emergency-sidebar-fix.js',
+      async: false,
+      defer: false,
+    },
+  ],
+
   presets: [
     [
       'classic',
