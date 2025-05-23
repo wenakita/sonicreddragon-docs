@@ -1,142 +1,148 @@
-// Safe sidebar fix script - executes only in browser
-// Version with timestamp: 2023-11-01-002
+/**
+ * Sidebar Fix v7.0.0 - Proper Mobile Overlay Handling
+ * Ensures proper mobile sidebar behavior with overlay support
+ */
+
 (function() {
-  // SSR check - return immediately if not in browser
+  'use strict';
+  
+  // SSR Safety Check
   if (typeof window === 'undefined' || typeof document === 'undefined') {
     return;
   }
 
-  // Docusaurus SSR safety - the script is marked as defer so it will run after page load
-  // Wait for DOM to be fully loaded
-  function handleSidebar() {
-    try {
-      console.log('[Sidebar Fix] Initializing sidebar fix script...');
-      
-      // Setup toggle buttons for mobile sidebar
-      const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
-      toggleButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-          console.log('[Sidebar Fix] Toggle button clicked');
-          document.body.classList.toggle('sidebar-shown');
-        });
-      });
-      
-      // Create and handle overlay
-      let overlay = document.querySelector('.sidebar-overlay');
-      if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.className = 'sidebar-overlay';
-        document.body.appendChild(overlay);
-        
-        overlay.addEventListener('click', function() {
-          console.log('[Sidebar Fix] Overlay clicked');
-          document.body.classList.remove('sidebar-shown');
-        });
-      }
-      
-      // Apply critical CSS for desktop if not already applied
-      const criticalCSS = `
-        @media (min-width: 997px) {
-          .theme-doc-sidebar-container {
-            position: fixed !important;
-            top: var(--ifm-navbar-height) !important;
-            left: 0 !important;
-            bottom: 0 !important;
-            width: 250px !important;
-            height: calc(100vh - var(--ifm-navbar-height)) !important;
-            overflow-y: auto !important;
-            z-index: 200 !important;
-            border-right: 1px solid var(--ifm-toc-border-color) !important;
-          }
-          
-          [class*="docMainContainer"] {
-            margin-left: 250px !important;
-            width: calc(100% - 250px) !important;
-            max-width: calc(100% - 250px) !important;
-          }
-        
-          /* Fix any nested container elements */
-          [class*="docMainContainer"] .container,
-          [class*="docMainContainer"] .row,
-          [class*="docMainContainer"] [class*="docItemCol"] {
-            width: 100% !important;
-            max-width: 100% !important;
-            margin-left: 0 !important;
-          }
-        }
-        
-        /* Mobile sidebar positioning */
-        @media (max-width: 996px) {
-          .theme-doc-sidebar-container {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            bottom: 0 !important;
-            width: 85% !important;
-            max-width: 300px !important;
-            height: 100% !important;
-            z-index: 10000 !important;
-            transform: translateX(-100%) !important;
-            transition: transform 0.3s ease !important;
-            background-color: var(--ifm-background-surface-color) !important;
-            border-right: 1px solid var(--ifm-toc-border-color) !important;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
-          }
-        
-          body.sidebar-shown .theme-doc-sidebar-container {
-            transform: translateX(0) !important;
-          }
-        
-          [class*="docMainContainer"] {
-            margin-left: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-          }
-        
-          .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-          }
-        
-          body.sidebar-shown .sidebar-overlay {
-            display: block;
-          }
-        
-          body.sidebar-shown {
-            overflow: hidden;
-          }
-        }
-      `;
-      
-      // Add the CSS
-      const style = document.createElement('style');
-      style.textContent = criticalCSS;
-      style.setAttribute('id', 'sidebar-critical-css');
-      if (!document.getElementById('sidebar-critical-css')) {
-        document.head.appendChild(style);
-        console.log('[Sidebar Fix] Critical CSS injected');
-      }
-      
-      console.log('[Sidebar Fix] Sidebar fix script initialized successfully');
-    } catch (error) {
-      console.error('[Sidebar Fix] Error initializing sidebar:', error);
+  let overlay = null;
+  let isInitialized = false;
+
+  function createOverlay() {
+    if (overlay) return overlay;
+    
+    overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    overlay.style.cssText = `
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 9999;
+      cursor: pointer;
+    `;
+    
+    // Close sidebar when overlay is clicked
+    overlay.addEventListener('click', closeSidebar);
+    document.body.appendChild(overlay);
+    
+    return overlay;
+  }
+
+  function openSidebar() {
+    document.body.classList.add('sidebar-shown');
+    if (overlay) {
+      overlay.style.display = 'block';
     }
   }
-  
-  // Run when the DOM is ready - using a setTimeout to ensure it runs after SSR
-  setTimeout(function() {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', handleSidebar);
-    } else {
-      handleSidebar();
+
+  function closeSidebar() {
+    document.body.classList.remove('sidebar-shown');
+    if (overlay) {
+      overlay.style.display = 'none';
     }
-  }, 0);
+  }
+
+  function toggleSidebar() {
+    if (document.body.classList.contains('sidebar-shown')) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  }
+
+  function isMobile() {
+    return window.innerWidth <= 996;
+  }
+
+  function initializeSidebar() {
+    if (isInitialized) return;
+    
+    // Create overlay for mobile
+    createOverlay();
+
+    // Handle mobile menu toggle
+    const menuToggle = document.querySelector('.navbar__toggle');
+    if (menuToggle) {
+      menuToggle.addEventListener('click', function(e) {
+        if (isMobile()) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleSidebar();
+        }
+      });
+    }
+
+    // Handle ESC key to close sidebar on mobile
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && isMobile() && document.body.classList.contains('sidebar-shown')) {
+        closeSidebar();
+      }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+      if (!isMobile()) {
+        closeSidebar();
+      }
+    });
+
+    // Close sidebar when clicking on main content on mobile
+    document.addEventListener('click', function(e) {
+      if (!isMobile()) return;
+      
+      const sidebar = document.querySelector('.theme-doc-sidebar-container');
+      const menuToggle = document.querySelector('.navbar__toggle');
+      
+      if (sidebar && !sidebar.contains(e.target) && 
+          menuToggle && !menuToggle.contains(e.target) &&
+          document.body.classList.contains('sidebar-shown')) {
+        closeSidebar();
+      }
+    });
+
+    isInitialized = true;
+    console.log('✅ Sidebar Fix v7.0.0 initialized');
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSidebar);
+  } else {
+    initializeSidebar();
+  }
+
+  // Re-initialize after navigation (for SPA routing)
+  let currentPath = window.location.pathname;
+  function checkForNavigation() {
+    if (window.location.pathname !== currentPath) {
+      currentPath = window.location.pathname;
+      setTimeout(initializeSidebar, 100);
+    }
+  }
+  setInterval(checkForNavigation, 500);
+
+  // Expose functions globally for debugging
+  window.sidebarFix = {
+    version: '7.0.0',
+    open: openSidebar,
+    close: closeSidebar,
+    toggle: toggleSidebar,
+    reinit: function() {
+      isInitialized = false;
+      initializeSidebar();
+    }
+  };
+
 })();
 
 // Cache-busting timestamp: 1698858778901 

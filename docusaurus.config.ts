@@ -48,7 +48,7 @@ const config: Config = {
   // Add script for sidebar fix - exclude from SSR to prevent 'document is not defined' errors
   scripts: [
     {
-      src: '/js/fix-sidebar.js?v=5.0.0',
+      src: '/js/fix-sidebar.js?v=7.0.0',
       async: true,
       defer: true,
       'data-ssr': 'exclude',

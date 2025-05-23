@@ -2,220 +2,45 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened]
-  workflow_dispatch:
+    branches:
+      - main
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
-    name: Build and Deploy to GitHub Pages
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: npm
-          cache-dependency-path: package-lock.json
+          node-version: '18'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --no-audit --no-fund
-
-      - name: Add sidebar CSS fixes
-        run: |
-          echo "Adding sidebar CSS fixes to custom.css..."
-          cat >> src/css/custom.css << 'EOL'
-          
-          /* === SIDEBAR FIX - START === */
-          /* Desktop sidebar positioning */
-          @media (min-width: 997px) {
-            .theme-doc-sidebar-container {
-              position: fixed !important;
-              top: var(--ifm-navbar-height) !important;
-              left: 0 !important;
-              bottom: 0 !important;
-              width: 250px !important;
-              height: calc(100vh - var(--ifm-navbar-height)) !important;
-              overflow-y: auto !important;
-              z-index: 200 !important;
-              border-right: 1px solid var(--ifm-toc-border-color) !important;
-            }
-            
-            [class*="docMainContainer"] {
-              margin-left: 250px !important;
-              width: calc(100% - 250px) !important;
-              max-width: calc(100% - 250px) !important;
-            }
-          
-            [class*="docMainContainer"] .container,
-            [class*="docMainContainer"] .row,
-            [class*="docMainContainer"] [class*="docItemCol"] {
-              width: 100% !important;
-              max-width: 100% !important;
-              margin-left: 0 !important;
-            }
-          }
-          
-          /* Mobile sidebar positioning */
-          @media (max-width: 996px) {
-            .theme-doc-sidebar-container {
-              position: fixed !important;
-              top: 0 !important;
-              left: 0 !important;
-              bottom: 0 !important;
-              width: 85% !important;
-              max-width: 300px !important;
-              height: 100% !important;
-              z-index: 10000 !important;
-              transform: translateX(-100%) !important;
-              transition: transform 0.3s ease !important;
-              background-color: var(--ifm-background-surface-color) !important;
-              border-right: 1px solid var(--ifm-toc-border-color) !important;
-              box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
-            }
-          
-            body.sidebar-shown .theme-doc-sidebar-container {
-              transform: translateX(0) !important;
-            }
-          
-            [class*="docMainContainer"] {
-              margin-left: 0 !important;
-              width: 100% !important;
-              max-width: 100% !important;
-            }
-          
-            .sidebar-overlay {
-              display: none;
-              position: fixed;
-              top: 0;
-              left: 0;
-              right: 0;
-              bottom: 0;
-              background-color: rgba(0, 0, 0, 0.7);
-              z-index: 9999;
-            }
-          
-            body.sidebar-shown .sidebar-overlay {
-              display: block;
-            }
-          
-            body.sidebar-shown {
-              overflow: hidden;
-            }
-          }
-          /* === SIDEBAR FIX - END === */
-          EOL
-
-      - name: Create sidebar JavaScript
-        run: |
-          echo "Creating sidebar JavaScript file..."
-          mkdir -p static/js
-          cat > static/js/fix-sidebar.js << 'EOL'
-          // Sidebar fix v6.0.0 - runs only in browser
-          (function() {
-            // SSR safety check
-            if (typeof window === 'undefined' || typeof document === 'undefined') {
-              return;
-            }
-            
-            console.log('[Sidebar Fix v6.0.0] Initializing...');
-            
-            function initSidebar() {
-              try {
-                // Mobile toggle functionality
-                const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
-                console.log('[Sidebar Fix] Found', toggleButtons.length, 'toggle buttons');
-                
-                toggleButtons.forEach(btn => {
-                  btn.addEventListener('click', function() {
-                    document.body.classList.toggle('sidebar-shown');
-                    console.log('[Sidebar Fix] Sidebar toggled');
-                  });
-                });
-                
-                // Create mobile overlay
-                let overlay = document.querySelector('.sidebar-overlay');
-                if (!overlay) {
-                  overlay = document.createElement('div');
-                  overlay.className = 'sidebar-overlay';
-                  document.body.appendChild(overlay);
-                  
-                  overlay.addEventListener('click', function() {
-                    document.body.classList.remove('sidebar-shown');
-                    console.log('[Sidebar Fix] Sidebar closed via overlay');
-                  });
-                }
-                
-                console.log('[Sidebar Fix] Mobile overlay created/updated');
-                
-              } catch (error) {
-                console.error('[Sidebar Fix] Error:', error);
-              }
-            }
-            
-            // Initialize when DOM is ready
-            if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', initSidebar);
-            } else {
-              setTimeout(initSidebar, 10);
-            }
-            
-            console.log('[Sidebar Fix v6.0.0] Setup complete');
-          })();
-          EOL
-
-      - name: Clean up unused files
-        run: |
-          echo "Cleaning up unused files..."
-          rm -f src/clientModules/sidebarEnhancer.js || true
-          rm -f src/css/global-sidebar-fix.css || true
-          rm -f src/clientModules/sidebarFixer.js || true
+        run: npm ci
 
       - name: Build website
-        env:
-          NODE_OPTIONS: --max-old-space-size=8192
         run: npm run build
 
-      - name: Verify build output
-        run: |
-          echo "Build completed. Checking output..."
-          ls -la build/
-          echo "Checking for our sidebar fix files..."
-          find build/ -name "fix-sidebar.js" -exec echo "Found: {}" \;
-          find build/ -name "*.css" -exec grep -l "SIDEBAR FIX" {} \; || echo "CSS fix not found in build"
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
 
       - name: Deploy to GitHub Pages
-        if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: build
-          clean: true
-          clean-exclude: |
-            .nojekyll
-            CNAME
-          commit-message: "🚀 Deploy website - ${{ github.sha }}"
-          git-config-name: "GitHub Actions Bot"
-          git-config-email: "actions@github.com"
-
-      - name: Deployment complete
-        if: github.event_name != 'pull_request'
-        run: |
-          echo "✅ Deployment to GitHub Pages completed!"
-          echo "🌐 Your site will be available at: https://docs.sonicreddragon.io"
-          echo "⏰ Changes may take 1-2 minutes to appear due to CDN caching"
+        id: deployment
+        uses: actions/deploy-pages@v4
