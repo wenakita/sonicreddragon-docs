@@ -1,6 +1,6 @@
 # Sonic Red Dragon Documentation
 
-This documentation is built using [Docusaurus 3](https://docusaurus.io/), a modern static website generator.
+This is the documentation site for Sonic Red Dragon, built with [Docusaurus 3](https://docusaurus.io/).
 
 ## Using Mermaid Diagrams
 
@@ -38,28 +38,28 @@ graph TD
 
 ## Installation
 
-```
-$ npm install
+```bash
+npm install
 ```
 
 ## Local Development
 
-```
-$ npm start
+```bash
+npm start
 ```
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
 ## Build
 
-```
-$ npm build
+```bash
+npm run build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
 ## Deployment
 
-The documentation is automatically deployed when changes are merged to the main branch.
+The site is automatically deployed to GitHub Pages via GitHub Actions when changes are pushed to the main branch.
 
-This website is automatically deployed using GitHub Actions.
+**Last updated**: 2024-12-19 22:35 UTC - Triggering fresh deployment with sidebar fixes
