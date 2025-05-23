@@ -43,16 +43,7 @@ const config: Config = {
   clientModules: [
     require.resolve('./src/clientModules/mermaidInit.js'),
     require.resolve('./src/clientModules/animeModule.js'),
-  ],
-
-  // Add script for sidebar fix - exclude from SSR to prevent 'document is not defined' errors
-  scripts: [
-    {
-      src: '/js/fix-sidebar.js?v=7.0.0',
-      async: true,
-      defer: true,
-      'data-ssr': 'exclude',
-    },
+    require.resolve('./src/clientModules/sidebarFixer.js'),
   ],
 
   presets: [

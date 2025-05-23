@@ -42,7 +42,8 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   
   /* Fixed sidebar width - this will be controlled by JS */
-  --doc-sidebar-width: 250px !important;
+  --doc-sidebar-width: 250px;
+  --ifm-navbar-sidebar-width: 250px;
 }
 
 /* Fixed background attachment to prevent scroll jumps */
@@ -1078,607 +1079,96 @@ article {
   stroke: var(--ifm-color-emphasis-300) !important;
 }
 
-/* Fix mobile sidebar z-index and positioning - UPDATED */
-.navbar-sidebar {
-  z-index: 10000 !important; /* Extremely high z-index */
-  width: 300px; /* Default width for desktop */
-  max-width: 300px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) !important;
-  position: fixed !important;
-  top: 0 !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  overflow-y: auto !important;
-}
-
-/* Responsive adjustments for mobile */
-@media (max-width: 996px) {
-  .navbar-sidebar {
-    width: 85% !important; /* Mobile width */
-    max-width: 300px;
-  }
-}
-
-/* Fix for right sidebar and table of contents */
-.table-of-contents {
-  position: relative;
-  overflow-y: auto;
-}
-
-/* Fix for vertical text in right sidebar */
-.table-of-contents__link span,
-.toc-highlight {
-  display: inline-block !important;
-  white-space: normal !important;
-  word-break: normal !important;
-  vertical-align: baseline !important;
-  text-orientation: initial !important;
-  writing-mode: horizontal-tb !important;
-}
-
-/* Ensure proper display for right sidebar headings and content */
-.theme-doc-toc-desktop .toc-title,
-.theme-doc-toc-desktop .table-of-contents,
-.theme-doc-toc-desktop .table-of-contents__link,
-.theme-doc-toc-desktop .table-of-contents__link code {
-  writing-mode: horizontal-tb !important;
-  text-orientation: initial !important;
-  letter-spacing: normal !important;
-  font-size: inherit !important;
-  line-height: 1.5 !important;
-}
-
-/* Fix any nested items in right sidebar */
-.table-of-contents ul,
-.table-of-contents li {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  white-space: normal !important;
-  display: block !important;
-}
-
-/* Ensure backdrop covers all content */
-.navbar-sidebar__backdrop {
-  z-index: 9999 !important; /* Just below sidebar but above everything else */
-  background-color: rgba(0, 0, 0, 0.7) !important;
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-}
-
-/* Fix Docusaurus specific issues */
-:root {
-  --ifm-navbar-sidebar-width: 240px !important; /* Further reduced width */
-  --doc-sidebar-width: 240px !important; /* Further reduced width */
-  --ifm-toc-border-color: var(--ifm-color-emphasis-200) !important;
-}
-
-/* Mobile-specific variables */
-@media (max-width: 996px) {
-  :root {
-    --ifm-navbar-sidebar-width: 240px !important; /* Mobile width */
-    --doc-sidebar-width: 240px !important; /* Mobile width */
-  }
-}
-
-/* Force content behind sidebar */
-.main-wrapper {
-  z-index: 1 !important; /* Low z-index for content */
-  position: relative !important;
-}
-
-/* Ensure menu is visible on top of content */
-.menu {
-  z-index: 10000 !important; /* Same as sidebar */
-  position: relative !important;
-}
-
-/* Fix Docusaurus specific issues */
-.navbar {
-  z-index: 9998 !important; /* Below sidebar but above content */
-}
-
-/* Doc sidebar specific fixes */
-.theme-doc-sidebar-container {
-  position: sticky !important;
-  top: var(--ifm-navbar-height) !important;
-  height: calc(100vh - var(--ifm-navbar-height)) !important;
-  max-height: calc(100vh - var(--ifm-navbar-height)) !important;
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-  overflow-y: auto;
-  width: var(--doc-sidebar-width);
-  max-width: 280px !important; /* Ensure sidebar doesn't exceed this width */
-  z-index: 200 !important;
-}
-
-/* Fix main docusaurus elements */
-.docMainContainer_gTbr, 
-.docPage_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
-.docMainContainer_N2Fh,
-.docPage_WvG3 {
-  z-index: 1 !important;
-  position: relative !important;
-}
-
-/* Mobile styles enhancements */
-@media (max-width: 996px) {
-  /* Force content behind when sidebar is shown */
-  body.navbar-sidebar--show .main-wrapper {
-    z-index: 1 !important;
-    position: relative !important;
-  }
-  
-  /* Ensure the sidebar container is fixed and visible above all */
-  body.navbar-sidebar--show .navbar-sidebar {
-    transform: translateX(0) !important;
-    visibility: visible !important;
-  }
-  
-  /* Force DocSidebar above content */
+/* === CLEAN SIDEBAR FIX - START === */
+/* Desktop sidebar - fixed positioning */
+@media (min-width: 997px) {
+  /* Force sidebar to be fixed positioned */
   .theme-doc-sidebar-container {
     position: fixed !important;
-    top: 0 !important;
+    top: var(--ifm-navbar-height) !important;
     left: 0 !important;
-    bottom: 0 !important;
-    right: auto !important;
-    height: 100% !important;
-    max-height: 100% !important;
-    z-index: 10000 !important;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) !important;
-    transform: translateX(-100%) !important;
-    transition: transform 0.3s ease !important;
-  }
-  
-  /* Wrap content with main-content-wrapper for z-index management */
-  .main-wrapper::after {
-    content: '';
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-  }
-  
-  /* Menu button visibility */
-  .navbar__toggle {
-    z-index: 9999 !important;
-    position: relative;
-  }
-  
-  /* Override any theme specific styles */
-  .docs-doc-sidebar {
-    z-index: 10000 !important;
-  }
-}
-
-/* Fix for docusaurus sidebar menu */
-.theme-doc-sidebar-menu {
-  padding: 0.5rem !important;
-  font-size: 15px !important;
-  padding-bottom: 5rem !important; /* Add padding at bottom for scrolling */
-}
-
-.menu__list-item {
-  position: relative !important;
-}
-
-/* Additional Docusaurus-specific fixes */
-:root {
-  --ifm-navbar-sidebar-width: 240px !important; /* Further reduced width */
-  --doc-sidebar-width: 240px !important; /* Further reduced width */
-  --ifm-toc-border-color: var(--ifm-color-emphasis-200) !important;
-}
-
-/* Fix Docusaurus overlapping issues */
-body {
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-}
-
-/* Fix for mobile doc sidebar */
-.docs-doc-page .menu {
-  z-index: 500 !important; /* Higher than content but lower than top navbar */
-}
-
-.theme-doc-sidebar-container {
-  position: relative;
-  z-index: 20;
-}
-
-/* Fix backdrop for the docusaurus mobile sidebar */
-.docs-doc-sidebar {
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) !important;
-}
-
-@media (max-width: 996px) {
-  .theme-doc-sidebar-container {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    bottom: 0 !important;
+    width: var(--doc-sidebar-width) !important;
+    height: calc(100vh - var(--ifm-navbar-height)) !important;
+    overflow-y: auto !important;
     z-index: 100 !important;
-    transform: translateX(-100%) !important;
-    transition: transform 0.3s ease !important;
-  }
-
-  html[data-theme='light'] .theme-doc-sidebar-container {
-    background-color: var(--ifm-background-surface-color);
+    background: var(--ifm-background-surface-color) !important;
+    border-right: 1px solid var(--ifm-toc-border-color) !important;
   }
   
-  html[data-theme='dark'] .theme-doc-sidebar-container {
-    background-color: var(--ifm-background-surface-color);
+  /* Adjust main content to account for fixed sidebar */
+  [class*="docPage"] {
+    display: block !important;
+    margin-left: var(--doc-sidebar-width) !important;
+    width: calc(100% - var(--doc-sidebar-width)) !important;
   }
+  
+  [class*="docMainContainer"] {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
 
-  .theme-doc-sidebar-container.menu--show {
+/* Mobile sidebar - overlay positioning */
+@media (max-width: 996px) {
+  .theme-doc-sidebar-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 85% !important;
+    max-width: 300px !important;
+    height: 100% !important;
+    z-index: 9999 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease !important;
+    background: var(--ifm-background-surface-color) !important;
+    border-right: 1px solid var(--ifm-toc-border-color) !important;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  /* Show sidebar when menu is open */
+  .theme-doc-sidebar-container.docSidebarContainer_b6E3 {
     transform: translateX(0) !important;
   }
   
-  /* Add sidebar backdrop */
-  .overlay-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 9999;
-    display: none;
-  }
-  
-  .menu--show + .overlay-container {
-    display: block;
+  /* Full width content on mobile */
+  [class*="docPage"], 
+  [class*="docMainContainer"] {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
 
-/* Menu item improvements */
-.menu__list-item-collapsible {
-  font-weight: 500;
+/* Clean up the sidebar menu */
+.theme-doc-sidebar-menu {
+  padding: 1rem !important;
+  height: 100% !important;
 }
 
-.menu__list-item-collapsible:hover {
-  background-color: rgba(var(--ifm-color-primary-rgb), 0.1);
-  border-radius: 8px;
+.menu {
+  font-size: 0.9rem !important;
+  padding: 0 !important;
 }
 
 .menu__link {
-  padding: 0.6rem 0.8rem;
-  border-radius: var(--ifm-global-radius);
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.menu__link:hover {
-  background-color: rgba(var(--ifm-color-primary-rgb), 0.1);
-  transform: translateX(2px);
+  border-radius: 6px !important;
+  margin-bottom: 2px !important;
+  transition: all 0.2s ease !important;
 }
 
 .menu__link--active {
-  font-weight: 600;
-  background-color: rgba(var(--ifm-color-primary-rgb), 0.15);
-  border-left: 2px solid var(--ifm-color-primary);
+  background: rgba(var(--ifm-color-primary-rgb), 0.1) !important;
+  border-left: 3px solid var(--ifm-color-primary) !important;
+  font-weight: 600 !important;
 }
 
-/* Fix theme-doc-sidebar-menu padding and appearance */
-.theme-doc-sidebar-menu {
-  padding: 0.5rem !important;
-  font-size: 15px !important;
-  padding-bottom: 5rem !important; /* Add padding at bottom for scrolling */
+.menu__link:hover {
+  background: rgba(var(--ifm-color-primary-rgb), 0.05) !important;
 }
-
-/* Ensure sidebar shows when menu--show class is applied */
-.theme-doc-sidebar-container.menu--show {
-  transform: translateX(0) !important;
-}
-
-/* Restore backdrop overlay for mobile */
-.overlay-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 9999;
-  display: none;
-}
-
-.menu--show + .overlay-container {
-  display: block;
-}
-
-/* Better content area width */
-.container {
-  max-width: 1400px !important; /* Wider content area */
-}
-
-/* Adjust main content container for better layout */
-.main-wrapper {
-  display: flex;
-  width: 100%;
-}
-
-/* Proper spacing for document content */
-.docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
-.docMainContainer_N2Fh,
-.docMainContainer_gTbr,
-.docPage_WvG3 {
-  flex: 1;
-  max-width: calc(100% - 280px);
-  padding-left: 2rem;
-  padding-right: 2rem;
-}
-
-/* Mobile responsiveness */
-@media (max-width: 996px) {
-  :root {
-    --doc-sidebar-width: 85% !important;  /* Mobile: take up most of the screen */
-    --ifm-navbar-sidebar-width: 85% !important;
-  }
-  
-  /* Mobile sidebar positioning */
-  .theme-doc-sidebar-container {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    height: 100% !important;
-    transform: translateX(-100%) !important;
-    transition: transform 0.3s ease !important;
-    z-index: 9999 !important;
-    width: var(--doc-sidebar-width) !important;
-    max-width: 320px !important; /* Cap the max width on mobile */
-    background-color: var(--ifm-background-surface-color) !important;
-  }
-  
-  /* When sidebar is shown */
-  .theme-doc-sidebar-container.menu--show {
-    transform: translateX(0) !important;
-  }
-  
-  /* Make sure content uses full width on mobile */
-  .main-wrapper .container,
-  .docPage_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-styles-module,
-  .docPage_src-theme-DocPage-Layout-styles-module,
-  .docPage_WvG3,
-  .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
-  .docMainContainer_src-theme-DocPage-Layout-Main-styles-module,
-  .docMainContainer_gTbr,
-  .docMainContainer_N2Fh,
-  .docItemCol_node_modules-\@docusaurus-theme-classic-lib-theme-DocItem-Layout-styles-module,
-  .docItemCol_src-theme-DocItem-Layout-styles-module,
-  .docItemCol_VOVn {
-    max-width: 100% !important;
-    width: 100% !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-}
-
-/* Medium-sized screens (tablets) */
-@media (min-width: 997px) and (max-width: 1200px) {
-  :root {
-    --doc-sidebar-width: 22% !important; /* Slightly wider on medium screens */
-    --ifm-navbar-sidebar-width: 22% !important;
-  }
-}
-
-/* Large screens */
-@media (min-width: 1201px) {
-  :root {
-    --doc-sidebar-width: 18% !important; /* Standard width on large screens */
-    --ifm-navbar-sidebar-width: 18% !important;
-  }
-}
-
-/* Extra large screens */
-@media (min-width: 1600px) {
-  :root {
-    --doc-sidebar-width: 15% !important; /* Smaller percentage on very large screens */
-    --ifm-navbar-sidebar-width: 15% !important;
-  }
-}
-
-/* Main wrapper layout fix */
-.main-wrapper {
-  min-height: calc(100vh - 60px - 300px);
-  display: flex;
-  width: 100%;
-  overflow-x: hidden;
-  position: relative;
-}
-
-/* Complete fix for sidebar overlap and layout */
-.theme-doc-sidebar-container {
-  width: var(--doc-sidebar-width) !important;
-  max-width: var(--doc-sidebar-width) !important;
-  margin-right: 0 !important;
-  position: sticky !important;
-  top: var(--ifm-navbar-height) !important;
-  height: calc(100vh - var(--ifm-navbar-height)) !important;
-  overflow-y: auto;
-  z-index: 2 !important;
-  flex-shrink: 0 !important;
-  border-right: 1px solid var(--ifm-toc-border-color) !important;
-}
-
-/* Main content container - prevent wrapping */
-.main-wrapper .container {
-  max-width: calc(100% - var(--doc-sidebar-width)) !important;
-  flex: 1 1 auto !important;
-  padding-left: 2rem !important;
-  padding-right: 2rem !important;
-  margin-left: 0 !important;
-  overflow-x: hidden !important;
-}
-
-/* Main content fixes for specific Docusaurus selectors */
-.docPage_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-styles-module,
-.docPage_src-theme-DocPage-Layout-styles-module,
-.docPage_WvG3,
-.docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
-.docMainContainer_src-theme-DocPage-Layout-Main-styles-module,
-  .docMainContainer_gTbr,
-.docMainContainer_N2Fh,
-.docItemCol_node_modules-\@docusaurus-theme-classic-lib-theme-DocItem-Layout-styles-module,
-.docItemCol_src-theme-DocItem-Layout-styles-module,
-.docItemCol_VOVn {
-  max-width: 100% !important;
-  width: 100% !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-}
-
-/* Fix for doc pages */
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 !important;
-  width: 100% !important;
-}
-
-/* Sidebar menu */
-.menu {
-  padding: 0.5rem !important;
-  width: 100% !important;
-  font-size: 0.875rem !important;
-}
-
-/* Mobile overrides */
-@media (max-width: 996px) {
-  :root {
-    --doc-sidebar-width: 85% !important;  /* Mobile: take up most of the screen */
-    --ifm-navbar-sidebar-width: 85% !important;
-  }
-  
-  /* Mobile sidebar positioning */
-  .theme-doc-sidebar-container {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    height: 100% !important;
-    transform: translateX(-100%) !important;
-    transition: transform 0.3s ease !important;
-    z-index: 9999 !important;
-    width: var(--doc-sidebar-width) !important;
-    max-width: 320px !important; /* Cap the max width on mobile */
-    background-color: var(--ifm-background-surface-color) !important;
-  }
-  
-  /* When sidebar is shown */
-  .theme-doc-sidebar-container.menu--show {
-    transform: translateX(0) !important;
-  }
-  
-  /* Make sure content uses full width on mobile */
-  .main-wrapper .container,
-  .docPage_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-styles-module,
-  .docPage_src-theme-DocPage-Layout-styles-module,
-  .docPage_WvG3,
-  .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
-  .docMainContainer_src-theme-DocPage-Layout-Main-styles-module,
-  .docMainContainer_gTbr,
-  .docMainContainer_N2Fh,
-  .docItemCol_node_modules-\@docusaurus-theme-classic-lib-theme-DocItem-Layout-styles-module,
-  .docItemCol_src-theme-DocItem-Layout-styles-module,
-  .docItemCol_VOVn {
-    max-width: 100% !important;
-    width: 100% !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-}
-
-/* Ensure right sidebar (TOC) doesn't cause layout issues */
-.col.col--3 {
-  position: relative !important;
-  max-width: 25% !important;
-  flex-basis: 25% !important;
-}
-
-/* Ensure main content column has proper width */
-.col.col--7,
-.col.col--9 {
-  position: relative !important;
-  width: auto !important;
-  flex: 1 1 auto !important;
-  padding-left: 1.5rem !important;
-  padding-right: 1.5rem !important;
-  overflow-x: hidden !important;
-}
-
-/* Direct sidebar fix - overriding Docusaurus styles */
-:root {
-  --doc-sidebar-width: 250px !important;
-  --ifm-navbar-sidebar-width: 250px !important;
-}
-
-/* Fix layout by directly targeting the Docusaurus classes */
-.theme-doc-sidebar-container {
-  width: 250px !important;
-  min-width: 250px !important;
-  max-width: 250px !important;
-  margin-right: 0 !important;
-  padding-right: 0 !important;
-  position: fixed !important;
-  left: 0 !important;
-  top: var(--ifm-navbar-height) !important;
-  height: calc(100vh - var(--ifm-navbar-height)) !important;
-  overflow-y: auto !important;
-  z-index: 200 !important;
-  background-color: var(--ifm-background-surface-color) !important;
-  border-right: 1px solid var(--ifm-toc-border-color) !important;
-}
-
-/* Fix main content positioning */
-.docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
-.docMainContainer_src-theme-DocPage-Layout-Main-styles-module,
-.docMainContainer_gTbr,
-.docMainContainer_N2Fh,
-[class*="docMainContainer"] {
-  margin-left: 250px !important;
-  max-width: calc(100% - 250px) !important;
-  width: calc(100% - 250px) !important;
-  padding-left: 2rem !important;
-  padding-right: 2rem !important;
-}
-
-/* Fix doc page wrapper */
-.docPage_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-styles-module,
-.docPage_src-theme-DocPage-Layout-styles-module,
-.docPage_WvG3,
-[class*="docPage"] {
-  display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-/* Mobile fixes */
-@media (max-width: 996px) {
-  .theme-doc-sidebar-container {
-    transform: translateX(-100%) !important;
-    z-index: 9999 !important;
-    width: 85% !important;
-    max-width: 300px !important;
-  }
-  
-  .theme-doc-sidebar-container.menu--show {
-    transform: translateX(0) !important;
-  }
-  
-  .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module,
-  .docMainContainer_src-theme-DocPage-Layout-Main-styles-module,
-  .docMainContainer_gTbr,
-  .docMainContainer_N2Fh,
-  [class*="docMainContainer"] {
-    margin-left: 0 !important;
-    max-width: 100% !important;
-    width: 100% !important;
-  }
-}
+/* === CLEAN SIDEBAR FIX - END === */
 
 /* CSS files with the .module.css suffix will be treated as CSS modules
  * and scoped locally.
