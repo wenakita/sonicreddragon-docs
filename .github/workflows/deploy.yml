@@ -9,17 +9,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build Docusaurus site
+  build-and-deploy:
+    name: Build and Deploy to GitHub Pages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -127,20 +125,25 @@ jobs:
           echo "Creating sidebar JavaScript file..."
           mkdir -p static/js
           cat > static/js/fix-sidebar.js << 'EOL'
-          // Sidebar fix - runs only in browser
+          // Sidebar fix v6.0.0 - runs only in browser
           (function() {
             // SSR safety check
             if (typeof window === 'undefined' || typeof document === 'undefined') {
               return;
             }
             
+            console.log('[Sidebar Fix v6.0.0] Initializing...');
+            
             function initSidebar() {
               try {
                 // Mobile toggle functionality
                 const toggleButtons = document.querySelectorAll('.navbar__toggle, .navbar-sidebar__close');
+                console.log('[Sidebar Fix] Found', toggleButtons.length, 'toggle buttons');
+                
                 toggleButtons.forEach(btn => {
                   btn.addEventListener('click', function() {
                     document.body.classList.toggle('sidebar-shown');
+                    console.log('[Sidebar Fix] Sidebar toggled');
                   });
                 });
                 
@@ -153,10 +156,14 @@ jobs:
                   
                   overlay.addEventListener('click', function() {
                     document.body.classList.remove('sidebar-shown');
+                    console.log('[Sidebar Fix] Sidebar closed via overlay');
                   });
                 }
+                
+                console.log('[Sidebar Fix] Mobile overlay created/updated');
+                
               } catch (error) {
-                console.error('Sidebar fix error:', error);
+                console.error('[Sidebar Fix] Error:', error);
               }
             }
             
@@ -166,6 +173,8 @@ jobs:
             } else {
               setTimeout(initSidebar, 10);
             }
+            
+            console.log('[Sidebar Fix v6.0.0] Setup complete');
           })();
           EOL
 
@@ -181,23 +190,32 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=8192
         run: npm run build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+      - name: Verify build output
+        run: |
+          echo "Build completed. Checking output..."
+          ls -la build/
+          echo "Checking for our sidebar fix files..."
+          find build/ -name "fix-sidebar.js" -exec echo "Found: {}" \;
+          find build/ -name "*.css" -exec grep -l "SIDEBAR FIX" {} \; || echo "CSS fix not found in build"
 
-      - name: Upload to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./build
-
-  deploy:
-    name: Deploy to GitHub Pages
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        if: github.event_name != 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: build
+          clean: true
+          clean-exclude: |
+            .nojekyll
+            CNAME
+          commit-message: "🚀 Deploy website - ${{ github.sha }}"
+          git-config-name: "GitHub Actions Bot"
+          git-config-email: "actions@github.com"
+
+      - name: Deployment complete
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "✅ Deployment to GitHub Pages completed!"
+          echo "🌐 Your site will be available at: https://docs.sonicreddragon.io"
+          echo "⏰ Changes may take 1-2 minutes to appear due to CDN caching"
