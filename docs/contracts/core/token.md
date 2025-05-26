@@ -39,7 +39,7 @@ flowchart TD
     Token -->|"2.41% fee"| Treasury
     Token -->|"0.69% fee"| Burn["Token Burn"]
     
-    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
+    classDef highlight fill:#4a80d1,stroke:#333,color:white;
     class Token highlight
 ```
 

@@ -37,8 +37,8 @@ graph TB
     DI --> D2
     DI --> D3
     
-    style RP fill:#f9f,stroke:#333,stroke-width:4px
-    style LZ fill:#bbf,stroke:#333,stroke-width:2px
+    style RP fill:#f9f,stroke:#333,
+    style LZ fill:#bbf,stroke:#333,
 ```
 
 ## 2. Request Flow Diagrams
@@ -381,8 +381,8 @@ graph TB
     S2 --> P2
     S3 --> P3
     
-    style P1 fill:#f96,stroke:#333,stroke-width:2px
-    style P2 fill:#f96,stroke:#333,stroke-width:2px
+    style P1 fill:#f96,stroke:#333,
+    style P2 fill:#f96,stroke:#333,
 ```
 
 ## Notes for Auditors

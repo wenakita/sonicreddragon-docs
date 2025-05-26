@@ -1,484 +1,358 @@
-# OmniDragon Core Contract
+# OmniDragon Token Contract
 
-The `OmniDragon.sol` contract is the central coordinator of the OmniDragon VRF system, managing randomness requests, coordinating between different randomness sources, and handling cross-chain operations.
+The **OmniDragon** contract is the core ERC20 token that powers the entire OmniDragon ecosystem. It's a specialized token with built-in fees, lottery entries, cross-chain functionality, and advanced governance features.
 
 ## Overview
 
-The OmniDragon core contract serves as the primary interface for applications requesting verifiable randomness. It integrates multiple randomness sources (Drand and Chainlink VRF) and provides a unified API for consumers while optimizing costs through intelligent batching and routing.
-
-## Contract Details
-
-- **Location**: `contracts/core/OmniDragon.sol`
-- **Network**: Sonic Mainnet (Chain ID: 146)
-- **Inheritance**: `Ownable`, `ReentrancyGuard`, `IOmniDragon`
+OmniDragon is deployed on Sonic blockchain and serves as the central hub for:
+- **Cross-chain transfers** via LayerZero
+- **Automated lottery system** with VRF-powered randomness
+- **Dynamic fee management** with multiple distribution channels
+- **Partner ecosystem** integration
+- **Governance mechanisms** with timelock protection
 
 ## Key Features
 
-### 🎲 Dual Randomness Sources
-- **Primary**: Drand beacon network (fast, 3-second rounds)
-- **Secondary**: Chainlink VRF via cross-chain messaging
-- **Automatic Failover**: Switches sources based on availability and cost
+### 🎯 Dragon Project Rules
+On all DRAGON swaps:
+- **6.9%** goes to jackpot vault
+- **2.41%** goes to ve69LP fee distributor  
+- **0.69%** is burned
+- **Only buys qualify for lottery entries**
 
-### ⚡ Cost Optimization
-- **Bucket System**: Batches multiple requests for efficiency
-- **Dynamic Pricing**: Adjusts fees based on network conditions
-- **Gas Optimization**: Minimizes transaction costs
+### 🌐 Cross-Chain Architecture
+- Native LayerZero integration for seamless cross-chain transfers
+- Sonic Chain ID: 332 (LayerZero)
+- Trusted remote configuration for secure bridging
+- Gas optimization for cross-chain operations
 
-### 🔒 Security Features
-- **Reentrancy Protection**: Prevents recursive calls
-- **Access Control**: Role-based permissions
-- **Request Validation**: Comprehensive input validation
+### 🎰 Integrated Lottery System
+- Automatic lottery entry creation on qualifying swaps
+- VRF-powered randomness via OmniDragonRandomnessProvider
+- Cooldown periods and entry limits for fair play
+- MEV protection with commit-reveal schemes
 
-## Interface
+### 🏛️ Advanced Governance
+- Timelock protection for critical operations
+- Emergency pause mechanisms
+- Multi-signature admin operations
+- Partner pool management
 
-### Core Functions
-
-#### `requestRandomness()`
-
-Requests verifiable randomness from the system.
+## Contract Architecture
 
 ```solidity
-function requestRandomness() external payable returns (uint256 requestId);
-```
-
-**Parameters**: None (payment sent as `msg.value`)
-
-**Returns**: `uint256 requestId` - Unique identifier for the request
-
-**Events**: 
-- `RandomnessRequested(address indexed requester, uint256 indexed requestId, uint256 payment)`
-
-**Requirements**:
-- Must include sufficient payment for VRF fees
-- Caller must be a valid contract or EOA
-- System must not be paused
-
-**Example Usage**:
-```solidity
-contract MyGame {
-    IOmniDragon public omniDragon;
-    
-    function playGame() external payable {
-        require(msg.value >= 0.01 ether, "Insufficient payment");
-        
-        uint256 requestId = omniDragon.requestRandomness{
-            value: msg.value
-        }();
-        
-        // Store requestId for callback
-        pendingRequests[requestId] = msg.sender;
-    }
+contract OmniDragon is ERC20, Ownable, ReentrancyGuard, IOmniDragon {
+    using SafeERC20 for IERC20;
+    using DragonTimelockLib for DragonTimelockLib.TimelockProposal;
+    using DragonFeeProcessingLib for DragonFeeProcessingLib.Fees;
 }
 ```
 
-#### `fulfillRandomness()`
+## Core Components
 
-Callback function called by the system to deliver randomness.
+### State Variables
 
 ```solidity
-function fulfillRandomness(uint256 requestId, uint256 randomness) external;
+// Core addresses
+address public lzEndpoint;           // LayerZero endpoint
+address public jackpotVault;         // Jackpot vault for lottery payouts
+address public revenueDistributor;   // Primary fee distributor
+address public wrappedNativeToken;   // WETH/Wrapped native token
+address public lotteryManager;       // Unified lottery manager
+
+// Partner ecosystem
+address public dragonPartnerRegistry;  // Partner registry
+address public dragonPartnerFactory;   // Partner pool factory
+
+// Dynamic fee management
+DragonFeeManager public adaptiveFeeManager;
+address public ve69LPBoostManager;     // Voting power boost manager
 ```
 
-**Parameters**:
-- `requestId`: The original request identifier
-- `randomness`: The generated random number
+### Constants
 
-**Access**: Only callable by the OmniDragon system
-
-**Implementation Required**: Consumer contracts must implement this function
-
-**Example Implementation**:
 ```solidity
-function fulfillRandomness(uint256 requestId, uint256 randomness) external override {
-    require(msg.sender == address(omniDragon), "Unauthorized");
-    
-    address player = pendingRequests[requestId];
-    require(player != address(0), "Invalid request");
-    
-    // Use randomness for game logic
-    uint256 outcome = randomness % 100;
-    if (outcome < 50) {
-        // Player wins
-        payouts[player] += betAmounts[requestId] * 2;
-    }
-    
-    delete pendingRequests[requestId];
-    delete betAmounts[requestId];
+uint256 public constant MAX_SUPPLY = 6942000 * 10**18;        // 6.942M tokens
+uint256 public constant INITIAL_SUPPLY = 6942000 * 10**18;    // Initial supply
+uint16 public constant SONIC_CHAIN_ID = 332;                  // Sonic LayerZero ID
+uint256 public constant MAX_FEE_BASIS_POINTS = 1500;          // 15% max fees
+uint256 public constant COMMITMENT_EXPIRY_BLOCKS = 50;        // MEV protection
+```
+
+## Fee Structure
+
+### Default Fee Configuration
+
+```solidity
+// Buy Fees (10% total)
+buyFees.jackpot = 690;  // 6.9%
+buyFees.ve69LP = 241;   // 2.41%
+buyFees.burn = 69;      // 0.69%
+buyFees.total = 1000;   // 10%
+
+// Sell Fees (10% total)
+sellFees.jackpot = 690; // 6.9%
+sellFees.ve69LP = 241;  // 2.41%
+sellFees.burn = 69;     // 0.69%
+sellFees.total = 1000;  // 10%
+
+// Transfer Fees (0.69% total)
+transferFees.burn = 69; // 0.69%
+transferFees.total = 69; // 0.69%
+```
+
+### Dynamic Fee Management
+
+The contract supports dynamic fee adjustment through the `DragonFeeManager`:
+
+```solidity
+function getApplicableFees(
+    address from,
+    address to,
+    uint256 amount
+) external view returns (DragonFeeProcessingLib.Fees memory);
+```
+
+## Core Functions
+
+### Token Operations
+
+#### Transfer with Fees
+```solidity
+function _transfer(address from, address to, uint256 amount) internal override {
+    // Fee calculation and distribution
+    // Lottery entry creation for qualifying swaps
+    // MEV protection checks
+    // Cross-chain compatibility
 }
 ```
 
-### Administrative Functions
-
-#### `setRandomnessSource()`
-
-Updates the primary randomness source configuration.
-
+#### Cross-Chain Transfers
 ```solidity
-function setRandomnessSource(
-    RandomnessSource source,
-    bool enabled
+function sendToChain(
+    uint16 _dstChainId,
+    bytes calldata _toAddress,
+    uint _amount,
+    address payable _refundAddress,
+    address _zroPaymentAddress,
+    bytes calldata _adapterParams
+) external payable;
+```
+
+### Lottery Integration
+
+#### Automatic Entry Creation
+```solidity
+function _createLotteryEntry(
+    address user,
+    uint256 swapAmountUSD,
+    uint256 userVotingPower
+) internal returns (uint256 entryId);
+```
+
+#### MEV Protection
+```solidity
+function submitCommitment(bytes32 commitment) external;
+function revealAndCreateEntry(uint256 amount, uint256 nonce) external;
+```
+
+### Governance Functions
+
+#### Timelock Protected Operations
+```solidity
+modifier onlyAfterTimelock(
+    DragonTimelockLib.AdminOperation operation,
+    bytes memory data
+);
+
+function proposeAdminOperation(
+    DragonTimelockLib.AdminOperation operation,
+    bytes calldata data
+) external onlyOwner returns (bytes32 proposalId);
+```
+
+#### Emergency Controls
+```solidity
+function emergencyPause() external onlyEmergencyPauser;
+function emergencyUnpause() external onlyOwner;
+```
+
+### Partner System
+
+#### Partner Pool Management
+```solidity
+function registerPartnerPool(
+    address pool,
+    uint256 partnerId
 ) external onlyOwner;
+
+function removePartnerPool(address pool) external onlyOwner;
 ```
 
-#### `updateFeeStructure()`
+## Configuration Management
 
-Modifies the fee structure for randomness requests.
+### Initial Setup
 
+1. **Deploy Contract**
+   ```solidity
+   constructor(
+       string memory _name,
+       string memory _symbol,
+       address _jackpotVault,
+       address _revenueDistributor,
+       address _lzEndpoint,
+       address _chainRegistry
+   )
+   ```
+
+2. **Set Wrapped Native Token**
+   ```solidity
+   function setWrappedNativeToken(address _wrappedNativeToken) external onlyOwner;
+   ```
+
+3. **Configure Router**
+   ```solidity
+   function setUniswapRouter(address _router) external onlyOwner;
+   ```
+
+4. **Add Trading Pairs**
+   ```solidity
+   function addPairWithType(address _pair, DexType _dexType) external onlyOwner;
+   ```
+
+### Advanced Configuration
+
+#### Fee Exclusions
 ```solidity
-function updateFeeStructure(
-    uint256 baseFee,
-    uint256 vrfFee,
-    uint256 crossChainFee
-) external onlyOwner;
+function excludeFromFees(address account, bool excluded) external onlyOwner;
 ```
 
-#### `emergencyPause()`
-
-Pauses the system in case of emergency.
-
+#### Swap Thresholds
 ```solidity
-function emergencyPause() external onlyOwner;
+function setSwapThreshold(uint256 _threshold) external onlyOwner;
+function setMinimumAmountForProcessing(uint256 _minAmount) external onlyOwner;
 ```
 
-## Randomness Sources
+## Security Features
 
-### Drand Integration
+### MEV Protection
+- Commit-reveal scheme for lottery entries
+- Block-based commitment expiry
+- Multiple commitments per user support
 
-The primary randomness source uses the Drand beacon network:
+### Emergency Controls
+- Global transfer pause
+- Emergency pauser role
+- Maximum single transfer limits
 
-```solidity
-struct DrandConfig {
-    string chainHash;
-    uint256 period;
-    uint256 genesisTime;
-    address verifier;
-}
-```
-
-**Advantages**:
-- Fast delivery (~3 seconds)
-- Lower cost
-- Distributed trust model
-- Continuous availability
-
-**Process**:
-1. Fetch latest beacon from Drand network
-2. Verify cryptographic proof on-chain
-3. Extract randomness value
-4. Deliver to requesting contract
-
-### Chainlink VRF Integration
-
-The secondary source uses Chainlink VRF via cross-chain messaging:
-
-```solidity
-struct ChainlinkConfig {
-    uint16 chainId;
-    address vrfCoordinator;
-    uint64 subscriptionId;
-    bytes32 keyHash;
-    uint32 callbackGasLimit;
-}
-```
-
-**Advantages**:
-- Industry-standard verification
-- High security guarantees
-- Proven track record
-- Regulatory compliance
-
-**Process**:
-1. Send cross-chain request via LayerZero
-2. Execute VRF request on Arbitrum
-3. Receive VRF response
-4. Relay back to Sonic via LayerZero
-5. Deliver to requesting contract
-
-## Cost Structure
-
-### Fee Components
-
-| Component | Amount | Description |
-|-----------|--------|-------------|
-| Base Fee | 0.001 S | Minimum processing fee |
-| Drand Fee | 0.002 S | Drand verification cost |
-| VRF Fee | 0.005 ETH | Chainlink VRF cost (cross-chain) |
-| LayerZero Fee | ~0.01 S | Cross-chain messaging |
-
-### Dynamic Pricing
-
-Fees adjust based on:
-- Network congestion
-- Randomness source availability
-- Request volume
-- Gas prices
-
-```solidity
-function calculateFee(RandomnessSource source) public view returns (uint256) {
-    uint256 baseFee = getBaseFee();
-    uint256 sourceFee = getSourceFee(source);
-    uint256 congestionMultiplier = getCongestionMultiplier();
-    
-    return (baseFee + sourceFee) * congestionMultiplier / 100;
-}
-```
-
-## Security Considerations
-
-### Reentrancy Protection
-
-All external calls are protected against reentrancy:
-
-```solidity
-modifier nonReentrant() {
-    require(!_locked, "ReentrancyGuard: reentrant call");
-    _locked = true;
-    _;
-    _locked = false;
-}
-```
+### Timelock System
+- 48-hour default delay for critical operations
+- First-time operation bypass for bootstrapping
+- Proposal creation and cancellation
 
 ### Access Control
-
-Critical functions use role-based access control:
-
-```solidity
-modifier onlyAuthorized() {
-    require(
-        hasRole(ADMIN_ROLE, msg.sender) || 
-        hasRole(OPERATOR_ROLE, msg.sender),
-        "Unauthorized"
-    );
-    _;
-}
-```
-
-### Request Validation
-
-All requests undergo comprehensive validation:
-
-```solidity
-function _validateRequest(address requester, uint256 payment) internal view {
-    require(requester != address(0), "Invalid requester");
-    require(payment >= getMinimumFee(), "Insufficient payment");
-    require(!paused(), "System paused");
-    require(_isValidConsumer(requester), "Invalid consumer");
-}
-```
-
-### Randomness Verification
-
-All randomness sources are cryptographically verified:
-
-```solidity
-function _verifyDrandBeacon(
-    bytes memory beacon,
-    bytes memory proof
-) internal view returns (bool) {
-    return drandVerifier.verify(beacon, proof, drandConfig.chainHash);
-}
-```
+- Owner-only administrative functions
+- Authorized caller system for specific operations
+- Emergency pauser separate from owner
 
 ## Events
 
-### RandomnessRequested
-
-Emitted when randomness is requested:
-
+### Core Events
 ```solidity
-event RandomnessRequested(
-    address indexed requester,
-    uint256 indexed requestId,
-    uint256 payment,
-    RandomnessSource source
-);
+event ExcludedFromFees(address indexed account, bool isExcluded);
+event FeesUpdated(string feeType, uint256 jackpotFee, uint256 ve69Fee, uint256 burnFee, uint256 totalFee);
+event TokensBurned(uint256 amount);
 ```
 
-### RandomnessFulfilled
-
-Emitted when randomness is delivered:
-
+### Cross-Chain Events
 ```solidity
-event RandomnessFulfilled(
-    address indexed requester,
-    uint256 indexed requestId,
-    uint256 randomness,
-    RandomnessSource source
-);
+event SendToChain(uint16 indexed _dstChainId, address indexed _from, bytes indexed _toAddress, uint _amount);
+event ReceiveFromChain(uint16 indexed _srcChainId, bytes indexed _srcAddress, address indexed _toAddress, uint _amount);
 ```
 
-### SourceSwitched
-
-Emitted when randomness source changes:
-
+### Lottery Events
 ```solidity
-event SourceSwitched(
-    RandomnessSource from,
-    RandomnessSource to,
-    string reason
-);
+event CommitSubmitted(address indexed user, bytes32 commitment);
+event LotteryEntryRevealed(address indexed user, uint256 amount, uint256 nonce);
 ```
 
-## Error Handling
-
-### Custom Errors
-
+### Governance Events
 ```solidity
-error InsufficientPayment(uint256 required, uint256 provided);
-error InvalidRandomnessSource(RandomnessSource source);
-error RequestExpired(uint256 requestId, uint256 timestamp);
-error UnauthorizedCaller(address caller);
-error SystemPaused();
+event ProposalCreated(bytes32 indexed proposalId, DragonTimelockLib.AdminOperation indexed operation, bytes data, uint256 executeTime);
+event ProposalExecuted(bytes32 indexed proposalId, DragonTimelockLib.AdminOperation indexed operation);
 ```
 
-### Failure Recovery
-
-The system includes automatic recovery mechanisms:
-
-1. **Source Failover**: Automatically switches to backup source
-2. **Request Retry**: Retries failed requests up to 3 times
-3. **Refund Mechanism**: Refunds payments for failed requests
-
-## Integration Examples
-
-### Basic Gaming Contract
-
-```solidity
-contract SimpleGame is IOmniDragonConsumer {
-    IOmniDragon public immutable omniDragon;
-    
-    mapping(uint256 => address) public players;
-    mapping(address => uint256) public winnings;
-    
-    constructor(address _omniDragon) {
-        omniDragon = IOmniDragon(_omniDragon);
-    }
-    
-    function playGame() external payable {
-        require(msg.value >= 0.01 ether, "Minimum bet required");
-        
-        uint256 requestId = omniDragon.requestRandomness{
-            value: 0.005 ether // VRF fee
-        }();
-        
-        players[requestId] = msg.sender;
-    }
-    
-    function fulfillRandomness(
-        uint256 requestId, 
-        uint256 randomness
-    ) external override {
-        require(msg.sender == address(omniDragon), "Unauthorized");
-        
-        address player = players[requestId];
-        uint256 outcome = randomness % 100;
-        
-        if (outcome < 50) {
-            winnings[player] += 0.015 ether; // 50% win rate, 1.5x payout
-        }
-        
-        delete players[requestId];
-    }
-}
-```
-
-### Advanced DeFi Integration
-
-```solidity
-contract YieldFarming is IOmniDragonConsumer, ReentrancyGuard {
-    IOmniDragon public immutable omniDragon;
-    IERC20 public immutable rewardToken;
-    
-    struct Claim {
-        address user;
-        uint256 baseAmount;
-        uint256 timestamp;
-    }
-    
-    mapping(uint256 => Claim) public pendingClaims;
-    mapping(address => uint256) public stakedBalances;
-    
-    function claimRewards() external nonReentrant {
-        uint256 baseReward = calculateBaseReward(msg.sender);
-        require(baseReward > 0, "No rewards available");
-        
-        uint256 requestId = omniDragon.requestRandomness{
-            value: 0.005 ether
-        }();
-        
-        pendingClaims[requestId] = Claim({
-            user: msg.sender,
-            baseAmount: baseReward,
-            timestamp: block.timestamp
-        });
-    }
-    
-    function fulfillRandomness(
-        uint256 requestId, 
-        uint256 randomness
-    ) external override {
-        require(msg.sender == address(omniDragon), "Unauthorized");
-        
-        Claim memory claim = pendingClaims[requestId];
-        require(claim.user != address(0), "Invalid claim");
-        
-        // Random multiplier between 0.8x and 1.2x
-        uint256 multiplier = 80 + (randomness % 41);
-        uint256 finalReward = claim.baseAmount * multiplier / 100;
-        
-        rewardToken.transfer(claim.user, finalReward);
-        delete pendingClaims[requestId];
-    }
-}
-```
-
-## Deployment Information
-
-### Mainnet Addresses
-
-- **Sonic Mainnet**: `0x[CONTRACT_ADDRESS]`
-- **Testnet**: `0x[TESTNET_ADDRESS]`
-
-### Constructor Parameters
-
-```solidity
-constructor(
-    address _drandVerifier,
-    address _layerZeroEndpoint,
-    address _randomnessBucket,
-    DrandConfig memory _drandConfig,
-    ChainlinkConfig memory _chainlinkConfig
-) {
-    // Initialization logic
-}
-```
-
-### Verification
-
-Contract source code is verified on:
-- Sonic Explorer: [Link to verification]
-- GitHub: [Link to source code]
-
-## Best Practices
+## Integration Guide
 
 ### For Developers
 
-1. **Always validate the caller** in `fulfillRandomness()`
-2. **Handle request failures** gracefully
-3. **Implement proper access controls**
-4. **Use reentrancy protection** for financial operations
-5. **Monitor gas costs** and optimize accordingly
+1. **Basic Integration**
+   ```solidity
+   import "./interfaces/core/IOmniDragon.sol";
+   
+   IOmniDragon dragon = IOmniDragon(OMNIDRAGON_ADDRESS);
+   ```
 
-### For Users
+2. **Fee Calculation**
+   ```solidity
+   function calculateFees(address from, address to, uint256 amount) 
+       external view returns (uint256 totalFees);
+   ```
 
-1. **Verify contract addresses** before interacting
-2. **Understand fee structure** before making requests
-3. **Monitor transaction status** across chains
-4. **Keep sufficient balance** for cross-chain operations
+3. **Cross-Chain Transfer**
+   ```solidity
+   function estimateSendFee(uint16 _dstChainId, bytes calldata _toAddress, uint _amount, bool _useZro, bytes calldata _adapterParams) 
+       external view returns (uint nativeFee, uint zroFee);
+   ```
 
-## Support
+### For Partners
 
-- **Documentation**: [Link to full docs]
-- **GitHub Issues**: [Link to issues]
-- **Developer Support**: [Contact information]
-- **Security Contact**: [Security email] 
+1. **Register Partner Pool**
+   ```solidity
+   dragon.registerPartnerPool(poolAddress, partnerId);
+   ```
+
+2. **Handle Partner Fees**
+   ```solidity
+   function processPartnerFees(address partner, address token, uint256 amount) external;
+   ```
+
+## Best Practices
+
+### Gas Optimization
+- Use batch operations when possible
+- Monitor swap thresholds for fee processing
+- Consider using bucket randomness for high-frequency operations
+
+### Security Considerations
+- Always check fee exclusion status
+- Implement proper slippage protection
+- Use commit-reveal for MEV-sensitive operations
+
+### Cross-Chain Operations
+- Verify destination chain support
+- Estimate fees before transactions
+- Handle failed cross-chain transfers
+
+## Error Handling
+
+### Common Errors
+```solidity
+error TransfersPaused();
+error FeesTooHigh();
+error MaxSingleTransferExceeded();
+error EmergencyPaused();
+error NotAuthorized();
+```
+
+### Troubleshooting
+- Check if transfers are paused
+- Verify fee calculations
+- Ensure proper authorization
+- Monitor emergency pause status
+
+## Links
+
+- **Social**: [Twitter](https://x.com/sonicreddragon) | [Telegram](https://t.me/sonicreddragon)
+- **Repository**: [GitHub](https://github.com/wenakita/omnidragon)
+- **Audit**: [Security Documentation](/audit/AUDIT_DOCUMENTATION_SUMMARY) 

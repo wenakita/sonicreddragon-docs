@@ -15,11 +15,11 @@ The OmniDragon ecosystem consists of several interconnected components that work
 ```mermaid
 flowchart LR
     %% Color classes for different components
-    classDef coreSystem fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000000
-    classDef tokenSystem fill:#e8eaf6,stroke:#5c6bc0,stroke-width:2px,color:#000000
-    classDef userSystem fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000000
-    classDef journeyStep fill:#fff8e1,stroke:#ffb300,stroke-width:2px,color:#000000
-    classDef externalSystem fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000
+    classDef coreSystem fill:#e1f5fe,stroke:#0288d1,color:#000000
+    classDef tokenSystem fill:#e8eaf6,stroke:#5c6bc0,color:#000000
+    classDef userSystem fill:#fff3e0,stroke:#f57c00,color:#000000
+    classDef journeyStep fill:#fff8e1,stroke:#ffb300,color:#000000
+    classDef externalSystem fill:#e3f2fd,stroke:#1e88e5,color:#000000
     
     %% Core Protocol
     subgraph Core["Core Protocol"]
@@ -75,9 +75,9 @@ flowchart LR
     AddLiquidity -- "Creates" --> LPToken
     
     %% Style the containers
-    style UserJourney fill:#fff9c4,stroke:#ffb300,stroke-width:2px
-    style Core fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
-    style ExternalDEX fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px
+    style UserJourney fill:#fff9c4,stroke:#ffb300,
+    style Core fill:#e1f5fe,stroke:#0288d1,
+    style ExternalDEX fill:#e3f2fd,stroke:#1e88e5,
 ```
 
 ### Randomness System
@@ -85,8 +85,8 @@ flowchart LR
 ```mermaid
 flowchart LR
     %% Color classes for different components
-    classDef randomnessSystem fill:#e1f5fe,stroke:#1976d2,stroke-width:2px,color:#000000
-    classDef processSystem fill:#fff3e0,stroke:#ff9800,stroke-width:2px,color:#000000
+    classDef randomnessSystem fill:#e1f5fe,stroke:#1976d2,color:#000000
+    classDef processSystem fill:#fff3e0,stroke:#ff9800,color:#000000
     
     %% Randomness Sources
     subgraph Sources["External Randomness Sources"]
@@ -133,9 +133,9 @@ flowchart LR
     ChainlinkRequester --> OmniDragonVRFConsumer
     
     %% Style Containers
-    style Sources fill:#e1f5fe,stroke:#1976d2,stroke-width:2px
-    style Integrators fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    style Process fill:#fff8e1,stroke:#ff9800,stroke-width:2px
+    style Sources fill:#e1f5fe,stroke:#1976d2,
+    style Integrators fill:#e3f2fd,stroke:#1976d2,
+    style Process fill:#fff8e1,stroke:#ff9800,
 ```
 
 ### Economic System & Jackpot
@@ -143,8 +143,8 @@ flowchart LR
 ```mermaid
 flowchart LR
     %% Color classes for different components
-    classDef jackpotSystem fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000000
-    classDef feeSystem fill:#e1f5fe,stroke:#00acc1,stroke-width:2px,color:#000000
+    classDef jackpotSystem fill:#fff3e0,stroke:#fb8c00,color:#000000
+    classDef feeSystem fill:#e1f5fe,stroke:#00acc1,color:#000000
     
     %% Economic System - Fee Collection
     subgraph FeeCollection["Fee Collection & Distribution"]
@@ -171,8 +171,8 @@ flowchart LR
     JackpotDistributor -- "Distributes prizes" --> LotteryWinners
     
     %% Style Containers
-    style FeeCollection fill:#e1f5fe,stroke:#00acc1,stroke-width:2px
-    style JackpotMechanism fill:#fff3e0,stroke:#fb8c00,stroke-width:2px
+    style FeeCollection fill:#e1f5fe,stroke:#00acc1,
+    style JackpotMechanism fill:#fff3e0,stroke:#fb8c00,
 ```
 
 ### Governance & Partner Ecosystem
@@ -180,8 +180,8 @@ flowchart LR
 ```mermaid
 flowchart LR
     %% Color classes for different components
-    classDef governanceSystem fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000000
-    classDef externalSystem fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000000
+    classDef governanceSystem fill:#e3f2fd,stroke:#1976d2,color:#000000
+    classDef externalSystem fill:#fff3e0,stroke:#f57c00,color:#000000
     
     %% ve69LP System
     subgraph VeTokenSystem["ve69LP Governance System"]
@@ -220,9 +220,9 @@ flowchart LR
     ProbabilityBoost -- "Increase probability" --> PartnerPools
     
     %% Style Containers
-    style VeTokenSystem fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    style GaugeSystem fill:#e0f7fa,stroke:#00acc1,stroke-width:2px
-    style PartnerSystem fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style VeTokenSystem fill:#e3f2fd,stroke:#1976d2,
+    style GaugeSystem fill:#e0f7fa,stroke:#00acc1,
+    style PartnerSystem fill:#fff3e0,stroke:#f57c00,
 ```
 
 ## Core Contracts

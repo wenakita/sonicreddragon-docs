@@ -93,7 +93,7 @@ flowchart TB
     CHAINS -.->|"Connected<br/>via"| ADAPTER
     
     %% Apply styling for components with better colors
-    classDef main fill:#4a80d1;stroke:#355899;color:#ffffff;font-weight:bold;stroke-width:3px;font-size:18px
+    classDef main fill:#4a80d1;stroke:#355899;color:#ffffff;font-weight:bold;;font-size:18px
     classDef standard fill:#42a5f5;stroke:#1e88e5;color:#ffffff
     classDef fee fill:#66bb6a;stroke:#43a047;color:#ffffff
     classDef bridge fill:#ab47bc;stroke:#8e24aa;color:#ffffff
@@ -101,10 +101,10 @@ flowchart TB
     classDef external fill:#78909c;stroke:#455a64;color:#ffffff;stroke-dasharray:5 5
     
     %% Style subgraphs
-    style TokenCore fill:rgba(33,150,243,0.1);stroke:#bbdefb;color:#1565c0;stroke-width:2px
-    style FeeMechanism fill:rgba(76,175,80,0.1);stroke:#c8e6c9;color:#2e7d32;stroke-width:2px
-    style CrossChainSystem fill:rgba(156,39,176,0.1);stroke:#e1bee7;color:#6a1b9a;stroke-width:2px
-    style TokenFeatures fill:rgba(255,152,0,0.1);stroke:#ffecb3;color:#ff8f00;stroke-width:2px
+    style TokenCore fill:rgba(33,150,243,0.1);stroke:#bbdefb;color:#1565c0;
+    style FeeMechanism fill:rgba(76,175,80,0.1);stroke:#c8e6c9;color:#2e7d32;
+    style CrossChainSystem fill:rgba(156,39,176,0.1);stroke:#e1bee7;color:#6a1b9a;
+    style TokenFeatures fill:rgba(255,152,0,0.1);stroke:#ffecb3;color:#ff8f00;
     
     %% Style the main token with shadow effect
     style OMNIDRAGON filter:drop-shadow(0px 5px 8px rgba(0,0,0,0.2))
@@ -179,8 +179,8 @@ flowchart LR
     classDef winner fill:#d4af37;stroke:#aa8c2c;color:#ffffff;font-weight:bold
     
     %% Style subgraphs
-    style Transactions fill:#37474f;stroke:#263238;color:#ffffff;stroke-width:2px
-    style FeeModifiers fill:#4527a0;stroke:#311b92;color:#ffffff;stroke-width:2px
+    style Transactions fill:#37474f;stroke:#263238;color:#ffffff;
+    style FeeModifiers fill:#4527a0;stroke:#311b92;color:#ffffff;
 ```
 
 ## Cross-Chain Functionality
@@ -428,7 +428,7 @@ flowchart TB
     classDef final fill:#6d4c41;stroke:#5d4037;color:#ffffff;font-weight:bold
     
     %% Subgraph styling
-    style EligibleHolders fill:rgba(76,175,80,0.1);stroke:#c8e6c9;color:#2e7d32;stroke-width:2px
+    style EligibleHolders fill:rgba(76,175,80,0.1);stroke:#c8e6c9;color:#2e7d32;
 ```
 
 ### Jackpot Selection Criteria
@@ -540,10 +540,10 @@ graph TB
     classDef core fill:#cc5a2b;stroke:#b54d24;color:#ffffff;font-weight:bold
     
     %% Subgraph styling
-    style "Ethereum Mainnet" fill:rgba(98,126,234,0.1);stroke:#627eea;color:#627eea;stroke-width:2px
-    style "BNB Chain" fill:rgba(240,185,11,0.1);stroke:#f0b90b;color:#704e06;stroke-width:2px
-    style "Arbitrum" fill:rgba(40,160,240,0.1);stroke:#28a0f0;color:#28a0f0;stroke-width:2px
-    style "Avalanche" fill:rgba(232,65,66,0.1);stroke:#e84142;color:#e84142;stroke-width:2px
+    style "Ethereum Mainnet" fill:rgba(98,126,234,0.1);stroke:#627eea;color:#627eea;
+    style "BNB Chain" fill:rgba(240,185,11,0.1);stroke:#f0b90b;color:#704e06;
+    style "Arbitrum" fill:rgba(40,160,240,0.1);stroke:#28a0f0;color:#28a0f0;
+    style "Avalanche" fill:rgba(232,65,66,0.1);stroke:#e84142;color:#e84142;
 ```
 
 ## Contract Implementation

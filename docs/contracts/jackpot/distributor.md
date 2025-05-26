@@ -17,7 +17,7 @@ flowchart TD
     Distributor -->|"Sends Prizes"| Winners["Lottery Winners"]
     Distributor -->|"Records History"| History["Jackpot History"]
     
-    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
+    classDef highlight fill:#4a80d1,stroke:#333,color:white;
     class Distributor highlight
 ```
 

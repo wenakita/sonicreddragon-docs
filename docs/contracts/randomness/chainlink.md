@@ -2,196 +2,384 @@
 sidebar_position: 2
 ---
 
-# Chainlink VRF Integrator
+# Chainlink VRF Integration
 
-The ChainlinkVRFIntegrator contract serves as a bridge between the OmniDragon VRF system on Sonic and Chainlink's VRF service on Arbitrum, enabling secure cross-chain randomness.
+OmniDragon integrates with Chainlink VRF 2.5 through a sophisticated cross-chain architecture, providing industry-standard verifiable randomness from Arbitrum to Sonic via LayerZero messaging.
 
-## Overview
-
-This contract is part of OmniDragon's cross-chain randomness architecture, responsible for forwarding randomness requests to Arbitrum and receiving the results via LayerZero messaging.
+## Architecture Overview
 
 ```mermaid
-flowchart TD
-    A[OmniDragonVRFConsumer] --> B[ChainlinkVRFIntegrator]
-    B --> C[LayerZero Endpoint]
-    C --> D[Cross-Chain Messaging]
-    D --> E[ArbitrumVRFRequester]
-    E --> F[Chainlink VRF Coordinator]
-    F --> G[VRF Fulfillment]
-    G --> E
-    E --> D2[Cross-Chain Messaging]
-    D2 --> C2[LayerZero Endpoint]
-    C2 --> B2[ChainlinkVRFIntegrator]
-    B2 --> A2[OmniDragonVRFConsumer]
+graph LR
+    A[Sonic: Randomness Provider] --> B[Sonic: Chainlink Integrator]
+    B --> C[LayerZero: Cross-Chain Message]
+    C --> D[Arbitrum: VRF Requester]
+    D --> E[Arbitrum: VRF Coordinator]
+    E --> F[Chainlink VRF 2.5]
+    F --> E
+    E --> D
+    D --> G[LayerZero: Response Message]
+    G --> B
+    B --> A
     
-    subgraph "Sonic Chain"
-        A
-        B
-        C
-        C2
-        B2
-        A2
-    end
-    
-    subgraph "Arbitrum Chain"
-        E
-        F
-        G
-    end
-    
-    subgraph "LayerZero Network"
-        D
-        D2
-    end
+    style A fill:#ff6b6b
+    style B fill:#4ecdc4
+    style D fill:#45b7d1
+    style E fill:#96ceb4
+    style F fill:#feca57
 ```
 
-## Key Features
+## Core Components
 
-- **Cross-Chain Integration**: Connects Sonic to Arbitrum's Chainlink VRF service
-- **LayerZero Messaging**: Uses LayerZero for secure cross-chain communication
-- **Request Management**: Tracks pending and fulfilled randomness requests
-- **Fallback Mechanism**: Provides a backup random value if the cross-chain request fails
-- **Access Control**: Only authorized consumers can request randomness
+### Sonic Mainnet Components
 
-## Contract Details
-
-**Source:** [`ChainlinkVRFIntegrator.sol`](https://github.com/wenakita/omnidragon/blob/main/contracts/chainlink/ChainlinkVRFIntegrator.sol)
-
-### Key Storage Variables
-
+#### ChainlinkVRFIntegrator
 ```solidity
-// LayerZero settings
-address public lzEndpoint;
-uint16 public arbitrumChainId;
-bytes public arbitrumVRFRequesterAddress;
-
-// Randomness state
-uint256 public latestChainlinkValue;
-uint256 public latestRound;
-uint256 public lastUpdateTimestamp;
-
-// Request tracking
-mapping(uint256 => address) public pendingRequests;
-mapping(uint256 => bool) public fulfilledRequests;
-
-// Authorized consumers
-mapping(address => bool) public authorizedConsumers;
+contract ChainlinkVRFIntegrator {
+    // Handles VRF requests from Sonic side
+    function requestRandomness(address consumer) external returns (uint256 requestId);
+    
+    // Receives VRF responses via LayerZero
+    function fulfillRandomness(uint256 requestId, uint256 randomness) external;
+    
+    // LayerZero message handling
+    function lzReceive(uint16 _srcChainId, bytes calldata _srcAddress, uint64 _nonce, bytes calldata _payload) external;
+}
 ```
 
-## Main Functions
+**Key Features:**
+- Manages cross-chain VRF requests
+- Handles LayerZero messaging
+- Maintains request-response mapping
+- Provides gas estimation for cross-chain calls
 
-### Configuration Management
-
+#### ChainlinkVRFRequester (Interface)
 ```solidity
-// Update LayerZero settings
-function updateLzSettings(
-    address _lzEndpoint,
-    uint16 _arbitrumChainId,
-    bytes memory _arbitrumVRFRequesterAddress
-) external onlyOwner
-
-// Authorizes a consumer to request randomness
-function setAuthorizedConsumer(address _consumer, bool _authorized) external onlyOwner
+interface IChainlinkVRFRequester {
+    function requestRandomness(address consumer) external returns (uint256 requestId);
+}
 ```
 
-### Randomness Operations
-
+#### ChainlinkVRFUtils
 ```solidity
-// Returns the latest randomness value
-function getLatestRandomness() external view override returns (uint256 random, uint256 round)
-
-// Allows a consumer to request randomness
-function fulfillRandomness(uint256 _requestId) external override nonReentrant
-
-// Receive randomness response from Arbitrum
-function lzReceive(
-    uint16 _srcChainId,
-    bytes memory _srcAddress,
-    uint64 _nonce,
-    bytes memory _payload
-) external override onlyLzEndpoint
+library ChainlinkVRFUtils {
+    // Utility functions for VRF operations
+    function validateVRFResponse(uint256 requestId, uint256 randomness) internal pure returns (bool);
+    function calculateGasEstimate(uint16 dstChainId) internal view returns (uint256);
+}
 ```
 
-### Fee Estimation
+### Arbitrum Mainnet Components
 
+#### OmniDragonVRFRequester
 ```solidity
-// Estimate fees for sending a request to Arbitrum
-function estimateFees(uint256 _requestId) external view returns (uint256)
+contract OmniDragonVRFRequester is VRFConsumerBaseV2 {
+    // VRF Coordinator interface
+    VRFCoordinatorV2Interface COORDINATOR;
+    
+    // Subscription management
+    uint64 s_subscriptionId;
+    bytes32 keyHash;
+    uint32 callbackGasLimit = 2500000;
+    uint16 requestConfirmations = 3;
+    
+    // Request VRF and relay back to Sonic
+    function requestRandomWords(address sonicConsumer) external returns (uint256 requestId);
+    
+    // VRF callback - relays to Sonic via LayerZero
+    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override;
+}
 ```
 
-## Cross-Chain Request Flow
+**Configuration:**
+- **VRF Coordinator**: `0x3C0Ca683b403E37668AE3DC4FB62F4B29B6f7a3e`
+- **Key Hash**: `0x68d24f9a037a649944964c2a1ebd0b2918f4a243d2a99701cc22b548cf2daff0`
+- **Subscription ID**: Configured per deployment
+- **Gas Limit**: 2.5M gas for callback
+- **Confirmations**: 3 blocks
 
-The randomness request follows a path across multiple chains:
+## Request Flow
 
-```mermaid
-sequenceDiagram
-    participant Consumer
-    participant Integrator as ChainlinkVRFIntegrator
-    participant LZ as LayerZero (Sonic)
-    participant Requester as ArbitrumVRFRequester
-    participant Chainlink
-    
-    Consumer->>Integrator: fulfillRandomness(requestId)
-    activate Integrator
-    
-    Integrator->>Integrator: Record pending request
-    Integrator->>LZ: send(arbitrumChainId, address, payload)
-    
-    LZ->>Requester: lzReceive(srcChainId, srcAddress, payload)
-    activate Requester
-    
-    Requester->>Chainlink: requestRandomWords()
-    Chainlink-->>Requester: fulfillRandomWords(requestId, randomWords)
-    
-    Requester->>LZ: send(sonicChainId, address, payload)
-    deactivate Requester
-    
-    LZ->>Integrator: lzReceive(srcChainId, srcAddress, payload)
-    activate Integrator
-    
-    Integrator->>Integrator: Update latestChainlinkValue
-    Integrator->>Integrator: Increment latestRound
-    Integrator->>Consumer: fulfillRandomness(requestId, randomness)
-    
-    deactivate Integrator
-```
-
-## Security Considerations
-
-The contract includes several security measures:
-
-- **Reentrancy Protection**: Uses ReentrancyGuard for external calls
-- **Source Validation**: Verifies that LayerZero messages come from the trusted Arbitrum contract
-- **Request Tracking**: Prevents double-fulfillment of randomness requests
-- **Fallback Value**: Maintains a seed value that can be used if cross-chain communication fails
-- **Gas Fee Management**: Allows estimation of cross-chain fees for proper transaction execution
-
-## Integration with OmniDragonVRFConsumer
-
-The ChainlinkVRFIntegrator is one of the randomness sources that feeds into the OmniDragonVRFConsumer. To integrate:
-
-1. Deploy the ChainlinkVRFIntegrator with the correct LayerZero endpoint and Arbitrum configuration
-2. Add the integrator to OmniDragonVRFConsumer using `addNetwork()`
-3. Assign an appropriate weight for Chainlink VRF in the randomness aggregation
-
-Example setup:
-
+### 1. Request Initiation (Sonic)
 ```solidity
-// Add Chainlink VRF to the multi-oracle system
-bytes32 chainlinkNetworkId = keccak256("CHAINLINK_VRF");
-vrfConsumer.addNetwork(
-    chainlinkNetworkId,
-    chainlinkIntegratorAddress,
-    200  // Weight: 200 out of total weights
+// User requests randomness
+uint256 requestId = randomnessProvider.requestRandomness();
+
+// Randomness provider routes to Chainlink
+chainlinkIntegrator.requestRandomness(msg.sender);
+```
+
+### 2. Cross-Chain Request (Sonic → Arbitrum)
+```solidity
+// ChainlinkVRFIntegrator sends LayerZero message
+bytes memory payload = abi.encode(requestId, consumer);
+lzEndpoint.send{value: msg.value}(
+    ARBITRUM_CHAIN_ID,
+    trustedRemote,
+    payload,
+    payable(msg.sender),
+    address(0),
+    adapterParams
 );
 ```
 
-## Cross-Chain Gas Considerations
+### 3. VRF Request (Arbitrum)
+```solidity
+// OmniDragonVRFRequester receives message and requests VRF
+uint256 vrfRequestId = COORDINATOR.requestRandomWords(
+    keyHash,
+    s_subscriptionId,
+    requestConfirmations,
+    callbackGasLimit,
+    1 // numWords
+);
+```
 
-When using the ChainlinkVRFIntegrator, be aware of the cross-chain gas costs:
+### 4. VRF Fulfillment (Arbitrum)
+```solidity
+// Chainlink VRF calls back with randomness
+function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
+    uint256 randomness = randomWords[0];
+    
+    // Send response back to Sonic via LayerZero
+    bytes memory payload = abi.encode(originalRequestId, randomness);
+    lzEndpoint.send(SONIC_CHAIN_ID, trustedRemote, payload, ...);
+}
+```
 
-1. **Source Chain Fee**: Cost to send the message from Sonic to Arbitrum
-2. **Destination Chain Fee**: Cost to execute the Chainlink VRF request on Arbitrum
-3. **Return Message Fee**: Cost to send the randomness result back to Sonic
+### 5. Response Delivery (Arbitrum → Sonic)
+```solidity
+// ChainlinkVRFIntegrator receives response
+function lzReceive(..., bytes calldata _payload) external {
+    (uint256 requestId, uint256 randomness) = abi.decode(_payload, (uint256, uint256));
+    
+    // Deliver to original consumer
+    randomnessProvider.fulfillRandomness(requestId, randomness);
+}
+```
 
-The `estimateFees()` function can be used to calculate the total expected cost for a cross-chain randomness request.
+## Configuration
+
+### Subscription Management
+
+#### Create Subscription
+```solidity
+// On Arbitrum - create and fund VRF subscription
+uint64 subId = coordinator.createSubscription();
+coordinator.addConsumer(subId, vrfRequesterAddress);
+
+// Fund with LINK tokens
+LINK.transferAndCall(
+    address(coordinator),
+    amount,
+    abi.encode(subId)
+);
+```
+
+#### Monitor Subscription
+```solidity
+function getSubscriptionDetails() external view returns (
+    uint96 balance,
+    uint64 reqCount,
+    address owner,
+    address[] memory consumers
+) {
+    return coordinator.getSubscription(s_subscriptionId);
+}
+```
+
+### LayerZero Configuration
+
+#### Set Trusted Remotes
+```solidity
+// On Sonic integrator
+chainlinkIntegrator.setTrustedRemote(
+    ARBITRUM_LZ_CHAIN_ID,
+    abi.encodePacked(arbitrumVRFRequester, sonicIntegrator)
+);
+
+// On Arbitrum requester
+vrfRequester.setTrustedRemote(
+    SONIC_LZ_CHAIN_ID,
+    abi.encodePacked(sonicIntegrator, arbitrumVRFRequester)
+);
+```
+
+#### Gas Configuration
+```solidity
+// Set minimum gas for destination
+chainlinkIntegrator.setMinDstGas(ARBITRUM_LZ_CHAIN_ID, 0, 200000);
+vrfRequester.setMinDstGas(SONIC_LZ_CHAIN_ID, 0, 100000);
+```
+
+## Cost Structure
+
+### LayerZero Fees
+- **Sonic → Arbitrum**: ~0.01 S (varies with gas prices)
+- **Arbitrum → Sonic**: ~0.001 ETH (varies with gas prices)
+
+### VRF Fees
+- **Base Fee**: 0.25 LINK per request
+- **Gas Fee**: Variable based on callback gas usage
+- **Total**: ~0.3-0.5 LINK per request
+
+### Gas Usage
+- **Request**: ~200k gas on Sonic
+- **Fulfillment**: ~100k gas on Sonic
+- **VRF Callback**: ~2.5M gas on Arbitrum
+
+## Security Features
+
+### Request Validation
+```solidity
+function validateRequest(address consumer, uint256 requestId) internal view {
+    require(authorizedConsumers[consumer], "Unauthorized consumer");
+    require(pendingRequests[requestId].exists, "Invalid request");
+    require(!pendingRequests[requestId].fulfilled, "Already fulfilled");
+}
+```
+
+### Response Verification
+```solidity
+function verifyVRFResponse(uint256 requestId, uint256 randomness) internal view {
+    require(randomness != 0, "Invalid randomness");
+    require(block.timestamp <= requestTime + VRF_TIMEOUT, "Request expired");
+}
+```
+
+### Access Control
+```solidity
+modifier onlyRandomnessProvider() {
+    require(msg.sender == randomnessProvider, "Only randomness provider");
+    _;
+}
+
+modifier onlyLayerZero() {
+    require(msg.sender == lzEndpoint, "Only LayerZero endpoint");
+    _;
+}
+```
+
+## Monitoring & Maintenance
+
+### Health Checks
+```solidity
+function getSystemHealth() external view returns (
+    bool subscriptionActive,
+    uint256 linkBalance,
+    uint256 pendingRequests,
+    uint256 lastRequestTime
+) {
+    // Return system health metrics
+}
+```
+
+### Emergency Functions
+```solidity
+function emergencyPause() external onlyOwner {
+    paused = true;
+}
+
+function emergencyWithdraw() external onlyOwner {
+    // Withdraw LINK tokens in emergency
+}
+```
+
+### Automated Monitoring
+- **Subscription Balance**: Alert when LINK balance < threshold
+- **Request Timeouts**: Monitor for stuck requests
+- **LayerZero Connectivity**: Verify cross-chain messaging
+- **Gas Price Monitoring**: Adjust gas limits based on network conditions
+
+## Integration Examples
+
+### Basic VRF Request
+```solidity
+contract MyGame {
+    IOmniDragonRandomnessProvider randomnessProvider;
+    
+    mapping(uint256 => address) public requestToPlayer;
+    
+    function playGame() external {
+        uint256 requestId = randomnessProvider.requestRandomness();
+        requestToPlayer[requestId] = msg.sender;
+    }
+    
+    function fulfillRandomness(uint256 requestId, uint256 randomness) external {
+        require(msg.sender == address(randomnessProvider), "Unauthorized");
+        
+        address player = requestToPlayer[requestId];
+        uint256 outcome = randomness % 100;
+        
+        // Process game outcome
+        if (outcome < 50) {
+            // Player wins
+            payouts[player] += betAmount * 2;
+        }
+        
+        delete requestToPlayer[requestId];
+    }
+}
+```
+
+### Gas Estimation
+```solidity
+function estimateVRFCost() external view returns (uint256 sonicGas, uint256 linkCost) {
+    // Estimate LayerZero fees
+    (uint256 nativeFee,) = lzEndpoint.estimateFees(
+        ARBITRUM_LZ_CHAIN_ID,
+        address(this),
+        payload,
+        false,
+        adapterParams
+    );
+    
+    sonicGas = nativeFee;
+    linkCost = 0.3 ether; // ~0.3 LINK per request
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Request Timeout**
+   - Check LayerZero connectivity
+   - Verify subscription funding
+   - Monitor Arbitrum network congestion
+
+2. **Insufficient LINK**
+   - Top up VRF subscription
+   - Monitor balance alerts
+   - Set up automated funding
+
+3. **Gas Estimation Errors**
+   - Update gas limits for network conditions
+   - Check LayerZero fee calculations
+   - Verify adapter parameters
+
+### Debug Functions
+```solidity
+function debugRequest(uint256 requestId) external view returns (
+    bool exists,
+    bool fulfilled,
+    uint256 timestamp,
+    address consumer
+) {
+    // Return request debug information
+}
+```
+
+## Best Practices
+
+1. **Always fund VRF subscription** with sufficient LINK
+2. **Monitor LayerZero fees** and adjust accordingly
+3. **Implement proper timeout handling** for requests
+4. **Use appropriate gas limits** for callbacks
+5. **Set up monitoring alerts** for system health
+
+## Links
+
+- **[Randomness Provider](/contracts/core/randomness-provider)**: Core randomness contract
+- **[VRF Overview](/contracts/randomness/overview)**: System architecture
+- **[Drand Integration](/contracts/randomness/drand)**: Alternative randomness source
+- **[LayerZero Integration](/integrations/layerzero)**: Cross-chain messaging

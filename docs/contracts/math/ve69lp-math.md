@@ -46,7 +46,7 @@ flowchart TB
     Boost --> JackpotBoost
     Power --> Governance
     
-    classDef highlight fill:#f96,stroke:#333,stroke-width:2px;
+    classDef highlight fill:#f96,stroke:#333,;
     class Lock,Power highlight;
 ```
 
@@ -210,7 +210,7 @@ flowchart TB
     Calculation --> Distribution
     Distribution --> ProbBoost
     
-    classDef highlight fill:#f96,stroke:#333,stroke-width:2px;
+    classDef highlight fill:#f96,stroke:#333,;
     class Distribution highlight;
 ```
 

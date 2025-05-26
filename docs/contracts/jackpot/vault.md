@@ -16,7 +16,7 @@ flowchart TD
     Distributor["DragonJackpotDistributor"] -->|"Requests funds"| JackpotVault
     JackpotVault -->|"Transfers prize"| Winner["Lottery Winner"]
     
-    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
+    classDef highlight fill:#4a80d1,stroke:#333,color:white;
     class JackpotVault highlight
 ```
 

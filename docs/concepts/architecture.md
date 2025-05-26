@@ -49,12 +49,12 @@ flowchart TD
     JackpotSystem --> SwapTrigger
     JackpotSystem --> Distributor
     
-    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
+    classDef highlight fill:#4a80d1,stroke:#333,color:white;
     class Token,LZ,Governance,JackpotSystem highlight
 
-    style Core fill:#ebf5ff,stroke:#3c71c3,stroke-width:2px,color:#333
-    style Users fill:#fff8e1,stroke:#ffc107,stroke-width:2px,color:#333
-    style Governance fill:#e0f7fa,stroke:#00acc1,stroke-width:2px,color:#333
+    style Core fill:#ebf5ff,stroke:#3c71c3,color:#333
+    style Users fill:#fff8e1,stroke:#ffc107,color:#333
+    style Governance fill:#e0f7fa,stroke:#00acc1,color:#333
 ```
 
 ## Core Components
@@ -111,7 +111,7 @@ flowchart TD
     Proposals -->|"Execute"| Treasury["Treasury Actions"]
     Proposals -->|"Control"| Parameters["Protocol Parameters"]
     
-    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
+    classDef highlight fill:#4a80d1,stroke:#333,color:white;
     class ve69LP highlight
 ```
 
@@ -130,7 +130,7 @@ flowchart TD
     JackpotVault -->|"Provide Funds"| Distributor
     Distributor -->|"Send Reward"| Winner["Winner"]
     
-    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
+    classDef highlight fill:#4a80d1,stroke:#333,color:white;
     class SwapOracle,JackpotVault,Distributor highlight
 ```
 

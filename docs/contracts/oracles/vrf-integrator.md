@@ -25,7 +25,7 @@ flowchart TB
         Update["Update Logic"]
     end
     
-    classDef highlight fill:#4a80d1,stroke:#333,stroke-width:2px,color:white;
+    classDef highlight fill:#4a80d1,stroke:#333,color:white;
     class DragonVRFIntegrator,Storage highlight
 ```
 

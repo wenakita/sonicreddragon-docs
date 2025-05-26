@@ -1320,3 +1320,329 @@ article {
 
 /* === SECOND SIDEBAR FIX SECTION REMOVED === */
 /* Consolidated into optimized-sidebar-fix.js for better performance */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #2563eb;
+  --ifm-color-primary-dark: #1d4ed8;
+  --ifm-color-primary-darker: #1e40af;
+  --ifm-color-primary-darkest: #1e3a8a;
+  --ifm-color-primary-light: #3b82f6;
+  --ifm-color-primary-lighter: #60a5fa;
+  --ifm-color-primary-lightest: #93c5fd;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #3b82f6;
+  --ifm-color-primary-dark: #2563eb;
+  --ifm-color-primary-darker: #1d4ed8;
+  --ifm-color-primary-darkest: #1e40af;
+  --ifm-color-primary-light: #60a5fa;
+  --ifm-color-primary-lighter: #93c5fd;
+  --ifm-color-primary-lightest: #dbeafe;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-background-color: #0f172a;
+  --ifm-background-surface-color: #1e293b;
+  --ifm-navbar-background-color: #0f172a;
+  --ifm-footer-background-color: #0f172a;
+}
+
+/* Professional Mermaid Container Styling */
+.mermaid-container {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 32px 0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.mermaid-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+}
+
+/* Professional Button Styling */
+.mermaid-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.mermaid-btn {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 1px solid #475569;
+  color: #f8fafc;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.mermaid-btn:hover {
+  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.mermaid-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+}
+
+/* Professional Cards Styling */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin: 32px 0;
+}
+
+.card {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 1px solid #475569;
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #7c3aed, #059669);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border-color: #3b82f6;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card h3 {
+  color: #f8fafc;
+  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.card p {
+  color: #cbd5e1;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.card a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.card a:hover {
+  color: #60a5fa;
+}
+
+/* Enhanced Table Styling */
+[data-theme='dark'] table {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+[data-theme='dark'] th {
+  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  color: #f8fafc;
+  font-weight: 600;
+  border-bottom: 2px solid #3b82f6;
+}
+
+[data-theme='dark'] td {
+  border-bottom: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] tr:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Professional Code Block Styling */
+[data-theme='dark'] .prism-code {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+}
+
+/* Enhanced Blockquote Styling */
+[data-theme='dark'] blockquote {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border-left: 4px solid #3b82f6;
+  border-radius: 0 8px 8px 0;
+  padding: 16px 20px;
+  margin: 24px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Professional Navigation Styling */
+[data-theme='dark'] .navbar {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #334155;
+}
+
+/* Enhanced Sidebar Styling */
+[data-theme='dark'] .theme-doc-sidebar-container {
+  background: #0f172a;
+  border-right: 1px solid #334155;
+}
+
+[data-theme='dark'] .menu__link {
+  color: #cbd5e1;
+  transition: all 0.3s ease;
+}
+
+[data-theme='dark'] .menu__link:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+[data-theme='dark'] .menu__link--active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(124, 58, 237, 0.1) 100%);
+  color: #3b82f6;
+  border-radius: 6px;
+}
+
+/* Professional Footer Styling */
+[data-theme='dark'] .footer {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-top: 1px solid #334155;
+}
+
+/* Enhanced Content Styling */
+[data-theme='dark'] .markdown h1,
+[data-theme='dark'] .markdown h2,
+[data-theme='dark'] .markdown h3,
+[data-theme='dark'] .markdown h4 {
+  color: #f8fafc;
+  position: relative;
+}
+
+[data-theme='dark'] .markdown h2::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #7c3aed);
+  border-radius: 1px;
+}
+
+/* Professional Badge Styling */
+.badge {
+  background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Enhanced Mermaid Chart Styling */
+.mermaid {
+  background: transparent !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .mermaid-controls {
+    justify-content: center;
+  }
+  
+  .mermaid-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
+  .cards-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .mermaid-container {
+    padding: 16px;
+    margin: 20px 0;
+  }
+}
+
+/* Professional Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mermaid-container {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Enhanced Focus States */
+.mermaid-btn:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Professional Scrollbar */
+[data-theme='dark'] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  border-radius: 4px;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #475569 0%, #64748b 100%);
+}

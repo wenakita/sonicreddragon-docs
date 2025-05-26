@@ -38,11 +38,11 @@ These spectacular, minimalist visualizations showcase the elegance of the OmniDr
 
 flowchart LR
     %% Define elegant color classes
-    classDef coreNode fill:#4a80d1,stroke:#6090d9,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter'
-    classDef tokenNode fill:#3566b3,stroke:#4a80d1,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter' 
-    classDef userNode fill:#f57c00,stroke:#ff9800,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter'
-    classDef journeyNode fill:#ffb300,stroke:#ffd54f,stroke-width:2px,color:#000000,font-weight:500,font-family:'Inter'
-    classDef externalNode fill:#1e88e5,stroke:#42a5f5,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter'
+    classDef coreNode fill:#4a80d1,stroke:#6090d9,color:#ffffff,font-weight:500,font-family:'Inter'
+    classDef tokenNode fill:#3566b3,stroke:#4a80d1,color:#ffffff,font-weight:500,font-family:'Inter' 
+    classDef userNode fill:#f57c00,stroke:#ff9800,color:#ffffff,font-weight:500,font-family:'Inter'
+    classDef journeyNode fill:#ffb300,stroke:#ffd54f,color:#000000,font-weight:500,font-family:'Inter'
+    classDef externalNode fill:#1e88e5,stroke:#42a5f5,color:#ffffff,font-weight:500,font-family:'Inter'
     
     %% Core Protocol
     subgraph Core["🔷 Core Protocol"]
@@ -107,9 +107,9 @@ flowchart LR
     OmniDragon -- "Power" --> Core
     
     %% Style the containers with modern aesthetics
-    style Journey fill:#fffde7,stroke:#ffb300,stroke-width:2px,color:#000000,font-family:'Inter'
-    style Core fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000000,font-family:'Inter'
-    style External fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000000,font-family:'Inter'
+    style Journey fill:#fffde7,stroke:#ffb300,color:#000000,font-family:'Inter'
+    style Core fill:#e3f2fd,stroke:#1976d2,color:#000000,font-family:'Inter'
+    style External fill:#e1f5fe,stroke:#0288d1,color:#000000,font-family:'Inter'
     
     %% Link styling for animation
     linkStyle 0,1,2,3,4,5 stroke:#ff9800,stroke-width:2.5px,stroke-dasharray:5 5,animation:flowAnimation 30s linear infinite
@@ -144,8 +144,8 @@ flowchart LR
 
 flowchart TB
     %% Define elegant color classes
-    classDef randomnessNode fill:#1976d2,stroke:#42a5f5,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter'
-    classDef processNode fill:#ff9800,stroke:#ffb74d,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter'
+    classDef randomnessNode fill:#1976d2,stroke:#42a5f5,color:#ffffff,font-weight:500,font-family:'Inter'
+    classDef processNode fill:#ff9800,stroke:#ffb74d,color:#ffffff,font-weight:500,font-family:'Inter'
     
     %% Randomness Sources - Clean and minimalist
     subgraph Sources["External Randomness Sources"]
@@ -216,9 +216,9 @@ flowchart TB
     VRFConsumer -. "Aggregates" .-> Step3
     
     %% Style the containers
-    style Sources fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000000,font-family:'Inter'
-    style Integrators fill:#bbdefb,stroke:#1976d2,stroke-width:2px,color:#000000,font-family:'Inter'
-    style LotteryFlow fill:#fff8e1,stroke:#ff9800,stroke-width:2px,color:#000000,font-family:'Inter'
+    style Sources fill:#e3f2fd,stroke:#1976d2,color:#000000,font-family:'Inter'
+    style Integrators fill:#bbdefb,stroke:#1976d2,color:#000000,font-family:'Inter'
+    style LotteryFlow fill:#fff8e1,stroke:#ff9800,color:#000000,font-family:'Inter'
     
     %% Link styling for animation
     linkStyle 0,1,2,3 stroke:#42a5f5,stroke-width:2.5px,animation:flowAnimation 30s linear infinite
@@ -254,9 +254,9 @@ flowchart TB
 
 flowchart LR
     %% Define elegant color classes
-    classDef jackpotNode fill:#fb8c00,stroke:#ffb74d,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter'
-    classDef feeNode fill:#00acc1,stroke:#4dd0e1,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter'
-    classDef processNode fill:#ff5722,stroke:#ff8a65,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter'
+    classDef jackpotNode fill:#fb8c00,stroke:#ffb74d,color:#ffffff,font-weight:500,font-family:'Inter'
+    classDef feeNode fill:#00acc1,stroke:#4dd0e1,color:#ffffff,font-weight:500,font-family:'Inter'
+    classDef processNode fill:#ff5722,stroke:#ff8a65,color:#ffffff,font-weight:500,font-family:'Inter'
     
     %% Fee Collection - Modern and minimalist
     subgraph Fees["Fee Collection"]
@@ -314,9 +314,9 @@ flowchart LR
     JackpotVault -. "Provides" .-> FeeStep5
     
     %% Style the containers
-    style Fees fill:#e0f7fa,stroke:#00acc1,stroke-width:2px,color:#000000,font-family:'Inter'
-    style Jackpot fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000000,font-family:'Inter'
-    style FeeProcess fill:#ffebee,stroke:#ff5722,stroke-width:2px,color:#000000,font-family:'Inter'
+    style Fees fill:#e0f7fa,stroke:#00acc1,color:#000000,font-family:'Inter'
+    style Jackpot fill:#fff3e0,stroke:#fb8c00,color:#000000,font-family:'Inter'
+    style FeeProcess fill:#ffebee,stroke:#ff5722,color:#000000,font-family:'Inter'
     
     %% Link styling for animation
     linkStyle 0,1 stroke:#00bcd4,stroke-width:2.5px,animation:flowAnimation 25s linear infinite
@@ -352,9 +352,9 @@ flowchart LR
 
 flowchart LR
     %% Define elegant color classes
-    classDef govNode fill:#1976d2,stroke:#42a5f5,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter'
-    classDef partnerNode fill:#f57c00,stroke:#ffb74d,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter'
-    classDef processNode fill:#00acc1,stroke:#4dd0e1,stroke-width:2px,color:#ffffff,font-weight:500,font-family:'Inter'
+    classDef govNode fill:#1976d2,stroke:#42a5f5,color:#ffffff,font-weight:500,font-family:'Inter'
+    classDef partnerNode fill:#f57c00,stroke:#ffb74d,color:#ffffff,font-weight:500,font-family:'Inter'
+    classDef processNode fill:#00acc1,stroke:#4dd0e1,color:#ffffff,font-weight:500,font-family:'Inter'
     
     %% Governance System - Clean and minimalist
     subgraph Governance["ve69LP Governance"]
@@ -445,10 +445,10 @@ flowchart LR
     Rewards -. "Distributes" .-> GovStep6
     
     %% Style the containers
-    style Governance fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000000,font-family:'Inter'
-    style Gauge fill:#e0f7fa,stroke:#00acc1,stroke-width:2px,color:#000000,font-family:'Inter'
-    style Partners fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000000,font-family:'Inter'
-    style GovFlow fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000000,font-family:'Inter'
+    style Governance fill:#e3f2fd,stroke:#1976d2,color:#000000,font-family:'Inter'
+    style Gauge fill:#e0f7fa,stroke:#00acc1,color:#000000,font-family:'Inter'
+    style Partners fill:#fff3e0,stroke:#f57c00,color:#000000,font-family:'Inter'
+    style GovFlow fill:#e1f5fe,stroke:#0288d1,color:#000000,font-family:'Inter'
     
     %% Link styling for animation
     linkStyle 0,1,2 stroke:#1e88e5,stroke-width:2.5px,animation:flowAnimation 30s linear infinite

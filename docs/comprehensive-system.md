@@ -65,10 +65,10 @@ graph TB
     OD --> NFT
     
     %% Styling
-    classDef sonic fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef arbitrum fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    classDef external fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    classDef apps fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef sonic fill:#e3f2fd,stroke:#1976d2,
+    classDef arbitrum fill:#fff3e0,stroke:#f57c00,
+    classDef external fill:#f3e5f5,stroke:#7b1fa2,
+    classDef apps fill:#e8f5e8,stroke:#388e3c,
     
     class OD,DB,RB,LZS sonic
     class CVR,VRC,LZA,VRFR arbitrum
