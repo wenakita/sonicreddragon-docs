@@ -1,5 +1,4 @@
 import React from 'react';
-import Layout from '@theme/Layout';
 import BackToTopButton from '@theme/BackToTopButton';
 import DocRootLayoutMain from '@theme/DocRoot/Layout/Main';
 import CustomSidebar from '../../../components/CustomSidebar';
@@ -12,7 +11,7 @@ export default function DocRootLayout({ children }: Props): React.ReactElement {
   const [hiddenSidebarContainer, setHiddenSidebarContainer] = React.useState(false);
 
   return (
-    <Layout wrapperClassName="docs-wrapper">
+    <>
       <BackToTopButton />
       <div className="docs-root">
         {/* Use our custom sidebar instead of the default one */}
@@ -35,6 +34,6 @@ export default function DocRootLayout({ children }: Props): React.ReactElement {
           </DocRootLayoutMain>
         </div>
       </div>
-    </Layout>
+    </>
   );
 } 
