@@ -32,12 +32,12 @@ const config: Config = {
   },
 
   // Enable mermaid diagrams
-  // markdown: {
-  //   mermaid: true,
-  // },
+  markdown: {
+    mermaid: true,
+  },
 
   // Add the theme for mermaid
-  // themes: ['@docusaurus/theme-mermaid'],
+  themes: ['@docusaurus/theme-mermaid'],
 
   // Configure client modules for browser execution
   // clientModules: [
