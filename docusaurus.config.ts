@@ -32,18 +32,18 @@ const config: Config = {
   },
 
   // Enable mermaid diagrams
-  markdown: {
-    mermaid: true,
-  },
+  // markdown: {
+  //   mermaid: true,
+  // },
 
   // Add the theme for mermaid
-  themes: ['@docusaurus/theme-mermaid'],
+  // themes: ['@docusaurus/theme-mermaid'],
 
   // Configure client modules for browser execution
-  clientModules: [
-    require.resolve('./src/clientModules/mermaidInit.js'),
-    require.resolve('./src/clientModules/animeModule.js'),
-  ],
+  // clientModules: [
+  //   // require.resolve('./src/clientModules/mermaidInit.js'),
+  //   require.resolve('./src/clientModules/animeModule.js'),
+  // ],
 
   // Optimized sidebar fix - loads immediately
   scripts: [
@@ -66,9 +66,9 @@ const config: Config = {
             'https://github.com/wenakita/sonicreddragon-docs/edit/main/',
           routeBasePath: '/',
           // Add custom remark plugins for mermaid processing
-          remarkPlugins: [
-            require('./src/plugins/mermaid-plugin'),
-          ],
+          // remarkPlugins: [
+          //   require('./src/plugins/mermaid-plugin'),
+          // ],
         },
         blog: false,
         theme: {
@@ -99,15 +99,15 @@ const config: Config = {
         {
           type: 'docSidebar',
           position: 'left',
-          sidebarId: 'concepts',
-          label: 'Concepts',
+          sidebarId: 'docsSidebar',
+          label: 'Documentation',
           className: 'navbar__item--modern',
         },
         {
           type: 'docSidebar',
           position: 'left',
-          sidebarId: 'guides',
-          label: 'Guides',
+          sidebarId: 'security',
+          label: 'Security',
           className: 'navbar__item--modern',
         },
         {
@@ -240,22 +240,22 @@ const config: Config = {
     },
 
     // Mermaid diagram configuration
-    mermaid: {
-      theme: {light: 'default', dark: 'dark'},
-      options: {
-        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-        fontSize: 16,
-        themeVariables: {
-          darkMode: true,
-          primaryColor: '#4a80d1',
-          primaryTextColor: '#f5f6fa',
-          primaryBorderColor: '#666',
-          lineColor: '#999',
-          secondaryColor: '#cc5a2b',
-          tertiaryColor: '#1e293b',
-        },
-      },
-    },
+    // mermaid: {
+    //   theme: {light: 'default', dark: 'dark'},
+    //   options: {
+    //     fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+    //     fontSize: 16,
+    //     themeVariables: {
+    //       darkMode: true,
+    //       primaryColor: '#4a80d1',
+    //       primaryTextColor: '#f5f6fa',
+    //       primaryBorderColor: '#666',
+    //       lineColor: '#999',
+    //       secondaryColor: '#cc5a2b',
+    //       tertiaryColor: '#1e293b',
+    //     },
+    //   },
+    // },
 
     // Modern metadata
     metadata: [
