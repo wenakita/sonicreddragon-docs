@@ -100,35 +100,36 @@ export default function Layout({ children, wrapperClassName }: Props): React.Rea
     }, 30000);
   };
 
-  if (isDocsPage) {
-    return (
-      <OriginalLayout wrapperClassName={wrapperClassName}>
-        <div style={{ 
-          display: 'flex', 
-          minHeight: 'calc(100vh - var(--ifm-navbar-height, 60px) - var(--docusaurus-announcement-bar-height, 0px))',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <CustomSidebar />
-          <div 
-            ref={contentRef}
-            style={{
-              marginLeft: '250px',
-              width: 'calc(100% - 250px)',
-              padding: '2rem',
-              boxSizing: 'border-box',
-              marginTop: 'calc(var(--docusaurus-announcement-bar-height, 0px))',
-              position: 'relative',
-              opacity: 0,
-              willChange: 'transform, opacity'
-            }}
-          >
-            {children}
-          </div>
-        </div>
-      </OriginalLayout>
-    );
-  }
+  // Use default Docusaurus layout for all pages
+  // if (isDocsPage) {
+  //   return (
+  //     <OriginalLayout wrapperClassName={wrapperClassName}>
+  //       <div style={{ 
+  //         display: 'flex', 
+  //         minHeight: 'calc(100vh - var(--ifm-navbar-height, 60px) - var(--docusaurus-announcement-bar-height, 0px))',
+  //         position: 'relative',
+  //         overflow: 'hidden'
+  //       }}>
+  //         <CustomSidebar />
+  //         <div 
+  //           ref={contentRef}
+  //           style={{
+  //             marginLeft: '250px',
+  //             width: 'calc(100% - 250px)',
+  //             padding: '2rem',
+  //             boxSizing: 'border-box',
+  //             marginTop: 'calc(var(--docusaurus-announcement-bar-height, 0px))',
+  //             position: 'relative',
+  //             opacity: 0,
+  //             willChange: 'transform, opacity'
+  //           }}
+  //         >
+  //           {children}
+  //         </div>
+  //       </div>
+  //     </OriginalLayout>
+  //   );
+  // }
 
   // For non-docs pages, use enhanced layout with animations
   return (

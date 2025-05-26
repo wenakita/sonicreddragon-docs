@@ -40,10 +40,9 @@ const config: Config = {
   themes: ['@docusaurus/theme-mermaid'],
 
   // Configure client modules for browser execution
-  // clientModules: [
-  //   // require.resolve('./src/clientModules/mermaidInit.js'),
-  //   require.resolve('./src/clientModules/animeModule.js'),
-  // ],
+  clientModules: [
+    require.resolve('./src/clientModules/animeModule.js'),
+  ],
 
   // Custom sidebar - no scripts needed
   scripts: [],
@@ -257,14 +256,14 @@ const config: Config = {
     // Modern metadata
     metadata: [
       {name: 'theme-color', content: '#1a1a1a'},
-      {name: 'apple-mobile-web-app-capable', content: 'yes'},
+      {name: 'mobile-web-app-capable', content: 'yes'},
       {name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent'},
     ],
 
-    // Disable table of contents completely
+    // Enable table of contents
     tableOfContents: {
-      minHeadingLevel: 6,
-      maxHeadingLevel: 6,
+      minHeadingLevel: 2,
+      maxHeadingLevel: 3,
     },
 
     // Modern announcement bar
