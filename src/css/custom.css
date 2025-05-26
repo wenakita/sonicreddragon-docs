@@ -176,18 +176,27 @@ body {
   min-width: 0 !important;
   display: flex !important;
   overflow-x: hidden !important;
+  width: 100% !important;
 }
 
 .theme-doc-main .container {
   max-width: none !important;
   width: 100% !important;
-  display: flex !important;
-  gap: 2rem !important;
+  display: block !important;
+  padding: 0 2rem !important;
+}
+
+/* Force single column layout */
+.theme-doc-main .container .row {
+  display: block !important;
+  width: 100% !important;
 }
 
 .theme-doc-main .col {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: none !important;
+  display: block !important;
 }
 
 /* Document container styling */
@@ -544,14 +553,39 @@ table td {
   }
 }
 
-/* TOC container positioning */
+/* COMPLETELY HIDE THE RIGHT TOC SIDEBAR */
 .theme-doc-toc-desktop {
-  max-width: 200px !important;
-  flex-shrink: 0 !important;
+  display: none !important;
 }
 
 .theme-doc-toc-mobile {
   display: none !important;
+}
+
+/* Hide all TOC related elements */
+.table-of-contents {
+  display: none !important;
+}
+
+/* Make sure the main content takes full width without TOC */
+.theme-doc-main .container .row {
+  --ifm-col-width: 100% !important;
+}
+
+.theme-doc-main .container .row .col {
+  max-width: 100% !important;
+  flex: 1 1 100% !important;
+}
+
+/* Hide the TOC column completely */
+.theme-doc-main .container .row .col:last-child {
+  display: none !important;
+}
+
+/* Ensure main content column takes full space */
+.theme-doc-main .container .row .col:first-child {
+  max-width: 100% !important;
+  flex: 1 1 100% !important;
 }
 
 /* Doc item main content */
