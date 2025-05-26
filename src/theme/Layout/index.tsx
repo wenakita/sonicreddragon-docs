@@ -19,7 +19,7 @@ export default function Layout({ children, wrapperClassName }: Props): React.Rea
   if (isDocsPage) {
     return (
       <OriginalLayout wrapperClassName={wrapperClassName}>
-        <div style={{ display: 'flex', minHeight: 'calc(100vh - var(--ifm-navbar-height, 60px))' }}>
+        <div style={{ display: 'flex', minHeight: 'calc(100vh - var(--ifm-navbar-height, 60px) - var(--docusaurus-announcement-bar-height, 0px))' }}>
           <CustomSidebar />
           <div 
             style={{
@@ -27,6 +27,7 @@ export default function Layout({ children, wrapperClassName }: Props): React.Rea
               width: 'calc(100% - 250px)',
               padding: '2rem',
               boxSizing: 'border-box',
+              marginTop: 'calc(var(--docusaurus-announcement-bar-height, 0px))',
             }}
           >
             {children}
