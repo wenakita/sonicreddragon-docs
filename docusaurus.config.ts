@@ -43,13 +43,12 @@ const config: Config = {
   clientModules: [
     require.resolve('./src/clientModules/mermaidInit.js'),
     require.resolve('./src/clientModules/animeModule.js'),
-    require.resolve('./src/clientModules/sidebarFixer.js'),
   ],
 
-  // Emergency sidebar fix - loads immediately
+  // Optimized sidebar fix - loads immediately
   scripts: [
     {
-      src: '/js/emergency-sidebar-fix.js',
+      src: '/js/optimized-sidebar-fix.js',
       async: false,
       defer: false,
     },

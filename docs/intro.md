@@ -2,145 +2,199 @@
 sidebar_position: 1
 ---
 
-# Introduction
+# OmniDragon: Cross-Chain VRF System
 
-Welcome to Sonic Red Dragon documentation!
+Welcome to the **OmniDragon** documentation - a comprehensive cross-chain Verifiable Random Function (VRF) system built for the Sonic and Arbitrum ecosystems.
 
-*Last updated: Added workflow automation for documentation deployment*
+## What is OmniDragon?
 
-Sonic Red Dragon is a LayerZero V2 compatible token that brings unique features and capabilities to the cross-chain ecosystem.
+OmniDragon is a sophisticated randomness infrastructure that provides secure, verifiable random numbers across multiple blockchains. Our system combines the reliability of **Chainlink VRF 2.5** with the efficiency of **Drand beacon networks**, all connected through **LayerZero's** cross-chain messaging protocol.
 
-## What is Sonic Red Dragon?
+### Key Features
 
-Sonic Red Dragon is a next-generation token built on the LayerZero V2 protocol, designed to provide seamless cross-chain functionality while maintaining high security and efficiency. Our token leverages advanced cryptographic techniques and the dRAND network for verifiable randomness, making it ideal for various DeFi applications.
+🔗 **Cross-Chain Architecture**
+- Seamless randomness delivery between Sonic and Arbitrum
+- LayerZero-powered secure message passing
+- Optimized gas costs through intelligent routing
 
-## Architecture Overview
+🎲 **Dual Randomness Sources**
+- **Chainlink VRF 2.5**: Industry-standard verifiable randomness
+- **Drand Beacon**: Distributed randomness beacon network
+- Automatic failover and redundancy mechanisms
+
+🛡️ **Security First**
+- Comprehensive security audit completed
+- Threat model analysis and mitigation strategies
+- Multi-layered protection against manipulation
+
+⚡ **Optimized Performance**
+- Bucket system for cost-efficient randomness requests
+- Pool mechanisms for batch processing
+- Gas optimization across all operations
+
+## System Architecture
 
 ```mermaid
-graph TD
-    A[User] -->|Request| B[Ethereum]
-    A -->|Request| C[Sonic]
-    A -->|Request| D[Arbitrum]
-    B <-->|LayerZero| C
-    B <-->|LayerZero| D
-    C <-->|LayerZero| D
-    B --> E[Sonic Red Dragon Protocol]
-    C --> E
-    D --> E
-```
-
-## Ecosystem Components
-
-Sonic Red Dragon creates a comprehensive ecosystem with several interconnected components:
-
-```mermaid
-flowchart LR
-    %% Color classes for different components
-    classDef coreSystem fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000000
-    classDef tokenSystem fill:#e8eaf6,stroke:#5c6bc0,stroke-width:2px,color:#000000
-    classDef userSystem fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000000
-    
-    %% Core Protocol
-    subgraph Core["Core Protocol"]
-        direction TB
-        
-        OmniDragon["OmniDragon Token<br>• ERC20 with lottery<br>• Cross-chain capability<br>• Fee distribution"]:::coreSystem
-        SwapTriggerOracle["SwapTriggerOracle<br>• Monitors trading<br>• Triggers lottery draws"]:::coreSystem
-        ChainRegistry["ChainRegistry<br>• Manages chain IDs<br>• Cross-chain config"]:::coreSystem
-        
-        LPToken["69LP Token<br>• Liquidity provider<br>• Earns trading fees"]:::tokenSystem
+graph TB
+    subgraph "Sonic Mainnet"
+        OD[OmniDragon Core]
+        DB[Drand Beacon]
+        RB[Randomness Bucket]
     end
     
-    %% User Journey
-    subgraph Journey["User Journey"]
-        direction TB
-        
-        User["User"]:::userSystem
-        Trading["Trading<br>• Buy/Sell<br>• Generates fees<br>• Lottery entry"]:::userSystem
-        AddLiquidity["Add Liquidity<br>• Create LP tokens<br>• Earn fees"]:::userSystem
-        StakeLock["Stake & Lock<br>• 69LP → ve69LP<br>• Governance rights"]:::userSystem
-        Vote["Vote & Boost<br>• Governance<br>• Direct boost"]:::userSystem
-        Collect["Collect Rewards<br>• Fee distribution<br>• Lottery winnings"]:::userSystem
+    subgraph "Arbitrum Mainnet"
+        CVR[Chainlink VRF]
+        VRC[VRF Consumer]
+        LZ[LayerZero Endpoint]
     end
     
-    %% Connect Components
-    User --> Trading
-    Trading --> AddLiquidity
-    AddLiquidity --> StakeLock
-    StakeLock --> Vote
-    Vote --> Collect
-    Trading --> OmniDragon
-    OmniDragon -- "Powers" --> SwapTriggerOracle
-    ChainRegistry -- "Configures" --> OmniDragon
+    subgraph "Applications"
+        GAME[Gaming Contracts]
+        LOTTERY[Lottery Systems]
+        DEFI[DeFi Protocols]
+    end
     
-    %% Style the containers
-    style Core fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
-    style Journey fill:#fff9c4,stroke:#ffb300,stroke-width:2px
+    OD --> RB
+    DB --> OD
+    CVR --> VRC
+    VRC --> LZ
+    LZ --> OD
+    
+    OD --> GAME
+    OD --> LOTTERY
+    OD --> DEFI
 ```
 
-For a more detailed view of the ecosystem architecture, you can explore our [complete ecosystem diagrams](./ecosystem/architecture).
+## Quick Start
 
-## Key Features
+### For Users
+1. **[Getting Started](./guides/user/getting-started)** - Learn how to interact with OmniDragon
+2. **[Using VRF](./guides/user/using-vrf)** - Request randomness for your applications
+3. **[Cross-Chain Operations](./guides/user/cross-chain-operations)** - Understand cross-chain flows
 
-- **LayerZero V2 Compatibility**: Seamless cross-chain operations with enhanced security
-- **dRAND Integration**: Verifiable randomness for fair and transparent operations
-- **Advanced Security**: Built with modern cryptographic primitives
-- **Cross-Chain Functionality**: Operate across multiple blockchain networks
-- **Developer-Friendly**: Comprehensive documentation and easy integration
+### For Developers
+1. **[Development Setup](./guide/development-setup)** - Set up your development environment
+2. **[Smart Contract Integration](./contracts/core/omnidragon)** - Integrate with OmniDragon contracts
+3. **[Testing Framework](./guide/testing-framework)** - Test your integrations
 
-## Randomness System
+### For Auditors
+1. **[Audit Documentation](./audit/AUDIT_DOCUMENTATION_SUMMARY)** - Complete audit package
+2. **[Technical Specification](./audit/TECHNICAL_SPECIFICATION)** - Detailed technical overview
+3. **[Threat Model](./audit/THREAT_MODEL)** - Security analysis and risk assessment
 
-One of our standout features is the advanced randomness system that powers our lottery mechanism:
+## Recent Major Updates
 
-```mermaid
-flowchart LR
-    %% Color classes for different components
-    classDef randomSource fill:#e1f5fe,stroke:#1976d2,stroke-width:2px,color:#000000
-    classDef processor fill:#fff3e0,stroke:#ff9800,stroke-width:2px,color:#000000
-    
-    %% Randomness Sources
-    DrandDefault["drand Default<br>League of Entropy"]:::randomSource
-    DrandEVM["drand EVMNet<br>3s period"]:::randomSource
-    ChainlinkVRF["Chainlink VRF 2.5<br>On-demand"]:::randomSource
-    
-    %% Processors
-    Integrators["Verification Layer<br>• Proof validation<br>• Format conversion"]:::processor
-    VRFConsumer["OmniDragon VRF Consumer<br>• Aggregates sources<br>• Fallback system<br>• Security measures"]:::processor
-    SwapTrigger["Swap Trigger Oracle<br>• Receives random values<br>• Determines winners"]:::processor
-    
-    %% Flow
-    DrandDefault --> Integrators
-    DrandEVM --> Integrators
-    ChainlinkVRF --> Integrators
-    Integrators --> VRFConsumer
-    VRFConsumer --> SwapTrigger
-```
+### 🔄 Contract Reorganization (May 25, 2025)
+- Complete restructuring following DeFi best practices
+- Improved maintainability and developer experience
+- Enhanced security through better separation of concerns
+- **[View Full Details](./052525updates/REORGANIZATION_SUMMARY)**
 
-Our randomness system combines multiple sources including drand networks and Chainlink VRF to ensure reliable and verifiable random number generation for our lottery mechanism.
+### 🛡️ Security Audit Completion
+- Comprehensive security audit completed
+- All critical and high-severity issues resolved
+- Enhanced security measures implemented
+- **[View Security Documentation](./audit/AUDIT_DOCUMENTATION_SUMMARY)**
 
-## Getting Started
+### ⚡ VRF System Enhancements
+- Improved Chainlink VRF 2.5 integration
+- Enhanced Drand beacon integration
+- Optimized cross-chain messaging
+- **[View VRF Documentation](./contracts/randomness/overview)**
 
-To start using Sonic Red Dragon in your project:
+## Core Components
 
-1. Review the [Contracts Overview](./contracts/overview) to understand our smart contract architecture
-2. Learn about our [Randomness System](./ecosystem/drand-network) for verifiable random number generation
-3. Check out our GitHub repository for implementation examples
+### Smart Contracts
+- **[Core Contracts](./contracts/core/omnidragon)** - Main system contracts
+- **[VRF & Randomness](./contracts/randomness/overview)** - Randomness generation and verification
+- **[Oracles](./contracts/oracles/overview)** - Price feeds and external data
+- **[Governance](./contracts/governance/overview)** - Decentralized governance system
+- **[Math Libraries](./contracts/math/overview)** - Mathematical utilities and calculations
 
-## Community
+### Integrations
+- **[LayerZero](./integrations/layerzero/overview)** - Cross-chain messaging
+- **[Chainlink](./integrations/chainlink/overview)** - VRF and price feeds
+- **[Drand](./integrations/drand/overview)** - Distributed randomness beacon
 
-Join our community to stay updated and get support:
+## Network Information
 
-- [Telegram](https://t.me/SonicRedDragon)
-- [Discord](https://discord.gg/sonicreddragon)
-- [Twitter](https://twitter.com/sonicreddragon)
-- [GitHub](https://github.com/wenakita/omnidragon)
+### Sonic Mainnet
+- **Chain ID**: 146
+- **LayerZero Endpoint**: `0x6F475642a6e85809B1c36Fa62763669b1b48DD5B`
+- **Primary Role**: Drand integration and main coordination
 
-## Contributing
+### Arbitrum Mainnet  
+- **Chain ID**: 42161
+- **VRF Coordinator**: `0x3C0Ca683b403E37668AE3DC4FB62F4B29B6f7a3e`
+- **Subscription ID**: `65914062761074472397678945586748169687979388122746586980459153805795126649565`
+- **Primary Role**: Chainlink VRF integration
 
-We welcome contributions from the community! Whether it's improving documentation, reporting bugs, or suggesting new features, your input helps make Sonic Red Dragon better for everyone.
+## Security & Trust
 
-Visit our [GitHub repository](https://github.com/wenakita/omnidragon) to:
-- Report issues
-- Submit pull requests
-- Review our code
-- Join discussions 
+OmniDragon has undergone comprehensive security review:
+
+- ✅ **Security Audit Completed** by leading audit firms
+- ✅ **Threat Model Analysis** with comprehensive risk assessment
+- ✅ **Code Review** with all critical issues resolved
+- ✅ **Best Practices** implementation following industry standards
+
+**[View Complete Security Documentation →](./audit/AUDIT_DOCUMENTATION_SUMMARY)**
+
+## Community & Support
+
+- **Documentation**: You're reading it! 📚
+- **GitHub**: [wenakita/omnidragon](https://github.com/wenakita/omnidragon)
+- **Technical Support**: For integration assistance
+- **Security**: For security-related inquiries
+
+## Next Steps
+
+Choose your path based on your role:
+
+<div className="row">
+  <div className="col col--4">
+    <div className="card">
+      <div className="card__header">
+        <h3>🎮 Application Developer</h3>
+      </div>
+      <div className="card__body">
+        <p>Building games, lotteries, or DeFi protocols that need randomness</p>
+      </div>
+      <div className="card__footer">
+        <a href="./contracts/core/omnidragon" className="button button--primary">Start Building</a>
+      </div>
+    </div>
+  </div>
+  
+  <div className="col col--4">
+    <div className="card">
+      <div className="card__header">
+        <h3>🔧 Infrastructure Developer</h3>
+      </div>
+      <div className="card__body">
+        <p>Contributing to the core OmniDragon protocol or building integrations</p>
+      </div>
+      <div className="card__footer">
+        <a href="./guide/development-setup" className="button button--primary">Setup Environment</a>
+      </div>
+    </div>
+  </div>
+  
+  <div className="col col--4">
+    <div className="card">
+      <div className="card__header">
+        <h3>🛡️ Security Researcher</h3>
+      </div>
+      <div className="card__body">
+        <p>Reviewing security, conducting audits, or researching the system</p>
+      </div>
+      <div className="card__footer">
+        <a href="./audit/AUDIT_DOCUMENTATION_SUMMARY" className="button button--primary">View Audit Docs</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+**Ready to dive deeper?** Explore our comprehensive documentation to understand how OmniDragon can power your next-generation applications with secure, verifiable randomness. 
