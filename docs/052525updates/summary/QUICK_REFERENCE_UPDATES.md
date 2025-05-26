@@ -117,5 +117,5 @@ contracts/
 
 - [Full Updates Summary](./PROJECT_UPDATES_SUMMARY.md)
 - [Technical Changes Log](./TECHNICAL_CHANGES_LOG.md)
-- [VRF Deployment Guide](./updates/SONIC_VRF_DEPLOYMENT_GUIDE.md)
-- [Security Audit Recommendations](./updates/SECURITY_AUDIT_RECOMMENDATIONS.md) 
+- [VRF Deployment Guide](../SONIC_VRF_DEPLOYMENT_GUIDE.md)
+- [Security Audit Recommendations](../SECURITY_AUDIT_RECOMMENDATIONS.md) 
