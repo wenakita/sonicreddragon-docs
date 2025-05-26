@@ -38,6 +38,36 @@
     style.innerHTML = `
 /* OPTIMIZED SIDEBAR FIX - SINGLE SOURCE OF TRUTH */
 
+/* GLOBAL TOC REMOVAL - HIGHEST PRIORITY */
+.theme-doc-toc-desktop,
+.theme-doc-toc-mobile,
+.table-of-contents,
+.col.col--3,
+[class*="tocDesktop"],
+[class*="tocMobile"],
+[class*="TableOfContents"] {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  opacity: 0 !important;
+}
+
+/* Force single column layout */
+.theme-doc-main .container .row {
+  display: block !important;
+  width: 100% !important;
+}
+
+.theme-doc-main .container .row .col {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 1 1 100% !important;
+}
+
 /* Desktop Layout (>= 997px) */
 @media screen and (min-width: 997px) {
   /* Fixed sidebar positioning */
@@ -66,34 +96,27 @@
     flex-direction: row !important;
   }
   
-  /* Content container */
+  /* Content container - Full width without TOC */
   [class*="docMainContainer"] {
     margin-left: 0 !important;
-    width: calc(100% - ${CONFIG.TOC_WIDTH}px) !important;
-    max-width: calc(100% - ${CONFIG.TOC_WIDTH}px) !important;
+    width: 100% !important;
+    max-width: 100% !important;
     flex: 1 1 auto !important;
     padding-left: 2rem !important;
-    padding-right: 1rem !important;
+    padding-right: 2rem !important;
     min-width: 0 !important;
   }
   
-  /* Table of Contents - Fixed right */
+  /* COMPLETELY HIDE TABLE OF CONTENTS */
   .theme-doc-toc-desktop,
   [class*="tocDesktop"],
-  .col.col--3 {
-    position: fixed !important;
-    top: ${CONFIG.NAVBAR_HEIGHT_VAR} !important;
-    right: 0 !important;
-    width: ${CONFIG.TOC_WIDTH}px !important;
-    max-width: ${CONFIG.TOC_WIDTH}px !important;
-    height: calc(100vh - ${CONFIG.NAVBAR_HEIGHT_VAR}) !important;
-    overflow-y: auto !important;
-    z-index: ${CONFIG.Z_INDEX.TOC} !important;
-    background: var(--ifm-background-surface-color) !important;
-    border-left: 1px solid var(--ifm-toc-border-color) !important;
-    padding: 1rem !important;
-    display: block !important;
-    visibility: visible !important;
+  .col.col--3,
+  .table-of-contents {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
   }
 }
 
@@ -124,7 +147,8 @@
   
   /* Hide TOC on mobile */
   .theme-doc-toc-desktop,
-  [class*="tocDesktop"] {
+  [class*="tocDesktop"],
+  .table-of-contents {
     display: none !important;
   }
 }
@@ -136,11 +160,16 @@
   box-sizing: border-box !important;
 }
 
-/* Menu styling */
+/* Menu styling - Fix horizontal overflow */
 .menu {
   padding: 0 !important;
   margin: 0 !important;
   font-size: 14px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .menu__link {
@@ -150,6 +179,12 @@
   display: block !important;
   text-decoration: none !important;
   transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  box-sizing: border-box !important;
 }
 
 .menu__link--active {
@@ -303,12 +338,37 @@
         max-width: ${CONFIG.SIDEBAR_WIDTH}px !important;
         height: calc(100vh - ${navbarHeight}px) !important;
         overflow-y: auto !important;
+        overflow-x: hidden !important;
         z-index: ${CONFIG.Z_INDEX.SIDEBAR} !important;
         background: var(--ifm-background-surface-color) !important;
         border-right: 1px solid var(--ifm-toc-border-color) !important;
         transform: none !important;
         transition: none !important;
       `;
+      
+      // Fix sidebar menu overflow
+      const sidebarMenu = sidebar.querySelector('.theme-doc-sidebar-menu');
+      if (sidebarMenu) {
+        sidebarMenu.style.cssText = `
+          overflow-x: hidden !important;
+          overflow-y: auto !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+        `;
+      }
+      
+      // Fix menu links
+      const menuLinks = sidebar.querySelectorAll('.menu__link');
+      menuLinks.forEach(link => {
+        link.style.cssText = `
+          white-space: nowrap !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          max-width: 100% !important;
+          word-wrap: break-word !important;
+        `;
+      });
     } else {
       // Force mobile layout
       sidebar.style.cssText = `
@@ -326,6 +386,58 @@
         transition: transform 0.3s ease !important;
       `;
     }
+    
+    // COMPLETELY REMOVE TOC ELEMENTS
+    removeTOCElements();
+  }
+  
+  // Function to completely remove TOC elements
+  function removeTOCElements() {
+    const tocSelectors = [
+      '.theme-doc-toc-desktop',
+      '.theme-doc-toc-mobile',
+      '.table-of-contents',
+      '.col.col--3',
+      '[class*="tocDesktop"]',
+      '[class*="tocMobile"]'
+    ];
+    
+    tocSelectors.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach(element => {
+        element.style.display = 'none';
+        element.style.visibility = 'hidden';
+        element.style.width = '0';
+        element.style.height = '0';
+        element.style.overflow = 'hidden';
+        // Actually remove from DOM
+        element.remove();
+      });
+    });
+    
+    // Force main content to take full width
+    const mainContainers = document.querySelectorAll('[class*="docMainContainer"], .theme-doc-main .container .row');
+    mainContainers.forEach(container => {
+      container.style.cssText = `
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 1 1 100% !important;
+      `;
+    });
+    
+    // Force content columns to full width
+    const contentCols = document.querySelectorAll('.theme-doc-main .container .row .col');
+    contentCols.forEach((col, index) => {
+      if (index === 0) { // First column (main content)
+        col.style.cssText = `
+          width: 100% !important;
+          max-width: 100% !important;
+          flex: 1 1 100% !important;
+        `;
+      } else { // Any other columns (TOC) - remove them
+        col.remove();
+      }
+    });
   }
   
   // Handle window resize
@@ -376,6 +488,42 @@
     
     // Watch for route changes
     routeCheckInterval = setInterval(handleRouteChange, 1000);
+    
+    // Continuously remove TOC elements (aggressive approach)
+    setInterval(() => {
+      removeTOCElements();
+    }, 500);
+    
+    // Use MutationObserver to catch dynamically added elements
+    if (window.MutationObserver) {
+      const observer = new MutationObserver((mutations) => {
+        let shouldRemoveTOC = false;
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeType === 1) { // Element node
+                if (node.classList && (
+                  node.classList.contains('theme-doc-toc-desktop') ||
+                  node.classList.contains('table-of-contents') ||
+                  node.classList.contains('col--3')
+                )) {
+                  shouldRemoveTOC = true;
+                }
+              }
+            });
+          }
+        });
+        
+        if (shouldRemoveTOC) {
+          setTimeout(removeTOCElements, 100);
+        }
+      });
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    }
     
     console.log('✅ Optimized Sidebar Fix initialized successfully');
   }
