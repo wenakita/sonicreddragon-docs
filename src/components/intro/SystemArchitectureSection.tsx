@@ -1,34 +1,9 @@
 import React from 'react';
 import ScrollRevealWrapper from '../ScrollRevealWrapper';
 import MermaidControls from '../MermaidControls';
+import MermaidDiagram from './MermaidDiagram';
 
-export default function SystemArchitectureSection() {
-  return (
-    <section className="system-architecture-section">
-      <h2>System Architecture</h2>
-
-      <ScrollRevealWrapper animation="fadeInUp" duration={1000} delay={200}>
-        <div className="mermaid-container">
-          <MermaidControls targetSelector=".mermaid-container .mermaid" />
-
-          <pre className="mermaid">
-{`%%{init: {
-  'theme': 'base',
-  'themeVariables': {
-    'primaryColor': '#f8fafc',
-    'primaryTextColor': '#334155',
-    'primaryBorderColor': '#64748b',
-    'lineColor': '#64748b',
-    'secondaryColor': '#f1f5f9',
-    'tertiaryColor': '#e2e8f0',
-    'background': '#ffffff',
-    'mainBkg': '#f8fafc',
-    'secondBkg': '#f1f5f9',
-    'tertiaryBkg': '#e2e8f0'
-  }
-}}%%
-
-graph TB
+const systemArchitectureChart = `graph TB
     A[OmniDragon Token] --> B[Lottery System]
     A --> C[Cross-Chain Bridge]
     A --> D[Fee Management]
@@ -59,8 +34,17 @@ graph TB
     classDef secondary fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
     
     class A primary
-    class B,C,D,E secondary`}
-          </pre>
+    class B,C,D,E secondary`;
+
+export default function SystemArchitectureSection() {
+  return (
+    <section className="system-architecture-section">
+      <h2>System Architecture</h2>
+
+      <ScrollRevealWrapper animation="fadeInUp" duration={1000} delay={200}>
+        <div className="mermaid-container">
+          <MermaidControls targetSelector=".mermaid-container .mermaid" />
+          <MermaidDiagram chart={systemArchitectureChart} />
         </div>
       </ScrollRevealWrapper>
     </section>
