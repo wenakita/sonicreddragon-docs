@@ -11,27 +11,6 @@ The Randomness Provider serves as the central hub for:
 - **Enhanced Security**: Aggregated randomness from multiple sources
 - **Universal Service**: Serves any authorized consumer (lottery, games, etc.)
 
-## Key Features
-
-### Multiple VRF Sources
-- **Primary**: Chainlink VRF 2.5 via LayerZero from Arbitrum
-- **Secondary**: Drand League of Entropy beacon network
-- **Fallback**: Legacy Chainlink VRF 2.0 (if available locally)
-- **Tertiary**: Drand Quicknet for fast randomness
-- **Quaternary**: Drand EVMnet for EVM-optimized randomness
-
-### Cost Optimization
-- **Bucket System**: Batches multiple requests for efficiency
-- **Randomness Pool**: Pre-generated numbers for instant access
-- **Protocol-Funded**: All randomness costs covered by protocol
-- **Gas Efficient**: Optimized for high-frequency operations
-
-### Security Features
-- **Multi-Source Aggregation**: Enhanced security through diversity
-- **Continuous Monitoring**: Automatic health checks and failover
-- **Access Control**: Only authorized consumers can request randomness
-- **Request Validation**: Comprehensive input validation
-
 ## Contract Architecture
 
 <div className="mermaid-container">
@@ -44,677 +23,602 @@ The Randomness Provider serves as the central hub for:
 
 ```mermaid
 %%{init: {
-  'theme': 'dark',
+  'theme': 'base',
   'themeVariables': {
-    'primaryColor': '#7c3aed',
-    'primaryTextColor': '#f8fafc',
-    'primaryBorderColor': '#6d28d9',
+    'primaryColor': '#f8fafc',
+    'primaryTextColor': '#334155',
+    'primaryBorderColor': '#64748b',
     'lineColor': '#64748b',
-    'secondaryColor': '#1e293b',
-    'tertiaryColor': '#0f172a',
-    'background': '#0f172a',
-    'mainBkg': '#1e293b',
-    'secondBkg': '#334155',
-    'tertiaryBkg': '#475569'
-  },
-  'flowchart': {
-    'curve': 'cardinal',
-    'nodeSpacing': 50,
-    'rankSpacing': 80,
-    'padding': 20
+    'secondaryColor': '#f1f5f9',
+    'tertiaryColor': '#e2e8f0'
   }
 }}%%
+
 graph TB
-    subgraph "OmniDragonRandomnessProvider"
-        RP["Core Controller<br/>Request Orchestration"]
-        VS["VRF Source Manager<br/>Multi-Source Coordination"]
-        BS["Bucket System<br/>Cost-Efficient Batching"]
-        PS["Pool System<br/>Pre-Generated Numbers"]
-        AC["Access Control<br/>Consumer Authorization"]
+    subgraph "Core Controller"
+        RP[Randomness Provider<br/>Central Orchestrator]
+        AC[Access Control<br/>Authorization Manager]
+        EM[Emergency Manager<br/>Circuit Breaker]
     end
     
     subgraph "VRF Sources"
-        CL["Chainlink VRF 2.5<br/>Premium Security"]
-        DR["Drand Networks<br/>Distributed Beacons"]
-        LG["Legacy VRF 2.0<br/>Fallback Option"]
+        CI[Chainlink Integrator<br/>LayerZero Bridge]
+        DI[Drand Integrator<br/>Beacon Aggregator]
+        FB[Fallback Manager<br/>Source Switching]
     end
     
     subgraph "Storage Systems"
-        RC["Request Cache<br/>Pending Requests"]
-        SC["Statistics Cache<br/>Success/Failure Rates"]
-        CC["Consumer Cache<br/>Authorized Addresses"]
+        BS[Bucket System<br/>Cost Optimization]
+        PS[Pool System<br/>Pre-generated Numbers]
+        CS[Cache System<br/>Recent Results]
     end
     
-    RP --> VS
+    subgraph "External Sources"
+        VRF[Chainlink VRF 2.5<br/>Arbitrum Network]
+        LE[League of Entropy<br/>Main Beacon]
+        QN[Quicknet<br/>Fast Rounds]
+        EN[EVMnet<br/>EVM Optimized]
+    end
+    
+    RP --> AC
+    RP --> EM
+    RP --> CI
+    RP --> DI
+    RP --> FB
     RP --> BS
     RP --> PS
-    RP --> AC
+    RP --> CS
     
-    VS --> CL
-    VS --> DR
-    VS --> LG
+    CI --> VRF
+    DI --> LE
+    DI --> QN
+    DI --> EN
     
-    RP --> RC
-    RP --> SC
-    AC --> CC
+    FB --> CI
+    FB --> DI
+
+    classDef default fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#334155
+    classDef controller fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#1e293b
+    classDef vrf fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
+    classDef storage fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
+    classDef external fill:#e2e8f0,stroke:#475569,stroke-width:1px,color:#334155
     
-    classDef core fill:#7c3aed,stroke:#6d28d9,color:#f8fafc
-    classDef vrf fill:#059669,stroke:#047857,color:#f8fafc
-    classDef storage fill:#2563eb,stroke:#1e40af,color:#f8fafc
-    classDef system fill:#ea580c,stroke:#c2410c,color:#f8fafc
-    
-    class RP core
-    class VS,BS,PS,AC system
-    class CL,DR,LG vrf
-    class RC,SC,CC storage
+    class RP,AC,EM controller
+    class CI,DI,FB vrf
+    class BS,PS,CS storage
+    class VRF,LE,QN,EN external
 ```
 </div>
 
-## VRF Sources
-
-### Supported Sources
-
-<div className="mermaid-container">
-  <div className="mermaid-controls">
-    <button className="mermaid-btn">Animate Sources</button>
-  </div>
-
-```mermaid
-%%{init: {
-  'theme': 'dark',
-  'themeVariables': {
-    'primaryColor': '#059669',
-    'primaryTextColor': '#f8fafc',
-    'lineColor': '#64748b'
-  }
-}}%%
-graph LR
-    subgraph "Primary VRF"
-        CL25["Chainlink VRF 2.5<br/>Arbitrum → Sonic<br/>Maximum Security<br/>~30s Latency<br/>Higher Cost"]
-    end
-    
-    subgraph "Secondary VRF"
-        DB["Drand Beacon<br/>League of Entropy<br/>High Security<br/>&lt;1s Latency<br/>Free"]
-    end
-    
-    subgraph "Fallback Options"
-        CL20["Chainlink VRF 2.0<br/>Local if Available<br/>High Security<br/>~10s Latency<br/>Medium Cost"]
-        DQ["Drand Quicknet<br/>Fast Rounds<br/>Medium Security<br/>~3s Latency<br/>Free"]
-        DE["Drand EVMnet<br/>EVM Optimized<br/>Medium Security<br/>~5s Latency<br/>Free"]
-    end
-    
-    CL25 --> DB
-    DB --> CL20
-    CL20 --> DQ
-    DQ --> DE
-    
-    classDef primary fill:#dc2626,stroke:#b91c1c,color:#f8fafc
-    classDef secondary fill:#059669,stroke:#047857,color:#f8fafc
-    classDef fallback fill:#7c3aed,stroke:#6d28d9,color:#f8fafc
-    
-    class CL25 primary
-    class DB secondary
-    class CL20,DQ,DE fallback
-```
-</div>
-
-```solidity
-enum VRFSource {
-    CHAINLINK_V2_5,    // Primary: Chainlink VRF 2.5 via LayerZero
-    DRAND_BEACON,      // Secondary: Drand League of Entropy
-    CHAINLINK_V2_0,    // Fallback: Legacy Chainlink VRF 2.0
-    DRAND_QUICKNET,    // Tertiary: Drand Quicknet
-    DRAND_EVMNET       // Quaternary: Drand EVMnet
-}
-```
-
-### VRF Configuration
-
-```solidity
-struct VRFConfig {
-    address contractAddress;    // VRF contract address
-    bool isActive;             // Whether this VRF source is active
-    uint256 priority;          // Priority level (1 = highest)
-    uint256 maxRetries;        // Maximum retry attempts
-    uint256 timeoutSeconds;    // Timeout for VRF response
-    uint256 successCount;      // Number of successful requests
-    uint256 failureCount;      // Number of failed requests
-}
-```
-
-## Core Systems
-
-### Bucket System
+## VRF Sources Hierarchy
 
 <div className="mermaid-container">
   <div className="mermaid-controls">
     <button className="mermaid-btn">Zoom In</button>
+    <button className="mermaid-btn">Zoom Out</button>
+    <button className="mermaid-btn">Reset View</button>
     <button className="mermaid-btn">Replay</button>
   </div>
 
 ```mermaid
 %%{init: {
-  'theme': 'dark',
+  'theme': 'base',
   'themeVariables': {
-    'primaryColor': '#2563eb',
-    'primaryTextColor': '#f8fafc',
-    'lineColor': '#64748b'
-  },
-  'flowchart': {
-    'curve': 'basis',
-    'nodeSpacing': 50,
-    'rankSpacing': 70
+    'primaryColor': '#f8fafc',
+    'primaryTextColor': '#334155',
+    'primaryBorderColor': '#64748b',
+    'lineColor': '#64748b',
+    'secondaryColor': '#f1f5f9',
+    'tertiaryColor': '#e2e8f0'
   }
 }}%%
+
 graph TD
-    A["Bucket System<br/>Cost-Efficient Randomness"]
+    A[Randomness Request] --> B{Source Selection}
     
-    A --> B["VRF Seed<br/>Cryptographically Secure"]
-    A --> C["Nonce Counter<br/>Unique Number Generator"]
-    A --> D["Capacity: 1000<br/>Random Numbers per Seed"]
-    A --> E["Refill at 100<br/>Remaining Numbers"]
+    B --> C[Primary: Chainlink VRF 2.5]
+    B --> D[Secondary: Drand Aggregated]
+    B --> E[Fallback: Bucket System]
     
-    B --> F["Generate Random<br/>keccak256(seed + nonce + consumer)"]
-    C --> F
-    F --> G["Deliver to Consumer<br/>Instant Response"]
+    C --> F[LayerZero Bridge to Arbitrum]
+    F --> G[VRF Coordinator]
+    G --> H[Cryptographic Proof]
+    H --> I[LayerZero Return]
+    I --> J[Sonic Verification]
     
-    E --> H["Request New VRF<br/>Automatic Refill"]
-    H --> I["1 Hour Interval<br/>Rate Limiting"]
-    I --> B
+    D --> K[League of Entropy]
+    D --> L[Quicknet]
+    D --> M[EVMnet]
+    K --> N[Beacon Aggregation]
+    L --> N
+    M --> N
+    N --> O[Signature Verification]
     
-    classDef bucket fill:#2563eb,stroke:#1e40af,color:#f8fafc
-    classDef process fill:#059669,stroke:#047857,color:#f8fafc
-    classDef refill fill:#be185d,stroke:#9d174d,color:#f8fafc
+    E --> P[Pre-generated Pool]
+    P --> Q[Bucket Selection]
+    Q --> R[Deterministic Draw]
     
-    class A bucket
-    class B,C,D,F,G process
-    class E,H,I refill
+    J --> S[Final Randomness]
+    O --> S
+    R --> S
+    
+    S --> T[Consumer Callback]
+
+    classDef default fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#334155
+    classDef primary fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#1e293b
+    classDef secondary fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
+    classDef fallback fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
+    
+    class C,F,G,H,I,J primary
+    class D,K,L,M,N,O secondary
+    class E,P,Q,R fallback
 ```
 </div>
 
-The bucket system provides cost-efficient randomness for high-frequency requests:
-
-```solidity
-struct RandomnessBucket {
-    uint256 seed;              // Current VRF seed
-    uint256 nonce;             // Counter for deriving unique numbers
-    uint256 maxNonce;          // Maximum nonce for this seed
-    uint256 lastRefill;        // Timestamp of last VRF request
-}
-```
-
-**Constants**:
-- `BUCKET_SIZE`: 1000 random numbers per bucket
-- `REFILL_THRESHOLD`: 100 numbers remaining triggers refill
-- `CHAINLINK_REQUEST_INTERVAL`: 1 hour between Chainlink requests
-
-### Randomness Pool
-
-<div className="mermaid-container">
-  <div className="mermaid-controls">
-    <button className="mermaid-btn">Animate Pool</button>
-  </div>
-
-```mermaid
-%%{init: {
-  'theme': 'dark',
-  'themeVariables': {
-    'primaryColor': '#ea580c',
-    'primaryTextColor': '#f8fafc',
-    'lineColor': '#64748b'
-  }
-}}%%
-graph LR
-    subgraph "Randomness Pool System"
-        A["Pool Manager<br/>Instant Access Controller"]
-        B["Pre-Generated Pool<br/>1000 Random Numbers"]
-        C["Current Index<br/>Draw Position Tracker"]
-        D["Refresh Timer<br/>30 Minute Intervals"]
-    end
-    
-    subgraph "Pool Generation"
-        E["Latest Chainlink Seed<br/>High-Quality Entropy"]
-        F["Drand Aggregation<br/>Multi-Network Mixing"]
-        G["Mathematical Mixing<br/>Enhanced Randomness"]
-    end
-    
-    A --> B
-    B --> C
-    A --> D
-    
-    D --> E
-    D --> F
-    E --> G
-    F --> G
-    G --> B
-    
-    classDef pool fill:#ea580c,stroke:#c2410c,color:#f8fafc
-    classDef generation fill:#7c3aed,stroke:#6d28d9,color:#f8fafc
-    
-    class A,B,C,D pool
-    class E,F,G generation
-```
-</div>
-
-Enhanced pool system for instant randomness access:
-
-```solidity
-struct RandomnessPool {
-    uint256[] randomNumbers;    // Array of pre-generated random numbers
-    uint256 currentIndex;       // Current index for drawing numbers
-    uint256 lastChainlinkSeed; // Last Chainlink VRF seed used
-    uint256 lastRefreshTime;    // Last time pool was refreshed
-    bool isRefreshing;          // Whether pool is currently being refreshed
-}
-```
-
-**Constants**:
-- `POOL_SIZE`: 1000 pre-generated numbers
-- `POOL_REFRESH_INTERVAL`: 30 minutes between refreshes
-- `MIN_POOL_SIZE`: 100 minimum numbers before refresh
-
-### Drand Network Aggregation
+## Bucket System Flowchart
 
 <div className="mermaid-container">
   <div className="mermaid-controls">
     <button className="mermaid-btn">Zoom In</button>
+    <button className="mermaid-btn">Zoom Out</button>
+    <button className="mermaid-btn">Reset View</button>
     <button className="mermaid-btn">Replay</button>
   </div>
 
 ```mermaid
 %%{init: {
-  'theme': 'dark',
+  'theme': 'base',
   'themeVariables': {
-    'primaryColor': '#047857',
-    'primaryTextColor': '#f8fafc',
-    'lineColor': '#64748b'
+    'primaryColor': '#f8fafc',
+    'primaryTextColor': '#334155',
+    'primaryBorderColor': '#64748b',
+    'lineColor': '#64748b',
+    'secondaryColor': '#f1f5f9',
+    'tertiaryColor': '#e2e8f0'
   }
 }}%%
+
+flowchart TD
+    A[VRF Seed Request] --> B{Bucket Available?}
+    
+    B -->|Yes| C[Select Bucket]
+    B -->|No| D[Generate New Bucket]
+    
+    C --> E[Calculate Index]
+    E --> F[Extract Number]
+    F --> G[Mark as Used]
+    G --> H[Return Random Number]
+    
+    D --> I[Request VRF Seed]
+    I --> J[Receive Seed]
+    J --> K[Generate 1000 Numbers]
+    K --> L[Store in Bucket]
+    L --> M[Set Expiry: 24h]
+    M --> C
+    
+    H --> N[Update Usage Stats]
+    N --> O{Bucket Empty?}
+    
+    O -->|Yes| P[Mark for Cleanup]
+    O -->|No| Q[Continue Operations]
+    
+    P --> R[Schedule Regeneration]
+    Q --> S[Monitor Usage]
+    
+    R --> T[Background Process]
+    S --> T
+    T --> U[Optimize Performance]
+
+    classDef default fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#334155
+    classDef process fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#1e293b
+    classDef storage fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
+    classDef optimization fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
+    
+    class A,E,F,I,J process
+    class C,K,L,M storage
+    class N,O,P,R,T,U optimization
+```
+</div>
+
+## Randomness Pool System
+
+<div className="mermaid-container">
+  <div className="mermaid-controls">
+    <button className="mermaid-btn">Zoom In</button>
+    <button className="mermaid-btn">Zoom Out</button>
+    <button className="mermaid-btn">Reset View</button>
+    <button className="mermaid-btn">Replay</button>
+  </div>
+
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#f8fafc',
+    'primaryTextColor': '#334155',
+    'primaryBorderColor': '#64748b',
+    'lineColor': '#64748b',
+    'secondaryColor': '#f1f5f9',
+    'tertiaryColor': '#e2e8f0'
+  }
+}}%%
+
+graph LR
+    subgraph "Pool Management"
+        PM[Pool Manager]
+        RF[Refresh Timer: 30min]
+        QM[Quality Monitor]
+    end
+    
+    subgraph "Active Pool"
+        AP[Current Pool<br/>500 Numbers]
+        UI[Usage Index]
+        TS[Timestamp]
+    end
+    
+    subgraph "Standby Pool"
+        SP[Standby Pool<br/>500 Numbers]
+        PS[Pre-generated]
+        RD[Ready State]
+    end
+    
+    subgraph "Generation Process"
+        VG[VRF Generator]
+        DG[Drand Generator]
+        AG[Aggregator]
+    end
+    
+    PM --> RF
+    PM --> QM
+    PM --> AP
+    PM --> SP
+    
+    RF --> VG
+    VG --> AG
+    DG --> AG
+    AG --> SP
+    
+    AP --> UI
+    AP --> TS
+    
+    SP --> PS
+    SP --> RD
+    
+    QM --> VG
+    QM --> DG
+
+    classDef default fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#334155
+    classDef management fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#1e293b
+    classDef pool fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
+    classDef generation fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
+    
+    class PM,RF,QM management
+    class AP,UI,TS,SP,PS,RD pool
+    class VG,DG,AG generation
+```
+</div>
+
+## Drand Network Aggregation
+
+<div className="mermaid-container">
+  <div className="mermaid-controls">
+    <button className="mermaid-btn">Zoom In</button>
+    <button className="mermaid-btn">Zoom Out</button>
+    <button className="mermaid-btn">Reset View</button>
+    <button className="mermaid-btn">Replay</button>
+  </div>
+
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#f8fafc',
+    'primaryTextColor': '#334155',
+    'primaryBorderColor': '#64748b',
+    'lineColor': '#64748b',
+    'secondaryColor': '#f1f5f9',
+    'tertiaryColor': '#e2e8f0'
+  }
+}}%%
+
 graph TB
-    subgraph "Global Drand Networks"
-        LE["League of Entropy<br/>Global Beacon Network<br/>30s Rounds<br/>Maximum Security"]
-        QN["Quicknet<br/>Fast Beacon Network<br/>3s Rounds<br/>High Security"]
-        EN["EVMnet<br/>EVM-Optimized Network<br/>5s Rounds<br/>Medium Security"]
+    subgraph "Global Networks"
+        LE[League of Entropy<br/>Main Network<br/>30s rounds]
+        QN[Quicknet<br/>Fast Network<br/>3s rounds]
+        EN[EVMnet<br/>EVM Optimized<br/>12s rounds]
     end
     
-    subgraph "Aggregation Process"
-        AG["Aggregator<br/>Multi-Network Combiner"]
-        WM["Weight Manager<br/>Network Priority System"]
-        VM["Validator<br/>Signature Verification"]
+    subgraph "Aggregation Layer"
+        DA[Drand Aggregator]
+        SV[Signature Verifier]
+        TS[Timestamp Sync]
+        RH[Round Handler]
     end
     
-    subgraph "Output"
-        AR["Aggregated Randomness<br/>Combined Entropy"]
-        TS["Timestamp<br/>Last Update Time"]
-        CT["Counter<br/>Aggregation Sequence"]
+    subgraph "Quality Control"
+        QC[Quality Checker]
+        FD[Freshness Detector]
+        CD[Corruption Detector]
+        FB[Fallback Trigger]
     end
     
-    LE --> AG
-    QN --> AG
-    EN --> AG
+    subgraph "Output Processing"
+        RA[Random Aggregator]
+        EN2[Entropy Mixer]
+        FO[Final Output]
+    end
     
-    AG --> WM
-    AG --> VM
-    WM --> AR
-    VM --> AR
-    AR --> TS
-    AR --> CT
+    LE --> DA
+    QN --> DA
+    EN --> DA
     
-    classDef network fill:#047857,stroke:#065f46,color:#f8fafc
-    classDef process fill:#059669,stroke:#047857,color:#f8fafc
-    classDef output fill:#be185d,stroke:#9d174d,color:#f8fafc
+    DA --> SV
+    DA --> TS
+    DA --> RH
+    
+    SV --> QC
+    TS --> FD
+    RH --> CD
+    
+    QC --> RA
+    FD --> RA
+    CD --> FB
+    FB --> RA
+    
+    RA --> EN2
+    EN2 --> FO
+
+    classDef default fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#334155
+    classDef network fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#1e293b
+    classDef aggregation fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
+    classDef quality fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
+    classDef output fill:#e2e8f0,stroke:#475569,stroke-width:1px,color:#334155
     
     class LE,QN,EN network
-    class AG,WM,VM process
-    class AR,TS,CT output
+    class DA,SV,TS,RH aggregation
+    class QC,FD,CD,FB quality
+    class RA,EN2,FO output
 ```
 </div>
-
-Multi-network Drand integration for enhanced security:
-
-```solidity
-struct DrandNetwork {
-    address integrator;
-    bool active;
-    uint256 weight;
-    uint256 lastUpdate;
-    uint256 lastValue;
-    uint256 lastRound;
-}
-```
 
 ## Request Lifecycle
 
 <div className="mermaid-container">
   <div className="mermaid-controls">
     <button className="mermaid-btn">Zoom In</button>
-    <button className="mermaid-btn">Replay Flow</button>
+    <button className="mermaid-btn">Zoom Out</button>
+    <button className="mermaid-btn">Reset View</button>
+    <button className="mermaid-btn">Replay</button>
   </div>
 
 ```mermaid
 %%{init: {
-  'theme': 'dark',
+  'theme': 'base',
   'themeVariables': {
-    'primaryColor': '#1e40af',
-    'primaryTextColor': '#f8fafc',
-    'lineColor': '#64748b'
-  },
-  'sequence': {
-    'actorMargin': 50,
-    'width': 150,
-    'height': 65,
-    'boxMargin': 10,
-    'boxTextMargin': 5,
-    'noteMargin': 10,
-    'messageMargin': 35
+    'primaryColor': '#f8fafc',
+    'primaryTextColor': '#334155',
+    'primaryBorderColor': '#64748b',
+    'lineColor': '#64748b',
+    'secondaryColor': '#f1f5f9',
+    'tertiaryColor': '#e2e8f0'
   }
 }}%%
+
 sequenceDiagram
     participant C as Consumer
     participant RP as Randomness Provider
+    participant CI as Chainlink Integrator
+    participant DI as Drand Integrator
     participant BS as Bucket System
-    participant PS as Pool System
-    participant VRF as VRF Sources
     
-    Note over C,VRF: Request Initiation
-    C->>RP: requestRandomness()
-    RP->>RP: Validate Consumer
-    RP->>RP: Assign Request ID
+    C->>RP: requestRandomness(seed)
+    RP->>RP: validateRequest()
+    RP->>RP: selectSource()
     
-    Note over RP,PS: Source Selection
-    alt Bucket Available
-        RP->>BS: drawFromBucket()
-        BS->>BS: Generate from Seed
-        BS->>RP: Instant Randomness
-        RP->>C: Fulfill Request
-    else Pool Available
-        RP->>PS: drawFromPool()
-        PS->>PS: Get Pre-Generated
-        PS->>RP: Pool Randomness
-        RP->>C: Fulfill Request
-    else VRF Required
-        RP->>VRF: Request VRF
-        VRF->>VRF: Generate Secure Random
-        VRF->>RP: VRF Response
-        RP->>C: Fulfill Request
+    alt Primary: Chainlink VRF
+        RP->>CI: requestVRF(seed)
+        CI->>CI: bridgeToArbitrum()
+        CI-->>RP: vrfPending()
+        CI->>CI: receiveVRF()
+        CI->>RP: fulfillRandomness(proof)
+    else Secondary: Drand
+        RP->>DI: requestDrand()
+        DI->>DI: aggregateBeacons()
+        DI->>RP: fulfillRandomness(signature)
+    else Fallback: Bucket
+        RP->>BS: getBucketNumber()
+        BS->>BS: selectFromPool()
+        BS->>RP: returnNumber()
     end
     
-    Note over C,VRF: Statistics Update
-    RP->>RP: Update Success Metrics
+    RP->>RP: verifyRandomness()
+    RP->>RP: storeResult()
+    RP->>C: fulfillRandomness(result)
+    C->>C: processResult()
+
+    classDef default fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#334155
 ```
 </div>
 
-## Core Functions
-
-### Main Randomness Functions
-
-#### Request Randomness
-```solidity
-function requestRandomness() external returns (uint256 requestId);
-```
-
-**Features**:
-- Protocol covers all costs
-- Automatic source selection
-- Fallback mechanisms
-- Request tracking
-
-**Requirements**:
-- Caller must be authorized consumer
-- System must not be paused
-- VRF sources must be available
-
-#### Request with Specific Source
-```solidity
-function requestRandomnessWithSource(
-    VRFSource vrfSource, 
-    bool useBucket
-) public returns (uint256 requestId);
-```
-
-**Parameters**:
-- `vrfSource`: Preferred VRF source
-- `useBucket`: Whether to use bucket system for cost efficiency
-
-#### Draw from Bucket
-```solidity
-function drawRandomnessFromBucket() external returns (uint256 randomness);
-```
-
-**Features**:
-- Instant randomness delivery
-- Cost-efficient for high-frequency use
-- Automatic refill management
-- Deterministic generation from VRF seed
-
-**Important Notes**:
-- Reverts if bucket is empty
-- Check `getBucketStatus()` before calling
-- Bucket refills are asynchronous
-
-#### Get Aggregated Randomness
-```solidity
-function getAggregatedRandomness() external view returns (uint256 randomness);
-```
-
-**Features**:
-- Free, immediate access
-- Aggregated from all Drand networks
-- May be stale if not recently updated
-- No gas cost for reading
-
-## Cost Model
+## Cost Model Visualization
 
 <div className="mermaid-container">
   <div className="mermaid-controls">
-    <button className="mermaid-btn">Animate Costs</button>
+    <button className="mermaid-btn">Zoom In</button>
+    <button className="mermaid-btn">Zoom Out</button>
+    <button className="mermaid-btn">Reset View</button>
+    <button className="mermaid-btn">Replay</button>
   </div>
 
 ```mermaid
 %%{init: {
-  'theme': 'dark',
+  'theme': 'base',
   'themeVariables': {
-    'primaryColor': '#be185d',
-    'primaryTextColor': '#f8fafc',
-    'lineColor': '#64748b'
+    'primaryColor': '#f8fafc',
+    'primaryTextColor': '#334155',
+    'primaryBorderColor': '#64748b',
+    'lineColor': '#64748b',
+    'secondaryColor': '#f1f5f9',
+    'tertiaryColor': '#e2e8f0'
   }
 }}%%
+
 graph TD
-    subgraph "Protocol-Funded Operations"
-        A["Protocol Treasury<br/>Covers All Randomness Costs"]
-    end
+    A[Protocol Operations] --> B{Cost Model}
     
-    subgraph "Chainlink VRF Costs"
-        B["LayerZero Fees<br/>~0.01 S per request"]
-        C["LINK Token Fees<br/>~0.3-0.5 LINK per request"]
-        D["Gas Costs<br/>~200k gas on Sonic"]
-    end
+    B --> C[Protocol Funded]
+    B --> D[Consumer Funded]
     
-    subgraph "Drand Costs"
-        E["Network Queries<br/>Free to Access"]
-        F["Gas Only<br/>~50k gas per aggregation"]
-    end
+    C --> E[Bucket Generation<br/>$50 per 1000 numbers]
+    C --> F[Pool Maintenance<br/>$30 per refresh]
+    C --> G[Drand Aggregation<br/>$5 per request]
     
-    subgraph "Consumer Experience"
-        G["Free Randomness<br/>No Direct Costs"]
-        H["Authorization Required<br/>Must be Approved"]
-    end
+    D --> H[Premium VRF<br/>$100 per request]
+    D --> I[Instant Delivery<br/>$25 surcharge]
+    D --> J[Custom Parameters<br/>Variable cost]
     
-    A --> B
-    A --> C
-    A --> D
-    A --> E
-    A --> F
+    E --> K[Cost Efficiency<br/>$0.05 per number]
+    F --> L[Reliability<br/>99.9% uptime]
+    G --> M[Speed<br/>&lt;1s response]
     
-    B --> G
-    C --> G
-    D --> G
-    E --> G
-    F --> G
+    H --> N[Maximum Security<br/>Cryptographic proof]
+    I --> O[Immediate Response<br/>No waiting]
+    J --> P[Flexibility<br/>Custom requirements]
+
+    classDef default fill:#f8fafc,stroke:#64748b,stroke-width:2px,color:#334155
+    classDef protocol fill:#e2e8f0,stroke:#475569,stroke-width:2px,color:#1e293b
+    classDef consumer fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
+    classDef benefit fill:#f1f5f9,stroke:#64748b,stroke-width:1px,color:#475569
     
-    G --> H
-    
-    classDef protocol fill:#1e40af,stroke:#1d4ed8,color:#f8fafc
-    classDef chainlink fill:#059669,stroke:#047857,color:#f8fafc
-    classDef drand fill:#047857,stroke:#065f46,color:#f8fafc
-    classDef consumer fill:#65a30d,stroke:#4d7c0f,color:#f8fafc
-    
-    class A protocol
-    class B,C,D chainlink
-    class E,F drand
-    class G,H consumer
+    class C,E,F,G protocol
+    class D,H,I,J consumer
+    class K,L,M,N,O,P benefit
 ```
 </div>
-
-### Protocol-Funded Operations
-
-The protocol covers all randomness costs:
-
-- **Chainlink VRF**: LayerZero fees paid in $S (Sonic native token)
-- **Drand**: Free queries, only gas costs
-- **Consumers**: Free to request randomness (must be authorized)
-
-### Operational Requirements
-
-1. **ChainlinkVRFIntegrator** must be funded with $S for LayerZero fees
-2. **OmniDragonVRFRequester** must be deployed on Arbitrum with funded VRF subscription
-3. **LayerZero endpoints** must be configured for cross-chain messaging
-4. **Drand integrator contracts** must be deployed and configured
-
-### Gas Costs
-
-- **Individual Request**: ~200k gas
-- **Bucket Draw**: ~50k gas
-- **Pool Refresh**: ~1M gas
-- **Drand Collection**: ~1M gas (multiple networks)
-
-## Security Features
-
-### Access Control
-
-```solidity
-modifier onlyAuthorizedConsumer() {
-    require(authorizedConsumers[msg.sender], "Not authorized consumer");
-    _;
-}
-```
-
-### Request Validation
-
-```solidity
-function _validateRequest(address requester, VRFSource source) internal view {
-    require(authorizedConsumers[requester], "Not authorized");
-    require(vrfConfigs[source].isActive, "VRF source not active");
-    require(!paused(), "System paused");
-}
-```
-
-### Randomness Generation
-
-```solidity
-function _generateFromSeed(
-    uint256 seed, 
-    uint256 nonce, 
-    address consumer
-) internal pure returns (uint256) {
-    return uint256(keccak256(abi.encodePacked(seed, nonce, consumer)));
-}
-```
-
-**Security Notes**:
-- Uses only VRF-derived seeds
-- Deterministic generation for auditability
-- Consumer address adds uniqueness
-- Suitable for high-frequency, lower-security use cases
 
 ## Performance Metrics
 
 <div className="mermaid-container">
   <div className="mermaid-controls">
-    <button className="mermaid-btn">Show Performance</button>
+    <button className="mermaid-btn">Zoom In</button>
+    <button className="mermaid-btn">Zoom Out</button>
+    <button className="mermaid-btn">Reset View</button>
+    <button className="mermaid-btn">Replay</button>
   </div>
 
 ```mermaid
 %%{init: {
-  'theme': 'dark',
+  'theme': 'base',
   'themeVariables': {
-    'primaryColor': '#1d4ed8',
-    'primaryTextColor': '#f8fafc',
-    'lineColor': '#64748b'
-  },
-  'xyChart': {
-    'width': 700,
-    'height': 400
+    'primaryColor': '#f8fafc',
+    'primaryTextColor': '#334155',
+    'primaryBorderColor': '#64748b',
+    'lineColor': '#64748b',
+    'xyChart': {
+      'backgroundColor': '#ffffff',
+      'titleColor': '#1e293b',
+      'xAxisLabelColor': '#475569',
+      'yAxisLabelColor': '#475569',
+      'xAxisTitleColor': '#334155',
+      'yAxisTitleColor': '#334155',
+      'plotColorPalette': '#64748b,#94a3b8,#cbd5e1,#e2e8f0'
+    }
   }
 }}%%
+
 xychart-beta
-    title "VRF Method Performance Comparison"
-    x-axis ["Cost", "Latency", "Security", "Throughput"]
-    y-axis "Performance Score" 0 --> 10
-    bar [9, 2, 10, 3]
-    bar [3, 9, 8, 8]
-    bar [1, 10, 6, 9]
-    bar [2, 10, 6, 10]
+    title "VRF Method Comparison"
+    x-axis "Metrics" ["Cost", "Latency", "Security", "Throughput"]
+    y-axis "Score (1-10)" 0 --> 10
+    bar "Chainlink VRF" [3, 6, 10, 4]
+    bar "Drand Aggregated" [8, 9, 8, 7]
+    bar "Bucket System" [10, 10, 6, 10]
+    bar "Pool System" [9, 9, 7, 9]
 ```
 </div>
 
-| Method | Cost | Latency | Security | Use Case |
-|--------|------|---------|----------|----------|
-| Chainlink VRF | High | ~30s | Maximum | Critical applications |
-| Drand Aggregated | Low | &lt;1s | High | General purpose |
-| Bucket Draw | Very Low | &lt;1s | Medium | High-frequency |
-| Pool Access | Minimal | Instant | Medium | Immediate needs |
+## Key Features
+
+### Multiple VRF Sources
+- **Chainlink VRF 2.5**: Premium cryptographic randomness via LayerZero
+- **Drand Networks**: Distributed beacon aggregation from multiple sources
+- **Bucket System**: Cost-efficient pre-generated randomness pools
+- **Automatic Fallback**: Seamless switching between sources
+
+### Cost Optimization
+- **Bucket System**: Generate 1000 numbers from single VRF seed
+- **Pool Management**: Pre-generated randomness for instant delivery
+- **Protocol Funding**: Most operations funded by protocol treasury
+- **Flexible Pricing**: Consumer-funded premium options available
+
+### Security Features
+- **Multi-Source Verification**: Cross-validation between VRF sources
+- **Cryptographic Proofs**: Verifiable randomness with mathematical guarantees
+- **Access Control**: Role-based permissions and emergency controls
+- **Audit Trail**: Complete logging of all randomness generation
+
+### Performance Characteristics
+
+| Method | Cost | Latency | Security | Throughput | Use Case |
+|--------|------|---------|----------|------------|----------|
+| **Chainlink VRF** | High | ~30s | Maximum | Low | Critical operations |
+| **Drand Aggregated** | Low | &lt;1s | High | General purpose |
+| **Bucket Draw** | Very Low | &lt;1s | Medium | High-frequency |
+| **Pool System** | Low | Instant | Medium | High | Real-time applications |
 
 ## Integration Examples
 
-### For Consumers
+### Basic Randomness Request
+```solidity
+// Request randomness from the provider
+uint256 requestId = randomnessProvider.requestRandomness(
+    keccak256(abi.encodePacked(block.timestamp, msg.sender))
+);
+```
 
-1. **Get Authorized**
-   ```solidity
-   // Owner must authorize your contract
-   randomnessProvider.authorizeConsumer(yourContract, true);
-   ```
+### Consumer Implementation
+```solidity
+contract LotteryConsumer is IRandomnessConsumer {
+    function fulfillRandomness(uint256 requestId, uint256 randomness) 
+        external override {
+        // Process the randomness
+        uint256 winner = randomness % totalParticipants;
+        selectWinner(winner);
+    }
+}
+```
 
-2. **Implement Callback**
-   ```solidity
-   function fulfillRandomness(uint256 requestId, uint256 randomness) external {
-       require(msg.sender == address(randomnessProvider), "Unauthorized");
-       // Use randomness for your logic
-   }
-   ```
+### Advanced Configuration
+```solidity
+// Configure VRF source preferences
+randomnessProvider.setSourcePreference(
+    VRFSource.CHAINLINK_PRIMARY,
+    VRFSource.DRAND_SECONDARY,
+    VRFSource.BUCKET_FALLBACK
+);
+```
 
-3. **Request Randomness**
-   ```solidity
-   uint256 requestId = randomnessProvider.requestRandomness();
-   // Store requestId for callback matching
-   ```
+## Security Considerations
 
-### For High-Frequency Use
+### Access Control
+- **Role-based permissions** for all critical functions
+- **Timelock protection** for parameter changes
+- **Emergency pause** capability for security incidents
+- **Multi-signature** requirements for sensitive operations
 
-1. **Check Bucket Status**
-   ```solidity
-   function getBucketStatus() external view returns (
-       uint256 remainingNumbers,
-       uint256 lastRefill,
-       bool needsRefill
-   );
-   ```
+### Randomness Quality
+- **Entropy validation** for all sources
+- **Freshness checks** to prevent replay attacks
+- **Signature verification** for Drand beacons
+- **Proof validation** for Chainlink VRF responses
 
-2. **Draw from Bucket**
-   ```solidity
-   try randomnessProvider.drawRandomnessFromBucket() returns (uint256 randomness) {
-       // Use randomness immediately
-   } catch {
-       // Bucket empty, fallback to regular request
-       uint256 requestId = randomnessProvider.requestRandomness();
-   }
-   ```
+### Economic Security
+- **Protocol funding** reduces consumer costs
+- **Fallback mechanisms** ensure service continuity
+- **Cost monitoring** prevents economic attacks
+- **Rate limiting** protects against spam
 
-## Links
-
-- **Social**: [Twitter](https://x.com/sonicreddragon) | [Telegram](https://t.me/sonicreddragon)
-- **Repository**: [GitHub](https://github.com/wenakita/omnidragon)
-- **VRF Integration**: [Chainlink VRF](/contracts/randomness/chainlink) | [Drand Integration](/contracts/randomness/drand)
+The OmniDragon Randomness Provider represents a comprehensive solution for secure, cost-effective, and reliable randomness generation in the DeFi ecosystem, supporting everything from high-frequency gaming applications to critical lottery operations.
 
 
 
