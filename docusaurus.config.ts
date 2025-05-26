@@ -45,14 +45,8 @@ const config: Config = {
   //   require.resolve('./src/clientModules/animeModule.js'),
   // ],
 
-  // Optimized sidebar fix - loads immediately
-  scripts: [
-    {
-      src: '/js/optimized-sidebar-fix.js',
-      async: false,
-      defer: false,
-    },
-  ],
+  // Custom sidebar - no scripts needed
+  scripts: [],
 
   presets: [
     [
