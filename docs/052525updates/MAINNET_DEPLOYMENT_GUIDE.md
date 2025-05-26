@@ -147,7 +147,7 @@ console.log("Chainlink request:", tx);
 ## 📊 **Step 8: Monitoring Setup**
 
 ### **Set up alerts for:**
-- Low LINK balance (<10 LINK)
+- Low LINK balance (less than 10 LINK)
 - Low $S balance for LayerZero
 - Failed VRF requests
 - Unusual gas consumption

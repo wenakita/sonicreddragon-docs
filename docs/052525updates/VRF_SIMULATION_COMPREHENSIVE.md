@@ -61,7 +61,7 @@ This simulation demonstrates the complete VRF (Verifiable Random Function) archi
 ```solidity
 // SIMULATION: 1000 lottery draws in 1 hour
 // COST: ~$0 (uses pre-generated bucket)
-// LATENCY: <1 second per draw
+// LATENCY: Less than 1 second per draw
 
 function simulateHighFrequencyLottery() {
     console.log("🎰 HIGH-FREQUENCY LOTTERY SIMULATION");
@@ -141,7 +141,7 @@ function simulatePremiumJackpotDraw() {
 ```solidity
 // SIMULATION: Real-time Drand aggregation
 // COST: $0 (free randomness)
-// LATENCY: <5 seconds (network aggregation)
+// LATENCY: Less than 5 seconds (network aggregation)
 
 function simulateDrandAggregation() {
     console.log("🌐 DRAND MULTI-NETWORK SIMULATION");
@@ -478,8 +478,8 @@ contract RandomnessPoolSimulation {
 ### **Throughput Comparison**
 | Method | Requests/Second | Cost/Request | Latency | Security Level |
 |--------|----------------|--------------|---------|----------------|
-| **Bucket System** | 1000+ | $0 | <1s | Medium |
-| **Pool System** | 100+ | ~$0.005 | <2s | High |
+| **Bucket System** | 1000+ | $0 | Less than 1s | Medium |
+| **Pool System** | 100+ | ~$0.005 | Less than 2s | High |
 | **Direct Chainlink** | 0.1 | $3-5 | 180s | Maximum |
 | **Direct Drand** | 10+ | $0 | 5s | High |
 
@@ -612,7 +612,7 @@ function testChainlinkFailover() external {
 - **Cost Efficiency**: $0 for 99% of requests
 - **Reliability**: 100% uptime with fallback mechanisms
 - **Security**: Cryptographically secure randomness from multiple sources
-- **Latency**: <1 second for cached randomness, <5 minutes for premium
+- **Latency**: Less than 1 second for cached randomness, less than 5 minutes for premium
 
 ### **🎯 Production Readiness**
 - ✅ **Scalable**: Handles high-frequency lottery operations
