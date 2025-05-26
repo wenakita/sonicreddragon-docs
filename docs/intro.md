@@ -4,6 +4,15 @@ sidebar_position: 1
 
 # Welcome to OmniDragon
 
+import InteractiveCard from '@site/src/components/InteractiveCard';
+import AnimatedText from '@site/src/components/AnimatedText';
+import AnimatedButton from '@site/src/components/AnimatedButton';
+import ParticleBackground from '@site/src/components/ParticleBackground';
+
+<AnimatedText as="h2" animation="typewriter" duration={2000} className="gradient-text">
+Revolutionary Cross-Chain Token Ecosystem
+</AnimatedText>
+
 **OmniDragon** is a revolutionary cross-chain token ecosystem built on Sonic blockchain, featuring an integrated lottery system powered by dual VRF sources, dynamic fee management, and advanced governance mechanisms.
 
 ## What is OmniDragon?
@@ -276,23 +285,51 @@ flowchart LR
 
 Ready to join the OmniDragon ecosystem? Here's how to get started:
 
-### For Users
-1. **Acquire DRAGON Tokens**: Purchase on supported DEXs
-2. **Connect Wallet**: Use MetaMask or compatible wallet
-3. **Start Swapping**: Every qualifying swap enters you into the lottery
-4. **Stake for Rewards**: Earn additional yield through staking
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', margin: '2rem 0' }}>
 
-### For Developers
-1. **Review Documentation**: Explore our comprehensive guides
-2. **Test Integration**: Use our testnet environment
-3. **Deploy Contracts**: Leverage our battle-tested infrastructure
-4. **Join Community**: Connect with other builders
+<InteractiveCard
+  title="For Users"
+  variant="primary"
+  withGlow={true}
+  withParallax={true}
+>
+  <ul>
+    <li><strong>Acquire DRAGON Tokens</strong>: Purchase on supported DEXs</li>
+    <li><strong>Connect Wallet</strong>: Use MetaMask or compatible wallet</li>
+    <li><strong>Start Swapping</strong>: Every qualifying swap enters you into the lottery</li>
+    <li><strong>Stake for Rewards</strong>: Earn additional yield through staking</li>
+  </ul>
+</InteractiveCard>
 
-### For Partners
-1. **Integration Opportunities**: White-label lottery solutions
-2. **Revenue Sharing**: Participate in fee distribution
-3. **Cross-Chain Expansion**: Leverage our LayerZero integration
-4. **Governance Participation**: Shape the future of OmniDragon
+<InteractiveCard
+  title="For Developers"
+  variant="accent"
+  withGlow={true}
+  withParallax={true}
+>
+  <ul>
+    <li><strong>Review Documentation</strong>: Explore our comprehensive guides</li>
+    <li><strong>Test Integration</strong>: Use our testnet environment</li>
+    <li><strong>Deploy Contracts</strong>: Leverage our battle-tested infrastructure</li>
+    <li><strong>Join Community</strong>: Connect with other builders</li>
+  </ul>
+</InteractiveCard>
+
+<InteractiveCard
+  title="For Partners"
+  variant="glass"
+  withGlow={true}
+  withParallax={true}
+>
+  <ul>
+    <li><strong>Integration Opportunities</strong>: White-label lottery solutions</li>
+    <li><strong>Revenue Sharing</strong>: Participate in fee distribution</li>
+    <li><strong>Cross-Chain Expansion</strong>: Leverage our LayerZero integration</li>
+    <li><strong>Governance Participation</strong>: Shape the future of OmniDragon</li>
+  </ul>
+</InteractiveCard>
+
+</div>
 
 ## Key Benefits
 
@@ -316,7 +353,36 @@ Ready to join the OmniDragon ecosystem? Here's how to get started:
 
 ---
 
-**Ready to experience the future of DeFi gaming?** Join the OmniDragon ecosystem today and start earning rewards with every transaction!
+<div style={{ position: 'relative', textAlign: 'center', padding: '3rem 0', overflow: 'hidden' }}>
+  <ParticleBackground particleCount={15} />
+  
+  <AnimatedText as="h2" animation="glow" duration={1500} loop={true} className="gradient-text">
+    Ready to experience the future of DeFi gaming?
+  </AnimatedText>
+  
+  <p style={{ fontSize: '1.125rem', margin: '1.5rem 0', opacity: 0.9 }}>
+    Join the OmniDragon ecosystem today and start earning rewards with every transaction!
+  </p>
+  
+  <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '2rem' }}>
+    <AnimatedButton 
+      variant="gradient" 
+      size="large" 
+      glowEffect={true}
+      href="/docs/getting-started"
+    >
+      Get Started
+    </AnimatedButton>
+    
+    <AnimatedButton 
+      variant="ghost" 
+      size="large"
+      href="/docs/contracts/core/omnidragon"
+    >
+      View Documentation
+    </AnimatedButton>
+  </div>
+</div>
 
 
  

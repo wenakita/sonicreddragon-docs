@@ -1,0 +1,232 @@
+/* Interactive Card Styles */
+.interactiveCard {
+  position: relative;
+  border-radius: 16px;
+  background: var(--ifm-card-background-color);
+  border: 1px solid var(--ifm-toc-border-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  cursor: default;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Card Variants */
+.interactiveCardDefault {
+  background: var(--ifm-card-background-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.interactiveCardPrimary {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.05) 100%);
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06);
+}
+
+.interactiveCardSecondary {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.1) 0%, rgba(156, 163, 175, 0.05) 100%);
+  border-color: rgba(107, 114, 128, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(107, 114, 128, 0.1), 0 2px 4px -1px rgba(107, 114, 128, 0.06);
+}
+
+.interactiveCardAccent {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.1) 0%, rgba(251, 146, 60, 0.05) 100%);
+  border-color: rgba(234, 88, 12, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.1), 0 2px 4px -1px rgba(234, 88, 12, 0.06);
+}
+
+.interactiveCardGlass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .interactiveCardGlass {
+  background: rgba(30, 41, 59, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Card Sizes */
+.interactiveCardSmall {
+  padding: 1rem;
+  min-height: 120px;
+}
+
+.interactiveCardMedium {
+  padding: 1.5rem;
+  min-height: 160px;
+}
+
+.interactiveCardLarge {
+  padding: 2rem;
+  min-height: 200px;
+}
+
+/* Clickable Cards */
+.interactiveCardClickable {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.interactiveCardClickable:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Hover States */
+.interactive-card:hover {
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.interactive-card--primary:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.15), 0 10px 10px -5px rgba(59, 130, 246, 0.1);
+}
+
+.interactive-card--glass:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme='dark'] .interactive-card--glass:hover {
+  background: rgba(30, 41, 59, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Card Content */
+.interactive-card__content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.interactive-card__title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ifm-heading-color);
+  line-height: 1.4;
+}
+
+.interactive-card__subtitle {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: var(--ifm-color-emphasis-700);
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+.interactive-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Glow Effect */
+.interactive-card__glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .interactive-card--small {
+    padding: 0.75rem;
+    min-height: 100px;
+  }
+
+  .interactive-card--medium {
+    padding: 1rem;
+    min-height: 140px;
+  }
+
+  .interactive-card--large {
+    padding: 1.5rem;
+    min-height: 180px;
+  }
+
+  .interactive-card__title {
+    font-size: 1.125rem;
+  }
+
+  .interactive-card__subtitle {
+    font-size: 0.8rem;
+  }
+}
+
+/* Animation Keyframes */
+@keyframes cardPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+/* Focus States for Accessibility */
+.interactive-card--clickable:focus {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+.interactive-card--clickable:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Dark Mode Adjustments */
+[data-theme='dark'] .interactive-card {
+  background: var(--ifm-card-background-color);
+  border-color: var(--ifm-toc-border-color);
+}
+
+[data-theme='dark'] .interactive-card--primary {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 197, 253, 0.08) 100%);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+[data-theme='dark'] .interactive-card--accent {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.15) 0%, rgba(251, 146, 60, 0.08) 100%);
+  border-color: rgba(234, 88, 12, 0.3);
+}
+
+/* Print Styles */
+@media print {
+  .interactive-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  .interactive-card__glow {
+    display: none;
+  }
+} 
