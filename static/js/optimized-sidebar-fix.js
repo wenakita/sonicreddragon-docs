@@ -86,11 +86,13 @@ nav[class*="tocContainer"],
     max-width: ${CONFIG.SIDEBAR_WIDTH}px !important;
     height: calc(100vh - ${CONFIG.NAVBAR_HEIGHT_VAR}) !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
     z-index: ${CONFIG.Z_INDEX.SIDEBAR} !important;
     background: var(--ifm-background-surface-color) !important;
     border-right: 1px solid var(--ifm-toc-border-color) !important;
     transform: none !important;
     transition: none !important;
+    box-sizing: border-box !important;
   }
   
   /* Main content adjustment */
@@ -367,6 +369,7 @@ nav[class*="tocContainer"],
         border-right: 1px solid var(--ifm-toc-border-color) !important;
         transform: none !important;
         transition: none !important;
+        box-sizing: border-box !important;
       `;
       
       // Fix sidebar menu overflow
@@ -378,6 +381,21 @@ nav[class*="tocContainer"],
           width: 100% !important;
           max-width: 100% !important;
           box-sizing: border-box !important;
+          padding: 1rem !important;
+        `;
+      }
+      
+      // Fix menu container
+      const menu = sidebar.querySelector('.menu');
+      if (menu) {
+        menu.style.cssText = `
+          overflow-x: hidden !important;
+          overflow-y: auto !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+          padding: 0.5rem !important;
+          margin: 0 !important;
         `;
       }
       
@@ -388,8 +406,13 @@ nav[class*="tocContainer"],
           white-space: nowrap !important;
           overflow: hidden !important;
           text-overflow: ellipsis !important;
-          max-width: 100% !important;
-          word-wrap: break-word !important;
+          max-width: calc(${CONFIG.SIDEBAR_WIDTH}px - 2rem) !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+          display: block !important;
+          padding: 0.5rem 0.75rem !important;
+          margin: 0.125rem 0 !important;
+          border-radius: 4px !important;
         `;
       });
     } else {
