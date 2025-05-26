@@ -283,14 +283,14 @@ export function initializeMermaidAnimations() {
   
   // Find all mermaid containers that need animation
   const containers = document.querySelectorAll(
-    '.mermaid-diagram-container .mermaid, .mermaid, ' +
-    '.standard-mermaid-container, .standardMermaidContainer, ' +
-    '.docusaurus-mermaid-container'
+    '.mermaid-container .mermaid, .mermaid, ' +
+    '.docusaurus-mermaid-container, .docusaurus-mermaid-container .mermaid'
   );
   
   // Animate each container
-  containers.forEach(container => {
-    if (!container.dataset.animated && container.querySelector('svg')) {
+  containers.forEach((container) => {
+    const svg = container.querySelector('svg');
+    if (svg && !container.dataset.animated) {
       animateMermaidDiagram(container);
     }
   });

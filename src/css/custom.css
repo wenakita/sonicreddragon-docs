@@ -469,6 +469,29 @@ table td {
   backface-visibility: hidden;
 }
 
+/* Scroll reveal animations */
+.scroll-reveal {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Ensure smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optimize animations for performance */
+* {
+  transform-style: preserve-3d;
+}
+
+/* Mermaid container scroll optimization */
+.mermaid-container,
+.docusaurus-mermaid-container {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
 .animated-text--typewriter {
   border-right: 2px solid var(--ifm-color-primary);
   animation: blink 1s infinite;
@@ -896,24 +919,56 @@ blockquote {
   height: auto !important;
 }
 
-/* Fix dark mode colors */
+/* Fix light mode colors for better contrast */
+[data-theme='light'] .mermaid .node rect, 
+[data-theme='light'] .mermaid .node circle,
+[data-theme='light'] .mermaid .node ellipse,
+[data-theme='light'] .mermaid .node polygon,
+[data-theme='light'] .mermaid .node path {
+  fill: #ffffff !important;
+  stroke: #2563eb !important;
+  stroke-width: 2px !important;
+}
+
+[data-theme='light'] .mermaid .label,
+[data-theme='light'] .mermaid .nodeLabel,
+[data-theme='light'] .mermaid text {
+  color: #1e293b !important;
+  fill: #1e293b !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+}
+
+[data-theme='light'] .mermaid .cluster rect {
+  fill: rgba(37, 99, 235, 0.05) !important;
+  stroke: #3b82f6 !important;
+  stroke-width: 2px !important;
+}
+
+/* Fix dark mode colors with better contrast */
 [data-theme='dark'] .mermaid .node rect, 
 [data-theme='dark'] .mermaid .node circle,
 [data-theme='dark'] .mermaid .node ellipse,
 [data-theme='dark'] .mermaid .node polygon,
 [data-theme='dark'] .mermaid .node path {
-  fill: var(--neutral-100) !important;
-  stroke: var(--neutral-200) !important;
+  fill: #f8fafc !important;
+  stroke: #3b82f6 !important;
+  stroke-width: 2px !important;
 }
 
-[data-theme='dark'] .mermaid .label {
-  color: var(--neutral-700) !important;
-  fill: var(--neutral-700) !important;
+[data-theme='dark'] .mermaid .label,
+[data-theme='dark'] .mermaid .nodeLabel,
+[data-theme='dark'] .mermaid text {
+  color: #0f172a !important;
+  fill: #0f172a !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
 }
 
 [data-theme='dark'] .mermaid .cluster rect {
-  fill: rgba(30, 41, 59, 0.4) !important;
-  stroke: var(--neutral-200) !important;
+  fill: rgba(59, 130, 246, 0.1) !important;
+  stroke: #60a5fa !important;
+  stroke-width: 2px !important;
 }
 
 /* Better flowchart styling */
@@ -983,6 +1038,164 @@ blockquote {
 .mermaid-btn:focus {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: 2px;
+}
+
+/* Intro Page Component Styles */
+
+/* Hero Section */
+.hero-section {
+  margin-bottom: 3rem;
+}
+
+.hero-description {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  margin: 1.5rem 0;
+  opacity: 0.9;
+}
+
+.hero-content h2 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.core-features-list {
+  margin: 1.5rem 0;
+}
+
+.core-features-list li {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+/* System Architecture Section */
+.system-architecture-section {
+  margin-bottom: 4rem;
+}
+
+/* Diagrams Section */
+.diagrams-section {
+  margin-bottom: 4rem;
+}
+
+.diagram-subsection {
+  margin-bottom: 3rem;
+}
+
+.diagram-subsection h2 {
+  margin-bottom: 1.5rem;
+}
+
+/* Getting Started Section */
+.getting-started-section {
+  margin-bottom: 4rem;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+/* Key Benefits Section */
+.key-benefits-section {
+  margin-bottom: 4rem;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.benefit-category {
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-radius: var(--ifm-global-radius);
+  border: 1px solid var(--ifm-toc-border-color);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.benefit-category:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-color: var(--ifm-color-primary);
+}
+
+.benefit-category h3 {
+  color: var(--ifm-color-primary);
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.benefit-category ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.benefit-category li {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+/* Call to Action Section */
+.call-to-action-section {
+  margin: 4rem 0;
+  padding: 0;
+}
+
+.cta-container {
+  position: relative;
+  text-align: center;
+  padding: 3rem 0;
+  overflow: hidden;
+  border-radius: var(--ifm-global-radius);
+  background: var(--card-bg);
+  border: 1px solid var(--ifm-toc-border-color);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.cta-description {
+  font-size: 1.125rem;
+  margin: 1.5rem 0;
+  opacity: 0.9;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .hero-description,
+  .cta-description {
+    font-size: 1rem;
+  }
 }
 
 /* CSS files with the .module.css suffix will be treated as CSS modules

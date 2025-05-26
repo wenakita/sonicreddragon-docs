@@ -13,7 +13,35 @@ function initializeAnimations() {
   // Allow time for DOM to settle
   setTimeout(() => {
     initializeMermaidAnimations();
-  }, 500);
+    setupScrollBasedMermaidAnimations();
+  }, 1000);
+}
+
+/**
+ * Set up scroll-based mermaid animations
+ */
+function setupScrollBasedMermaidAnimations() {
+  if (!isBrowser() || typeof IntersectionObserver === 'undefined') return;
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const container = entry.target;
+        if (!container.dataset.animated && container.querySelector('svg')) {
+          setTimeout(() => {
+            initializeMermaidAnimations();
+          }, 500);
+        }
+      }
+    });
+  }, {
+    threshold: 0.3,
+    rootMargin: '0px 0px -100px 0px'
+  });
+  
+  // Observe all mermaid containers
+  const containers = document.querySelectorAll('.mermaid-container, .docusaurus-mermaid-container');
+  containers.forEach(container => observer.observe(container));
 }
 
 /**
