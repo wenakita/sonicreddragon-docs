@@ -145,12 +145,11 @@ sankey-beta
 }}%%
 
 xychart-beta
-    title "Win Probability vs Swap Amount"
-    x-axis "Swap Amount (USD)" [100, 500, 1000, 2500, 5000, 10000]
-    y-axis "Win Probability (%)" 0 --> 15
-    line "Weekly Draw" [1.2, 3.8, 6.5, 9.2, 11.8, 14.1]
-    line "Monthly Jackpot" [0.3, 0.9, 1.6, 2.4, 3.1, 3.8]
-    line "Instant Win" [0.1, 0.2, 0.4, 0.7, 1.0, 1.3]
+    title "Lottery Win Probability vs Swap Amount"
+    x-axis "Swap Amount (USD)" [10, 100, 1000, 2500, 5000, 10000]
+    y-axis "Win Probability (%)" 0 --> 11
+    line "Base Probability" [0.004, 0.04, 0.4, 1.0, 2.0, 4.0]
+    line "With 2.5x Boost" [0.01, 0.1, 1.0, 2.5, 5.0, 10.0]
 ```
 </div>
 
