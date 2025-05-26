@@ -45,7 +45,13 @@
 .col.col--3,
 [class*="tocDesktop"],
 [class*="tocMobile"],
-[class*="TableOfContents"] {
+[class*="TableOfContents"],
+.theme-doc-toc,
+.theme-doc-toc-container,
+div[class*="tocContainer"],
+aside[class*="tocContainer"],
+nav[class*="tocContainer"],
+.theme-doc-sidebar-container .table-of-contents {
   display: none !important;
   visibility: hidden !important;
   width: 0 !important;
@@ -117,6 +123,23 @@
     width: 0 !important;
     height: 0 !important;
     overflow: hidden !important;
+  }
+  
+  /* FORCE MAIN CONTENT TO FULL WIDTH */
+  .theme-doc-main .container .row {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+  }
+  
+  .theme-doc-main .container .row .col:first-child {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+  
+  .theme-doc-main .container .row .col:not(:first-child) {
+    display: none !important;
   }
 }
 
@@ -399,7 +422,13 @@
       '.table-of-contents',
       '.col.col--3',
       '[class*="tocDesktop"]',
-      '[class*="tocMobile"]'
+      '[class*="tocMobile"]',
+      '[class*="TableOfContents"]',
+      '.theme-doc-toc',
+      '.theme-doc-toc-container',
+      'div[class*="tocContainer"]',
+      'aside[class*="tocContainer"]',
+      'nav[class*="tocContainer"]'
     ];
     
     tocSelectors.forEach(selector => {
@@ -425,18 +454,21 @@
       `;
     });
     
-    // Force content columns to full width
-    const contentCols = document.querySelectorAll('.theme-doc-main .container .row .col');
-    contentCols.forEach((col, index) => {
-      if (index === 0) { // First column (main content)
-        col.style.cssText = `
-          width: 100% !important;
-          max-width: 100% !important;
-          flex: 1 1 100% !important;
-        `;
-      } else { // Any other columns (TOC) - remove them
-        col.remove();
-      }
+    // Force content columns to full width and remove TOC columns
+    const contentRows = document.querySelectorAll('.theme-doc-main .container .row');
+    contentRows.forEach(row => {
+      const cols = row.querySelectorAll('.col');
+      cols.forEach((col, index) => {
+        if (index === 0) { // First column (main content)
+          col.style.cssText = `
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: 1 1 100% !important;
+          `;
+        } else { // Any other columns (TOC) - remove them
+          col.remove();
+        }
+      });
     });
   }
   

@@ -65,6 +65,9 @@ const config: Config = {
           editUrl:
             'https://github.com/wenakita/sonicreddragon-docs/edit/main/',
           routeBasePath: '/',
+          // Disable table of contents
+          showLastUpdateTime: false,
+          showLastUpdateAuthor: false,
           // Add custom remark plugins for mermaid processing
           // remarkPlugins: [
           //   require('./src/plugins/mermaid-plugin'),
@@ -264,10 +267,10 @@ const config: Config = {
       {name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent'},
     ],
 
-    // Compact table of contents
+    // Disable table of contents completely
     tableOfContents: {
-      minHeadingLevel: 2,
-      maxHeadingLevel: 4,
+      minHeadingLevel: 6,
+      maxHeadingLevel: 6,
     },
 
     // Modern announcement bar

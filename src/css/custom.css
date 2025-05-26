@@ -494,8 +494,31 @@ table td {
   }
 }
 
-/* Compact TOC styling */
-.table-of-contents {
+/* COMPLETELY DISABLE ALL TOC ELEMENTS */
+.table-of-contents,
+.theme-doc-toc-desktop,
+.theme-doc-toc-mobile,
+.theme-doc-toc,
+.theme-doc-toc-container,
+.col.col--3,
+[class*="tocDesktop"],
+[class*="tocMobile"],
+[class*="TableOfContents"],
+div[class*="tocContainer"],
+aside[class*="tocContainer"],
+nav[class*="tocContainer"] {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  opacity: 0 !important;
+}
+
+/* Compact TOC styling - DISABLED */
+.table-of-contents-disabled {
   padding: 0.75rem !important;
   border-radius: var(--ifm-global-radius);
   background-color: var(--ifm-background-surface-color);
