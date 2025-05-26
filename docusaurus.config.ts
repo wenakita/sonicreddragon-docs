@@ -264,10 +264,10 @@ const config: Config = {
       {name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent'},
     ],
 
-    // Enhanced table of contents
+    // Compact table of contents
     tableOfContents: {
       minHeadingLevel: 2,
-      maxHeadingLevel: 5,
+      maxHeadingLevel: 4,
     },
 
     // Modern announcement bar
