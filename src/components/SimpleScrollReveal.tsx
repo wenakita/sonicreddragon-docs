@@ -1,9 +1,8 @@
 import React, { useRef, useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
 import anime from 'animejs/lib/anime.es.js';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 
-interface ScrollRevealProps {
+interface SimpleScrollRevealProps {
   children: React.ReactNode;
   direction?: 'up' | 'down' | 'left' | 'right' | 'scale' | 'fade';
   delay?: number;
@@ -14,7 +13,7 @@ interface ScrollRevealProps {
   className?: string;
 }
 
-export default function ScrollReveal({
+export default function SimpleScrollReveal({
   children,
   direction = 'up',
   delay = 0,
@@ -23,13 +22,9 @@ export default function ScrollReveal({
   threshold = 0.1,
   triggerOnce = true,
   className = ''
-}: ScrollRevealProps) {
+}: SimpleScrollRevealProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const isBrowser = useIsBrowser();
-  const { ref, inView } = useInView({
-    threshold,
-    triggerOnce,
-  });
 
   useEffect(() => {
     if (!isBrowser || !elementRef.current) return;
@@ -40,19 +35,37 @@ export default function ScrollReveal({
     const initialState = getInitialState(direction, distance);
     Object.assign(element.style, initialState);
 
-    if (inView) {
-      // Animate to visible state
-      const animation = getAnimation(direction, distance, duration, delay);
-      anime({
-        targets: element,
-        ...animation,
-        easing: 'easeOutExpo'
-      });
-    } else if (!triggerOnce) {
-      // Reset to hidden state
-      Object.assign(element.style, initialState);
-    }
-  }, [inView, isBrowser, direction, distance, duration, delay, triggerOnce]);
+    // Create intersection observer
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Animate to visible state
+            const animation = getAnimation(direction, distance, duration, delay);
+            anime({
+              targets: element,
+              ...animation,
+              easing: 'easeOutExpo'
+            });
+            
+            if (triggerOnce) {
+              observer.unobserve(element);
+            }
+          } else if (!triggerOnce) {
+            // Reset to hidden state
+            Object.assign(element.style, initialState);
+          }
+        });
+      },
+      { threshold }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [isBrowser, direction, distance, duration, delay, triggerOnce, threshold]);
 
   const getInitialState = (dir: string, dist: number) => {
     const base = { opacity: '0' };
@@ -94,12 +107,7 @@ export default function ScrollReveal({
 
   return (
     <div
-      ref={(node) => {
-        ref(node);
-        if (elementRef.current !== node) {
-          elementRef.current = node;
-        }
-      }}
+      ref={elementRef}
       className={className}
       style={{
         willChange: 'transform, opacity',

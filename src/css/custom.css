@@ -23,6 +23,14 @@
   --ifm-toc-border-color: var(--ifm-color-emphasis-200);
   --ifm-global-radius: 8px;
   
+  /* Fix text colors for better readability */
+  --ifm-color-content: #1e293b;
+  --ifm-color-content-secondary: #475569;
+  --ifm-heading-color: #0f172a;
+  --ifm-color-emphasis-800: #1e293b;
+  --ifm-color-emphasis-700: #334155;
+  --ifm-color-emphasis-600: #475569;
+  
   /* Subtle Orange to Blue Theme Colors - Used sparingly */
   --orange-primary: #ea580c;
   --orange-secondary: #f97316;
@@ -538,6 +546,15 @@ a, button, .card, .interactive-card, .menu__link {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   display: inline-block;
+  font-weight: 700;
+}
+
+/* Ensure gradient text is readable in light mode */
+[data-theme='light'] .gradient-text {
+  background: linear-gradient(135deg, #dc2626, #2563eb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Pulse animation for important elements */
@@ -881,7 +898,7 @@ article {
   background: var(--ifm-color-primary-dark);
   border-color: var(--ifm-color-primary-darker);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
 }
 
 .mermaid-btn:active {

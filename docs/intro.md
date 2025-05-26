@@ -8,6 +8,7 @@ import InteractiveCard from '@site/src/components/InteractiveCard';
 import AnimatedText from '@site/src/components/AnimatedText';
 import AnimatedButton from '@site/src/components/AnimatedButton';
 import ParticleBackground from '@site/src/components/ParticleBackground';
+import MermaidControls from '@site/src/components/MermaidControls';
 
 <AnimatedText as="h2" animation="typewriter" duration={2000} className="gradient-text">
 Revolutionary Cross-Chain Token Ecosystem
@@ -30,12 +31,7 @@ OmniDragon combines the best of DeFi innovation with gaming mechanics, creating 
 ## System Architecture
 
 <div className="mermaid-container">
-  <div className="mermaid-controls">
-    <button className="mermaid-btn">Zoom In</button>
-    <button className="mermaid-btn">Zoom Out</button>
-    <button className="mermaid-btn">Reset View</button>
-    <button className="mermaid-btn">Replay</button>
-  </div>
+  <MermaidControls targetSelector=".mermaid-container .mermaid" />
 
 ```mermaid
 %%{init: {
@@ -92,12 +88,7 @@ graph TB
 ## Fee Structure & Distribution
 
 <div className="mermaid-container">
-  <div className="mermaid-controls">
-    <button className="mermaid-btn">Zoom In</button>
-    <button className="mermaid-btn">Zoom Out</button>
-    <button className="mermaid-btn">Reset View</button>
-    <button className="mermaid-btn">Replay</button>
-  </div>
+  <MermaidControls targetSelector=".mermaid-container .mermaid" />
 
 ```mermaid
 %%{init: {
@@ -126,12 +117,7 @@ sankey-beta
 ## Lottery Probability System
 
 <div className="mermaid-container">
-  <div className="mermaid-controls">
-    <button className="mermaid-btn">Zoom In</button>
-    <button className="mermaid-btn">Zoom Out</button>
-    <button className="mermaid-btn">Reset View</button>
-    <button className="mermaid-btn">Replay</button>
-  </div>
+  <MermaidControls targetSelector=".mermaid-container .mermaid" />
 
 ```mermaid
 %%{init: {
@@ -165,12 +151,7 @@ xychart-beta
 ## Cross-Chain VRF Architecture
 
 <div className="mermaid-container">
-  <div className="mermaid-controls">
-    <button className="mermaid-btn">Zoom In</button>
-    <button className="mermaid-btn">Zoom Out</button>
-    <button className="mermaid-btn">Reset View</button>
-    <button className="mermaid-btn">Replay</button>
-  </div>
+  <MermaidControls targetSelector=".mermaid-container .mermaid" />
 
 ```mermaid
 %%{init: {
@@ -219,12 +200,7 @@ flowchart TD
 ## Token Economics Flow
 
 <div className="mermaid-container">
-  <div className="mermaid-controls">
-    <button className="mermaid-btn">Zoom In</button>
-    <button className="mermaid-btn">Zoom Out</button>
-    <button className="mermaid-btn">Reset View</button>
-    <button className="mermaid-btn">Replay</button>
-  </div>
+  <MermaidControls targetSelector=".mermaid-container .mermaid" />
 
 ```mermaid
 %%{init: {

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from '@docusaurus/router';
 import useIsBrowser from '@docusaurus/useIsBrowser';
+import anime from 'animejs/lib/anime.es.js';
 
 interface AnimationContextType {
   isPageLoading: boolean;
@@ -64,20 +64,16 @@ export default function AnimationProvider({ children }: Props) {
 
   return (
     <AnimationContext.Provider value={contextValue}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={location.pathname}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{
-            duration: prefersReducedMotion ? 0 : 0.3,
-            ease: "easeInOut"
-          }}
-        >
-          {children}
-        </motion.div>
-      </AnimatePresence>
+      <div
+        key={location.pathname}
+        style={{
+          opacity: isPageLoading ? 0 : 1,
+          transform: isPageLoading ? 'translateY(20px)' : 'translateY(0)',
+          transition: prefersReducedMotion ? 'none' : 'all 0.3s ease-in-out'
+        }}
+      >
+        {children}
+      </div>
     </AnimationContext.Provider>
   );
 } 
