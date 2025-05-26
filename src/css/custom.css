@@ -165,29 +165,7 @@ body {
   position: relative !important;
 }
 
-/* Custom layout for our rebuilt sidebar */
-.docs-root {
-  display: flex;
-  width: 100%;
-  min-height: calc(100vh - var(--ifm-navbar-height, 60px));
-}
-
-.docs-main-container {
-  flex: 1;
-  margin-left: 250px;
-  width: calc(100% - 250px);
-  min-height: calc(100vh - var(--ifm-navbar-height, 60px));
-  padding: 2rem;
-  box-sizing: border-box;
-}
-
-@media (max-width: 996px) {
-  .docs-main-container {
-    margin-left: 0;
-    width: 100%;
-    padding: 1rem;
-  }
-}
+/* Custom layout for our rebuilt sidebar - REMOVED */
 
 .theme-doc-sidebar-container {
   flex-shrink: 0 !important;
@@ -562,7 +540,22 @@ nav[class*="tocContainer"],
   opacity: 0 !important;
 }
 
-/* HIDE DEFAULT DOCUSAURUS SIDEBAR */
+/* HIDE DEFAULT DOCUSAURUS SIDEBAR COMPLETELY */
+.theme-doc-sidebar-container,
+.theme-doc-sidebar,
+[class*="docSidebarContainer"],
+[class*="docSidebar"],
+.navbar-sidebar,
+.navbar-sidebar__backdrop {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  opacity: 0 !important;
+}
 
 /* Compact TOC styling - DISABLED */
 .table-of-contents-disabled {
