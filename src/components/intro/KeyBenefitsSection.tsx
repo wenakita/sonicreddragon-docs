@@ -11,30 +11,54 @@ export default function KeyBenefitsSection() {
           <div className="benefit-category">
             <h3>For Token Holders</h3>
             <ul>
-              <li><strong>Automatic Lottery Entries</strong>: No additional action required</li>
-              <li><strong>Multiple Prize Tiers</strong>: Weekly, monthly, and instant wins</li>
-              <li><strong>Staking Rewards</strong>: Earn yield on held tokens</li>
-              <li><strong>Governance Rights</strong>: Vote on protocol decisions</li>
+              <li style={{'--i': 0} as React.CSSProperties}>
+                <strong>Automatic Lottery Entries</strong>: No additional action required
+              </li>
+              <li style={{'--i': 1} as React.CSSProperties}>
+                <strong>Multiple Prize Tiers</strong>: Weekly, monthly, and instant wins
+              </li>
+              <li style={{'--i': 2} as React.CSSProperties}>
+                <strong>Staking Rewards</strong>: Earn yield on held tokens
+              </li>
+              <li style={{'--i': 3} as React.CSSProperties}>
+                <strong>Governance Rights</strong>: Vote on protocol decisions
+              </li>
             </ul>
           </div>
 
           <div className="benefit-category">
             <h3>For Developers</h3>
             <ul>
-              <li><strong>Battle-Tested Infrastructure</strong>: Proven randomness solutions</li>
-              <li><strong>Cross-Chain Ready</strong>: Built-in LayerZero integration</li>
-              <li><strong>Comprehensive APIs</strong>: Easy integration tools</li>
-              <li><strong>Active Support</strong>: Dedicated developer community</li>
+              <li style={{'--i': 0} as React.CSSProperties}>
+                <strong>Battle-Tested Infrastructure</strong>: Proven randomness solutions
+              </li>
+              <li style={{'--i': 1} as React.CSSProperties}>
+                <strong>Cross-Chain Ready</strong>: Built-in LayerZero integration
+              </li>
+              <li style={{'--i': 2} as React.CSSProperties}>
+                <strong>Comprehensive APIs</strong>: Easy integration tools
+              </li>
+              <li style={{'--i': 3} as React.CSSProperties}>
+                <strong>Active Support</strong>: Dedicated developer community
+              </li>
             </ul>
           </div>
 
           <div className="benefit-category">
             <h3>For Ecosystem</h3>
             <ul>
-              <li><strong>Sustainable Tokenomics</strong>: Balanced fee distribution</li>
-              <li><strong>Deflationary Mechanics</strong>: Regular token burns</li>
-              <li><strong>Community Governance</strong>: Decentralized decision making</li>
-              <li><strong>Continuous Innovation</strong>: Regular protocol upgrades</li>
+              <li style={{'--i': 0} as React.CSSProperties}>
+                <strong>Sustainable Tokenomics</strong>: Balanced fee distribution
+              </li>
+              <li style={{'--i': 1} as React.CSSProperties}>
+                <strong>Deflationary Mechanics</strong>: Regular token burns
+              </li>
+              <li style={{'--i': 2} as React.CSSProperties}>
+                <strong>Community Governance</strong>: Decentralized decision making
+              </li>
+              <li style={{'--i': 3} as React.CSSProperties}>
+                <strong>Continuous Innovation</strong>: Regular protocol upgrades
+              </li>
             </ul>
           </div>
         </div>
