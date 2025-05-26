@@ -73,7 +73,7 @@ Before you begin, ensure you have:
 
 First, set up your development environment:
 
-```bash
+   ```bash
 # Clone the repository
 git clone https://github.com/wenakita/omnidragon.git
 cd omnidragon
@@ -128,7 +128,7 @@ contract MyGameContract {
     constructor(address _omniDragon) {
         omniDragon = IOmniDragon(_omniDragon);
     }
-    
+
     function requestRandomness() external payable {
         // Request randomness with payment
         uint256 requestId = omniDragon.requestRandomness{value: msg.value}();
@@ -159,7 +159,7 @@ contract MyGameContract {
 
 ### Step 4: Deploy and Test
 
-```bash
+   ```bash
 # Compile contracts
 npx hardhat compile
 

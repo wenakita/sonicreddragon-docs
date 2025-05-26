@@ -81,7 +81,7 @@ contract OmniDragonVRFRequester is VRFConsumerBaseV2 {
     bytes32 keyHash;
     uint32 callbackGasLimit = 2500000;
     uint16 requestConfirmations = 3;
-    
+
     // Request VRF and relay back to Sonic
     function requestRandomWords(address sonicConsumer) external returns (uint256 requestId);
     

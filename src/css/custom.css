@@ -942,6 +942,46 @@ article {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+/* Fix overlapping components in category pages */
+.generated-index-page {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.generated-index-page .margin-top--md {
+  margin-top: 1rem !important;
+}
+
+/* Ensure cards don't overlap */
+.generated-index-page .card {
+  margin-bottom: 1.5rem;
+  height: auto;
+  min-height: 120px;
+}
+
+/* Fix spacing in navigation cards */
+.pagination-nav {
+  margin-top: 2rem;
+  clear: both;
+}
+
+/* Prevent content overflow in cards */
+.card__body {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* Fix category page layout */
+.theme-doc-item-wrapper {
+  margin-bottom: 2rem;
+}
+
+/* Ensure proper spacing between category items */
+.theme-doc-item {
+  margin-bottom: 1.5rem;
 }
 
 .card:hover {
@@ -1614,5 +1654,5 @@ blockquote {
 @media screen and (max-width: 996px) {
   .heroBanner {
     padding: 2rem;
-  }
+}
 }
