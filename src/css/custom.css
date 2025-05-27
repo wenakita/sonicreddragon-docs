@@ -1184,6 +1184,41 @@ html[data-theme='dark'] .mermaid svg *[class*="Text"] {
   color: #ffffff !important;
 }
 
+/* Default dark mode (when data-theme is not set or null) */
+html:not([data-theme='light']) .mermaid svg text,
+html:not([data-theme='light']) .mermaid svg tspan,
+html:not([data-theme='light']) .docusaurus-mermaid-container svg text,
+html:not([data-theme='light']) .docusaurus-mermaid-container svg tspan,
+html:not([data-theme='light']) .mermaid-container svg text,
+html:not([data-theme='light']) .mermaid-container svg tspan {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+  stroke: none !important;
+}
+
+/* Force white text on ALL mermaid text elements by default */
+.mermaid svg text,
+.mermaid svg tspan,
+.docusaurus-mermaid-container svg text,
+.docusaurus-mermaid-container svg tspan,
+.mermaid-container svg text,
+.mermaid-container svg tspan {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+  stroke: none !important;
+}
+
+/* Override only for light mode */
+html[data-theme='light'] .mermaid svg text,
+html[data-theme='light'] .mermaid svg tspan,
+html[data-theme='light'] .docusaurus-mermaid-container svg text,
+html[data-theme='light'] .docusaurus-mermaid-container svg tspan,
+html[data-theme='light'] .mermaid-container svg text,
+html[data-theme='light'] .mermaid-container svg tspan {
+  fill: #1e293b !important;
+  color: #1e293b !important;
+}
+
 /* Fix edge labels */
 [data-theme='dark'] .mermaid .edgeLabel {
   background-color: #0f172a !important;
