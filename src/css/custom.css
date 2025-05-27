@@ -2078,6 +2078,184 @@ blockquote {
   }
 }
 
+/* Modern Page Header Styles */
+.modern-page-header {
+  text-align: center;
+  padding: 3rem 0;
+  margin-bottom: 3rem;
+}
+
+.modern-page-header h1 {
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+.modern-subtitle {
+  font-size: 1.5rem;
+  color: var(--ifm-color-content-secondary);
+  margin-bottom: 1rem;
+  font-weight: 300;
+}
+
+.modern-description {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--ifm-color-content-secondary);
+  max-width: 800px;
+  margin: 0 auto 2rem;
+}
+
+/* Modern Card Link */
+.modern-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ifm-color-primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.modern-card-link:hover {
+  color: var(--orange-primary);
+  transform: translateX(4px);
+}
+
+/* Apply modern theme to all pages */
+.markdown {
+  --ifm-h1-font-size: clamp(2rem, 4vw, 3rem);
+  --ifm-h2-font-size: clamp(1.5rem, 3vw, 2.25rem);
+  --ifm-h3-font-size: clamp(1.25rem, 2vw, 1.75rem);
+}
+
+.markdown h1 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, var(--ifm-heading-color) 60%, var(--blue-primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.markdown h2 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  color: var(--blue-primary);
+}
+
+.markdown h3 {
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Modern code blocks */
+.markdown pre {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ifm-toc-border-color);
+  margin: 2rem 0;
+}
+
+/* Modern tables */
+.markdown table {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 2rem 0;
+}
+
+/* Modern blockquotes */
+.markdown blockquote {
+  border-left: 4px solid transparent;
+  border-image: linear-gradient(135deg, var(--orange-primary), var(--blue-primary)) 1;
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border-radius: 0 12px 12px 0;
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Modern lists */
+.markdown ul li,
+.markdown ol li {
+  margin-bottom: 0.75rem;
+  line-height: 1.8;
+}
+
+.markdown ul li::marker {
+  color: var(--orange-primary);
+}
+
+/* Modern links */
+.markdown a {
+  color: var(--blue-primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.markdown a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--orange-primary), var(--blue-primary));
+  transition: width 0.3s ease;
+}
+
+.markdown a:hover::after {
+  width: 100%;
+}
+
+/* Modern admonitions */
+.alert {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin: 2rem 0;
+}
+
+.alert--info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border-left: 4px solid var(--blue-primary);
+}
+
+.alert--warning {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(251, 146, 60, 0.05) 100%);
+  border-left: 4px solid var(--orange-primary);
+}
+
+/* Modern pagination */
+.pagination-nav {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--ifm-toc-border-color);
+}
+
+.pagination-nav__link {
+  border: 1px solid var(--ifm-toc-border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  background: var(--ifm-card-background-color);
+}
+
+.pagination-nav__link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: var(--ifm-color-primary);
+}
+
 /* CSS files with the .module.css suffix will be treated as CSS modules
  * and scoped locally.
  */

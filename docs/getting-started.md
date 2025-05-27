@@ -2,17 +2,26 @@
 sidebar_position: 2
 ---
 
-# Getting Started with OmniDragon
+import ModernPageHeader from '@site/src/components/ModernPageHeader';
+import ModernCard from '@site/src/components/ModernCard';
+import FloatingParticles from '@site/src/components/FloatingParticles';
 
-Welcome to OmniDragon! This guide will help you get started with our cross-chain VRF system, whether you're a developer building applications, an end user, or a security researcher.
+<ModernPageHeader 
+  title="Getting Started with OmniDragon"
+  subtitle="Your journey into cross-chain VRF begins here"
+  description="Whether you're a developer building applications, an end user, or a security researcher, this guide will help you get started with our revolutionary cross-chain randomness system."
+  badge="Quick Start Guide"
+/>
+
+<FloatingParticles />
 
 ## What You'll Learn
 
-- How to interact with the OmniDragon VRF system
-- Setting up your development environment
-- Making your first randomness request
-- Understanding cross-chain operations
-- Security best practices
+- 🔧 How to interact with the OmniDragon VRF system
+- 💻 Setting up your development environment
+- 🎲 Making your first randomness request
+- 🌐 Understanding cross-chain operations
+- 🔒 Security best practices
 
 ## Prerequisites
 
@@ -25,55 +34,39 @@ Before you begin, ensure you have:
 
 ## Choose Your Path
 
-<div className="row">
-  <div className="col col--6">
-    <div className="card">
-      <div className="card__header">
-        <h3>🎮 Application Developer</h3>
-      </div>
-      <div className="card__body">
-        <p>Building applications that need secure randomness</p>
-        <ul>
-          <li>Gaming contracts</li>
-          <li>Lottery systems</li>
-          <li>DeFi protocols</li>
-          <li>NFT projects</li>
-        </ul>
-      </div>
-      <div className="card__footer">
-        <a href="#developer-quickstart" className="button button--primary">Developer Guide</a>
-      </div>
-    </div>
-  </div>
+<div className="feature-cards-modern" style={{marginTop: '3rem', marginBottom: '3rem'}}>
+  <ModernCard
+    title="🎮 Application Developer"
+    description="Build applications that need secure randomness - gaming contracts, lottery systems, DeFi protocols, and NFT projects"
+    link="#developer-quickstart"
+    linkText="Start Building"
+    delay={100}
+  />
   
-  <div className="col col--6">
-    <div className="card">
-      <div className="card__header">
-        <h3>👤 End User</h3>
-      </div>
-      <div className="card__body">
-        <p>Using applications built on OmniDragon</p>
-        <ul>
-          <li>Playing games</li>
-          <li>Participating in lotteries</li>
-          <li>Governance participation</li>
-          <li>Cross-chain operations</li>
-        </ul>
-      </div>
-      <div className="card__footer">
-        <a href="#user-quickstart" className="button button--primary">User Guide</a>
-      </div>
-    </div>
-  </div>
+  <ModernCard
+    title="👤 End User"
+    description="Use applications built on OmniDragon - play games, participate in lotteries, engage in governance, and perform cross-chain operations"
+    link="#user-quickstart"
+    linkText="Get Started"
+    delay={200}
+  />
+  
+  <ModernCard
+    title="🔍 Security Researcher"
+    description="Analyze and improve the security of the OmniDragon system - review audits, understand the threat model, and contribute to security"
+    link="#security-considerations"
+    linkText="Explore Security"
+    delay={300}
+  />
 </div>
 
-## Developer Quickstart
+## Developer Quickstart {#developer-quickstart}
 
 ### Step 1: Environment Setup
 
 First, set up your development environment:
 
-   ```bash
+```bash
 # Clone the repository
 git clone https://github.com/wenakita/omnidragon.git
 cd omnidragon
@@ -159,7 +152,7 @@ contract MyGameContract {
 
 ### Step 4: Deploy and Test
 
-   ```bash
+```bash
 # Compile contracts
 npx hardhat compile
 
@@ -197,7 +190,7 @@ describe("MyGameContract", function () {
 });
 ```
 
-## User Quickstart
+## User Quickstart {#user-quickstart}
 
 ### Step 1: Wallet Setup
 
@@ -275,7 +268,7 @@ sequenceDiagram
 - **Pool Mechanisms**: Share costs across users
 - **Dynamic Pricing**: Costs adjust based on network conditions
 
-## Security Considerations
+## Security Considerations {#security-considerations}
 
 ### For Developers
 
@@ -361,20 +354,28 @@ contract RandomizedYield {
 
 ## Next Steps
 
-### For Developers
-1. **[Smart Contract Documentation](./contracts/core/omnidragon)** - Deep dive into contract APIs
-2. **[Testing Guide](./guide/testing-framework)** - Comprehensive testing strategies
-3. **[Deployment Guide](./052525updates/SONIC_VRF_DEPLOYMENT_GUIDE)** - Production deployment
-
-### For Users
-1. **[User Guides](./guides/user/getting-started)** - Detailed user documentation
-2. **[Cross-Chain Operations](./guides/user/cross-chain-operations)** - Understanding cross-chain flows
-3. **[Governance](./guides/user/governance-participation)** - Participate in protocol governance
-
-### For Security Researchers
-1. **[Audit Documentation](./audit/AUDIT_DOCUMENTATION_SUMMARY)** - Complete security analysis
-2. **[Threat Model](./audit/THREAT_MODEL)** - Risk assessment and mitigations
-3. **[Security Best Practices](./052525updates/SECURITY_AUDIT_RECOMMENDATIONS)** - Implementation guidelines
+<div className="feature-cards-modern" style={{marginTop: '3rem'}}>
+  <ModernCard
+    title="📚 Smart Contracts"
+    description="Deep dive into contract APIs and implementation details"
+    link="/contracts/core/omnidragon"
+    delay={100}
+  />
+  
+  <ModernCard
+    title="🧪 Testing Guide"
+    description="Comprehensive testing strategies and best practices"
+    link="/guide/testing-framework"
+    delay={200}
+  />
+  
+  <ModernCard
+    title="🚀 Deployment"
+    description="Production deployment guide and checklist"
+    link="/052525updates/SONIC_VRF_DEPLOYMENT_GUIDE"
+    delay={300}
+  />
+</div>
 
 ## Support & Community
 
@@ -385,4 +386,4 @@ contract RandomizedYield {
 
 ---
 
-**Ready to build?** Choose your path above and start integrating secure, verifiable randomness into your applications with OmniDragon! 
+> **Ready to build?** Choose your path above and start integrating secure, verifiable randomness into your applications with OmniDragon! 

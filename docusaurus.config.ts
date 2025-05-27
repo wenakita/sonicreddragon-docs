@@ -42,7 +42,8 @@ const config: Config = {
   // Configure client modules for browser execution
   clientModules: [
     require.resolve('./src/clientModules/animeModule.js'),
-    require.resolve('./src/clientModules/contextualSidebarModule.js'),
+    // Removed contextual sidebar to show all sections
+    // require.resolve('./src/clientModules/contextualSidebarModule.js'),
   ],
 
   // Custom sidebar - no scripts needed
