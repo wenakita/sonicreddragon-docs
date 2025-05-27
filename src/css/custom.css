@@ -1074,7 +1074,7 @@ blockquote {
 [data-theme='light'] .mermaid .node ellipse,
 [data-theme='light'] .mermaid .node polygon,
 [data-theme='light'] .mermaid .node path {
-  fill: #ffffff !important;
+  fill: #f8fafc !important;
   stroke: #2563eb !important;
   stroke-width: 2px !important;
 }
@@ -1100,16 +1100,16 @@ blockquote {
 [data-theme='dark'] .mermaid .node ellipse,
 [data-theme='dark'] .mermaid .node polygon,
 [data-theme='dark'] .mermaid .node path {
-  fill: #f8fafc !important;
-  stroke: #3b82f6 !important;
+  fill: #1e293b !important;
+  stroke: #60a5fa !important;
   stroke-width: 2px !important;
 }
 
 [data-theme='dark'] .mermaid .label,
 [data-theme='dark'] .mermaid .nodeLabel,
 [data-theme='dark'] .mermaid text {
-  color: #0f172a !important;
-  fill: #0f172a !important;
+  color: #f1f5f9 !important;
+  fill: #f1f5f9 !important;
   font-weight: 600 !important;
   font-size: 14px !important;
 }
@@ -1118,6 +1118,73 @@ blockquote {
   fill: rgba(59, 130, 246, 0.1) !important;
   stroke: #60a5fa !important;
   stroke-width: 2px !important;
+}
+
+/* Fix mermaid diagram background and text colors */
+[data-theme='dark'] .mermaid {
+  color: #f1f5f9 !important;
+}
+
+[data-theme='light'] .mermaid {
+  color: #1e293b !important;
+}
+
+/* Fix edge labels */
+[data-theme='dark'] .mermaid .edgeLabel {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme='light'] .mermaid .edgeLabel {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+/* Fix flowchart specific styles */
+[data-theme='dark'] .mermaid .flowchart-link {
+  stroke: #60a5fa !important;
+}
+
+[data-theme='light'] .mermaid .flowchart-link {
+  stroke: #2563eb !important;
+}
+
+/* Fix sequence diagram actors and messages */
+[data-theme='dark'] .mermaid .actor {
+  fill: #1e293b !important;
+  stroke: #60a5fa !important;
+}
+
+[data-theme='light'] .mermaid .actor {
+  fill: #f8fafc !important;
+  stroke: #2563eb !important;
+}
+
+[data-theme='dark'] .mermaid .actor-line {
+  stroke: #475569 !important;
+}
+
+[data-theme='light'] .mermaid .actor-line {
+  stroke: #94a3b8 !important;
+}
+
+[data-theme='dark'] .mermaid .messageLine0,
+[data-theme='dark'] .mermaid .messageLine1 {
+  stroke: #60a5fa !important;
+}
+
+[data-theme='light'] .mermaid .messageLine0,
+[data-theme='light'] .mermaid .messageLine1 {
+  stroke: #2563eb !important;
+}
+
+/* Fix message text */
+[data-theme='dark'] .mermaid .messageText {
+  fill: #f1f5f9 !important;
+}
+
+[data-theme='light'] .mermaid .messageText {
+  fill: #1e293b !important;
 }
 
 /* Better flowchart styling */
@@ -1228,8 +1295,19 @@ blockquote {
   border-radius: 2rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--orange-primary);
   margin-bottom: 2rem;
+}
+
+[data-theme='dark'] .hero-badge {
+  color: #fb923c;
+  background: rgba(251, 146, 60, 0.15);
+  border-color: rgba(251, 146, 60, 0.3);
+}
+
+[data-theme='light'] .hero-badge {
+  color: #ea580c;
+  background: rgba(251, 146, 60, 0.1);
+  border-color: rgba(251, 146, 60, 0.2);
 }
 
 .badge-dot {
@@ -1277,15 +1355,29 @@ blockquote {
 .hero-description-modern {
   font-size: 1.125rem;
   line-height: 1.8;
-  color: var(--ifm-color-content-secondary);
   margin-bottom: 3rem;
   max-width: 600px;
 }
 
+[data-theme='dark'] .hero-description-modern {
+  color: #cbd5e1;
+}
+
+[data-theme='light'] .hero-description-modern {
+  color: #475569;
+}
+
 .highlight-text {
-  color: var(--ifm-color-content);
   font-weight: 600;
   position: relative;
+}
+
+[data-theme='dark'] .highlight-text {
+  color: #f1f5f9;
+}
+
+[data-theme='light'] .highlight-text {
+  color: #1e293b;
 }
 
 /* Hero Stats */
@@ -1305,6 +1397,16 @@ blockquote {
   transition: all 0.3s ease;
 }
 
+[data-theme='dark'] .stat-card {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+[data-theme='light'] .stat-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(203, 213, 225, 0.5);
+}
+
 .stat-card:hover {
   transform: translateY(-4px);
   border-color: var(--ifm-color-primary);
@@ -1322,8 +1424,15 @@ blockquote {
 
 .stat-label {
   font-size: 0.875rem;
-  color: var(--ifm-color-content-secondary);
   margin-top: 0.25rem;
+}
+
+[data-theme='dark'] .stat-label {
+  color: #cbd5e1;
+}
+
+[data-theme='light'] .stat-label {
+  color: #475569;
 }
 
 /* CTA Buttons */
@@ -1494,6 +1603,16 @@ blockquote {
   overflow: hidden;
 }
 
+[data-theme='dark'] .feature-card-modern {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+[data-theme='light'] .feature-card-modern {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(203, 213, 225, 0.5);
+}
+
 .feature-card-modern::before {
   content: '';
   position: absolute;
@@ -1541,14 +1660,28 @@ blockquote {
   font-size: 1.25rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: var(--ifm-heading-color);
+}
+
+[data-theme='dark'] .feature-card-modern h3 {
+  color: #f8fafc;
+}
+
+[data-theme='light'] .feature-card-modern h3 {
+  color: #0f172a;
 }
 
 .feature-card-modern p {
   font-size: 0.95rem;
-  color: var(--ifm-color-content-secondary);
   line-height: 1.6;
   margin: 0;
+}
+
+[data-theme='dark'] .feature-card-modern p {
+  color: #cbd5e1;
+}
+
+[data-theme='light'] .feature-card-modern p {
+  color: #475569;
 }
 
 /* Responsive Design */

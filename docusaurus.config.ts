@@ -239,18 +239,33 @@ const config: Config = {
 
       // Mermaid diagram configuration
   mermaid: {
-    theme: {light: 'default', dark: 'dark'},
+    theme: {light: 'neutral', dark: 'dark'},
     options: {
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-      fontSize: 16,
+      fontSize: 14,
       themeVariables: {
         darkMode: true,
-        primaryColor: '#4a80d1',
-        primaryTextColor: '#f5f6fa',
-        primaryBorderColor: '#666',
-        lineColor: '#999',
-        secondaryColor: '#cc5a2b',
-        tertiaryColor: '#1e293b',
+        // Dark theme variables
+        primaryColor: '#1e293b',
+        primaryTextColor: '#f1f5f9',
+        primaryBorderColor: '#60a5fa',
+        lineColor: '#475569',
+        secondaryColor: '#334155',
+        tertiaryColor: '#0f172a',
+        background: '#0f172a',
+        mainBkg: '#1e293b',
+        secondBkg: '#334155',
+        textColor: '#f1f5f9',
+        labelColor: '#f1f5f9',
+        errorBkgColor: '#7f1d1d',
+        errorTextColor: '#fca5a5',
+        // Light theme overrides (Docusaurus handles theme switching)
+        primaryColorLight: '#f8fafc',
+        primaryTextColorLight: '#1e293b',
+        primaryBorderColorLight: '#2563eb',
+        lineColorLight: '#94a3b8',
+        secondaryColorLight: '#e2e8f0',
+        tertiaryColorLight: '#f8fafc',
       },
     },
   },
