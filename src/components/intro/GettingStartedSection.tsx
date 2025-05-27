@@ -4,8 +4,9 @@ import InteractiveCard from '../InteractiveCard';
 
 export default function GettingStartedSection() {
   return (
-    <section className="getting-started-section">
-      <div className="section-container">
+    <div className="intro-page-wrapper">
+      <section className="getting-started-section">
+        <div className="section-container">
         <h2>Getting Started</h2>
         <p>Ready to join the OmniDragon ecosystem? Here's how to get started:</p>
 
@@ -56,5 +57,6 @@ export default function GettingStartedSection() {
       </ScrollRevealWrapper>
       </div>
     </section>
+    </div>
   );
 } 

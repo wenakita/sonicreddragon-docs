@@ -1,7 +1,6 @@
 import React from 'react';
 import ScrollRevealWrapper from '../ScrollRevealWrapper';
-import MermaidControls from '../MermaidControls';
-import MermaidDiagram from './MermaidDiagram';
+import MermaidRenderer from '../MermaidRenderer';
 
 const feeStructureChart = `sankey-beta
     DRAGON Swap Fee,Jackpot Pool,6.9
@@ -90,52 +89,54 @@ const tokenEconomicsChart = `flowchart LR
 
 export default function DiagramsSection() {
   return (
-    <section className="diagrams-section">
-      <div className="section-container">
+    <div className="intro-page-wrapper">
+      <section className="diagrams-section">
+        <div className="section-container">
         {/* Fee Structure & Distribution */}
         <div className="diagram-subsection">
-        <h2>Fee Structure & Distribution</h2>
         <ScrollRevealWrapper animation="fadeInLeft" duration={1000} delay={300}>
-          <div className="mermaid-container">
-            <MermaidControls />
-            <MermaidDiagram chart={feeStructureChart} />
-          </div>
+          <MermaidRenderer 
+            chart={feeStructureChart}
+            title="Fee Structure & Distribution"
+            showControls={true}
+          />
         </ScrollRevealWrapper>
       </div>
 
       {/* Lottery Probability System */}
       <div className="diagram-subsection">
-        <h2>Lottery Probability System</h2>
         <ScrollRevealWrapper animation="fadeInRight" duration={1000} delay={400}>
-          <div className="mermaid-container">
-            <MermaidControls />
-            <MermaidDiagram chart={lotteryProbabilityChart} />
-          </div>
+          <MermaidRenderer 
+            chart={lotteryProbabilityChart}
+            title="Lottery Probability System"
+            showControls={true}
+          />
         </ScrollRevealWrapper>
       </div>
 
       {/* Cross-Chain VRF Architecture */}
       <div className="diagram-subsection">
-        <h2>Cross-Chain VRF Architecture</h2>
         <ScrollRevealWrapper animation="scale" duration={1000} delay={500}>
-          <div className="mermaid-container">
-            <MermaidControls />
-            <MermaidDiagram chart={vrfArchitectureChart} />
-          </div>
+          <MermaidRenderer 
+            chart={vrfArchitectureChart}
+            title="Cross-Chain VRF Architecture"
+            showControls={true}
+          />
         </ScrollRevealWrapper>
       </div>
 
       {/* Token Economics Flow */}
       <div className="diagram-subsection">
-        <h2>Token Economics Flow</h2>
         <ScrollRevealWrapper animation="fadeInUp" duration={1000} delay={600}>
-          <div className="mermaid-container">
-            <MermaidControls />
-            <MermaidDiagram chart={tokenEconomicsChart} />
-          </div>
+          <MermaidRenderer 
+            chart={tokenEconomicsChart}
+            title="Token Economics Flow"
+            showControls={true}
+          />
         </ScrollRevealWrapper>
       </div>
       </div>
     </section>
+    </div>
   );
 } 

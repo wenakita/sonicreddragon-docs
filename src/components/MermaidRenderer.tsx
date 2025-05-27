@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Mermaid from '@theme/Mermaid';
 import useIsBrowser from '@docusaurus/useIsBrowser';
+import { ZoomInIcon, ZoomOutIcon, ResetIcon, PlayIcon } from './Icon';
 
 interface MermaidRendererProps {
   chart: string;
@@ -94,16 +95,20 @@ function MermaidControls({ containerId }: MermaidControlsProps) {
   return (
     <div className="mermaid-controls">
       <button className="mermaid-btn" onClick={handleZoomIn} title="Zoom In">
-        🔍+ Zoom In
+        <ZoomInIcon size={16} />
+        Zoom In
       </button>
       <button className="mermaid-btn" onClick={handleZoomOut} title="Zoom Out">
-        🔍- Zoom Out
+        <ZoomOutIcon size={16} />
+        Zoom Out
       </button>
       <button className="mermaid-btn" onClick={handleResetView} title="Reset View">
-        🔄 Reset View
+        <ResetIcon size={16} />
+        Reset View
       </button>
       <button className="mermaid-btn" onClick={handleReplay} title="Replay Animation">
-        ▶️ Replay
+        <PlayIcon size={16} />
+        Replay
       </button>
     </div>
   );

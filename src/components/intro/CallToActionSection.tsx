@@ -5,8 +5,9 @@ import ParticleBackground from '../ParticleBackground';
 
 export default function CallToActionSection() {
   return (
-    <section className="call-to-action-section">
-      <div className="section-container">
+    <div className="intro-page-wrapper">
+      <section className="call-to-action-section">
+        <div className="section-container">
         <div className="cta-container">
         <ParticleBackground particleCount={15} />
         
@@ -39,5 +40,6 @@ export default function CallToActionSection() {
       </div>
       </div>
     </section>
+    </div>
   );
 } 

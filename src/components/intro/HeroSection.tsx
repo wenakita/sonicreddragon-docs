@@ -5,10 +5,11 @@ import FloatingParticles from '@site/src/components/FloatingParticles';
 
 export default function HeroSection() {
   return (
-    <section className="hero-section-modern">
-      <FloatingParticles />
-      
-      <div className="section-container">
+    <div className="intro-page-wrapper">
+      <section className="hero-section-modern">
+        <FloatingParticles />
+        
+        <div className="section-container">
         <div className="hero-grid">
         <div className="hero-content">
           <ScrollRevealWrapper animation="fadeInLeft" duration={1000} delay={100}>
@@ -123,5 +124,6 @@ export default function HeroSection() {
       </ScrollRevealWrapper>
       </div>
     </section>
+    </div>
   );
 } 

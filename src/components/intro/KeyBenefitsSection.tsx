@@ -3,8 +3,9 @@ import ScrollRevealWrapper from '../ScrollRevealWrapper';
 
 export default function KeyBenefitsSection() {
   return (
-    <section className="key-benefits-section">
-      <div className="section-container">
+    <div className="intro-page-wrapper">
+      <section className="key-benefits-section">
+        <div className="section-container">
         <h2>Key Benefits</h2>
 
       <ScrollRevealWrapper animation="fadeInLeft" duration={800} delay={300} stagger={true} staggerDelay={200}>
@@ -66,5 +67,6 @@ export default function KeyBenefitsSection() {
       </ScrollRevealWrapper>
       </div>
     </section>
+    </div>
   );
 } 

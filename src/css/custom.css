@@ -1056,6 +1056,13 @@ div[style*="opacity: 0"] {
   overflow: hidden !important;
   box-shadow: 0 4px 12px rgba(251, 146, 60, 0.2) !important;
   outline: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.mermaid-btn svg {
+  flex-shrink: 0;
 }
 
 .mermaid-btn::before {
