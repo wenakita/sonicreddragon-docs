@@ -1105,13 +1105,22 @@ blockquote {
   stroke-width: 2px !important;
 }
 
+/* Force all text elements to be visible in dark mode */
 [data-theme='dark'] .mermaid .label,
 [data-theme='dark'] .mermaid .nodeLabel,
-[data-theme='dark'] .mermaid text {
-  color: #f1f5f9 !important;
-  fill: #f1f5f9 !important;
+[data-theme='dark'] .mermaid text,
+[data-theme='dark'] .mermaid tspan,
+[data-theme='dark'] .mermaid .node text,
+[data-theme='dark'] .mermaid .edgeLabel text,
+[data-theme='dark'] .mermaid .edgeLabel tspan,
+[data-theme='dark'] .mermaid .messageText,
+[data-theme='dark'] .mermaid .actor-label,
+[data-theme='dark'] .mermaid .labelText {
+  color: #ffffff !important;
+  fill: #ffffff !important;
   font-weight: 600 !important;
   font-size: 14px !important;
+  stroke: none !important;
 }
 
 [data-theme='dark'] .mermaid .cluster rect {
@@ -1122,11 +1131,57 @@ blockquote {
 
 /* Fix mermaid diagram background and text colors */
 [data-theme='dark'] .mermaid {
-  color: #f1f5f9 !important;
+  color: #ffffff !important;
 }
 
 [data-theme='light'] .mermaid {
   color: #1e293b !important;
+}
+
+/* Additional dark mode text fixes - catch all text elements */
+[data-theme='dark'] .mermaid svg text,
+[data-theme='dark'] .mermaid svg tspan,
+[data-theme='dark'] .mermaid svg .label,
+[data-theme='dark'] .mermaid svg .nodeLabel,
+[data-theme='dark'] .mermaid svg .edgeLabel,
+[data-theme='dark'] .mermaid svg .messageText,
+[data-theme='dark'] .mermaid svg .actor-label,
+[data-theme='dark'] .mermaid svg .labelText,
+[data-theme='dark'] .mermaid svg .cluster-label,
+[data-theme='dark'] .mermaid svg .section,
+[data-theme='dark'] .mermaid svg .titleText {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+  stroke: none !important;
+}
+
+/* Force white text on all mermaid elements in dark mode */
+[data-theme='dark'] .mermaid * {
+  color: #ffffff !important;
+}
+
+[data-theme='dark'] .mermaid svg * {
+  fill: #ffffff !important;
+}
+
+/* Ultra-specific selectors for stubborn text elements */
+html[data-theme='dark'] .mermaid svg text,
+html[data-theme='dark'] .mermaid svg tspan,
+html[data-theme='dark'] .docusaurus-mermaid-container svg text,
+html[data-theme='dark'] .docusaurus-mermaid-container svg tspan,
+html[data-theme='dark'] .mermaid-container svg text,
+html[data-theme='dark'] .mermaid-container svg tspan {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+  stroke: none !important;
+}
+
+/* Catch any remaining text elements */
+html[data-theme='dark'] .mermaid svg *[class*="label"],
+html[data-theme='dark'] .mermaid svg *[class*="text"],
+html[data-theme='dark'] .mermaid svg *[class*="Text"] {
+  fill: #ffffff !important;
+  color: #ffffff !important;
 }
 
 /* Fix edge labels */
