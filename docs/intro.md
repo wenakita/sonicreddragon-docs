@@ -1,7 +1,19 @@
 ---
 sidebar_position: 1
 title: Welcome to OmniDragon
+hide_title: true
 ---
+
+import {
+  HeroSection,
+  SystemArchitectureSection,
+  DiagramsSection,
+  GettingStartedSection,
+  KeyBenefitsSection,
+  CallToActionSection
+} from '@site/src/components/intro';
+
+<HeroSection />
 
 # Welcome to OmniDragon
 
@@ -21,29 +33,15 @@ OmniDragon combines the best of DeFi innovation with gaming mechanics, creating 
 - **Governance Integration**: Community-driven decision making with transparent voting mechanisms
 - **Advanced Security**: Multi-source VRF randomness with fallback mechanisms
 
-## System Architecture
-
-import SystemArchitectureSection from '@site/src/components/intro/SystemArchitectureSection';
-
 <SystemArchitectureSection />
-
-## Key Diagrams
-
-import DiagramsSection from '@site/src/components/intro/DiagramsSection';
 
 <DiagramsSection />
 
-## Getting Started
-
-import GettingStartedSection from '@site/src/components/intro/GettingStartedSection';
-
 <GettingStartedSection />
 
-## Key Benefits
-
-import KeyBenefitsSection from '@site/src/components/intro/KeyBenefitsSection';
-
 <KeyBenefitsSection />
+
+<CallToActionSection />
 
 ---
 
