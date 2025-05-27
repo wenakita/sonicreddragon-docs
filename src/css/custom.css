@@ -861,14 +861,37 @@ article.intro-page {
   border: none;
   max-width: 100%;
   width: 100%;
+  overflow-x: hidden;
 }
 
-/* Full-width intro page wrapper */
-.intro-page-wrapper {
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
+/* Fallback: Force full-width for intro sections even without intro-page class */
+.hero-section-modern,
+.system-architecture-section,
+.diagrams-section,
+.getting-started-section,
+.key-benefits-section,
+.call-to-action-section {
+  /* Ensure these sections can break out of any container */
   position: relative;
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+/* Full-width intro page wrapper - aggressive approach */
+.intro-page-wrapper {
+  /* Force full-width even if inside constrained containers */
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+  max-width: 100vw;
   overflow-x: hidden;
+  margin-bottom: 0;
 }
 
 /* Ensure sections within intro page can be full-width */
