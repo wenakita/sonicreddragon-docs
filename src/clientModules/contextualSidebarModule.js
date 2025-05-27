@@ -9,7 +9,7 @@ if (ExecutionEnvironment.canUseDOM) {
     
     // Define which sections should be visible for each path pattern
     const visibilityRules = {
-      '/': ['Getting Started', 'System Overview'],
+      '/': ['Getting Started', 'System Overview', 'Security & Audit', 'Smart Contracts'],
       '/intro': ['Getting Started', 'System Overview'],
       '/getting-started': ['Getting Started', 'System Overview'],
       '/comprehensive-system': ['System Overview'],

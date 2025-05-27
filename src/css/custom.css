@@ -776,6 +776,27 @@ article {
   -webkit-backdrop-filter: blur(8px);
 }
 
+/* Fix for intro page layout */
+.markdown > h1:first-child {
+  margin-top: 0;
+}
+
+/* Ensure proper spacing for sections */
+.markdown > section {
+  margin-bottom: 3rem;
+}
+
+/* Fix animation wrapper layout issues */
+div[style*="opacity: 0"] {
+  min-height: auto !important;
+}
+
+/* Ensure mermaid diagrams don't break layout */
+.mermaid-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 996px) {
   .navbar__item--github {
@@ -1173,13 +1194,14 @@ blockquote {
 /* Hero Section */
 .hero-section {
   margin-bottom: 4rem;
-  padding: 3rem 0;
+  padding: 3rem 2rem;
   position: relative;
   background: linear-gradient(135deg, 
     rgba(251, 146, 60, 0.03) 0%, 
     rgba(59, 130, 246, 0.03) 100%);
   border-radius: 16px;
-  overflow: hidden;
+  overflow: visible;
+  max-width: 100%;
 }
 
 .hero-section::before {
