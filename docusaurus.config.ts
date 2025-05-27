@@ -236,23 +236,23 @@ const config: Config = {
       additionalLanguages: ['solidity'],
     },
 
-    // Mermaid diagram configuration
-    // mermaid: {
-    //   theme: {light: 'default', dark: 'dark'},
-    //   options: {
-    //     fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-    //     fontSize: 16,
-    //     themeVariables: {
-    //       darkMode: true,
-    //       primaryColor: '#4a80d1',
-    //       primaryTextColor: '#f5f6fa',
-    //       primaryBorderColor: '#666',
-    //       lineColor: '#999',
-    //       secondaryColor: '#cc5a2b',
-    //       tertiaryColor: '#1e293b',
-    //     },
-    //   },
-    // },
+      // Mermaid diagram configuration
+  mermaid: {
+    theme: {light: 'default', dark: 'dark'},
+    options: {
+      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      fontSize: 16,
+      themeVariables: {
+        darkMode: true,
+        primaryColor: '#4a80d1',
+        primaryTextColor: '#f5f6fa',
+        primaryBorderColor: '#666',
+        lineColor: '#999',
+        secondaryColor: '#cc5a2b',
+        tertiaryColor: '#1e293b',
+      },
+    },
+  },
 
     // Modern metadata
     metadata: [
