@@ -765,8 +765,8 @@ a, button, .card, .interactive-card, .menu__link {
 
 /* Use default Docusaurus layout */
 
-/* Doc item main content */
-article {
+/* Doc item main content - only apply to regular docs, not intro page */
+article:not(.intro-page) {
   background-color: var(--card-bg);
   border-radius: var(--ifm-global-radius);
   padding: 2rem;
@@ -774,6 +774,64 @@ article {
   border: 1px solid var(--ifm-toc-border-color);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+}
+
+/* Intro page gets full-width treatment */
+article.intro-page {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  border: none;
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Full-width intro page wrapper */
+.intro-page-wrapper {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Ensure sections within intro page can be full-width */
+.intro-page-wrapper > * {
+  width: 100%;
+  max-width: none;
+}
+
+/* Container for content within full-width sections */
+.section-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure full-width sections work on mobile */
+@media (max-width: 768px) {
+  .intro-page-wrapper {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+  }
+  
+  .section-container {
+    padding: 0 1rem;
+  }
+  
+  .hero-section-modern,
+  .system-architecture-section,
+  .diagrams-section,
+  .getting-started-section,
+  .key-benefits-section,
+  .call-to-action-section {
+    width: 100vw;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 /* Fix for intro page layout */
@@ -803,7 +861,7 @@ div[style*="opacity: 0"] {
     display: none;
   }
   
-  article {
+  article:not(.intro-page) {
     padding: 1.5rem;
   }
   
@@ -822,7 +880,7 @@ div[style*="opacity: 0"] {
 
 /* Small mobile devices */
 @media (max-width: 480px) {
-  article {
+  article:not(.intro-page) {
     padding: 1.25rem 1rem;
   }
   
@@ -845,7 +903,7 @@ div[style*="opacity: 0"] {
     background: #fff !important;
   }
   
-  article {
+  article:not(.intro-page) {
     box-shadow: none;
     border: none;
   }
@@ -1348,18 +1406,22 @@ html[data-theme='light'] .mermaid-container svg tspan {
 
 /* Intro Page Component Styles - Next-Generation Design */
 
-/* Modern Hero Section */
+/* Modern Hero Section - Full Width */
 .hero-section-modern {
   position: relative;
   min-height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: 4rem 2rem;
   overflow: hidden;
-  background: radial-gradient(ellipse at top left, rgba(251, 146, 60, 0.1) 0%, transparent 40%),
-              radial-gradient(ellipse at bottom right, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
-              var(--ifm-background-color);
+  background: 
+    radial-gradient(ellipse at top left, rgba(251, 146, 60, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at center, rgba(251, 146, 60, 0.05) 0%, transparent 70%),
+    var(--gradient-bg);
+  background-attachment: fixed;
 }
 
 /* Hero Grid Layout */
@@ -1368,8 +1430,6 @@ html[data-theme='light'] .mermaid-container svg tspan {
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
   position: relative;
   z-index: 2;
 }
@@ -1677,9 +1737,6 @@ html[data-theme='light'] .mermaid-container svg tspan {
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   margin-top: 6rem;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .feature-card-modern {
@@ -1943,10 +2000,16 @@ html[data-theme='light'] .mermaid-container svg tspan {
   height: 60%;
 }
 
-/* System Architecture Section */
+/* System Architecture Section - Full Width */
 .system-architecture-section {
-  margin-bottom: 5rem;
-  padding: 2rem 0;
+  width: 100vw;
+  margin-bottom: 0;
+  padding: 6rem 2rem;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.03) 0%, 
+    rgba(251, 146, 60, 0.03) 100%);
+  position: relative;
+  border-top: 1px solid rgba(100, 116, 139, 0.1);
 }
 
 .system-architecture-section h2 {
@@ -1973,10 +2036,14 @@ html[data-theme='light'] .mermaid-container svg tspan {
   border-radius: 2px;
 }
 
-/* Diagrams Section */
+/* Diagrams Section - Full Width */
 .diagrams-section {
-  margin-bottom: 5rem;
-  padding: 2rem 0;
+  width: 100vw;
+  margin-bottom: 0;
+  padding: 6rem 2rem;
+  background: var(--gradient-bg);
+  position: relative;
+  border-top: 1px solid rgba(100, 116, 139, 0.1);
 }
 
 .diagram-subsection {
@@ -2019,16 +2086,17 @@ html[data-theme='light'] .mermaid-container svg tspan {
   border-radius: 2px;
 }
 
-/* Getting Started Section */
+/* Getting Started Section - Full Width */
 .getting-started-section {
-  margin-bottom: 5rem;
-  padding: 3rem 0;
+  width: 100vw;
+  margin-bottom: 0;
+  padding: 6rem 2rem;
   background: linear-gradient(135deg, 
-    rgba(251, 146, 60, 0.03) 0%, 
-    rgba(59, 130, 246, 0.03) 100%);
-  border-radius: 20px;
+    rgba(251, 146, 60, 0.05) 0%, 
+    rgba(59, 130, 246, 0.05) 100%);
   position: relative;
   overflow: hidden;
+  border-top: 1px solid rgba(100, 116, 139, 0.1);
 }
 
 .getting-started-section::before {
@@ -2076,10 +2144,16 @@ html[data-theme='light'] .mermaid-container svg tspan {
   padding: 0 1rem;
 }
 
-/* Key Benefits Section */
+/* Key Benefits Section - Full Width */
 .key-benefits-section {
-  margin-bottom: 5rem;
-  padding: 3rem 0;
+  width: 100vw;
+  margin-bottom: 0;
+  padding: 6rem 2rem;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.03) 0%, 
+    rgba(251, 146, 60, 0.03) 100%);
+  position: relative;
+  border-top: 1px solid rgba(100, 116, 139, 0.1);
 }
 
 .key-benefits-section h2 {
@@ -2213,10 +2287,16 @@ html[data-theme='light'] .mermaid-container svg tspan {
   }
 }
 
-/* Call to Action Section */
+/* Call to Action Section - Full Width */
 .call-to-action-section {
-  margin: 5rem 0;
-  padding: 0;
+  width: 100vw;
+  margin: 0;
+  padding: 6rem 2rem;
+  background: linear-gradient(135deg, 
+    rgba(251, 146, 60, 0.08) 0%, 
+    rgba(59, 130, 246, 0.08) 100%);
+  position: relative;
+  border-top: 1px solid rgba(100, 116, 139, 0.1);
 }
 
 .cta-container {

@@ -5,10 +5,11 @@ import InteractiveCard from '../InteractiveCard';
 export default function GettingStartedSection() {
   return (
     <section className="getting-started-section">
-      <h2>Getting Started</h2>
-      <p>Ready to join the OmniDragon ecosystem? Here's how to get started:</p>
+      <div className="section-container">
+        <h2>Getting Started</h2>
+        <p>Ready to join the OmniDragon ecosystem? Here's how to get started:</p>
 
-      <ScrollRevealWrapper animation="fadeInUp" duration={800} delay={200} stagger={true} staggerDelay={150}>
+        <ScrollRevealWrapper animation="fadeInUp" duration={800} delay={200} stagger={true} staggerDelay={150}>
         <div className="cards-grid">
           <InteractiveCard
             title="For Users"
@@ -53,6 +54,7 @@ export default function GettingStartedSection() {
           </InteractiveCard>
         </div>
       </ScrollRevealWrapper>
+      </div>
     </section>
   );
 } 

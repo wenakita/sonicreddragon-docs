@@ -6,7 +6,8 @@ import ParticleBackground from '../ParticleBackground';
 export default function CallToActionSection() {
   return (
     <section className="call-to-action-section">
-      <div className="cta-container">
+      <div className="section-container">
+        <div className="cta-container">
         <ParticleBackground particleCount={15} />
         
         <AnimatedText as="h2" animation="glow" duration={1500} loop={true} className="gradient-text">
@@ -35,6 +36,7 @@ export default function CallToActionSection() {
             View Documentation
           </AnimatedButton>
         </div>
+      </div>
       </div>
     </section>
   );

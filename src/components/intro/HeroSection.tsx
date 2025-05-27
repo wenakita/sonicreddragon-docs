@@ -1,14 +1,15 @@
 import React from 'react';
 import AnimatedText from '../AnimatedText';
 import ScrollRevealWrapper from '../ScrollRevealWrapper';
-import FloatingParticles from '../FloatingParticles';
+import FloatingParticles from '@site/src/components/FloatingParticles';
 
 export default function HeroSection() {
   return (
     <section className="hero-section-modern">
       <FloatingParticles />
       
-      <div className="hero-grid">
+      <div className="section-container">
+        <div className="hero-grid">
         <div className="hero-content">
           <ScrollRevealWrapper animation="fadeInLeft" duration={1000} delay={100}>
             <div className="hero-badge">
@@ -120,6 +121,7 @@ export default function HeroSection() {
           </div>
         </div>
       </ScrollRevealWrapper>
+      </div>
     </section>
   );
 } 

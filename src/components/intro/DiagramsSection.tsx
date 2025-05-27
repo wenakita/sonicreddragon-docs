@@ -91,8 +91,9 @@ const tokenEconomicsChart = `flowchart LR
 export default function DiagramsSection() {
   return (
     <section className="diagrams-section">
-      {/* Fee Structure & Distribution */}
-      <div className="diagram-subsection">
+      <div className="section-container">
+        {/* Fee Structure & Distribution */}
+        <div className="diagram-subsection">
         <h2>Fee Structure & Distribution</h2>
         <ScrollRevealWrapper animation="fadeInLeft" duration={1000} delay={300}>
           <div className="mermaid-container">
@@ -133,6 +134,7 @@ export default function DiagramsSection() {
             <MermaidDiagram chart={tokenEconomicsChart} />
           </div>
         </ScrollRevealWrapper>
+      </div>
       </div>
     </section>
   );

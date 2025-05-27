@@ -39,14 +39,16 @@ const systemArchitectureChart = `graph TB
 export default function SystemArchitectureSection() {
   return (
     <section className="system-architecture-section">
-      <h2>System Architecture</h2>
+      <div className="section-container">
+        <h2>System Architecture</h2>
 
-      <ScrollRevealWrapper animation="fadeInUp" duration={1000} delay={200}>
-        <div className="mermaid-container">
-          <MermaidControls targetSelector=".mermaid-container .mermaid" />
-          <MermaidDiagram chart={systemArchitectureChart} />
-        </div>
-      </ScrollRevealWrapper>
+        <ScrollRevealWrapper animation="fadeInUp" duration={1000} delay={200}>
+          <div className="mermaid-container">
+            <MermaidControls targetSelector=".mermaid-container .mermaid" />
+            <MermaidDiagram chart={systemArchitectureChart} />
+          </div>
+        </ScrollRevealWrapper>
+      </div>
     </section>
   );
 } 
