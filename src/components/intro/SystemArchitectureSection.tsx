@@ -1,7 +1,6 @@
 import React from 'react';
 import ScrollRevealWrapper from '../ScrollRevealWrapper';
-import MermaidControls from '../MermaidControls';
-import MermaidDiagram from './MermaidDiagram';
+import MermaidRenderer from '../MermaidRenderer';
 
 const systemArchitectureChart = `graph TB
     A[OmniDragon Token] --> B[Lottery System]
@@ -40,13 +39,12 @@ export default function SystemArchitectureSection() {
   return (
     <section className="system-architecture-section">
       <div className="section-container">
-        <h2>System Architecture</h2>
-
         <ScrollRevealWrapper animation="fadeInUp" duration={1000} delay={200}>
-          <div className="mermaid-container">
-            <MermaidControls />
-            <MermaidDiagram chart={systemArchitectureChart} />
-          </div>
+          <MermaidRenderer 
+            chart={systemArchitectureChart}
+            title="System Architecture"
+            showControls={true}
+          />
         </ScrollRevealWrapper>
       </div>
     </section>

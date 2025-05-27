@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import useIsBrowser from '@docusaurus/useIsBrowser';
+import { ZoomInIcon, ZoomOutIcon, ResetIcon, PlayIcon } from './Icon';
 
 interface MermaidControlsProps {
   targetSelector?: string;
@@ -31,20 +32,15 @@ export default function MermaidControls({
   }, [isBrowser]);
 
   const handleZoomIn = () => {
-    console.log('Zoom In clicked');
     // Look for both .mermaid and .docusaurus-mermaid-container
     const containers = document.querySelectorAll('.mermaid-container, .docusaurus-mermaid-container');
-    console.log('Found containers:', containers.length);
     
     containers.forEach((container) => {
       const svg = container.querySelector('svg');
-      console.log('Found SVG:', !!svg);
       if (svg) {
         const currentTransform = svg.style.transform || '';
         const currentScale = parseFloat(currentTransform.match(/scale\(([\d.]+)\)/)?.[1] || '1');
         const newScale = Math.min(currentScale * 1.2, 3);
-        
-        console.log('Current scale:', currentScale, 'New scale:', newScale);
         
         // Apply transform with scale
         const baseTransform = currentTransform.replace(/scale\([\d.]+\)/, '').trim();
@@ -58,7 +54,6 @@ export default function MermaidControls({
   };
 
   const handleZoomOut = () => {
-    console.log('Zoom Out clicked');
     const containers = document.querySelectorAll('.mermaid-container, .docusaurus-mermaid-container');
     
     containers.forEach((container) => {
@@ -67,8 +62,6 @@ export default function MermaidControls({
         const currentTransform = svg.style.transform || '';
         const currentScale = parseFloat(currentTransform.match(/scale\(([\d.]+)\)/)?.[1] || '1');
         const newScale = Math.max(currentScale * 0.8, 0.5);
-        
-        console.log('Zoom out - Current scale:', currentScale, 'New scale:', newScale);
         
         // Apply transform with scale
         const baseTransform = currentTransform.replace(/scale\([\d.]+\)/, '').trim();
@@ -82,13 +75,11 @@ export default function MermaidControls({
   };
 
   const handleResetView = () => {
-    console.log('Reset View clicked');
     const containers = document.querySelectorAll('.mermaid-container, .docusaurus-mermaid-container');
     
     containers.forEach((container) => {
       const svg = container.querySelector('svg');
       if (svg) {
-        console.log('Resetting SVG transform');
         // Reset transform
         svg.style.transform = '';
         svg.style.transformOrigin = 'center center';
@@ -100,13 +91,11 @@ export default function MermaidControls({
   };
 
   const handleReplay = () => {
-    console.log('Replay clicked');
     const containers = document.querySelectorAll('.mermaid-container, .docusaurus-mermaid-container');
     
     containers.forEach((container) => {
       const svg = container.querySelector('svg');
       if (svg) {
-        console.log('Replaying SVG animation');
         // Store current transform
         const currentTransform = svg.style.transform || '';
         
@@ -139,7 +128,8 @@ export default function MermaidControls({
         onClick={handleZoomIn}
         title="Zoom In"
       >
-        🔍+ Zoom In
+        <ZoomInIcon size={16} />
+        Zoom In
       </button>
       
       <button
@@ -147,7 +137,8 @@ export default function MermaidControls({
         onClick={handleZoomOut}
         title="Zoom Out"
       >
-        🔍- Zoom Out
+        <ZoomOutIcon size={16} />
+        Zoom Out
       </button>
       
       <button
@@ -155,7 +146,8 @@ export default function MermaidControls({
         onClick={handleResetView}
         title="Reset View"
       >
-        🔄 Reset View
+        <ResetIcon size={16} />
+        Reset View
       </button>
       
       <button
@@ -163,7 +155,8 @@ export default function MermaidControls({
         onClick={handleReplay}
         title="Replay Animation"
       >
-        ▶️ Replay
+        <PlayIcon size={16} />
+        Replay
       </button>
     </div>
   );

@@ -1,6 +1,20 @@
 import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
 
 if (ExecutionEnvironment.canUseDOM) {
+  // Configure Mermaid with strict security settings
+  if (typeof window !== 'undefined' && window.mermaid) {
+    window.mermaid.initialize({
+      securityLevel: 'strict', // Prevent XSS attacks
+      htmlLabels: false, // Disable HTML in labels
+      flowchart: {
+        htmlLabels: false
+      },
+      sequence: {
+        useMaxWidth: true,
+        wrap: true
+      }
+    });
+  }
   function fixMermaidTextColors() {
     // Check if we're in dark mode - multiple ways since default is dark
     const dataTheme = document.documentElement.getAttribute('data-theme');
