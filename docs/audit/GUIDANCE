@@ -1,0 +1,115 @@
+# Smart Contract Security Guidance
+
+A concise, opinionated reference distilled from ConsenSys Diligence best‑practice guides, leading auditor playbooks, and real‑world exploit post‑mortems. Use this as a **living checklist** when writing, reviewing, and auditing EVM contracts.
+
+---
+
+## 1  General Philosophy
+
+*(from ConsenSys “General Philosophy”)*
+
+1. **Keep it simple & modular** – favor small composable contracts over monoliths.
+2. **Minimise authority** – apply the principle of least privilege to every role/upgrade path.
+3. **Fail loudly & early** – use `require/ revert` with explicit errors; never silently return false.
+4. **Make invalid states un‑representable** – leverage Solidity’s type system & custom errors.
+5. **Favor pull over push** payments to avoid re‑entrancy & gas griefing.
+6. **Assume callers are adversarial** – every public/external fn can be called in any order, at any time, with any calldata & ETH value.
+7. **Be upgrade‑aware** – treat proxy storage layout & immutability guarantees as part of the security surface.
+8. **Automate everything** – CI/CD, linting, tests, static analysis & differential fuzzing.
+
+---
+
+## 2  Development Recommendations
+
+*(key points from ConsenSys “Development Recommendations” plus auditor norms)*
+
+* **Pinned compiler** : `pragma solidity 0.8.x;` – never use `^`.
+* **Enable optimizer** (`200+ runs`) & `viaIR` when stable; profile for runtime vs deploy cost.
+* **Use OpenZeppelin** vetted base contracts; *only* modify via composition/extension.
+* **Re‑entrancy Guard**: single write‑then‑call pattern or Checks‑Effects‑Interactions.
+* **Access Control**: `Ownable`, `AccessControl`, or immutable roles; emit admin events.
+* **Pause / Circuit Breaker** with granular scopes & unpausable escape hatch.
+* **Proper math**: Solidity ≥0.8 auto‑checked; for unchecked blocks document rationale.
+* **Events for all state‑changing fns** ; avoid `indexed bool` (bad filterability).
+* **NatSpec + inline docs** for every external/public fn & complex internal logic.
+* **Comprehensive test‑suite** (unit, integration, invariant, fuzz) achieving ≥95 % branch coverage + differential testing where feasible.
+
+---
+
+## 3  Tooling Arsenal
+
+| Category               | Tools                                                                                                                       | Primary Use                                                         |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **IDE & Visual**       | *Solidity Visual Developer*, **Sūrya**, **Solgraph**, **Piet**, **ethereum‑graph‑debugger**                                 | Structure graphs, CFGs, VS Code insights                            |
+| **Static Analysis**    | **Slither**, **Mythril**, **MythX**, **Securify**, **SmartCheck**, **MadMax**, **Gigahorse**, **Octopus**, **SolidityScan** | Pattern detectors, taint/value flow, gas DoS, coverage of >200 SWCs |
+| **Dynamic/Fuzz**       | **Echidna**, **Manticore**, **sFuzz**, **Vertigo**                                                                          | Property‑based & path exploration                                   |
+| **EVM Introspection**  | **EVM Lab**, **ethereum‑graph‑debugger**                                                                                    | Trace, inspect, replay txs                                          |
+| **Testing Helpers**    | **Foundry**, **Hardhat**, **solidity‑coverage**, **solidity‑shell / chisel / soli**                                         | Fast local VM, coverage, REPL                                       |
+| **Linters/Formatters** | **Ethlint**, **Solhint**, **Prettier Solidity**                                                                             | Style + security lints                                              |
+
+> **Workflow Tip** : Run *Slither* + *solhint* in CI on every PR; gate merges on a clean run plus ≥90 % coverage.
+
+---
+
+## 4  Common Attack Classes (map ↔ SWC Registry)
+
+| Attack                                   | Brief                                                    | Core SWCs |
+| ---------------------------------------- | -------------------------------------------------------- | --------- |
+| Re‑entrancy                              | External call before state update; include ERC-777 hooks | 107       |
+| Arithmetic Overflow / Underflow (legacy) | pre‑0.8 or unchecked                                     | 101       |
+| Denial of Service (gas / revert)         | Griefing by heavy loops or revert in fallback            | 113, 141  |
+| Tx Ordering (MEV)                        | Timestamp/`block.number` dependence, frontrunning        | 114, 116  |
+| Price Oracle Manipulation                | Unsecured or low‑liquidity oracle feeds                  | 120       |
+| Access Control / Privileged Function     | Misconfigured owner/role, backdoors                      | 105, 108  |
+| Uninitialised Proxy                      | `initialize()` callable by anyone                        | 118       |
+| Signature Replay / Malleability          | Non‑EIP712 sigs, missing `nonce`                         | 117       |
+| Randomness Bias                          | `blockhash`, `random()`, inadequate VRF usage            | 110       |
+| Gas Griefing / DoS with block gas        | `for` over user‑controlled arrays                        | 138       |
+| Incorrect ERC Implementation             | Non‑standard return values, approvals                    | 135       |
+
+Use **SWC‑registry** samples as reference PoC + test vectors.
+
+---
+
+## 5  Audit‑Ready Checklist
+
+* [ ] All items in sections 1‑4 satisfied.
+* [ ] Unit + invariant + fuzz pass (`forge test ‑vvv / ethers‑waffle / truffle`).
+* [ ] Static tools show **0 Critical/High** findings; Medium findings triaged.
+* [ ] Gas usage benchmarked vs spec; no unbounded loops over dynamic storage.
+* [ ] Proxy upgrade plan (if any) reviewed & admin keys timelocked.
+* [ ] Third‑party deps checksummed and pinned; no mutable GitHub imports.
+* [ ] README includes threat model, assumptions, and intended invariants.
+
+---
+
+## 6  Professional Audit Report Template *(inspired by Trail of Bits)*
+
+1. **Executive Summary**
+   • Scope, context, timeline, methodology, overall risk.
+2. **System Overview**
+   • Architecture diagram + component descriptions.
+3. **Findings Summary Table**
+   \| ID | Title | Severity | Status |
+4. **Detailed Findings**
+   • *Heading* – Description → Impact → PoC → Recommendation.
+5. **Best‑Practice & Gas Optimizations**
+6. **Tool Output & Appendix**
+7. **Disclosure & Remediation Log**
+
+---
+
+## 7  Learning & Continuous Improvement
+
+* **Read**: samczsun’s, rekt.news, mudit gupta, Paradigm, Zellic blogs.
+* **Study exploits**: DAO (2016), Parity multisig, Cream, PancakeBunny, bZx, Euler, Curve PU.
+* **Contribute**: SWC tests, ImmuneFi CTFs, Audit competitions.
+* **Iterate**: Post‑mortem every incident; feed lessons back into this doc & CI.
+
+---
+
+### Version
+
+`v0.1 – 2025‑05‑25`  |  Maintainers: Security Guild
+
+> **NOTE:** This document is intended as a high‑level guide. Always adapt controls to project‑specific threat models and regulatory requirements.

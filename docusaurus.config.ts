@@ -5,8 +5,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'Sonic Red Dragon',
-  tagline: 'LayerZero V2 Compatible Token',
+  title: 'OmniDragon',
+  tagline: 'Cross-Chain Token Ecosystem',
   favicon: '/img/favicon-32x32.png',
 
   // Set the production url of your site here
@@ -89,9 +89,9 @@ const config: Config = {
     
     // Modern navbar configuration
     navbar: {
-      title: 'Sonic Red Dragon',
+      title: 'OmniDragon',
       logo: {
-        alt: 'Sonic Red Dragon Logo',
+        alt: 'OmniDragon Logo',
         src: '/img/logo.svg',
       },
       items: [
@@ -244,23 +244,29 @@ const config: Config = {
     options: {
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       fontSize: 14,
+      securityLevel: 'loose',
       themeVariables: {
         darkMode: true,
-        // Dark theme variables
-        primaryColor: '#1e293b',
-        primaryTextColor: '#f1f5f9',
-        primaryBorderColor: '#60a5fa',
-        lineColor: '#475569',
-        secondaryColor: '#334155',
-        tertiaryColor: '#0f172a',
-        background: '#0f172a',
-        mainBkg: '#1e293b',
-        secondBkg: '#334155',
-        textColor: '#f1f5f9',
-        labelColor: '#f1f5f9',
+        // Dark theme variables with orange accent
+        primaryColor: '#2A2A2A',
+        primaryTextColor: '#FFFFFF',
+        primaryBorderColor: '#FF6B35',
+        lineColor: '#FF6B35',
+        secondaryColor: '#1A1A1A',
+        tertiaryColor: '#0A0A0A',
+        background: '#0A0A0A',
+        mainBkg: '#2A2A2A',
+        secondBkg: '#1A1A1A',
+        textColor: '#FFFFFF',
+        labelColor: '#FFFFFF',
         errorBkgColor: '#7f1d1d',
         errorTextColor: '#fca5a5',
-        // Light theme overrides (Docusaurus handles theme switching)
+        nodeTextColor: '#FFFFFF',
+        edgeLabelBackground: '#1A1A1A',
+        clusterBkg: 'rgba(255, 107, 53, 0.1)',
+        clusterBorder: '#FF6B35',
+        defaultLinkColor: '#FF6B35',
+        // Light theme overrides
         primaryColorLight: '#f8fafc',
         primaryTextColorLight: '#1e293b',
         primaryBorderColorLight: '#2563eb',
@@ -287,8 +293,8 @@ const config: Config = {
     // Modern announcement bar
     announcementBar: {
       id: 'support_us',
-      content: '🚀 Sonic Red Dragon will relaunch soon! Join our <a href="https://t.me/SonicRedDragon">Telegram</a> for updates.',
-      backgroundColor: '#1e3c72',
+      content: '🔥 Next-Gen DeFi on Sonic • Revolutionary cross-chain lottery mechanics • Join the dragon revolution <a href="https://t.me/SonicRedDragon">Telegram</a>',
+      backgroundColor: '#FF6B35',
       textColor: '#fff',
       isCloseable: true,
     },

@@ -4,17 +4,30 @@
  */
 import { isBrowser, initializeMermaidAnimations } from '../utils/animeUtils';
 
+// Debounce function to prevent excessive calls
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
 /**
  * Initialize animations on route change
  */
 function initializeAnimations() {
   if (!isBrowser()) return;
   
-  // Allow time for DOM to settle
+  // Allow time for DOM to settle and mermaid to render
   setTimeout(() => {
     initializeMermaidAnimations();
     setupScrollBasedMermaidAnimations();
-  }, 1000);
+  }, 1500); // Increased delay to avoid conflicts
 }
 
 /**
@@ -28,9 +41,10 @@ function setupScrollBasedMermaidAnimations() {
       if (entry.isIntersecting) {
         const container = entry.target;
         if (!container.dataset.animated && container.querySelector('svg')) {
+          // Debounced animation to prevent conflicts
           setTimeout(() => {
             initializeMermaidAnimations();
-          }, 500);
+          }, 800); // Increased delay
         }
       }
     });
@@ -50,13 +64,30 @@ function setupScrollBasedMermaidAnimations() {
 function setupMutationObserver() {
   if (!isBrowser() || typeof MutationObserver === 'undefined') return;
   
+  // Debounced version to prevent excessive calls
+  const debouncedInitialize = debounce(initializeMermaidAnimations, 300);
+  
   const observer = new MutationObserver((mutations) => {
-    const shouldInitialize = mutations.some(mutation => 
-      mutation.type === 'childList' && mutation.addedNodes.length > 0
-    );
+    let shouldInitialize = false;
+    
+    mutations.forEach(mutation => {
+      if (mutation.type === 'childList') {
+        mutation.addedNodes.forEach(node => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            // Only trigger for mermaid-related elements
+            if (node.matches && (
+              node.matches('.mermaid, .docusaurus-mermaid-container, .mermaid-container') ||
+              node.querySelector('.mermaid, .docusaurus-mermaid-container, .mermaid-container')
+            )) {
+              shouldInitialize = true;
+            }
+          }
+        });
+      }
+    });
     
     if (shouldInitialize) {
-      setTimeout(initializeMermaidAnimations, 500);
+      debouncedInitialize();
     }
   });
   
@@ -78,10 +109,13 @@ export default {
     if (isBrowser() && !window._animeLoadListenerAdded) {
       window._animeLoadListenerAdded = true;
       window.addEventListener('load', initializeAnimations);
+      setupMutationObserver();
     }
   },
   
   onRouteDidUpdate() {
-    initializeAnimations();
+    // Use debounced version for route updates
+    const debouncedInitialize = debounce(initializeAnimations, 200);
+    debouncedInitialize();
   }
 }; 

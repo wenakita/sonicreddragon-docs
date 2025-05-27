@@ -1,20 +1,60 @@
 import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
 
 if (ExecutionEnvironment.canUseDOM) {
-  // Configure Mermaid with strict security settings
+  // Initialize Mermaid with our custom theme
   if (typeof window !== 'undefined' && window.mermaid) {
     window.mermaid.initialize({
-      securityLevel: 'strict', // Prevent XSS attacks
-      htmlLabels: false, // Disable HTML in labels
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#2A2A2A',
+        primaryTextColor: '#FFFFFF',
+        primaryBorderColor: '#FF6B35',
+        lineColor: '#FF6B35',
+        secondaryColor: '#1A1A1A',
+        tertiaryColor: '#0A0A0A',
+        background: '#0A0A0A',
+        mainBkg: '#2A2A2A',
+        secondBkg: '#1A1A1A',
+        textColor: '#FFFFFF',
+        labelColor: '#FFFFFF',
+        nodeTextColor: '#FFFFFF',
+        edgeLabelBackground: '#1A1A1A',
+        clusterBkg: 'rgba(255, 107, 53, 0.1)',
+        clusterBorder: '#FF6B35',
+        defaultLinkColor: '#FF6B35',
+        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+        fontSize: '14px',
+      },
       flowchart: {
-        htmlLabels: false
+        htmlLabels: false,
+        nodeSpacing: 50,
+        rankSpacing: 50,
+        curve: 'basis',
       },
       sequence: {
         useMaxWidth: true,
-        wrap: true
+        wrap: true,
       }
     });
   }
+
+  // Debounce function to prevent excessive calls
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  // Track processed elements to avoid reprocessing
+  const processedElements = new WeakSet();
+
   function fixMermaidTextColors() {
     // Check if we're in dark mode - multiple ways since default is dark
     const dataTheme = document.documentElement.getAttribute('data-theme');
@@ -22,116 +62,141 @@ if (ExecutionEnvironment.canUseDOM) {
                       document.body.classList.contains('dark') ||
                       window.matchMedia('(prefers-color-scheme: dark)').matches;
     
-    console.log('Fixing mermaid colors, dark mode:', isDarkMode, 'data-theme:', dataTheme);
-    
     if (isDarkMode) {
-      // Find all mermaid diagrams
+      // Find all mermaid diagrams that haven't been processed
       const mermaidElements = document.querySelectorAll('.mermaid svg, .docusaurus-mermaid-container svg, .mermaid-container svg');
       
-      console.log('Found mermaid elements:', mermaidElements.length);
+      let newElementsFound = false;
       
-      mermaidElements.forEach((svg, index) => {
-        console.log('Processing mermaid', index);
+      mermaidElements.forEach((svg) => {
+        // Skip if already processed
+        if (processedElements.has(svg)) {
+          return;
+        }
         
-        // Force all text elements to be white - comprehensive selector
+        newElementsFound = true;
+        processedElements.add(svg);
+        
+        // Update all text to white
         const textElements = svg.querySelectorAll('text, tspan, .label, .nodeLabel, .edgeLabel, .messageText, .actor-label, .labelText, .cluster-label, .section, .titleText');
-        console.log('Found text elements:', textElements.length);
-        
         textElements.forEach(el => {
-          el.style.setProperty('fill', '#ffffff', 'important');
-          el.style.setProperty('color', '#ffffff', 'important');
+          el.style.setProperty('fill', '#FFFFFF', 'important');
+          el.style.setProperty('color', '#FFFFFF', 'important');
           el.style.setProperty('stroke', 'none', 'important');
         });
         
-        // Also fix any elements with specific classes
-        const specificElements = svg.querySelectorAll('[class*="label"], [class*="text"], [class*="Text"]');
-        specificElements.forEach(el => {
-          el.style.setProperty('fill', '#ffffff', 'important');
-          el.style.setProperty('color', '#ffffff', 'important');
-          el.style.setProperty('stroke', 'none', 'important');
+        // Update nodes with our theme colors
+        const nodes = svg.querySelectorAll('.node rect, .node circle, .node ellipse, .node polygon');
+        nodes.forEach(el => {
+          el.style.setProperty('fill', '#2A2A2A', 'important');
+          el.style.setProperty('stroke', '#FF6B35', 'important');
+          el.style.setProperty('stroke-width', '2px', 'important');
+        });
+        
+        // Update edges/lines
+        const edges = svg.querySelectorAll('.edgePath .path, .flowchart-link, path[stroke]');
+        edges.forEach(el => {
+          if (!el.hasAttribute('marker-end') && !el.classList.contains('arrowheadPath')) {
+            el.style.setProperty('stroke', '#FF6B35', 'important');
+            el.style.setProperty('stroke-width', '2px', 'important');
+          }
+        });
+        
+        // Update arrowheads
+        const arrowheads = svg.querySelectorAll('.arrowheadPath, marker path');
+        arrowheads.forEach(el => {
+          el.style.setProperty('fill', '#FF6B35', 'important');
+          el.style.setProperty('stroke', '#FF6B35', 'important');
+        });
+        
+        // Update clusters
+        const clusters = svg.querySelectorAll('.cluster rect');
+        clusters.forEach(el => {
+          el.style.setProperty('fill', 'rgba(255, 107, 53, 0.1)', 'important');
+          el.style.setProperty('stroke', '#FF6B35', 'important');
+          el.style.setProperty('stroke-width', '1px', 'important');
         });
         
         // Force ALL text elements regardless of class
         const allTextElements = svg.querySelectorAll('*');
         allTextElements.forEach(el => {
           if (el.tagName === 'text' || el.tagName === 'tspan') {
-            el.style.setProperty('fill', '#ffffff', 'important');
-            el.style.setProperty('color', '#ffffff', 'important');
+            el.style.setProperty('fill', '#FFFFFF', 'important');
+            el.style.setProperty('color', '#FFFFFF', 'important');
             el.style.setProperty('stroke', 'none', 'important');
           }
         });
       });
+      
+      // Only log if we actually processed new elements
+      if (newElementsFound) {
+        console.log('Fixed mermaid text colors for', mermaidElements.length, 'diagrams');
+      }
     }
   }
-  
-  // Run immediately when script loads
-  fixMermaidTextColors();
-  
-  // Run on initial load
-  window.addEventListener('DOMContentLoaded', () => {
+
+  // Debounced version to prevent excessive calls
+  const debouncedFixColors = debounce(fixMermaidTextColors, 100);
+
+  // Run once on initial load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fixMermaidTextColors);
+  } else {
     fixMermaidTextColors();
-    setTimeout(fixMermaidTextColors, 100);
-    setTimeout(fixMermaidTextColors, 500);
-    setTimeout(fixMermaidTextColors, 1000);
-    setTimeout(fixMermaidTextColors, 2000);
-  });
-  
-  // Run when page is fully loaded
-  window.addEventListener('load', () => {
-    fixMermaidTextColors();
-    setTimeout(fixMermaidTextColors, 100);
-    setTimeout(fixMermaidTextColors, 500);
-  });
-  
+  }
+
   // Run when theme changes
-  const observer = new MutationObserver((mutations) => {
+  const themeObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-        fixMermaidTextColors();
-        setTimeout(fixMermaidTextColors, 100);
+        // Clear processed elements when theme changes
+        processedElements.clear();
+        debouncedFixColors();
       }
     });
   });
-  
-  observer.observe(document.documentElement, {
+
+  themeObserver.observe(document.documentElement, {
     attributes: true,
     attributeFilter: ['data-theme']
   });
-  
-  // Run when new content is loaded (for navigation)
-  const contentObserver = new MutationObserver(() => {
-    fixMermaidTextColors();
-    setTimeout(fixMermaidTextColors, 200);
+
+  // Only observe for new mermaid diagrams being added
+  const contentObserver = new MutationObserver((mutations) => {
+    let shouldCheck = false;
+    
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            // Only trigger if mermaid-related elements are added
+            if (node.matches && (
+              node.matches('.mermaid, .docusaurus-mermaid-container, .mermaid-container') ||
+              node.querySelector('.mermaid, .docusaurus-mermaid-container, .mermaid-container')
+            )) {
+              shouldCheck = true;
+            }
+          }
+        });
+      }
+    });
+    
+    if (shouldCheck) {
+      debouncedFixColors();
+    }
   });
-  
-  // Start observing immediately if possible
+
+  // Start observing for new content
   if (document.body) {
     contentObserver.observe(document.body, {
       childList: true,
       subtree: true
     });
   }
-  
-  window.addEventListener('DOMContentLoaded', () => {
-    const mainContent = document.querySelector('main');
-    if (mainContent) {
-      contentObserver.observe(mainContent, {
-        childList: true,
-        subtree: true
-      });
-    }
+
+  // Clean up on page unload
+  window.addEventListener('beforeunload', () => {
+    themeObserver.disconnect();
+    contentObserver.disconnect();
   });
-  
-  // Also run on any mermaid-specific events
-  document.addEventListener('mermaid-rendered', fixMermaidTextColors);
-  
-  // Continuous check for the first few seconds
-  let checkCount = 0;
-  const intervalCheck = setInterval(() => {
-    fixMermaidTextColors();
-    checkCount++;
-    if (checkCount > 20) { // Stop after 20 checks (10 seconds)
-      clearInterval(intervalCheck);
-    }
-  }, 500);
 } 

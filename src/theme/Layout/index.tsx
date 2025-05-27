@@ -26,6 +26,11 @@ export default function Layout({ children, wrapperClassName }: Props): React.Rea
 
     const content = contentRef.current;
     
+    // Special handling for intro page - make it visible immediately
+    if (location.pathname === '/' || location.pathname.includes('intro')) {
+      content.style.opacity = '1';
+    }
+    
     // Animate page entrance
     anime({
       targets: content,
@@ -132,13 +137,15 @@ export default function Layout({ children, wrapperClassName }: Props): React.Rea
   // }
 
   // For non-docs pages, use enhanced layout with animations
+  const isIntroPage = location.pathname === '/' || location.pathname.includes('intro');
+  
   return (
     <OriginalLayout wrapperClassName={wrapperClassName}>
       <div 
         ref={contentRef}
         style={{
           position: 'relative',
-          opacity: 0,
+          opacity: isIntroPage ? 1 : 0,
           willChange: 'transform, opacity',
           overflow: 'hidden'
         }}

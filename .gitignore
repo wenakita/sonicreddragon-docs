@@ -19,3 +19,18 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .env.env
+
+# Temporary files
+*.log
+*.tmp
+*.swp
+*~
+.vscode/
+serve_pid.txt
+trigger.txt
+
+# Development notes
+*_FIXES.md
+*_ENHANCEMENTS.md
+*_OPTIMIZATION.md
+*_REFACTORING.md

@@ -1,0 +1,925 @@
+Okay, thank you for the guidance documents and the code files. I have carefully read and analyzed the provided documentation outlining the OmniDragon VRF System architecture, threat model, and technical specifications, as well as the smart contracts.
+
+Here is a detailed code review of the provided Solidity files, focusing on correctness, security, gas efficiency, clarity, and adherence to the specified architecture and requirements.
+
+---
+
+## Overall Summary
+
+The OmniDragon VRF system is an ambitious project aiming to provide flexible, cost-effective, and secure randomness across multiple chains. The architecture is complex, leveraging LayerZero for cross-chain communication, integrating different VRF sources (Chainlink and Drand), and implementing optimization mechanisms (Bucket, Pool).
+
+The code demonstrates a good grasp of fundamental Solidity concepts and incorporates standard libraries like OpenZeppelin (though some appear to be slightly modified or older versions). Key security patterns like `Ownable`, `ReentrancyGuard`, and basic LayerZero authentication checks are present. The introduction of custom errors is also a good practice for gas efficiency.
+
+However, the review has identified several critical areas requiring attention, including:
+
+1.  **Inconsistencies and Potential Bugs in VRF Flows:** The Drand integration flow appears fundamentally misaligned with the intended asynchronous callback model, and the Chainlink flow mixes V1/V2 LayerZero interface concepts in a potentially risky way.
+2.  **Complex and Potentially Flawed Mathematical Logic:** The `ve69LPMath` library contains a custom `cubeRoot` implementation whose correctness and precision are questionable, and the fee allocation/boost calculations are highly complex and difficult to verify.
+3.  **Significant Issues in Upgradeability Design:** The libraries intended for deploying upgradeable proxies (`DragonDeployerLib`, `DragonVRFLib`) implement a pattern that breaks standard OpenZeppelin proxy ownership, making upgrades potentially unsafe or impossible via the intended admin contract.
+4.  **Confusion and Potential Bugs in Partner Pool and Fee Distribution Logic:** The interaction between partner pools, the jackpot vault, boost manager, and fee distributors is complex, with unclear token flow and potentially incorrect application of boost multipliers in `DragonPartnerPool`.
+5.  **Over-centralization and Hardcoded Dependencies:** Several critical addresses are hardcoded (e.g., FeeM Registry, WETH in one instance), and significant power rests solely with the `Owner` role, reinforcing the need for a multisig as noted in the Threat Model.
+6.  **Gas Efficiency Concerns:** While some optimizations are attempted (packed state, batching), certain loops (e.g., partner list iteration, median sort) could become prohibitively expensive with scale.
+
+The code is generally readable, with Natspec comments explaining purpose, but some internal logic and variable names could be clearer. The level of complexity introduced by integrating numerous components and custom logic creates a large attack surface and requires rigorous testing and auditing.
+
+Below is a file-by-file breakdown:
+
+---
+
+### 200825052025/vrf/drand/DrandVRFConsumer.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Follows the basic consumer pattern described, but the implementation of requesting randomness and expecting an *immediate* fulfillment via `IDrandVRFIntegrator(vrfIntegrator).fulfillRandomness(requestId)` goes against the asynchronous callback flow usually associated with VRF systems and described for Chainlink in the architecture. The Drand integrator *should* receive a request and *then* call the consumer's `fulfillRandomness` callback with the result.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Incorrect Request Flow:** The `requestRandomness` function calls the integrator's `fulfillRandomness` function. Based on the `IDrandVRFIntegrator` interface and `DrandVRFIntegrator` contract, the integrator's `fulfillRandomness` is intended to be called *by someone* who has received a request and wants to trigger the *integrator* to fetch the latest Drand value and call back the *original requester*. This creates a confusing and potentially circular dependency or misunderstanding of the intended flow. The consumer should simply call an integrator function like `requestDrandRandomness()` and wait for the `fulfillRandomness` callback.
+        *   **Try/Catch Usage:** Using `try/catch` around an external call is good, but if the `IDrandVRFIntegrator(vrfIntegrator).fulfillRandomness(requestId)` call reverts, the `catch` block simply means the request "will be processed later." This implies the integrator (or something else) will somehow magically fulfill this request later. This is likely unintended and relies on an external mechanism (like a keeper observing failed requests) that isn't specified or guaranteed by the contract logic alone.
+    *   **Clarity & Readability:** Natspec is present. Variable names are mostly clear. The `try/catch` logic and the function name `fulfillRandomness` in the interface/integrator are confusing regarding call direction.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `ReentrancyGuard`. Uses custom error indirectly via `require` strings (custom errors directly would be better but not critical here). `internal virtual _fulfillRandomness` is a good pattern for extensibility.
+    *   **Performance:** Standard.
+    *   **Security:**
+        *   `fulfillRandomness` correctly restricts `msg.sender` to the `vrfIntegrator`.
+        *   The `requests` mapping is public, allowing anyone to see request details. This is generally fine but ensure no sensitive data is exposed.
+        *   `requestIdCounter` is `private` but is used in an `internal` function (`requestRandomness`). It might be better practice to make it `internal` if `requestRandomness` is meant to be called by derived contracts, or ensure it's only called within this contract.
+    *   **Maintainability & Scalability:** Standard OpenZeppelin patterns make it reasonably maintainable. The core issue is the incorrect request/fulfillment flow, which impacts maintainability of the overall VRF system logic.
+*   **Suggestions for Improvement:**
+    1.  **Correct Drand Flow:** Rework the `requestRandomness` function to simply record the request and *emit an event* indicating a Drand request is needed. An off-chain keeper should monitor this event, fetch Drand randomness, verify it, and call the `DrandVRFIntegrator.updateRandomnessSecure` function. The `DrandVRFIntegrator` should then trigger the *consumer's* `fulfillRandomness` callback.
+    2.  **Rename Integrator Interface Function:** Rename `IDrandVRFIntegrator.fulfillRandomness(uint256 _requestId)` to something like `processDrandRequest(uint256 _requestId)` or remove it if the integrator's job is solely to be called by keepers (`updateRandomnessSecure`) and call back consumers (`fulfillRandomness`). The current naming is misleading.
+    3.  **Clarify Catch Block Logic:** If the `try/catch` in `requestRandomness` remains (and the flow is corrected), ensure the `catch` block behavior is clearly defined and handled. If the external call fails, the request should likely be marked as failed or moved to a retry queue, not left in a state expecting later fulfillment without a clear trigger.
+
+### 200825052025/vrf/drand/DrandVRFIntegrator.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements the Drand integration concept but the *mechanism* for requesting/fulfilling is problematic as noted in the consumer review. It includes some security features like authorized updaters and staleness checks, aligning with the spec.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Incorrect Fulfillment Trigger:** The `fulfillRandomness(uint256 _requestId)` function is what the Consumer contract is incorrectly calling. This function should likely not exist or should have a different name and purpose (e.g., an admin function to *manually* trigger a fulfillment). The *actual* way Drand randomness enters the system is via `updateRandomnessSecure`.
+        *   **Incomplete Signature Verification:** The `updateRandomnessSecure` function is critical as it receives off-chain Drand data. The comment "simplified - production should use proper multisig" and the lack of actual BLS signature verification using a known public key set is a severe security vulnerability. An attacker could call this function with fake randomness unless proper cryptographic verification is implemented. The current check `require(signatures.length >= requiredSignatures, "Insufficient signatures")` only checks the count, not the validity of the signatures.
+        *   **Weak Initial Entropy:** Initializing `latestDrandValue` in the constructor using `block.timestamp, block.difficulty` is weak and predictable on-chain. While only used once, it's bad practice for a randomness source and could be a state manipulation target in complex scenarios.
+        *   **`MAX_ROUND_STALENESS` Logic:** The check `block.timestamp <= _round * 30 + MAX_ROUND_STALENESS` assumes Drand rounds are exactly 30 seconds apart. This is generally true but relies on external network conditions. A more robust check might compare `block.timestamp` to a calculated expected timestamp based on the round number and the known Drand epoch time.
+    *   **Clarity & Readability:** Natspec is present. The role of `fulfillRandomness` vs `updateRandomnessSecure` is confusing due to naming and incorrect call flow assumptions.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `ReentrancyGuard`. Uses custom error indirectly via `require` strings. `onlyMultipleAuthorizedUpdaters` is a good custom modifier pattern.
+    *   **Performance:** `updateRandomnessSecure` involves signature verification (when implemented), which can be gas-intensive. The current simplified version is cheap but insecure.
+    *   **Security:**
+        *   Lack of proper cryptographic signature verification in `updateRandomnessSecure` is the most critical security flaw.
+        *   Access control (`onlyOwner`, `onlyMultipleAuthorizedUpdaters`, `authorizedConsumers`) seems correctly applied for the intended (though flawed) flow.
+        *   ReentrancyGuard is applied to `fulfillRandomness`, which is appropriate.
+    *   **Maintainability & Scalability:** The core logic relies on an off-chain keeper for `updateRandomnessSecure`. The Drand network aggregation logic is missing from this integrator contract (it's mentioned in the spec and `OmniDragonRandomnessProvider`). This contract only stores *one* latest value, not an aggregation. The `IDrandVRFIntegrator` interface seems to combine aspects of both requesting and fulfilling, which is confusing.
+*   **Suggestions for Improvement:**
+    1.  **Implement Full BLS Signature Verification:** This is CRITICAL. The `updateRandomnessSecure` function *must* verify the provided signatures against the known Drand public key threshold scheme. This logic belongs in `DrandVRFUtils`.
+    2.  **Rename `fulfillRandomness`:** Rename the `external` `fulfillRandomness` function to something that clarifies its role (likely just removing it entirely if the `updateRandomnessSecure` is the true entry point for new Drand data).
+    3.  **Refine `updateRandomnessSecure`:** This function should receive the raw Drand beacon data (round, value, signatures), perform the BLS verification, and *then* update the `latestDrandRound` and `latestDrandValue`. It should *not* be called by the consumer. It should likely then notify or be polled by the `OmniDragonRandomnessProvider`.
+    4.  **Move Aggregation Logic:** The Drand aggregation logic described in the spec (`Multi-network aggregation for enhanced security`, `Weighted mixing`) seems to be partially implemented in `OmniDragonRandomnessProvider`. Clarify where the aggregation happens and ensure it's correctly implemented and used. This integrator currently only stores a single value.
+    5.  **Remove Weak Initial Entropy:** Remove the `block.timestamp, block.difficulty` usage in the constructor initialization of `latestDrandValue`.
+    6.  **Use Custom Errors:** Replace `require` strings with custom errors (defined in an interface or the contract) for gas savings on reverts.
+
+### 200825052025/vrf/drand/DrandVRFUtils.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Provides utility functions as intended.
+    *   **Potential Bugs & Edge Cases:** None obvious in the current math/utility functions themselves, assuming the input seeds are truly random. The `getRandomIndices` uses a Fisher-Yates shuffle on a temporary array, which is correct. `shuffleArray` also uses Fisher-Yates.
+    *   **Clarity & Readability:** Code is clean, Natspec is helpful.
+    *   **Best Practices & Idioms:** Standard library pattern. Uses `keccak256` for deriving unique numbers from a seed, a common pattern.
+    *   **Performance:** The shuffle/index functions have linear time complexity (O(N)) in the size of the array or range, which is efficient.
+    *   **Security:** The functions are deterministic given a seed; their security depends entirely on the unpredictability of the input seed. The library itself doesn't introduce vulnerabilities *unless* used incorrectly with a predictable seed.
+    *   **Maintainability & Scalability:** Standard library. Easy to add more utility functions.
+*   **Suggestions for Improvement:**
+    1.  **Implement BLS Verification:** This library is the ideal place to add the cryptographic verification logic for Drand BLS signatures, as mentioned in the `DrandVRFIntegrator` review and the technical spec. This is a critical missing piece.
+    2.  **Update Pragma:** Use `pragma solidity ^0.8.20;` for consistency with other files.
+
+### 200825052025/vrf/chainlink/ChainlinkVRFIntegrator.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements the Chainlink cross-chain flow via LayerZero as described in the architecture diagram and technical spec. It correctly uses `lzReceive` on Sonic to get results back from Arbitrum.
+    *   **Potential Bugs & Edge Cases:**
+        *   **LZ V1/V2 Mix:** The contract implements `ILayerZeroReceiver` (which typically implies V1) but the actual `lzReceive` function signature `lzReceive(uint16 _srcChainId, bytes calldata _srcAddress, uint64 _nonce, bytes calldata _payload)` matches the *V1* format. However, the main `OmniDragon` contract's `lzReceive` uses a *V2* format (`Origin calldata`, `bytes32 guid`, etc.). This inconsistency is highly problematic and could lead to integration failures depending on the *actual* LayerZero endpoint version deployed. The V2 endpoint uses a different `lzReceive` signature and different parameters in `send`. The reliance on a V1-like interface (`ILayerZeroEndpoint`) for `send` calls while other parts of the system might be designed for V2 is a critical risk.
+        *   **Trusted Remote Check:** The `lzReceive` function checks `require(keccak256(_srcAddress) == keccak256(trustedRemote), "ChainlinkVRFIntegrator: Invalid source");`. This check relies on the `_srcAddress` from LayerZero matching the stored `trustedRemote`. This *only* works if the Arbitrum `OmniDragonVRFRequester` contract's *address* is encoded directly as the `_srcAddress` in the LayerZero message. In LayerZero V1, the `_srcAddress` is often the *sender contract's address*. In V2, the origin includes a `sender` as `bytes32`. The implementation needs to be specific to the LayerZero version used and verified against the format LayerZero actually provides for `_srcAddress` or `Origin.sender`. If using V2, the check should be `keccak256(_origin.sender)` == expected bytes32 value. If using V1, `keccak256(_srcAddress)` check might be correct, but the main `OmniDragon` uses V2 style receiving. This requires clarification and consistency.
+        *   **`IDrandVRFIntegrator` Interface:** Implementing `IDrandVRFIntegrator` is confusing as this is a Chainlink integrator. The `getLatestRandomness` function returns the *latest Chainlink* result, not Drand. The `fulfillRandomness` function explicitly reverts. This interface implementation seems misused.
+        *   **Insufficient $S Fee Check:** `require(address(this).balance >= messageFee, "Insufficient $S for LayerZero fee");` ensures the contract has *enough* native token *before* sending. This is good.
+        *   **Request ID Mapping:** `chainlinkVrfRequestIdToRandomnessId` mapping (used in `OmniDragonRandomnessProvider` callback) is not used or updated in *this* contract. The request ID mapping (`pendingRequests`) only maps Sonic request ID to consumer address. This requires careful coordination with `OmniDragonRandomnessProvider`. The callback on Sonic (in `OmniDragonRandomnessProvider`) receives the Arbitrum VRF request ID and needs to map it back to the Sonic internal request ID to fulfill the correct request. The current design seems to send the *Sonic* `requestId` over LayerZero *to Arbitrum* (`OmniDragonVRFRequester`), and the Arbitrum contract sends it back with the randomness. This *should* work, provided the IDs are handled correctly. The `chainlinkVrfRequestIdToRandomnessId` mapping *in* `OmniDragonRandomnessProvider` is the correct place for the Arbitrum VRF ID -> Sonic internal ID mapping.
+    *   **Clarity & Readability:** The code is generally clear, but the interface usage and potential V1/V2 LZ mix are confusing.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `ReentrancyGuard`, `SafeERC20` (indirectly via `payable` transfer). Uses custom error strings indirectly. `receive` function for funding is good.
+    *   **Performance:** Standard for cross-chain calls.
+    *   **Security:**
+        *   LayerZero authentication checks (`msg.sender`, `_srcChainId`, `_srcAddress` hash) are present but must be verified against the deployed LZ endpoint version.
+        *   ReentrancyGuard on `lzReceive` is essential.
+        *   `withdraw` is `onlyOwner`.
+        *   The contract's native token balance is critical for LayerZero fees. Monitoring and funding mechanisms are needed off-chain.
+    *   **Maintainability & Scalability:** Depends heavily on LayerZero endpoint stability and consistency. The dual-interface implementation is confusing.
+*   **Suggestions for Improvement:**
+    1.  **Clarify LayerZero Version:** Determine the exact LayerZero endpoint version (V1 or V2) to be used and update all contracts (`ChainlinkVRFIntegrator`, `OmniDragonVRFRequester`, `OmniDragon`, `ChainRegistry`) to use the correct, consistent interface and messaging patterns.
+    2.  **Verify Trusted Remote Check:** Based on the chosen LZ version, rigorously verify that the `keccak256(_srcAddress)` check in `lzReceive` correctly validates the *sender contract address* on Arbitrum as provided by LayerZero.
+    3.  **Remove Misused Interface:** Remove the `IDrandVRFIntegrator` interface inheritance or clarify its purpose if it's truly needed for a specific mapping structure (though this seems unlikely and confusing).
+    4.  **Use Custom Errors:** Replace `require` strings with custom errors.
+
+### 200825052025/vrf/chainlink/ChainlinkVRFRequester.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** This contract seems to be a remnant or an unnecessary intermediate abstract contract. The actual implementation uses `VRFConsumerBaseV2Plus`.
+    *   **Potential Bugs & Edge Cases:** As noted in the `OmniDragonVRFRequester` review, this contract's inheritance of `ILayerZeroReceiver` contradicts the intended flow where the Arbitrum contract *sends* results, not receives the final fulfillment.
+    *   **Clarity & Readability:** The abstract contract itself is simple, but its purpose alongside `OmniDragonVRFRequester` is unclear and confusing.
+    *   **Best Practices & Idioms:** Abstract contract pattern is fine, but the base contracts and interfaces it inherits seem incorrectly combined for the overall system architecture.
+    *   **Performance:** N/A (abstract).
+    *   **Security:** N/A (abstract).
+    *   **Maintainability & Scalability:** This contract could be removed, and `OmniDragonVRFRequester` inherit directly from `VRFConsumerBaseV2Plus`.
+*   **Suggestions for Improvement:**
+    1.  **Remove or Rework:** Unless there's a clear, documented reason for this abstract contract (e.g., multiple Chainlink requester implementations inheriting from it), it should likely be removed to simplify the architecture. If kept, ensure its inheritance and interface implementations correctly reflect the final architecture and LZ version.
+
+### 200825052025/vrf/chainlink/ChainlinkVRFUtils.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Placeholder file.
+    *   **Potential Bugs & Edge Cases:** None.
+    *   **Clarity & Readability:** Clear placeholder.
+    *   **Best Practices & Idioms:** Library pattern.
+    *   **Performance:** N/A.
+    *   **Security:** N/A.
+    *   **Maintainability & Scalability:** N/A.
+*   **Suggestions for Improvement:**
+    1.  **Add Functionality:** Implement Chainlink-specific utilities here if needed (e.g., encoding/decoding adapter parameters, parsing VRF data).
+    2.  **Update Pragma:** Use `pragma solidity ^0.8.20;`.
+
+### 200825052025/vrf/chainlink/OmniDragonVRFRequester.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements the Arbitrum side of the Chainlink VRF cross-chain flow. Uses `VRFConsumerBaseV2Plus` and interacts with a mock `ILayerZeroEndpoint` for sending results back.
+    *   **Potential Bugs & Edge Cases:**
+        *   **LZ V1/V2 Mix:** As noted in `ChainlinkVRFIntegrator`, the `lzEndpoint.send` function used here follows the *V1* interface signature, while the `lzReceive` in `OmniDragon` (which this contract communicates *with*) follows the *V2* signature. This inconsistency is critical.
+        *   **Fee Estimation Payload:** In `requestVRF`, the fee is estimated for `abi.encode(_sonicRequestId, 0)`. While the payload size might not change significantly when the actual randomness replaces `0`, it's better practice to estimate the fee for the *actual* payload structure that will be sent back, even if the value is a placeholder. A comment clarifies this intent, but it's slightly imprecise.
+        *   **Unused `requestIdToRequester`:** The mapping `requestIdToRequester` maps Sonic request ID to the *original consumer address*. This is received in `requestVRF` but never used. The consumer address is implicitly carried in the payload back to Sonic and decoded there in `ChainlinkVRFIntegrator.lzReceive`. The mapping here seems redundant.
+        *   **LZ Endpoint Interface:** The interface `ILayerZeroEndpoint` used by `OmniDragon.sol` and `ChainlinkVRFIntegrator.sol` is a custom one and may not exactly match the methods/parameters required by the *actual* LayerZero endpoint deployed on Arbitrum or Sonic, especially regarding V1 vs V2. Using the official LayerZero interfaces for the *specific version* is crucial.
+    *   **Clarity & Readability:** Generally clear. Natspec is helpful.
+    *   **Best Practices & Idioms:** Inherits Chainlink's standard `VRFConsumerBaseV2Plus`. Uses `ReentrancyGuard`. Uses custom errors indirectly via `require` strings. `receive` function for funding is good. `internal override` for `fulfillRandomWords` is correct.
+    *   **Performance:** Standard for Chainlink VRF and cross-chain messaging.
+    *   **Security:**
+        *   `fulfillRandomWords` is `internal`, correctly restricting it to the VRF coordinator callback.
+        *   Admin functions (`updateVRFSettings`, `updateLayerZeroConfig`, `updateSubscription`, `withdraw`) are `onlyOwner`.
+        *   Relies on Chainlink VRF 2.5 security guarantees.
+        *   Relies on LayerZero security for cross-chain message integrity (authentication and ordering). The trusted remote check is crucial but needs verification against the LZ version.
+    *   **Maintainability & Scalability:** Reasonably maintainable. The core logic is tied to Chainlink VRF 2.5 and LayerZero.
+*   **Suggestions for Improvement:**
+    1.  **Align LayerZero Version:** Ensure the contract uses the correct, consistent LayerZero endpoint interface (V2 is recommended as per architecture) and sending/receiving logic across all relevant contracts. Use official LZ interfaces.
+    2.  **Review Fee Estimation Payload:** Estimate fee using the actual payload structure (`abi.encode(_sonicRequestId, randomness)`) where `randomness` is a placeholder (e.g., 0).
+    3.  **Remove Unused Mapping:** The `requestIdToRequester` mapping seems unnecessary; the consumer address is passed in the initial LayerZero payload and sent back in the return payload.
+    4.  **Use Custom Errors:** Replace `require` strings with custom errors.
+
+### 200825052025/vault/DragonJackpotDistributor.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements jackpot distribution as described. Uses percentages and tracks history.
+    *   **Potential Bugs & Edge Cases:**
+        *   **`addToJackpot` Logic:** This function uses `token.safeTransferFrom(msg.sender, address(this), amount);` to move tokens *to this contract*, and then updates the *internal state variable* `jackpotBalance += amount`. This `jackpotBalance` variable only tracks funds added *via this specific function*. Funds arriving via the `receive` function (ETH) or direct transfers to the contract address, or via the potentially buggy `DragonJackpotVault.addToJackpot()` function, would *not* update `jackpotBalance`. The emergency withdraw zeros `jackpotBalance`, but the actual balance might be higher. This state variable `jackpotBalance` does *not* represent the contract's actual token balance and can easily become out of sync. It should likely be removed, and functions should operate on the contract's actual `token.balanceOf(address(this))`.
+        *   **`onlyAuthorized` Modifier:** The modifier `require(msg.sender == swapTrigger || authorizedDistributors[msg.sender], "Not authorized");` is redundant. The constructor and `setSwapTrigger` already set `authorizedDistributors[swapTrigger] = true;`. The condition can be simplified to `require(authorizedDistributors[msg.sender], "Not authorized");`.
+        *   **Integer Division Remainder:** In `distributeRewards`, amounts are calculated using integer division `(amount * basisPoints[i]) / PERCENTAGE_DENOMINATOR`. Any remainder will stay in the contract. This is acceptable and common practice but should be noted.
+        *   **History Size:** The `jackpotHistory` array is unbounded. If many jackpots are distributed, this array could grow very large, making `getJackpotHistory` and `getJackpotHistorySlice` (even with batching) eventually gas-prohibitive. Consider implementing a fixed-size history or only storing recent history.
+        *   **`distributeJackpot` amount vs balance:** The check `require(jackpotBalance >= distributionAmount, "Insufficient balance");` is correct based on the internal `jackpotBalance` state, but as noted, this state might not reflect the actual contract balance. This could lead to reverts if the internal `jackpotBalance` is lower than the actual token balance.
+    *   **Clarity & Readability:** Natspec is good. The `jackpotBalance` state variable's purpose is confusing due to the potential for desync with actual token balance.
+    *   **Best Practices & Idioms:** Uses `SafeERC20`, `Ownable`, `ReentrancyGuard`, `Pausable`. Uses `Checks-Effects-Interactions` in `distributeJackpot`. Limits array sizes in `distributeRewards` and `batchTransferToTreasury` to mitigate DoS, good practice. Uses custom errors indirectly via strings.
+    *   **Performance:** Loops in `distributeRewards` and `batchTransferToTreasury` are limited by constants. Loops in `unregisterPromotionalItem` are not directly relevant here. `getJackpotHistorySlice` limits slice size, good for preventing OOG view calls. `jackpotHistory` array growth is a potential long-term gas concern.
+    *   **Security:**
+        *   `ReentrancyGuard` is applied to `distributeJackpot`, `distributeRewards`, `addToJackpot` (via SafeERC20), `emergencyWithdraw` (via SafeERC20), `batchTransferToTreasury` (via SafeERC20). Seems sufficient.
+        *   `onlyOwner` and `onlyAuthorized` modifiers provide access control.
+        *   `Pausable` allows pausing distribution.
+        *   `emergencyWithdraw` and `batchTransferToTreasury` provide rescue mechanisms for tokens.
+    *   **Maintainability & Scalability:** The desync issue with `jackpotBalance` makes maintenance difficult. Unbounded history is a long-term scalability concern.
+*   **Suggestions for Improvement:**
+    1.  **Remove `jackpotBalance` State:** Remove the `jackpotBalance` state variable. All functions that need the balance should read `token.balanceOf(address(this))`. Adjust `addToJackpot` to accept `token` and `amount` and use `safeTransferFrom`, similar to `addERC20ToJackpot` in `DragonJackpotVault` (or ensure the *vault* contract is the primary accumulator). Update `distributeJackpot` to check `token.balanceOf(address(this))` instead of the internal state.
+    2.  **Simplify `onlyAuthorized` Modifier:** Remove the redundant `msg.sender == swapTrigger` check.
+    3.  **Implement Bounded History:** Consider a fixed-size circular buffer for `jackpotHistory` or store only a rolling summary to prevent unbounded storage growth.
+    4.  **Use Custom Errors:** Replace `require` strings with custom errors.
+
+### 200825052025/vault/DragonJackpotVault.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements a jackpot vault with token balances, payout logic, and wrapped native token support.
+    *   **Potential Bugs & Edge Cases:**
+        *   **`addToJackpot(uint256 amount)` Design:** This function is likely a bug. It assumes `msg.sender` is the token contract address and updates `jackpotBalances[msg.sender]`. This is not how ERC20 tokens work; `msg.sender` is the caller (user or contract), not the token address. The tokens must be transferred *from* the user *to* the vault. This function will incorrectly credit the jackpot balance of the *caller's address* instead of the token address, and funds will not actually be transferred to the vault unless done separately. This function needs to be removed or redesigned to accept `address token, uint256 amount` and use `safeTransferFrom`, similar to `addERC20ToJackpot`.
+        *   **`registerMe` Hardcoded Address:** Calling a hardcoded address (`0xDC2B0D2Dd2b7759D97D50db4eabDC36973110830`) for FeeM registration is risky. This address should be configurable via an owner function, ideally protected by a timelock.
+    *   **Clarity & Readability:** Natspec is helpful. The `addToJackpot(uint256 amount)` function's logic is confusing due to its likely incorrect design.
+    *   **Best Practices & Idioms:** Uses `SafeERC20`, `ReentrancyGuard`, `Ownable`. `receive` function is correct for accepting ETH and tracking it as `wrappedNativeToken`. Uses custom errors indirectly via strings. `Checks-Effects-Interactions` in `payJackpot` and `payJackpotWithToken`.
+    *   **Performance:** Standard.
+    *   **Security:**
+        *   `ReentrancyGuard` on payout functions (`payJackpotWithToken`, `payJackpot`) is essential and correctly applied.
+        *   Payouts are restricted to `onlyOwner`.
+        *   Requires checks (`winner != address(0)`, `amount > 0`, `Insufficient balance`).
+        *   The potential bug in `addToJackpot(uint256 amount)` could lead to accounting issues, but likely not theft, as funds aren't transferred *by* this function.
+    *   **Maintainability & Scalability:** Standard. The incorrect `addToJackpot` function would be a source of confusion and bugs if used by external contracts.
+*   **Suggestions for Improvement:**
+    1.  **Fix `addToJackpot` Logic:** Remove or correctly implement `addToJackpot(uint256 amount)`. It should accept `(address token, uint256 amount)` and use `safeTransferFrom(msg.sender, address(this), amount)`.
+    2.  **Configure FeeM Address:** Make the FeeM address in `registerMe` a state variable configurable by the owner, protected by timelock.
+    3.  **Use Custom Errors:** Replace `require` strings with custom errors.
+
+### 200825052025/promotions/PromotionalItemRegistry.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements a registry pattern as intended.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Array Removal Order:** The `unregisterPromotionalItem` function removes an item from the `_itemTypes` array by swapping it with the last element and popping. This is gas-efficient but changes the order of elements in the array. If consumers rely on the order of `getAllPromotionalItemTypes()`, this is a bug. If not, it's acceptable.
+        *   **String Mapping Gas:** Using `string` as keys in `_promotionalItems` mapping is less gas-efficient than `bytes32`. For admin-only functions, this might be acceptable, but it's worth noting.
+    *   **Clarity & Readability:** Natspec is good. Code is clear. Custom errors improve clarity on reverts.
+    *   **Best Practices & Idioms:** Uses `Ownable`. Array + mapping for registry is a common pattern. Uses custom errors.
+    *   **Performance:** Array iteration and string key lookups have performance considerations with scale.
+    *   **Security:**
+        *   All modify functions (`register`, `unregister`) are `onlyOwner`. Correct.
+        *   Checks for zero address and existing entries prevent basic errors.
+    *   **Maintainability & Scalability:** Reasonably maintainable. Scaling might be limited by the gas cost of iterating `_itemTypes` in `unregisterPromotionalItem` if the list grows very large.
+*   **Suggestions for Improvement:**
+    1.  **Document Array Order:** Explicitly document that the order returned by `getAllPromotionalItemTypes` is not guaranteed to be stable after unregistering items.
+    2.  **Consider `bytes32` Keys:** If gas cost is a significant concern for admin operations or if item types are fixed-length hashes, consider using `bytes32` instead of `string` for mapping keys.
+
+### 200825052025/oracles/MarketConditionOracle.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Provides pure mathematical functions for market condition calculations as described. Uses OZ Math.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Log10 Approximation in Payout Calculation:** The `while` loop in `recommendJackpotPayoutPercentage` to approximate `log10` by repeatedly dividing by 10 could be gas-intensive if `jackpotSize` is extremely large, although given the `10000 ether` threshold, the magnitude (`magnitude`) is likely small (e.g., log10(10000) = 4, log10(10^18) = 18). A maximum iteration count or a more optimized log10 implementation (like the one in `DragonMath`) would be safer.
+        *   **Hardcoded Thresholds and Weights:** All thresholds (e.g., volume ratios, price change %, staker counts, jackpot TVL tiers, time since win) and weights (30/25/20/25) are hardcoded constants. This makes the oracle's behavior inflexible to changing market dynamics and requires a contract redeployment to adjust. Making these configurable by a trusted entity (like the owner, via timelock) would improve maintainability and adaptability.
+        *   **Integer Division:** Calculations use integer division, which is expected but means fractions are truncated. This is generally fine for index/percentage calculations but ensures the logic accounts for potential small remainders.
+    *   **Clarity & Readability:** Natspec is good. Formulas are commented. The breakdown into component score calculations is helpful.
+    *   **Best Practices & Idioms:** Pure library functions. Uses OZ `Math` library.
+    *   **Performance:** Most functions are constant time or have small bounded loops/iterations (like the log10 approx), making them performant.
+    *   **Security:** As a pure library, it doesn't hold state or tokens, so it's not directly vulnerable to typical contract exploits. Its security relies on the correctness of the mathematical formulas and the unpredictability/integrity of the inputs provided by callers. The potential gas issue with the `log10` approximation should be reviewed.
+    *   **Maintainability & Scalability:** Hardcoded parameters reduce maintainability. The complexity of the formulas makes auditing the economic outcomes non-trivial.
+*   **Suggestions for Improvement:**
+    1.  **Make Thresholds/Weights Configurable:** Consider making critical parameters like volume thresholds, staker count tiers, time thresholds, and component weights state variables in a contract that uses this library, allowing a trusted entity (owner, governance) to update them.
+    2.  **Review Log10 Approximation:** While likely fine for the current thresholds, verify the gas cost and precision of the `log10` approximation in `recommendJackpotPayoutPercentage` or consider using a more robust/iterative approach if higher precision or larger values are expected.
+    3.  **Add Input Validation:** Add `require` checks for function inputs where bounds are expected (e.g., `priceChangePercent` scaling, `marketConditionFactor` range).
+
+### 200825052025/oracles/OmniDragonPriceOracle.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements a multi-source price oracle with aggregation and a circuit breaker, aligning with the spec. Manages oracle configurations and state.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Market Condition Score Logic:** The implementation of `getMarketConditionScore` *in this contract* only uses internal state derived from price updates (`lastPriceUpdate`, `priceChangeCount`, `significantPriceChanges`). It does *not* use the comprehensive metrics (TVL, volume, stakers, jackpot) calculated or tracked elsewhere (like in `DragonFeeManager` or the `MarketConditionOracle` library). This means the "market condition score" provided by this contract is different and less feature-rich than implied by the architecture. The name is misleading, or the implementation is incomplete/disconnected from the intended model.
+        *   **`updateMarketConditions` Logic:** This function updates *only* volume stats internally and *sometimes* triggers a fee update check in the `DragonFeeManager` via `addVolume`. It doesn't interact with other market metrics or call the `MarketConditionOracle` library. This also seems disconnected from the intended role of collecting and processing market data for a score.
+        *   **Median Calculation Efficiency:** The `_calculateMedian` function uses Bubble Sort (O(N^2)). While `MAX_ORACLE_ID_CHECK` is limited to 10, making N^2 manageable (100 comparisons worst case), it's still less efficient than O(N log N) sorting or a selection algorithm (O(N) or O(N log K) for median). Given the fixed, small size, it's probably an acceptable gas cost for now, but less ideal.
+        *   **Missing Oracle Types:** Implementations for API3, Band, Pyth, RedStone, and STORK in `_getPriceFromOracleSecure` and `_getPriceFromOracleView` are incomplete (use `try/catch` and return 0 on failure, but don't have specific logic to fetch price using the interface). These need to be fully implemented based on the oracle's specific interface calls.
+        *   **Redstone/STORK uint256 to int256 Check:** The check `if (value > uint256(type(int256).max))` is potentially incorrect. `uint256(type(int256).max)` is `2^255 - 1`. If the `value` (which is `uint256`) is larger than this, casting it directly to `int256` will overflow and result in a negative number. This check should probably `revert` or indicate failure rather than allowing a potentially incorrect negative price through, depending on how negative prices are handled. *Correction:* The check `if (value > uint256(type(int256).max)) { return (0, false); }` correctly identifies the overflow *before* the cast. So it won't result in a negative price. The logic is correct for identifying values that *cannot* be represented as `int256`, preventing overflow during the cast.
+        *   **Circuit Breaker on Zero/Negative Price:** The circuit breaker check happens *after* checking `answer <= 0`. If the last valid price was positive, but the new price is zero or negative, the circuit breaker *won't* trigger because the new price check fails first. This is intended behavior but worth confirming it meets requirements (e.g., is dropping to zero/negative an acceptable price change outside the circuit breaker range?).
+    *   **Clarity & Readability:** Natspec is good. The code structure is logical. The distinction between `_getPriceFromOracleSecure` (state update, circuit breaker) and `_getPriceFromOracleView` (view only) is clear.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `ReentrancyGuard`. Uses `try/catch` for external oracle calls. Uses custom error strings indirectly. Emits detailed events for configuration and price updates. Limits loop iterations with `MAX_ORACLE_ID_CHECK`.
+    *   **Performance:** Loops are bounded. Median sort is O(N^2) but N is small. Overall performance seems acceptable for its intended role.
+    *   **Security:**
+        *   `Ownable` provides access control for configuration.
+        *   `ReentrancyGuard` on update functions.
+        *   Stale price checks mitigate reliance on outdated data.
+        *   Zero/negative price checks prevent incorrect data usage.
+        *   Circuit breaker is a crucial security feature against oracle manipulation or errors. It correctly compares percentage change against a threshold.
+        *   `MAX_ORACLE_ID_CHECK` limits loop size, mitigating DoS risk from a large number of configured oracles.
+        *   The reliance on external oracle contracts means their security is paramount. `try/catch` handles failures gracefully.
+    *   **Maintainability & Scalability:** The separation of oracle types into `if/else if` blocks makes it extendable to new oracle types. Hardcoded thresholds/weights for market conditions reduce flexibility.
+*   **Suggestions for Improvement:**
+    1.  **Align Market Condition Logic:** Either integrate the full market condition calculation logic from `MarketConditionOracle.sol` (requiring input parameters like TVL, staker count) or rename the functions/variables in this contract to clarify that they track simpler, oracle-derived metrics, not the full market score described elsewhere. Consider if the price oracle is the right place for *all* market condition tracking, or if a separate MarketManager contract should orchestrate data collection and calculation using this oracle and others.
+    2.  **Implement Missing Oracle Integrations:** Complete the implementations for fetching prices from API3, Band, Pyth, RedStone, and STORK using their respective interface calls within the `_getPriceFromOracleSecure` and `_getPriceFromOracleView` functions.
+    3.  **Use Custom Errors:** Replace `require` strings with custom errors.
+
+### 200825052025/mocks/DrandVRFUtilsTest.sol, MockChainRegistry.sol, MockDrandIntegrator.sol, MockDrandVRFConsumer.sol, MockJackpotVault.sol, MockLzEndpoint.sol, MockLzEndpointV2.sol, MockOmniDragonToken.sol, MockVe69LPFeeDistributor.sol
+
+*   **Review:**
+    *   **General:** These contracts provide mock implementations for testing purposes. They are generally simple and reflect the interfaces/interactions of the real contracts they mock.
+    *   **Potential Bugs & Edge Cases:** Mocks are not intended for production, so bugs in mocks themselves are less critical unless they misrepresent the behavior of the real contract, leading to incorrect tests. The hardcoded FeeM address appears in several mocks (`MockChainRegistry`, `MockDrandIntegrator`, `MockDrandVRFConsumer`, `MockJackpotVault`, `MockVe69LPFeeDistributor`), which is fine for testing *this specific interaction*, but reinforces the risk of it being hardcoded in the real contracts.
+    *   **Clarity & Readability:** Mocks are usually simpler than real contracts, aiding readability for testing. Natspec explains their purpose.
+    *   **Best Practices & Idioms:** Standard mock contract pattern.
+    *   **Performance:** N/A (testing only).
+    *   **Security:** Not applicable (testing only).
+    *   **Maintainability & Scalability:** Simple mocks are easy to maintain. More complex mocks might need alignment if the real contracts change significantly.
+*   **Suggestions for Improvement:**
+    1.  **Ensure Mock Accuracy:** Verify that mocks correctly simulate the expected behavior of the real contracts they replace, especially regarding reverts, events, and state changes relevant to the tests.
+    2.  **Use Consistent LayerZero Mock:** Given the V1/V2 inconsistencies noted, ensure the appropriate LayerZero mock (`MockLzEndpoint` or `MockLzEndpointV2`) is used for tests depending on the target LZ version, and ideally standardize on one version.
+
+### 200825052025/math/DragonMath.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Provides core math utilities for the ecosystem, including fixed-point arithmetic, fee allocation, and boost calculations. Documents scaling conventions clearly, which is excellent and aligns with the guidance.
+    *   **Potential Bugs & Edge Cases:**
+        *   **`cubeRoot` Correctness:** The `cubeRoot` implementation uses a custom binary search (60 iterations) and notes a "FIXED" scaling comparison. While 60 iterations suggest high precision for 256 bits, the initial guess logic and the specific update formula `y = (term1 + term2 / x) / 3` with `term2 = n * PRECISION / x2` need rigorous mathematical verification to ensure they correctly implement Newton's method (or a stable variant) with the defined `PRECISION` scaling and converge accurately for the expected input range. *This is a critical area for audit.*
+        *   **`_log10` Correctness:** The `_log10` implementation uses a `while` loop to find the integer part and a formula `(fraction - PRECISION).mulDiv(PRECISION, LN10_SCALED)` for the fractional part. This is a custom approximation (not a standard algorithm like binary search or lookup tables for fractional part) and requires verification for precision and gas cost across the expected input range, especially for values close to powers of 10. *This is a critical area for audit.*
+        *   **`calculateFeeAllocation` Complexity:** This function is highly complex with multiple conditional branches and adjustments based on volume/TVL ratio, jackpot size, time since win, stakers, and volatility (even though some inputs are placeholders or not used in the function's logic). It's difficult to reason about the exact fee distribution outcomes across all input combinations and ensure they align with desired tokenomics. The `assert` check at the end is good but only verifies the sum, not the individual component values are as intended.
+        *   **Placeholder Inputs:** `calculateFeeAllocation` takes inputs `lpTVL`, `volume24h`, `lastWinTimestamp`, `numStakers`, `marketVolatility`, but the logic only directly uses `jackpotTVL` and `volume24h` to adjust ratios in step 4. Other inputs like `lpTVL`, `lastWinTimestamp`, `numStakers`, `marketVolatility` are used in the *commented-out* adjustment calculation below step 4. This suggests the function's implementation is incomplete or does not match the parameters it accepts and the description. It seems it was intended to use a more complex adjustment logic that is currently disabled or missing.
+        *   **`calculateAdaptiveFees` Rounding:** The rounding adjustment `if (calculatedTotal != totalFeeBps)` might introduce slight deviations, but it's standard practice to ensure the sum is exact.
+    *   **Clarity & Readability:** Excellent Natspec and comments explaining scaling and mathematical approach. The complexity of `calculateFeeAllocation` and `_log10` makes them harder to read despite comments.
+    *   **Best Practices & Idioms:** Pure library functions. Uses OZ `Math.mulDiv`. Clearly documented scaling conventions.
+    *   **Performance:** `cubeRoot` and `_log10` involve iterative calculations, but the loop bounds (60 and 8 + log10 approx) suggest they are intended to be efficient enough.
+    *   **Security:** As a pure library, its security risk is primarily in the correctness of the math formulas. Incorrect calculations could lead to unexpected fee distributions or jackpot payouts, impacting tokenomics. The implementation of core math functions (`cubeRoot`, `_log10`) must be verified.
+    *   **Maintainability & Scalability:** Hardcoded logic in `calculateFeeAllocation` limits flexibility. The complexity makes maintenance challenging.
+*   **Suggestions for Improvement:**
+    1.  **Verify `cubeRoot` and `_log10` Correctness:** Subject these functions to rigorous mathematical and gas cost verification. Compare their implementation to standard algorithms or trusted libraries if possible.
+    2.  **Complete or Clarify `calculateFeeAllocation`:** Either implement the full adjustment logic using all input parameters as seemingly intended by the function signature and comments, or simplify the function signature and description to match the actual implemented logic. Clarify the intended role of each input parameter in the formula.
+    3.  **Make Allocation Ratios/Adjustments Configurable:** Similar to `MarketConditionOracle`, consider making the ratios and adjustment factors state variables in a contract that uses this library, allowing for tokenomic parameter tuning via governance/owner control.
+    4.  **Address Redundancy:** The library duplicates `calculateBoostMultiplier` and `calculateNormalizedBoostMultiplier` logic found in `ve69LPMath`. Consolidate mathematical utilities into a single, well-audited library.
+
+### 200825052025/library/utils/DragonDateTimeLib.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Provides time calculation utilities as needed for ecosystem mechanics.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Leap Years:** The `getDayOfMonth` function (using modified Zeller's algorithm via assembly) and `getMonth` function correctly handle leap years based on standard algorithms. However, the simplified calculation of `daysInMonth` in `daysUntilFirstTuesdayOfNextMonth` hardcodes February to 28 days and doesn't account for leap years. This will lead to slightly incorrect date calculations involving February in leap years.
+        *   **Assembly Readability:** Use of assembly for date calculations makes the code less readable and harder to verify compared to pure Solidity implementations (though pure Solidity can be more gas-intensive).
+    *   **Clarity & Readability:** Natspec is good. Pure Solidity functions are clear. Assembly parts require expertise to understand.
+    *   **Best Practices & Idioms:** Pure library functions. Uses assembly for optimized date math.
+    *   **Performance:** Assembly allows for highly optimized time calculations.
+    *   **Security:** As a pure library, security risk is in the correctness of the date/time calculations themselves. Incorrect calculations could affect time-based mechanics like lock durations or event triggers. The leap year handling inconsistency is a functional bug, not necessarily a security one, unless precise timing is critical for security/economic outcomes.
+    *   **Maintainability & Scalability:** Assembly reduces maintainability. The hardcoded weekday constants are fine.
+*   **Suggestions for Improvement:**
+    1.  **Correct Leap Year Handling:** Ensure consistent and correct handling of leap years in all date calculations, particularly in `daysUntilFirstTuesdayOfNextMonth`.
+    2.  **Document Assembly:** Add more detailed comments or links to sources for the assembly blocks to aid verification.
+
+### 200825052025/library/utils/Strings.sol, math/Math.sol, introspection/ERC165.sol, introspection/IERC165.sol, security/ReentrancyGuard.sol, access/AccessControl.sol, access/IAccessControl.sol, access/Ownable.sol
+
+*   **Review:**
+    *   **General:** These appear to be copies or slightly older versions of standard OpenZeppelin Contracts libraries and base contracts.
+    *   **Potential Bugs & Edge Cases:** Unless modified in non-standard ways, these should be functionally correct. Using slightly older versions might mean missing recent bug fixes or gas optimizations present in the latest OZ versions.
+    *   **Clarity & Readability:** Standard OZ code, generally well-commented and readable.
+    *   **Best Practices & Idioms:** Follow standard Ethereum patterns.
+    *   **Performance:** Generally gas-optimized implementations from OpenZeppelin.
+    *   **Security:** OpenZeppelin libraries are widely audited. Relying on these provides a good security baseline, *provided they are not modified incorrectly*. The `Math.mulDiv` is complex but a standard audited algorithm. `ReentrancyGuard` is standard.
+    *   **Maintainability & Scalability:** Using standard libraries improves maintainability, but maintaining local copies requires manual updates to incorporate upstream changes.
+*   **Suggestions for Improvement:**
+    1.  **Use Official OpenZeppelin:** It is highly recommended to use the official OpenZeppelin Contracts library via npm/yarn imports (`@openzeppelin/contracts/...`) instead of copying local versions. This ensures you benefit from their ongoing audits, bug fixes, and updates. Update to the latest compatible `0.8.x` version.
+    2.  **Verify Local Copies:** If using local copies is strictly necessary, meticulously compare them against the official OpenZeppelin repository to ensure no accidental or malicious modifications have been introduced.
+
+### 200825052025/library/dragon/DragonDeployerLib.sol, DragonVRFLib.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** These libraries are intended to deploy upgradeable proxies.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Incorrect Proxy Ownership:** Both `deploySwapTrigger` and `deployVRFConsumer` use `new TransparentUpgradeableProxy(...)` but then call `pool.transferOwnership(owner())`. In the standard OpenZeppelin `TransparentUpgradeableProxy` pattern, the *ProxyAdmin* contract should be the owner of the proxy. Transferring ownership of the proxy to an external address (`owner()`) means that address, not the `ProxyAdmin` contract, controls upgrades. This breaks the core purpose of the ProxyAdmin pattern and could make future upgrades impossible via the intended admin contract, or potentially risky if the `owner()` address is compromised. This is a **critical architectural flaw** for upgradeability.
+        *   **Unsafe External Calls:** The placeholder `updateLotteryContract` and `updateVRFPeers` functions use commented-out `.call(...)` with `abi.encodeWithSignature`. Using low-level `.call` is dangerous and should be avoided when interacting with known contract interfaces. It's prone to signature errors and provides less safety than type-casted interface calls. If these functions are needed, they should accept the target contract *as its interface type* or use `IERC165` checks and `address(contract).functionName(...)` syntax.
+    *   **Clarity & Readability:** Struct definitions and function names are clear. The commented-out `.call` logic is a sign of incomplete implementation.
+    *   **Best Practices & Idioms:** Library pattern is appropriate. Using structs for parameters is good practice.
+    *   **Performance:** Deployment is inherently gas-intensive.
+    *   **Security:**
+        *   The incorrect proxy ownership is a critical security vulnerability for the upgrade path.
+        *   Unsafe external calls (`.call`) should be replaced with safer methods.
+    *   **Maintainability & Scalability:** Relies on external implementation contracts and ProxyAdmin. The flawed ownership model impacts long-term maintainability and upgradeability.
+*   **Suggestions for Improvement:**
+    1.  **Fix Proxy Ownership:** Remove the `pool.transferOwnership(owner())` line. The `ProxyAdmin` address provided during `TransparentUpgradeableProxy` creation implicitly becomes the owner. The specified `owner()` should typically be the owner of the `ProxyAdmin` contract, which then controls upgrades for all proxies it administers.
+    2.  **Replace Unsafe Calls:** If `updateLotteryContract` and `updateVRFPeers` are required, replace the commented-out `.call` with type-casted interface calls or ensure the target addresses are checked for supporting the necessary interface using ERC165 if dynamic calls are unavoidable. Ideally, contract references should be passed as interface types.
+
+### 200825052025/library/dragon/DragonFeeProcessingLib.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Provides utility functions for fee calculations, intended for processing.
+    *   **Potential Bugs & Edge Cases:**
+        *   **`calculateFeeAmounts` Calculation:** The fee calculation `uint256 feeBase = amount / 10000;` and `burnAmount = burnFee * feeBase;` etc. seems incorrect if `amount` is not guaranteed to be scaled such that division by 10000 (for basis points) works directly. Fees are usually calculated as `amount * feeRate / BASIS_POINTS_DENOMINATOR`. If fee rates are in basis points (10000 = 100%), the formula should be `amount * feeRate / 10000`. The current calculation appears to assume `amount` is already scaled appropriately relative to basis points, or it's a bug. Example: If `amount` is 100 tokens and `burnFee` is 69 (0.69%), the desired burn amount is `100 * 69 / 10000 = 0.69`. The current code calculates `feeBase = 100/10000 = 0` (integer division), then `burnAmount = 69 * 0 = 0`. This will result in zero fees for amounts less than 10000 units, which is likely unintended.
+        *   **`calculateDistributionRatio` Naming:** The function calculates shares of received wrapped native fees based on a *ratio* of *fee rates*. The name is slightly misleading; it distributes an amount (`wrappedNativeReceived`) based on proportions derived from `jackpotFeeRate` and `ve69FeeRate`. The logic `jackpotShare = (wrappedNativeReceived * jackpotFeeRate) / totalFeeBasis; ve69Share = wrappedNativeReceived - jackpotShare;` is correct for splitting `wrappedNativeReceived` proportionally based on `jackpotFeeRate` and `ve69FeeRate`.
+        *   **`applyVotingPowerReduction` Simple Logic:** The fee reduction logic is a fixed `500` BPS (5%) reduction based on voting power. This is simpler than the boost calculation in `ve69LPMath` or `ve69LPBoostManager` and might not reflect the desired tokenomics curve. The formula `(votingPower * 500) / 10000` implies the reduction scales with voting power, but `votingPower` itself might be scaled differently (e.g., by PRECISION). This calculation requires clarity on the scaling of the `votingPower` input.
+    *   **Clarity & Readability:** Struct definition is clear. Natspec is helpful. The fee calculation formula in `calculateFeeAmounts` is confusing due to potential scaling mismatch.
+    *   **Best Practices & Idioms:** Pure library functions. Uses `SafeERC20` implicitly (caller is expected to use it). Custom errors are defined but not used in the provided functions.
+    *   **Performance:** Standard arithmetic operations.
+    *   **Security:** `validateFees` checks max fee percentage. The potential calculation bug in `calculateFeeAmounts` could lead to incorrect fee collection.
+    *   **Maintainability & Scalability:** Reasonably maintainable.
+*   **Suggestions for Improvement:**
+    1.  **Correct Fee Calculation Formula:** Rework `calculateFeeAmounts` to use the standard formula: `feeAmount = (amount * feeRate) / BASIS_POINTS_DENOMINATOR;` Ensure `amount` and `feeRate` scaling match this.
+    2.  **Use Custom Errors:** Use the defined custom errors (`FeesTooHigh`) instead of `revert()` or `require()` strings.
+    3.  **Clarify `applyVotingPowerReduction` Scaling:** Explicitly document the expected scaling of the `votingPower` input for `applyVotingPowerReduction` and ensure the calculation is correct based on that scaling. Consider if this simplified reduction logic aligns with tokenomics goals or if a more complex calculation is needed (potentially leveraging `ve69LPMath`).
+
+### 200825052025/library/dragon/DragonTimelockLib.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Provides timelock utilities for admin operations as described in the spec and threat model.
+    *   **Potential Bugs & Edge Cases:** None obvious in the library functions themselves. The library provides tools; correctness depends on how the consuming contract (`OmniDragon.sol`) uses them. The enum `AdminOperation` is hardcoded; adding new operations requires library modification.
+    *   **Clarity & Readability:** Enum, struct, and function names are clear. Natspec is helpful.
+    *   **Best Practices & Idioms:** Pure library functions. Uses enum for operation types, struct for proposal data. `keccak256` for proposal ID.
+    *   **Performance:** Standard.
+    *   **Security:** The library itself is pure and stateless, so it has no direct attack surface. Its security contribution is enabling timelock checks.
+    *   **Maintainability & Scalability:** Adding new operations requires modifying this library and the consuming contract. The `isEmergencyBypassAllowed` function hardcodes which operations can be bypassed.
+*   **Suggestions for Improvement:**
+    1.  **Flexible Operations:** If the set of operations requiring timelock might change frequently, consider a more flexible approach (e.g., storing authorized function selectors or target addresses/call data hashes) instead of a hardcoded enum. This adds complexity but improves adaptability.
+
+### 200825052025/library/dragon/DragonVRFLib.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Provides deployment utilities for VRF consumers, intended to support upgradeability.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Incorrect Proxy Ownership:** Similar to `DragonDeployerLib`, `deployVRFConsumer` uses `new TransparentUpgradeableProxy(...)` but then calls `p.transferOwnership(owner())`. This is incorrect for the standard OZ `TransparentUpgradeableProxy` pattern and breaks the intended upgradeability flow controlled by the `ProxyAdmin`. **Critical architectural flaw.**
+        *   **Unsafe External Calls:** `updateLotteryContract` and `updateVRFPeers` use commented-out `.call(...)` with `abi.encodeWithSignature`. This is unsafe and should be replaced with type-casted interface calls.
+    *   **Clarity & Readability:** Struct and function names are clear. Commented-out `.call` indicates incomplete implementation.
+    *   **Best Practices & Idioms:** Library pattern is appropriate. Using structs for parameters is good practice.
+    *   **Performance:** Deployment is inherently gas-intensive.
+    *   **Security:** The incorrect proxy ownership is a critical vulnerability for the upgrade path. Unsafe external calls (`.call`) should be replaced.
+    *   **Maintainability & Scalability:** Relies on external implementation contracts and ProxyAdmin. The flawed ownership model impacts long-term maintainability and upgradeability.
+*   **Suggestions for Improvement:**
+    1.  **Fix Proxy Ownership:** Remove `p.transferOwnership(owner())`. The `ProxyAdmin` is the correct owner. The specified `owner()` should own the `ProxyAdmin`.
+    2.  **Replace Unsafe Calls:** If `updateLotteryContract` and `updateVRFPeers` are required, replace the commented-out `.call` with type-casted interface calls.
+
+### 200825052025/interfaces/vault/IDragonJackpotDistributor.sol, IDragonJackpotVault.sol
+
+*   **Review:** Standard interfaces.
+    *   `IDragonJackpotVault.sol`: Duplicate interface definition within the same file. Remove the second definition.
+
+### 200825052025/interfaces/tokens/Ive69LP.sol, Ive69LPBoostManager.sol, Ive69LPFeeDistributor.sol, IWETH.sol, IWrappedNativeToken.sol
+
+*   **Review:** Standard interfaces.
+    *   `Ive69LPBoostManager.sol`: Duplicate interface definition within the same file. Remove the second definition.
+
+### 200825052025/interfaces/oracles/...
+
+*   **Review:** Standard interfaces for common oracle providers.
+
+### 200825052025/interfaces/misc/IChainRegistry.sol, IJackpot.sol, IPromotionalItem.sol, IPromotionalItemRegistry.sol
+
+*   **Review:** Standard interfaces.
+    *   `IJackpot.sol`: This interface seems duplicated in `interfaces/governance/IJackpot.sol`. Resolve the duplication and ensure all contracts use the correct, single interface definition. The two definitions have different function sets.
+
+### 200825052025/interfaces/governance/...
+
+*   **Review:** Standard interfaces.
+    *   `IJackpot.sol`: Duplicate interface definition. Resolve duplication.
+    *   `Ive69LPBoostManager.sol`: Duplicate interface definition. Resolve duplication.
+
+### 200825052025/governance/voting/ve69LP.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements a ve-token with time-locked LP. Follows the general concept but uses custom math and checkpointing logic.
+    *   **Potential Bugs & Edge Cases:**
+        *   **`extendLock` Logic:** The function calculates the `newUnlockTime` relative to the *current* `userLock.unlockTime`. `uint256 newUnlockTime = DragonDateTimeLib.calculateLockEndAligned(userLock.unlockTime, lockDuration);`. This means extending a lock by 1 week *from today* is different from extending it by 1 week *from its current unlock date*. The typical ve-token pattern is to extend from the *current time* or to a *new absolute end time*. Extending from the existing end time might result in locks far longer than intended or the maximum allowed. This logic needs verification against requirements.
+        *   **`_checkpoint` Voting Power/Slope Calculation:** The logic calculates `oldPower` and `newPower` using `calculateVotingPower`. It calculates `oldSlope` and `newSlope` using a different formula (`(_amount * 1e18) / timeDiff`). This mix of voting power calculation models (cubic root for `bias`, linear-like for `slope`) within the checkpointing is confusing and needs careful verification that the `bias` and `slope` values correctly track the time-decaying voting power according to the intended formula. Specifically, if `calculateVotingPower` uses cubic root based on *remaining time*, how does a linear slope relate? The slope should represent the rate of decay of the *bias* value over time. The current slope calculation `(_amount * 1e18) / timeDiff` seems to assume a linear decay from `_amount` over `timeDiff`, which contradicts the cubic root boosting used for the `bias`. *This is a critical area for mathematical correctness audit.*
+        *   **`withdraw` Total Supply Update:** In `withdraw`, `uint256 oldVotingPower = calculateVotingPower(amount, userLock.unlockTime);`. If the lock has expired (`block.timestamp >= userLock.unlockTime`), `calculateVotingPower` returns 0. The total supply update then becomes `totalSupply = totalSupply - 0`, which is incorrect. It should subtract the voting power the user *had just before* the lock expired. The checkpointing system is supposed to handle this decay automatically by tracking global bias/slope over time, but the `withdraw` function's direct manipulation of `totalSupply` and the checkpoint logic interacting with it need careful review.
+        *   **`setMaxVP` Input Check:** The require statement `if (_maxVP < 1000 || _maxVP > 10000) revert InvalidMaxVP();` restricts `_maxVP` to 10% to 100% (1000 to 10000 basis points). However, the constant `MAX_BOOST_BPS` in `ve69LPMath` is 25000 (2.5x). This suggests the parameter name `maxVP` in this contract might be intended to be a different concept than the `MAX_BOOST_BPS` in `ve69LPMath`, or there's an inconsistency. The calculated `boostMultiplier` in `calculateVotingPower` depends on this `maxVP`.
+        *   **Hardcoded FeeM Address:** Calls hardcoded FeeM address in `registerMe`. Risk.
+        *   **Inconsistent Math Libraries:** Uses both `Math` (OZ clone) and `ve69LPMath`. `ve69LPMath` duplicates some functions (`calculateBoostMultiplier`, `calculateNormalizedBoostMultiplier`) and has its own `cubeRoot` which is different from `DragonMath.approximateCubeRoot`. Consolidate math libraries.
+    *   **Clarity & Readability:** Checkpointing logic is inherently complex. Natspec is helpful. The mix of voting power calculation methods and parameters across this contract and `ve69LPMath` is confusing.
+    *   **Best Practices & Idioms:** Inherits standard OZ contracts. Uses `ReentrancyGuard`, `Ownable`. Checkpointing pattern is a known ve-token design. Uses custom errors. Uses `SafeCast` (though it might not be strictly needed if using Solidity 0.8+ which has default overflow checks).
+    *   **Performance:** Checkpointing adds gas cost on each lock/extend/increase amount operation. Loops for historical checks in `getTotalVotingPowerAt` can be gas-intensive if `epoch` grows large.
+    *   **Security:**
+        *   `ReentrancyGuard` is critical for `createLock`, `increaseLockAmount`, `extendLock`, `withdraw`. Correctly applied.
+        *   `Ownable` protects admin functions.
+        *   Input validation on lock duration and amount is present.
+        *   The correctness of the voting power calculation and total supply tracking is paramount for governance and fee distribution security.
+    *   **Maintainability & Scalability:** High complexity due to checkpointing and custom math. Inconsistent math libraries reduce maintainability. The historical lookup in `getTotalVotingPowerAt` can be optimized using binary search on epochs.
+*   **Suggestions for Improvement:**
+    1.  **Rigorously Verify Math:** Subject the voting power calculation logic (`calculateVotingPower`, `_checkpoint`'s bias/slope updates, `calculateEffectiveVotingPower`, `getTotalVotingPowerAt`) and total supply tracking to thorough mathematical and unit testing, including edge cases (zero time, max time, extending lock, increasing amount, withdrawal).
+    2.  **Clarify `extendLock` Behavior:** Ensure the logic for `extendLock` aligns with the intended user experience and documentation regarding the new unlock time calculation.
+    3.  **Consolidate Math Libraries:** Merge relevant math functions from `ve69LPMath` and `VotingPowerCalculator` (if used) into `DragonMath` or a dedicated, well-audited ve-math library, ensuring consistency and correctness of core functions like `cubeRoot`.
+    4.  **Optimize Historical Lookups:** Implement binary search on the `pointHistory` array/mapping in `getTotalVotingPowerAt` to make it gas-efficient regardless of the number of epochs.
+    5.  **Configure FeeM Address:** Make the FeeM address configurable via owner function, protected by timelock.
+    6.  **Review `setMaxVP` Check:** Ensure the range check in `setMaxVP` corresponds correctly to the intended bounds and scaling of the `maxVP` parameter relative to boost calculations.
+    7.  **Use Consistent Error Handling:** Use custom errors consistently across all revert conditions.
+
+### 200825052025/governance/voting/ve69LPBoostManager.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Manages ve69LP-based boosts and voting for partners, aligning with the concept of governance and boosted rewards. Implements a timelock for critical parameters.
+    *   **Potential Bugs & Edge Cases:**
+        *   **`voteForPartner` and `removeVote` Efficiency:** The `removeVote` function, used within `voteForPartner` when a user changes their vote, iterates over `partnerRegistry.getPartnerCount()` to find the user's previous vote. If the number of partners is large, this loop is gas-prohibitive and could lead to transactions failing due to exceeding block gas limits. This is a significant DoS vulnerability or functional limitation with scale. The user's vote in the current period should be tracked more efficiently (e.g., mapping `period => user => votedPartnerId`) to allow direct lookup and removal of the previous vote.
+        *   **`calculatePartnersBoost` Efficiency:** This function also loops over `partnerRegistry.getPartnerCount()` to calculate boosts. While necessary to distribute the boost across partners based on votes, if the number of partners is large, this function could also become gas-prohibitive and require off-chain execution or gas sponsorship.
+        *   **Hardcoded WETH Address in `enterJackpotWithBoost`:** The interface `Ive69LPBoostManager` defines `enterJackpotWithBoost(address user, uint256 amount)`, which this contract implements. The implementation calls `jackpot.enterJackpotWithWrappedNativeToken(msg.sender, boostedAmount)`. This seems inconsistent with the interface, which suggests the boost manager *itself* handles the jackpot entry, not just calculates the boosted amount. More importantly, the boosted amount is calculated using `probabilityBoost`, but the `enterJackpotWithWrappedNativeToken` implies entering with *wrapped native tokens*, not a "boosted amount" abstraction. The overall flow of tokens and calculation application (`probabilityBoost` vs `ve69LPBoost`) in this function and its interaction with `IJackpot` and `DragonPartnerPool` is unclear and likely buggy. The `DragonPartnerPool` contract's `enterJackpot` also interacts with this, further complicating the picture. The hardcoded WETH address (`0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2`) in `DragonPartnerPool.enterJackpot` accessing this function is a critical bug.
+        *   **`getPartnerProbabilityBoostByAddress` Efficiency:** This view function also iterates over `partnerRegistry.getPartnerCount()`. Inefficient for large partner counts. A mapping `partnerAddress => partnerId` could be used in the PartnerRegistry to make this lookup O(1).
+        *   **Flash Loan Protection:** The `lastBalanceUpdateBlock` check `block.number < lastBalanceUpdateBlock[_user] + MIN_HOLDING_BLOCKS` is a standard, albeit not foolproof, flash loan protection mechanism. It's a reasonable mitigation but doesn't prevent all flash loan types or sandwich attacks.
+        *   **Timelock Logic:** The timelock logic `!boostParametersSetOnce` for initial setting and requiring proposal/execution later seems correct for its purpose, although the `boostTimelockInitialized` flag and its interaction could be simplified.
+        *   **Hardcoded FeeM Address:** Calls hardcoded FeeM address in `registerMe`. Risk.
+    *   **Clarity & Readability:** Natspec is helpful. The voting/boost logic interaction with other contracts is complex. The internal vote tracking requires understanding multiple mappings.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `ReentrancyGuard`. Uses custom errors. Implements timelock logic. Emits informative events.
+    *   **Performance:** Loops over partners are a significant performance and gas bottleneck. `calculatePartnersBoost` needs to be called periodically (likely via keeper) and its gas cost must be manageable.
+    *   **Security:**
+        *   `Ownable` protects config functions.
+        *   `ReentrancyGuard` is used where necessary.
+        *   The flash loan protection adds a layer of security.
+        *   Access control on `enterJackpotWithBoost` seems intended to restrict calls, but the current check `msg.sender != owner() && msg.sender != address(jackpot)` allows anyone *not* the owner or jackpot vault to call it, which is likely incorrect. It should probably be `require(msg.sender == owner() || msg.sender == address(jackpot) || authorizedCallers[msg.sender], "UnauthorizedCaller");` (using the `authorizedCallers` pattern from OmniDragon).
+        *   The efficiency issues in voting/boost calculations are DoS vulnerabilities.
+        *   The potential bugs in the jackpot entry flow (interaction with `DragonPartnerPool` and `IJackpot`) could lead to funds not being correctly accounted or distributed.
+    *   **Maintainability & Scalability:** High complexity due to voting/boost logic and inter-contract dependencies. Gas bottlenecks on loops will impact scalability.
+*   **Suggestions for Improvement:**
+    1.  **Optimize Vote Tracking:** Refactor vote tracking to avoid iterating over all partners to remove a user's vote. Track the user's current vote target in a mapping (e.g., `mapping(uint256 => mapping(address => uint256)) userCurrentVoteTarget;`) and update/delete directly.
+    2.  **Optimize `calculatePartnersBoost`:** While iterating partners is likely necessary here, ensure the gas cost is acceptable or explore alternative distribution methods if partner count grows excessively large. This function should likely be callable by a trusted keeper.
+    3.  **Rework Jackpot Entry Flow:** Clarify the intended flow of tokens and boost application when entering the jackpot via a partner pool. Correct the implementation in both `DragonPartnerPool` and `ve69LPBoostManager` to ensure tokens go directly to the jackpot vault and the correct boost (ve69LP boost vs partner probability boost) is applied appropriately by the relevant contract (likely the lottery manager or boost manager).
+    4.  **Configure FeeM Address:** Make the FeeM address configurable via owner function, protected by timelock.
+    5.  **Refine Access Control:** Correct the access control on `enterJackpotWithBoost` to explicitly list authorized callers.
+    6.  **Consolidate Math:** Ensure the boost calculation logic consistently uses a single math library and correct parameter scalings.
+
+### 200825052025/governance/voting/ve69LPFeeDistributor.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Placeholder for a fee distributor, not a full implementation based on voting power.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Simplified `claimFees` Logic:** The `claimFees` function provides a fixed amount (`1 ether`) regardless of user stake or period. This is explicitly noted as simplified ("For this simple version, we'll just give a fixed amount") and does not represent a functional fee distribution system based on ve69LP holdings.
+        *   **Hardcoded FeeM Address:** Calls hardcoded FeeM address in `registerMe`. Risk.
+    *   **Clarity & Readability:** Clear, simple code for a placeholder.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `SafeERC20`.
+    *   **Performance:** Simple operations are performant.
+    *   **Security:** Admin functions are `onlyOwner`. `receiveFees` uses `safeTransferFrom`. The contract holds tokens, so standard token security practices apply. The flawed `claimFees` logic is not a security vulnerability in itself, but indicates it's not ready for production use where fair distribution is required.
+    *   **Maintainability & Scalability:** Easy to maintain as a placeholder. Implementing the full distribution logic will add significant complexity.
+*   **Suggestions for Improvement:**
+    1.  **Implement Full Distribution Logic:** Replace the placeholder `claimFees` logic with a calculation based on user's ve69LP voting power and the total votes/fees accumulated in the relevant period (likely requiring integration with `DragonPartnerFeeDistributor` or similar logic).
+    2.  **Configure FeeM Address:** Make the FeeM address configurable via owner function, protected by timelock.
+
+### 200825052025/governance/voting/ve69LPMath.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Provides mathematical functions for ve69LP and lottery mechanics. Documents scaling conventions.
+    *   **Potential Bugs & Edge Cases:**
+        *   **`cubeRoot` Correctness:** As noted in the `DragonMath` review, the custom `cubeRoot` implementation here is different from the one in `DragonMath` and appears potentially incorrect, especially the update formula `y = (term1 + term2 / x) / 3` where `term2 = n * PRECISION / x2`. This needs rigorous mathematical verification. The initial guess logic is also different. Using a single, verified `cubeRoot` implementation across the project is recommended.
+        *   **Inconsistent Boost Calculation:** The library contains multiple boost calculations (`calculateBoostMultiplier`, `calculateNormalizedBoostMultiplier`). `calculateVotingPowerWithLock` uses `cubeRoot(timeRatio)`, then scales the result by `(MAX_BOOST_BPS - BASE_BOOST_BPS)` and adds `BASE_BOOST_BPS` to the amount. This is a specific boost formula. `calculateBoostMultiplier` seems to implement a linear boost based on total voting power amount (using `MIN_LP_FOR_MAX_BOOST`). `calculateNormalizedBoostMultiplier` uses `cubeRoot` on user/total *balance* to get a "voting power", then calculates a share, and applies a linear boost based on the share. The relationships between these functions and how they are intended to be used by `ve69LP` and `ve69LPBoostManager` is confusing. `ve69LP.calculateVotingPower` calls `ve69LPMath.cubeRoot` but the formula in `ve69LPMath.calculateVotingPower` applies cube root *only to the amount*, not time. This discrepancy in calculation logic across different functions within the same library is a major source of confusion and potential bugs.
+        *   **Hardcoded Thresholds/Rates:** Many parameters (e.g., `MIN_LP_FOR_MAX_BOOST`, fee base/mins, jackpot payout bounds, win prob bounds) are hardcoded constants. These should be configurable by governance/owner to allow for tokenomic tuning.
+        *   **`calculateFeeAllocation` Complexity:** Similar to `DragonMath`, this function is very complex with multiple factors (volume/LP, jackpot size, time since win, stakers, volatility). Auditing its behavior across all inputs is challenging. Note that the inputs here are different from `DragonMath.calculateFeeAllocation`.
+        *   **Duplication:** Duplicates boost calculation logic found in `DragonMath`.
+    *   **Clarity & Readability:** Natspec explains formulas. However, the inconsistent calculation methods and numerous hardcoded constants make it hard to grasp the overall tokenomic model purely from the code.
+    *   **Best Practices & Idioms:** Pure library functions. Uses OZ `Math`. Clearly documented scaling constants.
+    *   **Performance:** `cubeRoot` uses an iterative approach. `calculateFeeAllocation` involves multiple arithmetic operations and conditional logic.
+    *   **Security:** As a pure library, security risk is in the correctness of the math. Incorrect calculations in voting power, boosts, fee allocation, or win probability thresholds can severely impact tokenomics, fairness, and protocol solvency. The `cubeRoot` implementation and the complex fee allocation logic are critical areas for audit.
+    *   **Maintainability & Scalability:** Hardcoded parameters and the existence of multiple, potentially inconsistent calculation functions reduce maintainability. Consolidating and clarifying the math is essential.
+*   **Suggestions for Improvement:**
+    1.  **Consolidate Math Libraries:** Merge all core mathematical functions into a single, well-audited library (e.g., `DragonMath`). Decide on the single correct and most precise `cubeRoot` implementation.
+    2.  **Standardize and Verify Calculations:** Define the exact formulas for voting power, boosts (time-based, amount-based, combined), fee allocation, win probability, and payouts. Implement these formulas consistently using the consolidated math library and verify their correctness through rigorous unit testing.
+    3.  **Make Parameters Configurable:** Move all tokenomic parameters (min/max boosts, min LP for max boost, fee base/mins, jackpot/lottery bounds, time factors, weights) to state variables in the contracts that *use* this library (e.g., `ve69LP`, `ve69LPBoostManager`, `DragonFeeManager`, `OmniDragonLotteryManager`), allowing them to be configured via owner/governance (protected by timelock).
+    4.  **Remove Duplication:** Remove duplicate functions found in `DragonMath`.
+
+### 200825052025/governance/voting/VotingPowerCalculator.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Provides various voting power calculation methods.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Relies on `ve69LPMath.cubeRoot`:** The `calculateCubicRootVotingPower` function directly uses `ve69LPMath.cubeRoot`, which has questionable correctness.
+        *   **Consistency with `ve69LP`:** The `ve69LP` contract implements its *own* `calculateVotingPower` function that uses `ve69LPMath.cubeRoot` but in a way that doesn't directly match any of the methods defined *in this library*. This creates inconsistency and confusion about which calculation method is the "source of truth" or actually used.
+        *   **Redundancy:** Duplicates logic and parameters present in `ve69LPMath` (e.g., `MAX_LOCK_TIME`, `BPS_DENOMINATOR`, `PRECISION`, boost parameters).
+    *   **Clarity & Readability:** Natspec explains different methods. The existence of multiple libraries and functions calculating similar things (`ve69LPMath`, `DragonMath`, `VotingPowerCalculator`) is confusing.
+    *   **Best Practices & Idioms:** Pure library functions. Uses OZ `Math`. Uses enum for method selection.
+    *   **Performance:** Iterative calculation in `calculateCubicRootVotingPower` (via `ve69LPMath.cubeRoot`).
+    *   **Security:** As a pure library, security risk is in the correctness of the math. Depends on the correctness of `ve69LPMath.cubeRoot`.
+    *   **Maintainability & Scalability:** High redundancy across math libraries harms maintainability.
+*   **Suggestions for Improvement:**
+    1.  **Consolidate Math Libraries:** Merge relevant voting power calculations into a single, well-audited math library (e.g., `DragonMath`) and ensure the `ve69LP` contract uses functions from that consolidated library consistently.
+    2.  **Standardize Voting Power Formula:** Define the single, official formula for ve69LP voting power calculation and implement it correctly using a verified `cubeRoot` function. Remove alternative methods if they are not used.
+
+### 200825052025/governance/partners/DragonPartnerFactory.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Factory for deploying partner pools. Uses `EnumerableSet`.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Incorrect Proxy Ownership:** `createPartnerPool` deploys `DragonPartnerPool` but then calls `pool.transferOwnership(owner())`. If `DragonPartnerPool` is intended to be upgradeable (which seems likely as it's deployed via a factory in a library intended for upgradeable contracts), this breaks the standard OZ ProxyAdmin pattern where the ProxyAdmin contract should own the proxy. **Critical architectural flaw.**
+        *   **Partner ID Lookup:** The `initialize` function *in the deployed `DragonPartnerPool` contract* finds its own `partnerId` by iterating the `partnerRegistry.partnerList`. The factory calls this `initialize`. This iteration happens *during deployment/initialization* of *each partner pool contract*. This is gas-inefficient (O(N) where N is partner count). The factory already knows the `_partnerId` when calling `createPartnerPool`; it should pass the `_partnerId` directly to the `DragonPartnerPool` constructor or initialize function, avoiding the lookup loop.
+        *   **`EnumerableSet` Order:** `getPoolAt` returns pools by index from `poolSet`. If pools are removed from the set (not implemented in this factory, but possible with `EnumerableSet.remove`), the order will change. If order matters, this should be documented.
+    *   **Clarity & Readability:** Standard factory pattern is clear. Natspec is helpful.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `EnumerableSet`. Events are informative.
+    *   **Performance:** Deployment is gas-intensive. The O(N) lookup in the initialized pool is inefficient.
+    *   **Security:**
+        *   `Ownable` protects config functions.
+        *   Access control (`canCreate`) allows restricting pool creation.
+        *   Checks for zero addresses and partner existence are present.
+        *   The incorrect proxy ownership is a critical security vulnerability for upgradeability.
+    *   **Maintainability & Scalability:** Reasonably maintainable. The lookup inefficiency impacts scalability for large numbers of partners.
+*   **Suggestions for Improvement:**
+    1.  **Fix Proxy Ownership:** Ensure `DragonPartnerPool` is deployed correctly via `TransparentUpgradeableProxy` and that the ProxyAdmin is the owner of the proxy, not the factory owner.
+    2.  **Pass Partner ID to Pool:** Pass the `_partnerId` to the `DragonPartnerPool` constructor or `initialize` function to avoid the O(N) lookup during pool initialization.
+    3.  **Document `EnumerableSet` Order:** Document that the order of pools from `getPoolAt` is not stable if pools can be removed.
+
+### 200825052025/governance/partners/DragonPartnerFeeDistributor.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements a period-based fee distribution mechanism using voting weights for partners.
+    *   **Potential Bugs & Edge Cases:**
+        *   **`getUserClaimable` Stale Check:** The check `if (_period >= currentPeriod || ... || block.timestamp < rewardPeriods[_period].endTime)` means you can't claim until the period has fully ended (`block.timestamp >= rewardPeriods[_period].endTime`). This is correct for standard period-based claiming.
+        *   **Partner ID 0:** `recordVote` requires `partnerId > 0`. Partner IDs might naturally be 0-indexed. This requires coordination with the `DragonPartnerRegistry` which uses 0-indexed array access for `partnerList`. Ensure partner IDs used here match the registry's indices (or update the registry to use a non-zero starting ID if necessary).
+        *   **Hardcoded FeeM Address:** Calls hardcoded FeeM address in `registerMe`. Risk.
+    *   **Clarity & Readability:** Natspec is helpful. The use of nested mappings and structs (`rewardPeriods`, `partnerFees`, `userVotes`) makes state tracking complex but reflects the underlying logic.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `ReentrancyGuard`, `SafeERC20`. Period-based distribution is a standard pattern. Uses custom errors indirectly via strings. Emits informative events.
+    *   **Performance:**
+        *   `checkAndRollPeriod` is public, allowing anyone to trigger period rollover, which is good for liveness and spreads gas cost.
+        *   `getUserClaimable`, `claimFees`, `claimMultiple` involve lookups in mappings (O(1)) and potentially array iteration (`rewardTokens`, `partnerRewardTokens`). Accessing `partnerRegistry.partnerList` and `getPartnerDetails` inside `getPartnerDetails` and `getPartnerFeeShare` view functions means O(N) operations if the registry iterates the partner list. This is a potential bottleneck if called frequently off-chain or in view functions.
+    *   **Security:**
+        *   `Ownable` protects config functions.
+        *   `ReentrancyGuard` is used on state-changing functions (`depositFees`, `claimFees`, `claimMultiple`).
+        *   `recordVote` correctly restricts `msg.sender` to `ve69LPBoostManager`.
+        *   Checks for zero addresses, amounts, and valid periods are present.
+        *   The `getUserClaimable` logic correctly subtracts already claimed amounts.
+        *   `emergencyWithdraw` allows rescue of non-distributable tokens.
+    *   **Maintainability & Scalability:** Complex state structure requires careful management. Performance might be impacted by the number of partners/tokens if registry lookups or internal reward token lists become large.
+*   **Suggestions for Improvement:**
+    1.  **Configure FeeM Address:** Make the FeeM address configurable via owner function, protected by timelock.
+    2.  **Optimize Partner Lookups:** Ensure the `DragonPartnerRegistry` provides efficient (O(1)) lookup methods by address if needed by this contract's view functions, or refactor view functions here if they are not performance-critical.
+    3.  **Use Custom Errors:** Replace `require` strings with custom errors.
+
+### 200825052025/governance/partners/DragonPartnerPool.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements a partner pool contract with staking, reward distribution, and jackpot entry integration.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Incorrect Proxy Ownership:** As noted in `DragonPartnerFactory` review, if this contract is deployed via the flawed upgradeability library, its ownership will be set incorrectly, impacting future upgrades. **Critical.**
+        *   **Partner ID Lookup in `initialize`:** Finds `partnerId` by iterating `partnerRegistry.partnerList`. This is gas-inefficient (O(N)). The factory should pass the ID directly.
+        *   **Hardcoded WETH in `enterJackpot`:** Uses hardcoded WETH address `0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2` in `enterJackpot`. This needs to be configurable and fetched from the ChainRegistry or OmniDragon contract based on the current chain. **Critical bug.**
+        *   **Token Flow in `enterJackpot`:** Tokens (`_amount` of wrapped native) are transferred *into this pool* using `safeTransferFrom(msg.sender, address(this), _amount)`. Then this pool *approves* the `ve69LPBoostManager` to spend the amount, and the boost manager is expected to call the jackpot vault. This flow is convoluted. Wrapped native tokens for jackpot entry should ideally go directly from the user/caller to the jackpot vault or OmniDragon contract, not route via the partner pool.
+        *   **Boost Application in `enterJackpot`:** `boostMultiplier = PROBABILITY_PRECISION + lastProbabilityBoost; uint256 boostedAmount = (_amount * boostMultiplier) / PROBABILITY_PRECISION;` This applies the *partner probability boost* to the *amount*. This is likely incorrect; the partner probability boost should affect the *chance* of winning, not the token amount contributed. The ve69LP boost affects the *effective entry amount* for the lottery calculation, handled by `ve69LPBoostManager.enterJackpotWithBoost`. It seems the probability boost calculation is misapplied here.
+        *   **Boost Application in `distributeRewards`:** Similar to `enterJackpot`, the probability boost (`lastProbabilityBoost`) is applied to the *reward distribution amount* (`boostedPartnerAmount`). `uint256 boostedPartnerAmount = (basePartnerAmount * boostMultiplier) / PROBABILITY_PRECISION;`. This is likely incorrect. The partner probability boost is for lottery wins. Partner fees should be distributed based on the fee share agreed upon in the partner registry, not boosted by the lottery probability boost.
+        *   **Reward Token:** The staking reward distribution logic in `_harvestRewards` assumes the reward token is the `stakingToken` itself. If rewards are distributed in a different token (e.g., WETH), this needs to be handled explicitly. The `addRewards` function allows adding *any* token, but `distributeRewards` calculates `accRewardPerShare` based on the *stakingToken* balance. This means only the staking token can be distributed as staking rewards using this specific accounting method. Rewards in other tokens are held in the contract unless emergency withdrawn or handled by `distributeRewards` which is currently buggy.
+        *   **`distributeRewards` Staking Balance:** `uint256 stakingBalance = totalStaked;` This is correct.
+        *   **`distributeRewards` Logic:** Calculates `distributableAmount` as `balance - stakingBalance`. This assumes all non-staked balance *of the reward token* is distributable reward. This is likely correct *if* only staking tokens are ever transferred into the pool for staking and only reward tokens (which are the staking token) are ever transferred in for distribution. But `addRewards` allows adding *any* token.
+        *   **Owner Controls:** The owner has extensive control over fee percentage, boost update interval, pausing, and emergency withdraw. This centralization risk is noted in the threat model.
+    *   **Clarity & Readability:** The staking logic (`accRewardPerShare`, `userRewardDebt`) follows a standard pattern. The interaction with boost manager, jackpot, and treasury, and the application of boosts in `enterJackpot` and `distributeRewards` is confusing due to potential misapplication of boost types and unclear token flows.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `ReentrancyGuard`, `Pausable`, `SafeERC20`. Follows a standard staking pool reward accounting pattern. Uses custom errors indirectly via strings. Events are informative.
+    *   **Performance:** Iteration in `initialize` is O(N). Staking/unstaking/harvesting logic involves constant time operations on mappings and arithmetic.
+    *   **Security:**
+        *   `ReentrancyGuard` and `Pausable` are correctly applied.
+        *   `Ownable` protects admin functions.
+        *   Input validation (`_amount > 0`) is present.
+        *   The incorrect proxy ownership is a critical upgradeability risk.
+        *   The hardcoded WETH address is a critical bug.
+        *   The misapplication of boost types in `enterJackpot` and `distributeRewards` could lead to incorrect payouts and fee distribution, impacting tokenomics.
+        *   The logic for handling different reward tokens needs review if tokens other than the staking token are intended to be distributed as staking rewards.
+    *   **Maintainability & Scalability:** High complexity due to interaction with multiple external contracts and potentially buggy logic. O(N) loop in initialize impacts scalability.
+*   **Suggestions for Improvement:**
+    1.  **Fix Proxy Ownership:** Deploy correctly via ProxyAdmin.
+    2.  **Pass Partner ID:** Pass `_partnerId` to the constructor or initialize function to avoid the lookup loop.
+    3.  **Configure Wrapped Native Token:** Do not hardcode WETH. Get the wrapped native token address from a configuration contract (like `OmniDragon` or `ChainRegistry`).
+    4.  **Rework Jackpot Entry Flow:** Redesign `enterJackpot` to clarify token flow. Wrapped native tokens should likely go directly to the jackpot vault. The partner pool should perhaps only notify the lottery system of the entry amount and potentially provide the probability boost value, leaving the actual lottery processing to the lottery manager.
+    5.  **Correct Boost Application:** Ensure the partner *probability* boost is used to influence the *win chance* calculation (likely in the `OmniDragonLotteryManager`), not to increase the token amount for jackpot entry or reward distribution.
+    6.  **Correct Reward Distribution:** Ensure `distributeRewards` correctly calculates and transfers rewards based on the fee share defined in the partner registry, and clarifies which tokens are distributed as staking rewards and how.
+    7.  **Use Custom Errors:** Replace `require` strings with custom errors.
+
+### 200825052025/governance/partners/DragonPartnerRegistry.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Registry for managing partners with status, fee share, and probability boost.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Array Removal Order:** Removing from `_partnerList` by swapping with the last element changes the order. Document this or use a pattern like `EnumerableSet.AddressSet` for the list if order stability is required. *Note: It uses `EnumerableSet.AddressSet` in `DragonPartnerFactory` to track pools, but not here for partners.* Using `EnumerableSet.AddressSet` here would provide constant time add/remove/check and O(N) iteration for listing, which might be a good fit if partner count is large.
+        *   **Hardcoded Boost/Fee Limits:** Maximum probability boost (1000 BPS = 10%) and fee share (5000 BPS = 50%) are hardcoded. Consider making these configurable by the owner via timelock.
+        *   **Partner ID Mapping:** The contract doesn't expose a direct mapping from partner address to partner ID (index in `_partnerList`). Contracts like `DragonPartnerPool` have to iterate the list to find the ID. Adding a mapping `address => uint256` for this would be more efficient (O(1) lookup).
+        *   **Hardcoded FeeM Address:** Calls hardcoded FeeM address in `registerMe`. Risk.
+    *   **Clarity & Readability:** Good Natspec and comments. Code is clear. Custom errors are defined and used, which is good practice.
+    *   **Best Practices & Idioms:** Uses `Ownable`. Array + mapping pattern for registry. Uses custom errors. Emits informative events.
+    *   **Performance:** Adding/removing partners involves array operations (O(N) for removal due to swapping). Iterating `_partnerList` in view functions (e.g., potentially by callers like `DragonPartnerPool`) is O(N). Using `EnumerableSet.AddressSet` could optimize some operations if order is not critical.
+    *   **Security:**
+        *   `Ownable` protects all modify functions.
+        *   Input validation (zero address, fee/boost limits, existence checks) is present.
+        *   `setDistributorAuthorization` controls which addresses can act as distributors.
+    *   **Maintainability & Scalability:** Array removal order changes are a consideration. O(N) lookups by callers impact overall system scalability.
+*   **Suggestions for Improvement:**
+    1.  **Add Address-to-ID Mapping:** Add a mapping `address => uint256` to allow efficient lookup of partner ID by address.
+    2.  **Consider `EnumerableSet`:** Evaluate if using `EnumerableSet.AddressSet` for `_partnerList` would provide better overall performance characteristics (faster add/remove, iteration still O(N)).
+    3.  **Make Limits Configurable:** Consider making `MAX_PROBABILITY_BOOST` and `MAX_FEE_SHARE` configurable by the owner via timelock.
+    4.  **Configure FeeM Address:** Make the FeeM address configurable via owner function, protected by timelock.
+
+### 200825052025/governance/fees/DragonFeeManager.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements a fee manager that uses `DragonMath` for calculation and manages state. Aims to replace a heavier implementation.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Fee Update Trigger Logic:** The logic in `addVolume` for calling `_maybeUpdateFees` seems flawed. It calls `_maybeUpdateFees()` *only* if the `volumeUpdateInterval` has passed *within that specific call*. This is not the same as checking the `feeUpdateInterval`. The intent seems to be that adding volume *might* trigger a fee update check if the fee update interval has passed, regardless of whether the volume interval passed. The current logic is confusing and likely doesn't update fees based on the `feeUpdateInterval` as intended unless `updateFees` is called manually or `updateJackpotSize` is called. **Bug.**
+        *   **Jackpot Size Update:** `updateJackpotSize` is `onlyOwner`. This requires the owner or an authorized keeper to manually call this function whenever the jackpot size changes. An automatic trigger (e.g., from the JackpotVault emitting an event) or a more decentralized mechanism might be preferable if frequent updates are needed for accurate adaptive fees. The `addVolume` function *tries* to update jackpot size and fees but the logic seems broken.
+        *   **Hardcoded Burn Fee:** The burn fee is hardcoded to 69 BPS (`DragonMath.BASE_BURN_BPS`) and non-configurable. While it might be a core tokenomic constant, making it configurable via timelock provides flexibility.
+        *   **Fee Updates Rely on Owner/Keeper:** `updateFees` is `onlyOwner`, and `_maybeUpdateFees` relies on external calls to `addVolume` or `updateJackpotSize` happening periodically. The system relies on off-chain keepers to call these functions to keep the fees updated. This needs to be documented.
+    *   **Clarity & Readability:** Natspec is good. The separation of state management here and calculation in `DragonMath` is a good pattern. The fee update trigger logic is confusing.
+    *   **Best Practices & Idioms:** Uses `Ownable`. Uses a library for calculation. Emits informative events. Uses custom errors.
+    *   **Performance:** Calculation is delegated to the library. State updates are standard. The logic for updating fees adds some overhead.
+    *   **Security:**
+        *   `Ownable` protects configuration functions.
+        *   Input validation on fee values (`TotalFeeTooLow`, `FeesExceedTotal`, `FeeTooHigh`).
+        *   Relies on the correctness of `DragonMath.calculateAdaptiveFees`.
+        *   The potential bug in the fee update trigger logic could mean fees are not updated as frequently as intended, potentially leading to suboptimal fee distribution based on stale data.
+    *   **Maintainability & Scalability:** Good separation of concerns improves maintainability. Requires off-chain automation for updates.
+*   **Suggestions for Improvement:**
+    1.  **Fix Fee Update Trigger:** Rework the logic in `addVolume` and `_maybeUpdateFees` to correctly trigger fee updates based on the `feeUpdateInterval`, independent of the `volumeUpdateInterval`. Ensure `updateJackpotSize` also triggers the `_maybeUpdateFees` check correctly. Consider making `_maybeUpdateFees` public or callable by an authorized keeper.
+    2.  **Decentralize Jackpot Size Update:** If feasible, have the JackpotVault emit an event when its balance changes significantly and have an off-chain keeper monitor this to call `updateJackpotSize`.
+    3.  **Make Burn Fee Configurable:** Consider making the burn fee a configurable parameter via owner/governance (protected by timelock) for flexibility.
+    4.  **Document Keeper Requirements:** Clearly document that external keepers are required to call `addVolume`, `updateJackpotSize`, and/or `updateFees` to keep the adaptive fees updated.
+
+### 200825052025/examples/CostEfficientGameContract.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Excellent example contract demonstrating the intended use case of the randomness bucket and batch drawing features for cost efficiency, as described in the spec.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Bucket/Pool Revert:** The functions (`rollDice`, `dealPokerHand`, `drawLottery`, `simulate100DiceRolls`) directly call `randomnessBucket.drawRandomness()` or `drawMultipleRandomness()` without checking if enough numbers are available (`getRemainingNumbers()`). If the bucket is empty, these calls will revert the user's transaction. Consumers should be aware of this and ideally check the bucket status before drawing or wrap calls in `try/catch` (though `try/catch` on external calls adds gas).
+        *   **Cost Analysis Accuracy:** The `getCostAnalysis` function makes hardcoded assumptions about LINK costs (0.25 LINK/number direct, 1 LINK/1000 bucket). These costs fluctuate. The calculation is illustrative, not a precise on-chain cost oracle.
+    *   **Clarity & Readability:** Very clear, well-commented, demonstrates the concept effectively. Natspec is good.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `ReentrancyGuard`. Uses an immutable contract reference. Uses modulo for converting randomness to range (standard practice, but depends on the randomness source quality).
+    *   **Performance:** Draws multiple numbers in a single call (`drawMultipleRandomness`), which is the intended gas-saving feature. Modulo operations are cheap.
+    *   **Security:**
+        *   `ReentrancyGuard` is applied to the game functions.
+        *   `drawLottery`, `simulate100DiceRolls` are `onlyOwner`, which is appropriate for example/simulation functions. `rollDice`, `dealPokerHand` are public.
+        *   Relies on the randomness source (`randomnessBucket`) for unpredictability. If the bucket/pool is not refilled securely, or if the number generation from the seed is predictable, the game outcome could be manipulated.
+    *   **Maintainability & Scalability:** Good example code, easy to understand.
+*   **Suggestions for Improvement:**
+    1.  **Add Bucket Status Check:** Add a check `require(randomnessBucket.getRemainingNumbers() >= neededCount, "Insufficient randomness in bucket");` before calling `drawRandomness` or `drawMultipleRandomness` to provide a clearer error message than a raw revert from the bucket contract. Alternatively, document that users/callers are expected to handle the revert.
+    2.  **Document Cost Analysis Limitations:** Add a note in the Natspec for `getCostAnalysis` stating that the costs are illustrative estimates and can vary based on network conditions and oracle fees.
+
+### 200825052025/core/OmniDragon.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** The main token contract implementing core logic, fees, cross-chain, lottery integration, partner integration, and timelock. Follows the complex architecture. Uses OZ ERC20.
+    *   **Potential Bugs & Edge Cases:**
+        *   **LZ V1/V2 Mix:** The `lzReceive` function signature matches LayerZero V2, but `_lzSend` (and the `ILayerZeroEndpoint` interface used) matches LayerZero V1 `send`. This inconsistency is a critical integration risk. The contract must use the interface and messaging pattern for the specific LZ version deployed.
+        *   **Trusted Remote Check in `lzReceive`:** `if (!isPeer(_origin.srcEid, _origin.sender)) revert InvalidSource();` calls `isPeer`. `isPeer` checks `keccak256(abi.encodePacked(_srcAddress))` against `keccak256(trustedRemoteLookup[_srcEid])`. This assumes `_origin.sender` (a bytes32 in V2) is equivalent to `_srcAddress` (a bytes calldata in V1) and that `trustedRemoteLookup` stores a bytes representation of the expected `bytes32` sender. This requires rigorous verification against the LZ V2 specification.
+        *   **`_creditTo` Max Supply Enforcement:** Correctly enforces `MAX_SUPPLY` to prevent over-minting via cross-chain calls. Good.
+        *   **`_transfer` Logic Complexity:** This function is extremely complex, handling fees, exclusions, swaps, market updates, and lottery triggers. It's difficult to reason about all execution paths.
+        *   **`_transfer` Transaction Type:** The logic `bool isFromPairOrPool = isPair[from] || isPartnerPool[from]; bool isToPairOrPool = isPair[to] || isPartnerPool[to];` followed by determining `transactionType` based on these booleans seems mostly correct for distinguishing buy/sell/transfer involving known pools/pairs. Ensure this logic covers all intended scenarios (e.g., transfer between two pools, transfer between two non-excluded users).
+        *   **`_transfer` Fee Calculation:** Fees are calculated using `buyFees`, `sellFees`, `transferFees`. These fee structures are configurable directly or via the `adaptiveFeeManager`. `getCurrentFees` handles getting the correct fee structure and applies a simplified ve69LP reduction. Ensure the fee calculation `uint256 feeBase = amount / 10000;` is correct for the scaling of `amount` and fee rates, as questioned in `DragonFeeProcessingLib`. It should likely be `(amount * feeRate) / 10000`.
+        *   **Swap Logic & Fee Distribution:** `swapTokensForWrappedNative` swaps accumulated tokens for wrapped native. It then distributes the received wrapped native based on *buy fee ratios* (`buyFees.jackpot + buyFees.ve69LP`). This means fees collected from *sells* and *transfers* that accumulate in the contract are distributed using *buy* ratios after swapping. This might be the intended tokenomics, but it's a specific design choice and should be documented.
+        *   **Duplicated `addToJackpot` Call:** `_distributeFees` calls `IDragonJackpotVault(vault).addToJackpot(jackpotAmount)` *after* transferring the tokens (`IERC20(wrappedToken).safeTransfer(vault, jackpotAmount)`). If `IDragonJackpotVault.addToJackpot` expects to receive tokens *from the caller* using `transferFrom` (like the corrected version suggested for the vault) or if its `receive` function also calls `addToJackpot`, this could lead to double-counting or incorrect accounting in the vault. Clarify the vault's API and integration.
+        *   **Hardcoded FeeM Address:** `sonicFeeMRegistry` defaults to a hardcoded address (`0xDC2B0D2Dd2b7759D97D50db4eabDC36913110830`? Check against other files - it's `0xDC2B0D2Dd2b7759D97D50db4eabDC36973110830`) in the constructor, although it's configurable later via timelock. Using a hardcoded address even as a default carries risk if the setter is not called.
+        *   **Hardcoded Router Interface:** `swapTokensForWrappedNative` uses `IUniswapRouter` interface. This should be configurable if other DEX routers are used.
+        *   **Lottery Integration:** Calls `_tryProcessLotteryEntry` (try/catch) only for buy transactions. This relies on the `lotteryManager` contract for the actual lottery logic. `_getUserVotingPower` calls `ve69LPBoostManager.getVotingPower` (try/catch).
+        *   **Timelock Implementation:** The timelock modifier `onlyAfterTimelock` and management functions (`propose`, `cancel`, `execute`, `emergencyBypass`, `setTimelockDelay`) implement a standard pattern. `executeTimelockProposal` and `emergencyBypassTimelock` use `address(this).call(callData)`. This is generally okay when calling back into *self* with trusted data, but care must be taken that `callData` is correctly constructed and that the called function exists and behaves as expected. The emergency bypass restricts which operations can be bypassed, which is good.
+        *   **Emergency Pause:** `emergencyPause` is restricted to `onlyEmergencyPauser` (owner or designated pauser). `emergencyUnpause` is `onlyOwner`. This provides a multi-party pause mechanism if the pauser is separate from the owner.
+        *   **Partner Pool Interaction:** Functions like `registerPartnerPool`, `removePartnerPool`, `processPartnerJackpotEntry`, `distributePartnerFees` have access control checks (`isPartnerPool[msg.sender]`, `msg.sender == dragonPartnerRegistry || msg.sender == dragonPartnerFactory || msg.sender == owner()`). Ensure these checks correctly authorize interactions with partner pools and related contracts. `distributePartnerFees` requires `revenueDistributor` to be set.
+        *   **MEV Protection:** Commit-reveal lottery entry (`commitLotteryEntry`, `revealLotteryEntry`, `getCommitmentStatus`) adds a layer of MEV resistance. `MIN_COMMIT_REVEAL_DELAY` (2 blocks) and `COMMITMENT_EXPIRY_BLOCKS` (50 blocks) are reasonable parameters.
+        *   **Adaptive Fee Manager Integration:** `setAdaptiveFeeManager` is timelocked. `getCurrentFees` reads fees from it or fallbacks. `_updateMarketConditionsInternal` and `updateMarketConditions` attempt to call `adaptiveFeeManager.addVolume` and `updateJackpotSize`.
+    *   **Clarity & Readability:** Extremely complex contract combining many functionalities. Natspec helps but understanding requires tracing logic across functions and external contract calls. Packed state flags are good for gas but reduce clarity. Using library structs for fee types improves readability.
+    *   **Best Practices & Idioms:** Inherits ERC20, Ownable, ReentrancyGuard. Uses SafeERC20. Implements LayerZero V1/V2 (mixed) logic. Integrates multiple external contract types. Uses custom errors. Implements timelock and emergency pause. Uses commit-reveal for MEV.
+    *   **Performance:** `_transfer` is the most critical path. Fee calculations, conditional logic, and external calls add gas cost. Swapping tokens for native adds significant gas. Loops in batch setters are bounded.
+    *   **Security:** This contract has the largest attack surface.
+        *   Critical: LZ V1/V2 mix, Trusted Remote check accuracy. Flawed upgradeability (if deployed with those libs). Hardcoded FeeM address.
+        *   High: Correctness of fee calculation formula, consistency of fee distribution logic (especially for native swaps and partner fees), potential for reentrancy in complex interaction flows despite `nonReentrant` (less likely with SafeERC20 and CEI, but needs full trace).
+        *   Medium: Correctness of vault API integration, potential for unexpected behavior in `_transfer` edge cases with various exclusion/pair/pool combinations, reliance on external keepers for fee updates.
+        *   Low: Gas cost of complex logic in `_transfer`.
+    *   **Maintainability & Scalability:** Very low maintainability due to complexity and tight coupling with many external contracts. Scaling depends on the gas cost of the `_transfer` function and the efficiency of external calls and downstream logic.
+*   **Suggestions for Improvement:**
+    1.  **Standardize LayerZero Version:** Use a single, correct LayerZero endpoint interface (V2 recommended) and update all LZ interactions (`send`, `lzReceive`, trusted remote/peer logic) across all relevant contracts (`OmniDragon`, `ChainlinkVRFIntegrator`, `OmniDragonVRFRequester`, `ChainRegistry`). Use official LZ interfaces.
+    2.  **Fix Upgradeability Deployment:** Ensure the contract is deployed via a ProxyAdmin that correctly owns the proxy, or use a different upgradeability pattern.
+    3.  **Verify Fee Calculation Formula:** Rework the fee calculation formula `amount / 10000` in `_transfer` and `processNativeSwapFees` to use the standard `(amount * feeRate) / 10000` approach, ensuring scaling is handled correctly.
+    4.  **Clarify and Rework Fee Distribution:**
+        *   Document the specific tokenomic rule that swapped fees (from sell/transfer) are distributed using buy fee ratios.
+        *   Verify the `_distributeFees` integration with the `JackpotVault` API to prevent double-counting.
+        *   Ensure `processNativeSwapFees` clearly documents the caller's responsibility for handling burn fees separately.
+        *   Ensure `processNativeSwapWithFees` correctly calculates and distributes fees based on the *received* wrapped native amount using the determined ratios.
+    5.  **Configure Hardcoded Addresses:** Make the FeeM registry address configurable via owner/timelock. Make the Uniswap router interface type configurable or pass the router address as the specific interface type.
+    6.  **Improve Readability:** Break down the `_transfer` function into smaller internal helper functions for specific tasks (e.g., `_applyFees`, `_triggerLottery`).
+    7.  **Rigorously Test Edge Cases:** Write comprehensive unit and integration tests covering all possible combinations of `from`/`to` addresses (user, contract, pair, pool, excluded), transaction types, fee states (enabled/disabled, adaptive/static), and amounts (zero, min threshold, max transfer).
+    8.  **Define External Interfaces:** Ensure the external interfaces used for calling other contracts (JackpotVault, RevenueDistributor, LotteryManager, PriceOracle, Ve69LPBoostManager, ChainRegistry, UniswapRouter, LayerZeroEndpoint) are correctly defined and match the target contracts, and that calls use these interfaces.
+
+### 200825052025/core/OmniDragonDeployer.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Implements a CREATE2 factory for deploying the OmniDragon token contract.
+    *   **Potential Bugs & Edge Cases:** None obvious in the CREATE2 deployment logic itself.
+        *   **Hardcoded FeeM Address:** Calls hardcoded FeeM address in `registerMe`. Risk.
+        *   **Incorrect Constructor Args (Potential):** The constructor takes `string memory name_, string memory symbol_, uint256 initialSupply, address lzEndpoint, address jackpotVault, address ve69LPFeeDistributor, address chainRegistry, address multisigAddress`. The `OmniDragon` constructor *should* take `string memory _name, string memory _symbol, address _jackpotVault, address _revenueDistributor, address _lzEndpoint, address _chainRegistry`. There is a mismatch: `OmniDragon` takes `_revenueDistributor`, the deployer passes `ve69LPFeeDistributor`. `OmniDragon` does not take `initialSupply` or `multisigAddress`. This mismatch will cause the deployment to fail due to incorrect constructor arguments. **Critical bug.**
+    *   **Clarity & Readability:** Clear code. Uses assembly for CREATE2 (standard pattern). Natspec is helpful.
+    *   **Best Practices & Idioms:** Standard CREATE2 factory pattern. Stores creation code and init code hash. Emits informative events. Uses custom errors.
+    *   **Performance:** CREATE2 deployment is efficient.
+    *   **Security:** Correct CREATE2 implementation ensures deterministic address. Verifying deployed address matches computed is good. The main security risk is ensuring the `creationCode` is the correct, audited bytecode.
+    *   **Maintainability & Scalability:** Standard.
+*   **Suggestions for Improvement:**
+    1.  **Fix Constructor Argument Mismatch:** Correct the `deployOmniDragon` and `getPrecomputedOmniDragonAddress` functions to encode the exact constructor arguments expected by the `OmniDragon` contract.
+    2.  **Configure FeeM Address:** Make the FeeM address configurable via owner function, protected by timelock.
+    3.  **Use Custom Errors:** Use custom errors instead of `revert()` strings for FeeM registration failure.
+
+### 200825052025/core/OmniDragonLotteryManager.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Central contract for lottery operations, integrating randomness and price oracles. Aims to be the "SINGLE SOURCE OF TRUTH" for lottery.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Randomness Fallback Logic:** In `createLotteryEntry`, if `drawFromRandomnessPool()` fails, it falls back to `requestRandomness()`. If *that* also fails, it reverts the *entire transaction*. This means a failed randomness request will revert the user's swap transaction in OmniDragon. This is undesirable UX. The lottery entry should ideally be *queued* for later randomness fulfillment without reverting the original transaction. The current design forces the randomness step into the user's swap transaction, which is not ideal for Chainlink's asynchronous nature or potential Drand delays/failures. The `try/catch` structure handles immediate failures, but relies on the randomness provider handling asynchronous fulfillment correctly.
+        *   **`_processLotteryWin` Jackpot Size/Market Conditions:** Uses `try/catch` to get `jackpotVault.getJackpotBalance()` and `priceOracle.getMarketConditionScore()`. If these calls fail, it uses default values (0 for jackpot size, 50 for score). This is good fallback behavior.
+        *   **`_calculateJackpotPayoutPercentage` Log10 Approx:** Uses a `while` loop for log10 approximation similar to the simpler version in `ve69LPMath`. Check correctness and gas cost.
+        *   **Hardcoded Parameters:** Lottery thresholds (`MIN_SWAP_AMOUNT_USD`, `MAX_AMOUNT_USD`), probabilities (`BASE_WIN_PROB_BPS`, etc.), cooldown, max entries per user, payout bounds, market condition adjustment factors are hardcoded constants. These should be configurable by the owner via timelock.
+        *   **User Entry Tracking:** Notes that user entries are tracked via events for gas efficiency and require off-chain indexing. This is a common pattern but means on-chain lookup of a user's full entry list is not possible or gas-prohibitive. `getUserEntries` explicitly states this.
+        *   **Cleanup Function:** `cleanupStaleEntries` is `onlyOwner` and batch-limited. This requires manual or keeper intervention.
+    *   **Clarity & Readability:** Natspec is good. Math functions are separated. The core logic in `createLotteryEntry` and `fulfillRandomness` is complex but reasonably structured.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `ReentrancyGuard`. Uses libraries for math (`Math`, `DragonMath`). Uses `try/catch` for external calls. Limits batch size in `cleanupStaleEntries`. Uses a sentinel value `NO_VRF_REQUEST_SENTINEL`. Emits informative events.
+    *   **Performance:** `createLotteryEntry` involves multiple external calls (randomness provider, potentially price oracle) and internal calculations. `fulfillRandomness` also involves internal calculations and an external call (jackpot vault). These are expected costs.
+    *   **Security:**
+        *   `Ownable` protects config and emergency functions.
+        *   `ReentrancyGuard` on state-changing functions.
+        *   Correctly restricts `fulfillRandomness` to `randomnessProvider`.
+        *   Requires `omniDragonToken` for `createLotteryEntry` caller.
+        *   Relies heavily on the randomness provider and price oracle security and availability. `try/catch` mitigates availability issues but not manipulation.
+        *   The correctness of probability and payout math is critical for fairness and tokenomics.
+        *   The reliance on off-chain indexing for user entry history means that data is not verifiable on-chain (except for individual entries by ID).
+    *   **Maintainability & Scalability:** Moderate complexity. Hardcoded parameters reduce flexibility. The reliance on events for user history impacts on-chain functionality.
+*   **Suggestions for Improvement:**
+    1.  **Decouple Randomness from Swap:** Rework the `createLotteryEntry` flow. Instead of immediately requesting VRF and potentially reverting the user's swap, queue the lottery entry and emit an event. An off-chain keeper should monitor queued entries, request randomness from the provider, and then call a separate function (like `fulfillRandomness` already exists) to process the entry. This makes the user's swap transaction faster and more reliable.
+    2.  **Make Parameters Configurable:** Move hardcoded lottery parameters (thresholds, probabilities, cooldown, max entries, payout bounds, market condition factors) to state variables configurable by the owner via timelock.
+    3.  **Verify Math Functions:** Rigorously verify the correctness of `_calculateLotteryProbability`, `_calculateBoostedWinProbability`, `_determineLotteryWin`, `_calculateJackpotPayoutPercentage`, `_calculateJackpotPayout`. Ensure the log10 approximation is sufficiently precise and gas-efficient.
+    4.  **Use Custom Errors:** Replace `require` strings with custom errors.
+
+### 200825052025/core/OmniDragonPeriphery.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Factory for deploying chain-specific periphery contracts (SwapTrigger, VRFConsumer - likely Proxies to implementations).
+    *   **Potential Bugs & Edge Cases:**
+        *   **Relies on Flawed Libraries:** Directly uses `DragonVRFLib` and `DragonDeployerLib` which contain critical bugs related to proxy ownership and unsafe external calls. **Critical.**
+        *   **Hardcoded FeeM Address:** Calls hardcoded FeeM address in `registerMe`. Risk.
+    *   **Clarity & Readability:** Clear code. Uses custom errors (single letter) for gas savings, but this severely impacts readability. Custom error codes with descriptive names are much better.
+    *   **Best Practices & Idioms:** Uses `Ownable`. Uses libraries for deployment. Emits events.
+    *   **Performance:** Deployment is gas-intensive.
+    *   **Security:** The reliance on the flawed upgradeability libraries makes deployments potentially insecure for upgrades. Hardcoded FeeM address is a risk.
+    *   **Maintainability & Scalability:** The dependency on buggy libraries severely impacts maintainability. Readability is low due to single-letter errors.
+*   **Suggestions for Improvement:**
+    1.  **Fix Upgradeability Libraries:** Ensure `DragonVRFLib` and `DragonDeployerLib` are corrected to deploy proxies with the ProxyAdmin as owner.
+    2.  **Use Correct Proxy Deployment:** If `DragonPartnerPool` is also an upgradeable contract, ensure the factory correctly deploys it using the fixed library functions or standard OZ patterns.
+    3.  **Replace Unsafe Calls:** Ensure the `updateLotteryContract` and `updateVRFPeers` functions in `DragonVRFLib` (used here) are fixed to use safe interface calls.
+    4.  **Use Descriptive Custom Errors:** Replace single-letter custom errors with meaningful names (e.g., `ZeroAddress`).
+    5.  **Configure FeeM Address:** Make the FeeM address configurable via owner function, protected by timelock.
+
+### 200825052025/core/OmniDragonRandomnessProvider.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Central contract for randomness management, integrating Chainlink and Drand, implementing bucket and pool systems, and providing fallback mechanisms. Aligns well with the detailed spec.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Drand Integration Flow:** The `_requestDrandVRF` function calls `_aggregateDrandRandomness()`, which fetches the *latest* aggregated value from the stored Drand network info. It then mixes this with request ID and requester. This is a synchronous "pull latest" model, different from the asynchronous callback for Chainlink. While functional, this model might not guarantee randomness that is unpredictable *at the exact moment of the request* if the latest Drand beacon hasn't been recently updated by a keeper calling `collectDrandRandomness()`. The spec mentions Drand latency is ~1-2 blocks (which is for fetching and verifying), but this synchronous fulfillment uses a potentially older value. The `_aggregateDrandRandomness` needs to be called frequently.
+        *   **Incomplete Drand Aggregation:** The `_aggregateDrandRandomness` function currently only updates the `aggregatedRandomness` if *at least one* active network has a *newer round*. It also seems to calculate `totalWeight` and `activeNetworks` but doesn't *use* the weights in the actual mixing formula (`randomSeed = uint256(keccak256(abi.encodePacked(randomSeed, randomness, round, network.weight)));`). It combines the weight *into the hash* but doesn't use it for proportional contribution. The spec mentioned "Weighted mixing". This requires clarification or correction.
+        *   **Missing Drand Verification:** `_aggregateDrandRandomness` relies on `IDrandVRFIntegrator(network.integrator).getLatestRandomness()`. This function in the `DrandVRFIntegrator` contract (as reviewed) does *not* include signature verification. The verification logic needs to be moved to the integrator or handled here when fetching raw Drand data. The current setup means the randomness provider trusts the integrator's `getLatestRandomness` return value implicitly.
+        *   **Bucket Refill Trigger:** `_shouldRefillBucket()` checks `_getBucketRemainingNumbers() <= REFILL_THRESHOLD && block.timestamp >= currentBucket.lastRefill + CHAINLINK_REQUEST_INTERVAL;`. This means the bucket only refills when *both* are true. If the bucket drains quickly before the interval, it will remain empty. Consider removing the time check or making it a softer condition (e.g., trigger refill request if below threshold, but only process refill if interval has passed).
+        *   **Refill Source:** `_requestBucketRefill()` tries the `primaryVRFSource`. If that fails, it calls `_refillBucketWithDrand()`. This is a simple fallback. A more robust fallback might iterate through sources by priority as defined in the `VRFConfig`.
+        *   **Pool Refresh Trigger:** `_shouldRefreshPool()` logic checks `remainingNumbers < MIN_POOL_SIZE || block.timestamp >= randomnessPool.lastRefreshTime + POOL_REFRESH_INTERVAL || randomnessPool.randomNumbers.length == 0`. This logic seems reasonable. `_initiatePoolRefresh()` triggers Chainlink or falls back to Drand-only refresh.
+        *   **Pool Generation with Minimal Entropy:** The fallback to `minimalSeed` using block data is noted as less secure but prevents revert. This should ideally only happen during very initial bootstrap before Drand networks are active. Logging the event is good.
+        *   **Drand History Size:** `drandRandomnessHistory` and `networkRandomnessHistory` use fixed `MAX_DRAND_HISTORY` (100) for circular buffers. This is good for preventing unbounded growth.
+        *   **Configuration Parameters:** `MAX_DRAND_NETWORKS`, `MAX_RETRY_ATTEMPTS`, `VRF_TIMEOUT_SECONDS`, `AGGREGATION_TIMEOUT_SECONDS` are constants. Consider making them configurable via owner/timelock.
+        *   **External Funding:** The contract needs funding for Chainlink/LayerZero fees. `fundChainlinkIntegrator` and `receive` functions handle funding, but off-chain monitoring is needed.
+    *   **Clarity & Readability:** Very complex contract. Natspec is generally good and explains concepts like bucket/pool. The Drand aggregation logic in `_aggregateDrandRandomness` is hard to follow, especially how weights are used (or not used) in mixing.
+    *   **Best Practices & Idioms:** Uses `Ownable`, `ReentrancyGuard`. Uses enums for VRF sources. Uses structs for config, requests, bucket, pool, network info. Implements LayerZero callback (`fulfillRandomness` - although it's a custom interface name here). Uses circular buffers for history. Uses try/catch for external calls. Emits numerous informative events.
+    *   **Performance:** `requestRandomness` involves external calls if bucket/pool is not used. `drawRandomnessFromBucket` and `drawFromRandomnessPool` are designed to be cheap (constant time after refill). `_aggregateDrandRandomness` involves looping through Drand networks (bounded by `MAX_DRAND_NETWORKS`) and external calls to integrators. Pool generation (`_generateRandomnessPool`, `_collectEntropySources`, `_cryptographicMix`) involves array iteration and hashing, which is gas-intensive but happens less frequently (on refresh).
+    *   **Security:**
+        *   `Ownable` protects config and emergency functions.
+        *   `ReentrancyGuard` on external calls.
+        *   Restricts `fulfillRandomness` to expected senders.
+        *   Relies on the security and integrity of configured VRF sources and integrators. Missing Drand verification is a critical gap.
+        *   Randomness generation from seeds (`_generateFromSeed`, `_cryptographicMix`) must be cryptographically sound. `keccak256` based mixing is standard.
+        *   Bucket/Pool system design trades some security (derived from a single, potentially older seed) for cost/speed. This tradeoff needs to be understood by consumers. Using recent block data for mixing bucket/pool numbers provides additional "practical" unpredictability but doesn't replace the need for a truly random seed source.
+        *   Fallback logic needs review to ensure it doesn't introduce weaker randomness sources prematurely or fail requests when fallbacks are available.
+    *   **Maintainability & Scalability:** High complexity due to managing multiple sources and optimization mechanisms. Drand integration requires significant work (verification, weight usage). Requires off-chain keepers for Drand collection and pool refresh initiation.
+*   **Suggestions for Improvement:**
+    1.  **Implement Drand Verification:** Ensure signature verification is done either in the Drand integrator contracts or within this contract when fetching Drand data, *before* using the randomness.
+    2.  **Rework Drand Aggregation:** Verify and implement the weighted mixing logic for Drand aggregation correctly in `_aggregateDrandRandomness`.
+    3.  **Clarify Drand Flow:** Document the synchronous "pull latest" model for Drand and the asynchronous callback model for Chainlink, including their implications for randomness freshness.
+    4.  **Optimize Fallback Logic:** Implement a more robust fallback mechanism that prioritizes active sources based on their configured priority levels.
+    5.  **Make Parameters Configurable:** Move hardcoded parameters like `MAX_DRAND_NETWORKS`, retry counts, timeouts, and bucket/pool thresholds/intervals to state variables configurable by the owner via timelock.
+    6.  **Document Keeper Requirements:** Clearly document that external keepers are required to call `collectDrandRandomness()` and `_initiatePoolRefresh()` (if not triggered automatically by draw calls) to keep Drand data fresh and the pool replenished.
+    7.  **Use Custom Errors:** Replace `require` strings with custom errors.
+
+### 200825052025/config/ChainRegistry.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Central registry for chain configuration and LayerZero endpoint proxy.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Placeholder Endpoint and Update Window:** The constructor takes a placeholder endpoint and sets a fixed `UPDATE_PERIOD` and `_updateDeadline`. The `updateEndpoint` function can only be called once within this window. This allows bootstrapping with placeholder values and setting the real, chain-specific endpoint later. This design is specific and requires careful deployment planning. If the window expires before the endpoint is set, it might require redeployment or a mechanism to extend/reset the window.
+        *   **LZ V1/V2 Mix:** The fallback function delegates calls to `lzEndpointAddress`. The external interfaces (`ILayerZeroEndpoint`) and the main `OmniDragon` contract's `lzReceive` suggest potential V1/V2 inconsistencies. The delegation will only work if the calldata matches the *actual* deployed endpoint's functions, which must be consistent with the interfaces used by OmniDragon. **Critical risk.**
+        *   **Hardcoded FeeM Address:** Calls hardcoded FeeM address in `registerMe`. Risk.
+        *   **Custom Errors:** Uses single-letter custom errors (`F`, `Z`) for gas savings. This significantly reduces readability and debugging capabilities. Use descriptive custom error names.
+    *   **Clarity & Readability:** Code is reasonably clear except for the single-letter errors and assembly in the fallback. Natspec is helpful.
+    *   **Best Practices & Idioms:** Uses `Ownable`. Uses struct for ChainConfig. Uses an array (`supportedChains`) and mapping (`chainConfigs`) for registry. Emits informative events. Implements a fallback function for proxying.
+    *   **Performance:** Registry lookups in mappings are O(1). Iterating `supportedChains` is O(N). Fallback delegatecall adds gas overhead compared to direct calls but avoids deploying the endpoint interface in multiple contracts.
+    *   **Security:**
+        *   `Ownable` protects config functions.
+        *   Input validation on addresses and chain existence is present.
+        *   The limited window for setting the real endpoint is a security feature but also an operational risk.
+        *   The fallback function's delegatecall is a security-sensitive pattern; it must delegate to a trusted address (`lzEndpointAddress`) and relies on the security of that contract.
+        *   The correctness of the delegatecall relies on the interfaces used matching the target contract exactly.
+    *   **Maintainability & Scalability:** Reasonably maintainable. Adding/removing chains involves array management. The single-letter errors harm maintainability.
+*   **Suggestions for Improvement:**
+    1.  **Standardize LayerZero Version:** Ensure a single, consistent LayerZero endpoint version is used across all contracts and update interfaces and calls accordingly. Verify that the fallback delegatecall correctly proxies calls to the chosen LZ endpoint version. Use official LZ interfaces.
+    2.  **Improve Endpoint Update Mechanism:** Consider a more flexible mechanism for updating the endpoint address after the initial window, perhaps via timelock or multi-signature.
+    3.  **Use Descriptive Custom Errors:** Replace single-letter custom errors with meaningful names.
+    4.  **Configure FeeM Address:** Make the FeeM address configurable via owner function, protected by timelock.
+
+### 200825052025/config/DragonConfig.sol
+
+*   **Review:**
+    *   **Adherence to Guidance:** Defines various constants for tokenomics, fees, cross-chain IDs, VRF, and lottery parameters. Documents scaling.
+    *   **Potential Bugs & Edge Cases:**
+        *   **Fee Component Checks:** `verifyFeeIntegrity` checks that buy and sell fee components sum up to the total fee. This is a good self-check function.
+        *   **Hardcoded Parameters:** All constants are hardcoded. As noted in other reviews, many of these (fees, win probability bounds, amount thresholds, boost parameters) should ideally be configurable by governance/owner via timelock to allow for tokenomic tuning without contract redeployment.
+        *   **`calculateProbability`:** The function calculates win probability based on USD amount. It uses linear interpolation after capping the input. The formula `MIN_PROBABILITY + (position * probabilityRange / range);` is a standard linear interpolation calculation. It uses a `PROBABILITY_PRECISION` of 1,000,000, meaning the probability is `probability / 1,000,000`. This is different from the BPS (10000) scaling used elsewhere, which is slightly inconsistent but documented by the variable name.
+    *   **Clarity & Readability:** Good Natspec and variable names. Constants are well-organized.
+    *   **Best Practices & Idioms:** Uses constants to centralize configuration. Pure function for calculation.
+    *   **Performance:** Pure functions are cheap.
+    *   **Security:** As a pure contract, not directly vulnerable. Its security contribution is providing immutable, verifiable configuration constants. Incorrect constant values would impact tokenomics.
+    *   **Maintainability & Scalability:** Hardcoded parameters limit flexibility.
+*   **Suggestions for Improvement:**
+    1.  **Move Configurable Parameters:** Identify which constants are intended to be tunable parameters (fees, boosts, thresholds, intervals) and move them to state variables in the relevant contracts (`OmniDragon`, `DragonFeeManager`, `OmniDragonLotteryManager`, etc.), making them configurable by owner/governance (protected by timelock). Keep truly immutable constants (like token name/symbol, chain IDs) here.
+    2.  **Consistency in Scaling:** While `PROBABILITY_PRECISION` is documented, using BPS (10000) consistently for all percentages and ratios might reduce confusion across the codebase.
+
+---
+
+## Overall Suggestions for Improvement
+
+Based on the detailed review, here are the primary areas for improvement, prioritized by impact:
+
+1.  **Address Critical Architectural Flaws:**
+    *   **LayerZero Version Consistency:** Standardize on a single LayerZero endpoint version (likely V2 as per latest interfaces) and ensure all related contracts (`OmniDragon`, `ChainlinkVRFIntegrator`, `OmniDragonVRFRequester`, `ChainRegistry`) use the correct interfaces, messaging patterns, and trusted remote/peer validation logic for that version. Use official LayerZero interfaces.
+    *   **Upgradeable Proxy Ownership:** Rework the deployment logic in `DragonDeployerLib` and `DragonVRFLib` to follow the standard OpenZeppelin `TransparentUpgradeableProxy` pattern, where the `ProxyAdmin` contract owns the proxy, not the external `owner()` address. Ensure the `owner()` address controls the `ProxyAdmin`.
+    *   **Drand Integration Flow:** Rework the Drand flow to be clearly asynchronous or keeper-driven. The consumer should request, the keeper should fetch/verify via the integrator, and the integrator should callback the consumer via `fulfillRandomness`. Implement full BLS signature verification in `DrandVRFIntegrator` (or a utility library it calls).
+
+2.  **Verify and Standardize Mathematical Logic:**
+    *   **Consolidate Math Libraries:** Merge core mathematical functions (especially `cubeRoot`, voting power calculations, boost calculations, fee allocation) into a single, well-audited library (`DragonMath` is a good candidate).
+    *   **Rigorously Verify Custom Math:** Subject custom implementations like `cubeRoot` and `_log10` to thorough mathematical and unit testing to guarantee correctness and precision with the project's scaling conventions.
+    *   **Standardize Formulas:** Define and implement the exact formulas for voting power, boosts, fee allocation, probability, and payouts consistently using the consolidated math library and verified core functions.
+
+3.  **Clarify and Rework Token Flows and Application Logic:**
+    *   **Jackpot Vault Accumulation:** Fix the `addToJackpot(uint256 amount)` function in `DragonJackpotVault` to correctly receive tokens via `safeTransferFrom`. Ensure the internal balance tracking (`jackpotBalances`) is accurate for all ways funds can enter.
+    *   **Partner Pool Jackpot Entry:** Rework the `enterJackpot` function in `DragonPartnerPool` and its interaction with the boost manager and jackpot vault. Ensure wrapped native tokens go directly to the vault and that the correct boost (ve69LP vs partner probability) is applied by the appropriate contract (Lottery Manager or Boost Manager) to the correct value (entry *amount* vs win *probability* vs payout *amount*).
+    *   **Partner Pool Reward Distribution:** Correct the `distributeRewards` function in `DragonPartnerPool` to ensure the partner probability boost is *not* incorrectly applied to reward distribution amounts. Clarify which tokens are distributed as staking rewards.
+    *   **OmniDragon Fee Logic:** Rework fee calculations in `OmniDragon._transfer` and `processNativeSwapFees` to use the standard `(amount * feeRate) / 10000` formula. Verify the logic for distributing fees collected from sell/transfer transactions using buy ratios.
+
+4.  **Improve Configuration Management:**
+    *   **Make Tunable Parameters Configurable:** Move all tokenomic parameters (fees, boosts, thresholds, intervals, limits) from hardcoded constants in `DragonConfig` and math libraries to state variables in the relevant contracts (`OmniDragon`, `DragonFeeManager`, `OmniDragonLotteryManager`, `ve69LP`, `ve69LPBoostManager`, `DragonPartnerRegistry`).
+    *   **Implement Timelock Protection:** Protect the setter functions for these configurable parameters using the `onlyAfterTimelock` modifier from `DragonTimelockLib` to enforce governance/owner timelock delays.
+    *   **Configure External Addresses:** Make critical external addresses like the Sonic FeeM Registry, Wrapped Native Token (in `DragonPartnerPool`), and DEX Router configurable by the owner (protected by timelock).
+
+5.  **Enhance Gas Efficiency and Scalability:**
+    *   **Optimize Loops:** Address O(N) loops in `ve69LPBoostManager.removeVote`, `ve69LPBoostManager.calculatePartnersBoost`, `ve69LPBoostManager.getPartnerProbabilityBoostByAddress`, `DragonPartnerPool.initialize`, `DragonPartnerRegistry.removePartner` (though removal is less critical than reads/frequent writes) by using appropriate data structures (e.g., `EnumerableSet`, mappings) for O(1) or O(log N) lookups/removals where feasible.
+    *   **Review Complex Math Gas Costs:** Verify the gas cost of iterative math functions (`cubeRoot`, `_log10`, fee allocation) for expected input ranges.
+    *   **Decouple Randomness Request:** Modify `OmniDragonLotteryManager.createLotteryEntry` to queue requests and emit events instead of synchronously requesting VRF to reduce the gas cost and failure risk for the user's swap transaction.
+
+6.  **Improve Code Clarity and Readability:**
+    *   **Consistent Error Handling:** Replace `require` strings and single-letter custom errors (`F`, `Z`) with descriptive custom error names (e.g., `ZeroAddress`, `UnauthorizedCaller`).
+    *   **Document Complex Logic:** Add detailed Natspec comments to explain complex internal logic, especially in state-changing functions like `OmniDragon._transfer` and `OmniDragonRandomnessProvider._aggregateDrandRandomness`.
+    *   **Standardize Library Usage:** Use official OpenZeppelin libraries via `@openzeppelin/contracts` imports. Consolidate custom math libraries.
+
+7.  **Strengthen Security Measures:**
+    *   **Multisig for Owner:** Strongly recommend using a multisig wallet for the `owner()` address in production deployments, as highlighted in the Threat Model.
+    *   **Audited Dependencies:** Ensure all external dependencies (OpenZeppelin, LayerZero, Chainlink, Drand verification libraries) are from trusted, audited sources.
+    *   **Thorough Testing:** Conduct extensive unit, integration, and fuzz testing, focusing on the identified bug areas, edge cases, and security vulnerabilities (reentrancy in complex flows, access control bypass, data integrity, mathematical correctness, DoS vectors).
+
+This is a comprehensive system with many interconnected parts. Addressing the critical architectural and logic flaws, particularly related to LayerZero versioning, upgradeability, VRF flows, mathematical correctness, and token flows, is paramount before deployment.
+
+---
+
+I hope this detailed review is helpful! Let me know if you have any questions or would like me to elaborate on any specific point.
