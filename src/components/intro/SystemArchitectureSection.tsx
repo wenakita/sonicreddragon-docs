@@ -44,7 +44,7 @@ export default function SystemArchitectureSection() {
 
         <ScrollRevealWrapper animation="fadeInUp" duration={1000} delay={200}>
           <div className="mermaid-container">
-            <MermaidControls targetSelector=".mermaid-container .mermaid" />
+            <MermaidControls />
             <MermaidDiagram chart={systemArchitectureChart} />
           </div>
         </ScrollRevealWrapper>

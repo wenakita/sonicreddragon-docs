@@ -961,21 +961,24 @@ div[style*="opacity: 0"] {
   margin-bottom: 20px;
   flex-wrap: wrap;
   justify-content: center;
+  position: relative;
+  z-index: 10;
 }
 
 .mermaid-btn {
-  background: linear-gradient(135deg, var(--orange-primary), var(--blue-primary));
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.2);
+  background: linear-gradient(135deg, var(--orange-primary), var(--blue-primary)) !important;
+  border: none !important;
+  color: white !important;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.2) !important;
+  outline: none !important;
 }
 
 .mermaid-btn::before {
@@ -994,15 +997,15 @@ div[style*="opacity: 0"] {
 }
 
 .mermaid-btn:hover {
-  transform: translateY(-2px) scale(1.05);
+  transform: translateY(-2px) scale(1.05) !important;
   box-shadow: 
     0 8px 20px rgba(251, 146, 60, 0.3),
-    0 4px 10px rgba(59, 130, 246, 0.2);
+    0 4px 10px rgba(59, 130, 246, 0.2) !important;
 }
 
 .mermaid-btn:active {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.25);
+  transform: translateY(-1px) scale(1.02) !important;
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.25) !important;
 }
 
 /* Professional Cards Styling */
@@ -1120,10 +1123,14 @@ blockquote {
   background: transparent !important;
 }
 
-/* Make SVGs responsive */
-.mermaid svg {
+/* Make SVGs responsive and zoomable */
+.mermaid svg,
+.docusaurus-mermaid-container svg,
+.mermaid-container svg {
   max-width: 100% !important;
   height: auto !important;
+  transform-origin: center center !important;
+  transition: transform 0.3s ease-out !important;
 }
 
 /* Fix light mode colors for better contrast */

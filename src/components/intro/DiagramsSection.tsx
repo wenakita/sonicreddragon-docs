@@ -97,7 +97,7 @@ export default function DiagramsSection() {
         <h2>Fee Structure & Distribution</h2>
         <ScrollRevealWrapper animation="fadeInLeft" duration={1000} delay={300}>
           <div className="mermaid-container">
-            <MermaidControls targetSelector=".mermaid-container .mermaid" />
+            <MermaidControls />
             <MermaidDiagram chart={feeStructureChart} />
           </div>
         </ScrollRevealWrapper>
@@ -108,7 +108,7 @@ export default function DiagramsSection() {
         <h2>Lottery Probability System</h2>
         <ScrollRevealWrapper animation="fadeInRight" duration={1000} delay={400}>
           <div className="mermaid-container">
-            <MermaidControls targetSelector=".mermaid-container .mermaid" />
+            <MermaidControls />
             <MermaidDiagram chart={lotteryProbabilityChart} />
           </div>
         </ScrollRevealWrapper>
@@ -119,7 +119,7 @@ export default function DiagramsSection() {
         <h2>Cross-Chain VRF Architecture</h2>
         <ScrollRevealWrapper animation="scale" duration={1000} delay={500}>
           <div className="mermaid-container">
-            <MermaidControls targetSelector=".mermaid-container .mermaid" />
+            <MermaidControls />
             <MermaidDiagram chart={vrfArchitectureChart} />
           </div>
         </ScrollRevealWrapper>
@@ -130,7 +130,7 @@ export default function DiagramsSection() {
         <h2>Token Economics Flow</h2>
         <ScrollRevealWrapper animation="fadeInUp" duration={1000} delay={600}>
           <div className="mermaid-container">
-            <MermaidControls targetSelector=".mermaid-container .mermaid" />
+            <MermaidControls />
             <MermaidDiagram chart={tokenEconomicsChart} />
           </div>
         </ScrollRevealWrapper>

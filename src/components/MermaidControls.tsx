@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import anime from 'animejs/lib/anime.es.js';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 
 interface MermaidControlsProps {
@@ -17,83 +16,109 @@ export default function MermaidControls({
   useEffect(() => {
     if (!isBrowser || !controlsRef.current) return;
 
-    // Animate controls entrance
-    anime({
-      targets: controlsRef.current.children,
-      opacity: [0, 1],
-      translateY: [10, 0],
-      duration: 400,
-      delay: anime.stagger(100),
-      easing: 'easeOutCubic'
+    // Animate controls entrance with CSS
+    const buttons = Array.from(controlsRef.current.children) as HTMLElement[];
+    buttons.forEach((button, index) => {
+      button.style.opacity = '0';
+      button.style.transform = 'translateY(10px)';
+      button.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+      
+      setTimeout(() => {
+        button.style.opacity = '1';
+        button.style.transform = 'translateY(0)';
+      }, index * 100);
     });
   }, [isBrowser]);
 
   const handleZoomIn = () => {
-    const mermaidElements = document.querySelectorAll(targetSelector);
-    mermaidElements.forEach((element) => {
-      const svg = element.querySelector('svg');
+    console.log('Zoom In clicked');
+    // Look for both .mermaid and .docusaurus-mermaid-container
+    const containers = document.querySelectorAll('.mermaid-container, .docusaurus-mermaid-container');
+    console.log('Found containers:', containers.length);
+    
+    containers.forEach((container) => {
+      const svg = container.querySelector('svg');
+      console.log('Found SVG:', !!svg);
       if (svg) {
-        const currentScale = parseFloat(svg.style.transform?.match(/scale\(([\d.]+)\)/)?.[1] || '1');
+        const currentTransform = svg.style.transform || '';
+        const currentScale = parseFloat(currentTransform.match(/scale\(([\d.]+)\)/)?.[1] || '1');
         const newScale = Math.min(currentScale * 1.2, 3);
         
-        anime({
-          targets: svg,
-          scale: newScale,
-          duration: 300,
-          easing: 'easeOutCubic'
-        });
+        console.log('Current scale:', currentScale, 'New scale:', newScale);
+        
+        // Apply transform with scale
+        const baseTransform = currentTransform.replace(/scale\([\d.]+\)/, '').trim();
+        svg.style.transform = `${baseTransform} scale(${newScale})`.trim();
+        svg.style.transformOrigin = 'center center';
+        
+        // Add smooth transition
+        svg.style.transition = 'transform 0.3s ease-out';
       }
     });
   };
 
   const handleZoomOut = () => {
-    const mermaidElements = document.querySelectorAll(targetSelector);
-    mermaidElements.forEach((element) => {
-      const svg = element.querySelector('svg');
+    console.log('Zoom Out clicked');
+    const containers = document.querySelectorAll('.mermaid-container, .docusaurus-mermaid-container');
+    
+    containers.forEach((container) => {
+      const svg = container.querySelector('svg');
       if (svg) {
-        const currentScale = parseFloat(svg.style.transform?.match(/scale\(([\d.]+)\)/)?.[1] || '1');
+        const currentTransform = svg.style.transform || '';
+        const currentScale = parseFloat(currentTransform.match(/scale\(([\d.]+)\)/)?.[1] || '1');
         const newScale = Math.max(currentScale * 0.8, 0.5);
         
-        anime({
-          targets: svg,
-          scale: newScale,
-          duration: 300,
-          easing: 'easeOutCubic'
-        });
+        console.log('Zoom out - Current scale:', currentScale, 'New scale:', newScale);
+        
+        // Apply transform with scale
+        const baseTransform = currentTransform.replace(/scale\([\d.]+\)/, '').trim();
+        svg.style.transform = `${baseTransform} scale(${newScale})`.trim();
+        svg.style.transformOrigin = 'center center';
+        
+        // Add smooth transition
+        svg.style.transition = 'transform 0.3s ease-out';
       }
     });
   };
 
   const handleResetView = () => {
-    const mermaidElements = document.querySelectorAll(targetSelector);
-    mermaidElements.forEach((element) => {
-      const svg = element.querySelector('svg');
+    console.log('Reset View clicked');
+    const containers = document.querySelectorAll('.mermaid-container, .docusaurus-mermaid-container');
+    
+    containers.forEach((container) => {
+      const svg = container.querySelector('svg');
       if (svg) {
-        anime({
-          targets: svg,
-          scale: 1,
-          translateX: 0,
-          translateY: 0,
-          duration: 400,
-          easing: 'easeOutCubic'
-        });
+        console.log('Resetting SVG transform');
+        // Reset transform
+        svg.style.transform = '';
+        svg.style.transformOrigin = 'center center';
+        
+        // Add smooth transition
+        svg.style.transition = 'transform 0.4s ease-out';
       }
     });
   };
 
   const handleReplay = () => {
-    const mermaidElements = document.querySelectorAll(targetSelector);
-    mermaidElements.forEach((element) => {
-      const svg = element.querySelector('svg');
+    console.log('Replay clicked');
+    const containers = document.querySelectorAll('.mermaid-container, .docusaurus-mermaid-container');
+    
+    containers.forEach((container) => {
+      const svg = container.querySelector('svg');
       if (svg) {
-        // Pulse animation to indicate replay
-        anime({
-          targets: svg,
-          scale: [1, 1.05, 1],
-          opacity: [1, 0.8, 1],
-          duration: 600,
-          easing: 'easeInOutQuad'
-        });
+        console.log('Replaying SVG animation');
+        // Store current transform
+        const currentTransform = svg.style.transform || '';
+        
+        // Simple pulse animation
+        svg.style.transition = 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
+        svg.style.transform = currentTransform + ' scale(1.05)';
+        svg.style.opacity = '0.8';
+        
+        setTimeout(() => {
+          svg.style.transform = currentTransform;
+          svg.style.opacity = '1';
+        }, 300);
       }
     });
   };
@@ -113,76 +138,32 @@ export default function MermaidControls({
         className="mermaid-btn"
         onClick={handleZoomIn}
         title="Zoom In"
-        style={{
-          background: 'var(--ifm-color-primary)',
-          border: '1px solid var(--ifm-color-primary-dark)',
-          color: 'white',
-          padding: '6px 12px',
-          borderRadius: '6px',
-          fontSize: '13px',
-          fontWeight: 500,
-          cursor: 'pointer',
-          transition: 'all 0.2s ease'
-        }}
       >
-        Zoom In
+        🔍+ Zoom In
       </button>
       
       <button
         className="mermaid-btn"
         onClick={handleZoomOut}
         title="Zoom Out"
-        style={{
-          background: 'var(--ifm-color-primary)',
-          border: '1px solid var(--ifm-color-primary-dark)',
-          color: 'white',
-          padding: '6px 12px',
-          borderRadius: '6px',
-          fontSize: '13px',
-          fontWeight: 500,
-          cursor: 'pointer',
-          transition: 'all 0.2s ease'
-        }}
       >
-        Zoom Out
+        🔍- Zoom Out
       </button>
       
       <button
         className="mermaid-btn"
         onClick={handleResetView}
         title="Reset View"
-        style={{
-          background: 'var(--ifm-color-primary)',
-          border: '1px solid var(--ifm-color-primary-dark)',
-          color: 'white',
-          padding: '6px 12px',
-          borderRadius: '6px',
-          fontSize: '13px',
-          fontWeight: 500,
-          cursor: 'pointer',
-          transition: 'all 0.2s ease'
-        }}
       >
-        Reset View
+        🔄 Reset View
       </button>
       
       <button
         className="mermaid-btn"
         onClick={handleReplay}
         title="Replay Animation"
-        style={{
-          background: 'var(--ifm-color-primary)',
-          border: '1px solid var(--ifm-color-primary-dark)',
-          color: 'white',
-          padding: '6px 12px',
-          borderRadius: '6px',
-          fontSize: '13px',
-          fontWeight: 500,
-          cursor: 'pointer',
-          transition: 'all 0.2s ease'
-        }}
       >
-        Replay
+        ▶️ Replay
       </button>
     </div>
   );
