@@ -249,8 +249,6 @@ body {
   width: 100%;
   overflow-x: hidden;
   position: relative;
-  background: radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-              radial-gradient(ellipse at bottom right, rgba(249, 115, 22, 0.05) 0%, transparent 50%);
 }
 
 /* Document container styling - centered with gradient accents */
@@ -727,20 +725,17 @@ table td {
   background-color: var(--neutral-100);
 }
 
-/* Doc item main content - centered with gradient accents */
+/* Doc item main content - centered with subtle styling */
 article:not(.intro-page) {
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(26, 26, 26, 0.85) 100%);
+  background-color: var(--card-bg);
   border-radius: var(--ifm-global-radius);
   padding: 3rem;
-  box-shadow: 0 0 40px rgba(59, 130, 246, 0.1), 0 0 40px rgba(249, 115, 22, 0.1);
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ifm-toc-border-color);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   max-width: 900px;
   margin: 2rem auto;
-  position: relative;
-  overflow: hidden;
 }
 
 article:not(.intro-page)::before {
@@ -849,7 +844,7 @@ article.intro-page {
   margin: 0 auto;
 }
 
-/* Markdown content with gradient accents */
+/* Markdown content - centered without gradients */
 .markdown {
   --ifm-h1-font-size: clamp(2rem, 4vw, 3rem);
   --ifm-h2-font-size: clamp(1.5rem, 3vw, 2.25rem);
@@ -860,10 +855,7 @@ article.intro-page {
   font-weight: 800;
   letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #f97316 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--ifm-heading-color);
   text-align: center;
   padding: 1rem 0;
 }
@@ -873,10 +865,7 @@ article.intro-page {
   letter-spacing: -0.01em;
   margin-top: 3rem;
   margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, #60a5fa 0%, #fb923c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--ifm-color-primary);
   position: relative;
   padding-bottom: 1rem;
 }
@@ -886,9 +875,9 @@ article.intro-page {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 100%;
+  width: 60px;
   height: 2px;
-  background: linear-gradient(90deg, #3b82f6 0%, #f97316 100%);
+  background: var(--ifm-color-primary);
   border-radius: 1px;
 }
 
@@ -898,15 +887,11 @@ article.intro-page {
   margin-bottom: 1rem;
 }
 
-/* Modern code blocks with gradient accent */
+/* Modern code blocks - subtle styling */
 .markdown pre {
   border-radius: 12px;
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.1), 0 0 30px rgba(249, 115, 22, 0.1);
-  border: 1px solid transparent;
-  background-image: linear-gradient(var(--code-bg), var(--code-bg)),
-                    linear-gradient(135deg, #3b82f6 0%, #f97316 100%);
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ifm-toc-border-color);
   margin: 2rem auto;
   max-width: 100%;
 }
@@ -1005,8 +990,7 @@ article.intro-page {
 .pagination-nav {
   margin-top: 4rem;
   padding-top: 2rem;
-  border-top: 2px solid transparent;
-  border-image: linear-gradient(90deg, #3b82f6 0%, #f97316 100%) 1;
+  border-top: 1px solid var(--ifm-toc-border-color);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -2680,10 +2664,10 @@ main[class*="docMainContainer"]:not(:has(article.intro-page)) {
   overflow-y: auto;
   max-width: 250px;
   padding: 1rem;
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.9) 0%, rgba(26, 26, 26, 0.7) 100%);
+  background: var(--ifm-background-surface-color);
   border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.1), 0 0 20px rgba(249, 115, 22, 0.1);
+  border: 1px solid var(--ifm-toc-border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Ensure proper spacing when sidebar is visible - centered layout */
@@ -2708,28 +2692,18 @@ main[class*="docMainContainer"]:not(:has(article.intro-page)) {
   margin: 0 auto;
 }
 
-/* Main wrapper with gradient background overlay */
+/* Main wrapper - remove gradient overlays */
 .main-wrapper {
   min-height: calc(100vh - 60px - 300px);
   display: flex;
   width: 100%;
   overflow-x: hidden;
   position: relative;
-  background: radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-              radial-gradient(ellipse at bottom right, rgba(249, 115, 22, 0.05) 0%, transparent 50%);
 }
 
 /* Doc page specific gradient overlays */
 body:not(:has(article.intro-page)) .main-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
-              radial-gradient(circle at 80% 50%, rgba(249, 115, 22, 0.03) 0%, transparent 50%);
-  pointer-events: none;
+  display: none;
 }
 
 /* Mobile responsive centering */
@@ -2752,43 +2726,41 @@ body:not(:has(article.intro-page)) .main-wrapper::before {
   }
 }
 
-/* Breadcrumb with gradient */
+/* Breadcrumb - subtle styling */
 .theme-doc-breadcrumbs {
   max-width: 900px;
   margin: 0 auto 2rem;
   padding: 1rem;
-  background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
+  background: var(--ifm-background-surface-color);
   border-radius: 8px;
 }
 
-/* Doc footer with gradient */
+/* Doc footer - subtle styling */
 .theme-doc-footer {
   max-width: 800px;
   margin: 4rem auto 0;
   padding: 2rem 0;
-  border-top: 2px solid transparent;
-  border-image: linear-gradient(90deg, #3b82f6 0%, #f97316 100%) 1;
+  border-top: 1px solid var(--ifm-toc-border-color);
 }
 
-/* Edit this page link with gradient */
+/* Edit this page link */
 .theme-doc-footer-edit-meta-row {
   justify-content: center;
 }
 
 .theme-doc-footer-edit-meta-row a {
-  color: #60a5fa;
+  color: var(--ifm-color-primary);
   transition: all 0.2s ease;
 }
 
 .theme-doc-footer-edit-meta-row a:hover {
-  color: #f97316;
+  color: var(--ifm-color-primary-dark);
   transform: translateX(2px);
 }
 
-/* Version badge with gradient */
+/* Version badge - subtle */
 .theme-doc-version-badge {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(249, 115, 22, 0.1) 100%);
-  border: 1px solid transparent;
-  border-image: linear-gradient(135deg, #3b82f6 0%, #f97316 100%) 1;
-  color: #60a5fa;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-toc-border-color);
+  color: var(--ifm-color-primary);
 }
