@@ -293,7 +293,7 @@ const config: Config = {
     // Modern announcement bar
     announcementBar: {
       id: 'support_us',
-      content: '🚀 Next-Gen DeFi on Sonic • Revolutionary cross-chain lottery mechanics • Join the dragon revolution <a href="https://t.me/SonicRedDragon">Telegram</a>',
+      content: 'Next-Gen DeFi on Sonic • Revolutionary cross-chain lottery mechanics • Join the dragon revolution <a href="https://t.me/SonicRedDragon">Telegram</a>',
       backgroundColor: '#3b82f6',
       textColor: '#fff',
       isCloseable: true,
