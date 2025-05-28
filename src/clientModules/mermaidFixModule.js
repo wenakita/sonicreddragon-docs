@@ -7,10 +7,10 @@ if (ExecutionEnvironment.canUseDOM) {
       startOnLoad: true,
       theme: 'dark',
       themeVariables: {
+        darkMode: true,
         primaryColor: '#2A2A2A',
-        primaryTextColor: '#FFFFFF',
-        primaryBorderColor: '#FF6B35',
-        lineColor: '#FF6B35',
+        primaryBorderColor: '#3b82f6',
+        lineColor: '#3b82f6',
         secondaryColor: '#1A1A1A',
         tertiaryColor: '#0A0A0A',
         background: '#0A0A0A',
@@ -20,9 +20,9 @@ if (ExecutionEnvironment.canUseDOM) {
         labelColor: '#FFFFFF',
         nodeTextColor: '#FFFFFF',
         edgeLabelBackground: '#1A1A1A',
-        clusterBkg: 'rgba(255, 107, 53, 0.1)',
-        clusterBorder: '#FF6B35',
-        defaultLinkColor: '#FF6B35',
+        clusterBkg: 'rgba(59, 130, 246, 0.1)',
+        clusterBorder: '#3b82f6',
+        defaultLinkColor: '#3b82f6',
         fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
         fontSize: '14px',
       },
@@ -55,94 +55,95 @@ if (ExecutionEnvironment.canUseDOM) {
   // Track processed elements to avoid reprocessing
   const processedElements = new WeakSet();
 
-  function fixMermaidTextColors() {
-    // Check if we're in dark mode - multiple ways since default is dark
-    const dataTheme = document.documentElement.getAttribute('data-theme');
-    const isDarkMode = dataTheme === 'dark' || dataTheme === null || !dataTheme || 
-                      document.body.classList.contains('dark') ||
-                      window.matchMedia('(prefers-color-scheme: dark)').matches;
+  function fixMermaidColors() {
+    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
     
     if (isDarkMode) {
-      // Find all mermaid diagrams that haven't been processed
-      const mermaidElements = document.querySelectorAll('.mermaid svg, .docusaurus-mermaid-container svg, .mermaid-container svg');
-      
-      let newElementsFound = false;
-      
-      mermaidElements.forEach((svg) => {
-        // Skip if already processed
-        if (processedElements.has(svg)) {
-          return;
+      // Fix text colors
+      const textElements = document.querySelectorAll('.mermaid text, .mermaid .label, .mermaid .nodeLabel, .mermaid .edgeLabel');
+      textElements.forEach(el => {
+        el.style.fill = '#E2E8F0';
+        el.style.color = '#E2E8F0';
+      });
+
+      // Fix node backgrounds
+      const nodes = document.querySelectorAll('.mermaid .node rect, .mermaid .node circle, .mermaid .node ellipse');
+      nodes.forEach(el => {
+        el.style.fill = '#2A2A2A';
+        el.style.stroke = '#3b82f6';
+        el.style.strokeWidth = '2px';
+      });
+
+      // Fix edges and arrows
+      const edges = document.querySelectorAll('.mermaid .edgePath .path, .mermaid path.flowchart-link');
+      edges.forEach(el => {
+        el.style.stroke = '#3b82f6';
+        el.style.strokeWidth = '2px';
+      });
+
+      const arrowheads = document.querySelectorAll('.mermaid .arrowheadPath');
+      arrowheads.forEach(el => {
+        el.style.fill = '#3b82f6';
+        el.style.stroke = '#3b82f6';
+      });
+
+      // Fix cluster backgrounds
+      const clusters = document.querySelectorAll('.mermaid .cluster rect');
+      clusters.forEach(el => {
+        el.style.fill = 'rgba(59, 130, 246, 0.1)';
+        el.style.stroke = '#3b82f6';
+        el.style.strokeWidth = '2px';
+      });
+
+      // Apply important styles with higher specificity
+      const style = document.createElement('style');
+      style.textContent = `
+        [data-theme='dark'] .mermaid text,
+        [data-theme='dark'] .mermaid .label {
+          fill: #E2E8F0 !important;
+          color: #E2E8F0 !important;
         }
         
-        newElementsFound = true;
-        processedElements.add(svg);
+        [data-theme='dark'] .mermaid .node rect,
+        [data-theme='dark'] .mermaid .node circle,
+        [data-theme='dark'] .mermaid .node ellipse {
+          fill: #2A2A2A !important;
+          stroke: #3b82f6 !important;
+        }
         
-        // Update all text to white
-        const textElements = svg.querySelectorAll('text, tspan, .label, .nodeLabel, .edgeLabel, .messageText, .actor-label, .labelText, .cluster-label, .section, .titleText');
-        textElements.forEach(el => {
-          el.style.setProperty('fill', '#FFFFFF', 'important');
-          el.style.setProperty('color', '#FFFFFF', 'important');
-          el.style.setProperty('stroke', 'none', 'important');
-        });
+        [data-theme='dark'] .mermaid .edgePath .path {
+          stroke: #3b82f6 !important;
+        }
         
-        // Update nodes with our theme colors
-        const nodes = svg.querySelectorAll('.node rect, .node circle, .node ellipse, .node polygon');
-        nodes.forEach(el => {
-          el.style.setProperty('fill', '#2A2A2A', 'important');
-          el.style.setProperty('stroke', '#FF6B35', 'important');
-          el.style.setProperty('stroke-width', '2px', 'important');
-        });
+        [data-theme='dark'] .mermaid .arrowheadPath {
+          fill: #3b82f6 !important;
+          stroke: #3b82f6 !important;
+        }
         
-        // Update edges/lines
-        const edges = svg.querySelectorAll('.edgePath .path, .flowchart-link, path[stroke]');
-        edges.forEach(el => {
-          if (!el.hasAttribute('marker-end') && !el.classList.contains('arrowheadPath')) {
-            el.style.setProperty('stroke', '#FF6B35', 'important');
-            el.style.setProperty('stroke-width', '2px', 'important');
-          }
-        });
-        
-        // Update arrowheads
-        const arrowheads = svg.querySelectorAll('.arrowheadPath, marker path');
-        arrowheads.forEach(el => {
-          el.style.setProperty('fill', '#FF6B35', 'important');
-          el.style.setProperty('stroke', '#FF6B35', 'important');
-        });
-        
-        // Update clusters
-        const clusters = svg.querySelectorAll('.cluster rect');
-        clusters.forEach(el => {
-          el.style.setProperty('fill', 'rgba(255, 107, 53, 0.1)', 'important');
-          el.style.setProperty('stroke', '#FF6B35', 'important');
-          el.style.setProperty('stroke-width', '1px', 'important');
-        });
-        
-        // Force ALL text elements regardless of class
-        const allTextElements = svg.querySelectorAll('*');
-        allTextElements.forEach(el => {
-          if (el.tagName === 'text' || el.tagName === 'tspan') {
-            el.style.setProperty('fill', '#FFFFFF', 'important');
-            el.style.setProperty('color', '#FFFFFF', 'important');
-            el.style.setProperty('stroke', 'none', 'important');
-          }
-        });
-      });
+        [data-theme='dark'] .mermaid .cluster rect {
+          fill: rgba(59, 130, 246, 0.1) !important;
+          stroke: #3b82f6 !important;
+        }
+      `;
       
-      // Only log if we actually processed new elements
-      if (newElementsFound) {
-        console.log('Fixed mermaid text colors for', mermaidElements.length, 'diagrams');
+      // Remove any existing style and add new one
+      const existingStyle = document.getElementById('mermaid-dark-mode-fix');
+      if (existingStyle) {
+        existingStyle.remove();
       }
+      style.id = 'mermaid-dark-mode-fix';
+      document.head.appendChild(style);
     }
   }
 
   // Debounced version to prevent excessive calls
-  const debouncedFixColors = debounce(fixMermaidTextColors, 100);
+  const debouncedFixColors = debounce(fixMermaidColors, 100);
 
   // Run once on initial load
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', fixMermaidTextColors);
+    document.addEventListener('DOMContentLoaded', fixMermaidColors);
   } else {
-    fixMermaidTextColors();
+    fixMermaidColors();
   }
 
   // Run when theme changes
@@ -199,4 +200,37 @@ if (ExecutionEnvironment.canUseDOM) {
     themeObserver.disconnect();
     contentObserver.disconnect();
   });
+}
+
+export function onRouteDidUpdate({ location, previousLocation }) {
+  // Apply Mermaid theme overrides after route updates
+  if (typeof window !== 'undefined' && window.mermaid) {
+    // Update mermaid config
+    window.mermaid.initialize({
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        primaryColor: '#2A2A2A',
+        primaryBorderColor: '#3b82f6',
+        lineColor: '#3b82f6',
+        secondaryColor: '#1A1A1A',
+        tertiaryColor: '#0A0A0A',
+        background: '#0A0A0A',
+        mainBkg: '#2A2A2A',
+        secondBkg: '#1A1A1A',
+        textColor: '#FFFFFF',
+        labelColor: '#FFFFFF',
+        nodeTextColor: '#FFFFFF',
+        edgeLabelBackground: '#1A1A1A',
+        clusterBkg: 'rgba(59, 130, 246, 0.1)',
+        clusterBorder: '#3b82f6',
+        defaultLinkColor: '#3b82f6',
+      },
+    });
+
+    // Apply fixes to existing diagrams
+    setTimeout(() => {
+      fixMermaidColors();
+    }, 100);
+  }
 } 

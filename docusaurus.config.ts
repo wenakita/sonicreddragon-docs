@@ -247,11 +247,11 @@ const config: Config = {
       securityLevel: 'loose',
       themeVariables: {
         darkMode: true,
-        // Dark theme variables with orange accent
+        // Dark theme variables with blue-orange accent
         primaryColor: '#2A2A2A',
         primaryTextColor: '#FFFFFF',
-        primaryBorderColor: '#FF6B35',
-        lineColor: '#FF6B35',
+        primaryBorderColor: '#3b82f6',
+        lineColor: '#3b82f6',
         secondaryColor: '#1A1A1A',
         tertiaryColor: '#0A0A0A',
         background: '#0A0A0A',
@@ -263,9 +263,9 @@ const config: Config = {
         errorTextColor: '#fca5a5',
         nodeTextColor: '#FFFFFF',
         edgeLabelBackground: '#1A1A1A',
-        clusterBkg: 'rgba(255, 107, 53, 0.1)',
-        clusterBorder: '#FF6B35',
-        defaultLinkColor: '#FF6B35',
+        clusterBkg: 'rgba(59, 130, 246, 0.1)',
+        clusterBorder: '#3b82f6',
+        defaultLinkColor: '#3b82f6',
         // Light theme overrides
         primaryColorLight: '#f8fafc',
         primaryTextColorLight: '#1e293b',
@@ -293,8 +293,8 @@ const config: Config = {
     // Modern announcement bar
     announcementBar: {
       id: 'support_us',
-      content: '🔥 Next-Gen DeFi on Sonic • Revolutionary cross-chain lottery mechanics • Join the dragon revolution <a href="https://t.me/SonicRedDragon">Telegram</a>',
-      backgroundColor: '#FF6B35',
+      content: '🚀 Next-Gen DeFi on Sonic • Revolutionary cross-chain lottery mechanics • Join the dragon revolution <a href="https://t.me/SonicRedDragon">Telegram</a>',
+      backgroundColor: '#3b82f6',
       textColor: '#fff',
       isCloseable: true,
     },
