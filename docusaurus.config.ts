@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'OmniDragon',
+  title: 'OmniDragon Docs',
   tagline: 'Cross-Chain Token Ecosystem',
   favicon: '/img/favicon-32x32.png',
 
@@ -89,7 +89,7 @@ const config: Config = {
     
     // Modern navbar configuration
     navbar: {
-      title: 'OmniDragon',
+      title: 'OmniDragon Docs',
       logo: {
         alt: 'OmniDragon Logo',
         src: '/img/logo.svg',
@@ -99,7 +99,7 @@ const config: Config = {
           type: 'docSidebar',
           position: 'left',
           sidebarId: 'docsSidebar',
-          label: 'Documentation',
+          label: 'Overview',
           className: 'navbar__item--modern',
         },
         {
@@ -113,27 +113,27 @@ const config: Config = {
           type: 'docSidebar',
           position: 'left',
           sidebarId: 'contracts',
-          label: 'Contracts',
+          label: 'Smart Contracts',
           className: 'navbar__item--modern',
         },
         {
           type: 'docSidebar',
           position: 'left',
           sidebarId: 'integrations',
-          label: 'Integrations',
+          label: 'Build',
           className: 'navbar__item--modern',
         },
         {
           type: 'docSidebar',
           position: 'left',
           sidebarId: 'reference',
-          label: 'Reference',
+          label: 'API Reference',
           className: 'navbar__item--modern',
         },
         {
           type: 'dropdown',
           position: 'right',
-          label: 'Resources',
+          label: 'Community',
           className: 'navbar__item--modern',
           items: [
             {

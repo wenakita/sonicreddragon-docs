@@ -171,6 +171,9 @@ body {
   font-weight: 500;
   transition: all 0.2s ease;
   position: relative;
+  padding: 0.5rem 1rem;
+  margin: 0 0.25rem;
+  border-radius: 8px;
 }
 
 .navbar__item--modern::after {
@@ -189,6 +192,7 @@ body {
 }
 
 .navbar__item--modern:hover {
+  background: rgba(59, 130, 246, 0.1);
   transform: translateY(-1px);
   color: #60a5fa;
 }
@@ -994,6 +998,20 @@ html:has(article.intro-page) {
   overflow-x: hidden !important;
 }
 
+/* Hide sidebar on intro page */
+body:has(article.intro-page) .theme-doc-sidebar-container {
+  display: none !important;
+}
+
+body:has(article.intro-page) .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module {
+  margin-left: 0 !important;
+}
+
+body:has(article.intro-page) main[class*="docMainContainer"] {
+  margin-left: 0 !important;
+  max-width: 100% !important;
+}
+
 /* Remove all constraints from the main layout when on intro page */
 article.intro-page {
   max-width: none !important;
@@ -1028,6 +1046,13 @@ article.intro-page .theme-doc-main {
   margin: 0 !important;
   padding: 0 !important;
   background: transparent !important;
+}
+
+/* Ensure proper layout when sidebar is hidden */
+body:has(article.intro-page) .container {
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* === ELABORATE FRONTEND STYLES === */
@@ -2480,12 +2505,91 @@ article.intro-page .theme-doc-main {
 
 /* Navbar logo with gradient glow */
 .navbar__logo {
-  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5)) 
-          drop-shadow(0 0 10px rgba(249, 115, 22, 0.5));
-  transition: filter 0.3s ease;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.6)) 
+          drop-shadow(0 0 15px rgba(249, 115, 22, 0.6));
+  transition: all 0.3s ease;
+}
+
+.navbar__logo::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, rgba(249, 115, 22, 0.4) 50%, transparent 70%);
+  filter: blur(15px);
+  opacity: 0.8;
+  z-index: -1;
+  animation: logo-pulse 3s ease-in-out infinite;
+}
+
+@keyframes logo-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
 }
 
 .navbar__logo:hover {
-  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.7)) 
-          drop-shadow(0 0 15px rgba(249, 115, 22, 0.7));
+  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.8)) 
+          drop-shadow(0 0 20px rgba(249, 115, 22, 0.8));
+  transform: scale(1.05);
+}
+
+.navbar__logo:hover::before {
+  opacity: 1;
+}
+
+/* Enhanced navbar title with gradient */
+.navbar__title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #f97316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-left: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+/* Navbar brand container */
+.navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.navbar__brand:hover {
+  transform: translateY(-1px);
+}
+
+/* Fix main container margins for all pages */
+.main-wrapper {
+  min-height: calc(100vh - 60px - 300px);
+  display: flex;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Ensure proper spacing when sidebar is visible */
+main[class*="docMainContainer"]:not(:has(article.intro-page)) {
+  margin-left: var(--doc-sidebar-width);
+  transition: margin-left 0.3s ease;
+}
+
+/* Mobile sidebar fixes */
+@media (max-width: 996px) {
+  body:has(article.intro-page) .navbar__sidebar {
+    display: none !important;
+  }
+  
+  main[class*="docMainContainer"] {
+    margin-left: 0 !important;
+  }
 }
