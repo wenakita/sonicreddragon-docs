@@ -249,12 +249,18 @@ body {
   width: 100%;
   overflow-x: hidden;
   position: relative;
+  background: radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+              radial-gradient(ellipse at bottom right, rgba(249, 115, 22, 0.05) 0%, transparent 50%);
 }
 
-/* Document container styling */
+/* Document container styling - centered with gradient accents */
 main > .container {
   margin-top: 2rem;
   margin-bottom: 2rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 2rem;
 }
 
 /* Clean card grid layout for homepage */
@@ -721,15 +727,43 @@ table td {
   background-color: var(--neutral-100);
 }
 
-/* Doc item main content */
+/* Doc item main content - centered with gradient accents */
 article:not(.intro-page) {
-  background-color: var(--card-bg);
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(26, 26, 26, 0.85) 100%);
   border-radius: var(--ifm-global-radius);
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--ifm-toc-border-color);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  padding: 3rem;
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.1), 0 0 40px rgba(249, 115, 22, 0.1);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  max-width: 900px;
+  margin: 2rem auto;
+  position: relative;
+  overflow: hidden;
+}
+
+article:not(.intro-page)::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #f97316 100%);
+  border-radius: var(--ifm-global-radius);
+  opacity: 0.5;
+  z-index: -1;
+}
+
+article:not(.intro-page)::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
+              radial-gradient(ellipse at center, rgba(249, 115, 22, 0.1) 0%, transparent 40%);
+  animation: rotate 20s linear infinite;
+  z-index: -2;
 }
 
 /* Ensure intro page has black background */
@@ -809,7 +843,13 @@ article.intro-page {
   }
 }
 
-/* Apply modern theme to all pages */
+/* Center all doc content */
+.theme-doc-markdown {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Markdown content with gradient accents */
 .markdown {
   --ifm-h1-font-size: clamp(2rem, 4vw, 3rem);
   --ifm-h2-font-size: clamp(1.5rem, 3vw, 2.25rem);
@@ -820,7 +860,12 @@ article.intro-page {
   font-weight: 800;
   letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
-  color: var(--ifm-heading-color);
+  background: linear-gradient(135deg, #3b82f6 0%, #f97316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  padding: 1rem 0;
 }
 
 .markdown h2 {
@@ -828,7 +873,23 @@ article.intro-page {
   letter-spacing: -0.01em;
   margin-top: 3rem;
   margin-bottom: 1.5rem;
-  color: var(--ifm-color-primary);
+  background: linear-gradient(135deg, #60a5fa 0%, #fb923c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.markdown h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6 0%, #f97316 100%);
+  border-radius: 1px;
 }
 
 .markdown h3 {
@@ -837,12 +898,17 @@ article.intro-page {
   margin-bottom: 1rem;
 }
 
-/* Modern code blocks */
+/* Modern code blocks with gradient accent */
 .markdown pre {
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--ifm-toc-border-color);
-  margin: 2rem 0;
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.1), 0 0 30px rgba(249, 115, 22, 0.1);
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--code-bg), var(--code-bg)),
+                    linear-gradient(135deg, #3b82f6 0%, #f97316 100%);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  margin: 2rem auto;
+  max-width: 100%;
 }
 
 /* Modern tables */
@@ -939,7 +1005,11 @@ article.intro-page {
 .pagination-nav {
   margin-top: 4rem;
   padding-top: 2rem;
-  border-top: 1px solid var(--ifm-toc-border-color);
+  border-top: 2px solid transparent;
+  border-image: linear-gradient(90deg, #3b82f6 0%, #f97316 100%) 1;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .pagination-nav__link {
@@ -2592,4 +2662,133 @@ main[class*="docMainContainer"]:not(:has(article.intro-page)) {
   main[class*="docMainContainer"] {
     margin-left: 0 !important;
   }
+}
+
+/* Center and style the main content area */
+.docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 2rem 0;
+}
+
+/* Table of contents with centered positioning */
+.theme-doc-toc-desktop {
+  position: sticky;
+  top: calc(var(--ifm-navbar-height) + 2rem);
+  height: calc(100vh - var(--ifm-navbar-height) - 4rem);
+  overflow-y: auto;
+  max-width: 250px;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.9) 0%, rgba(26, 26, 26, 0.7) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.1), 0 0 20px rgba(249, 115, 22, 0.1);
+}
+
+/* Ensure proper spacing when sidebar is visible - centered layout */
+main[class*="docMainContainer"]:not(:has(article.intro-page)) {
+  margin-left: var(--doc-sidebar-width);
+  transition: margin-left 0.3s ease;
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* Container for doc pages */
+.container {
+  max-width: 1400px !important;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Footer centering */
+.footer .container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Main wrapper with gradient background overlay */
+.main-wrapper {
+  min-height: calc(100vh - 60px - 300px);
+  display: flex;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  background: radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+              radial-gradient(ellipse at bottom right, rgba(249, 115, 22, 0.05) 0%, transparent 50%);
+}
+
+/* Doc page specific gradient overlays */
+body:not(:has(article.intro-page)) .main-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+              radial-gradient(circle at 80% 50%, rgba(249, 115, 22, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Mobile responsive centering */
+@media (max-width: 996px) {
+  article:not(.intro-page) {
+    margin: 1rem;
+    padding: 2rem;
+  }
+  
+  .theme-doc-markdown {
+    max-width: 100%;
+  }
+  
+  .container {
+    padding: 0 1rem;
+  }
+  
+  main[class*="docMainContainer"] {
+    padding: 1rem;
+  }
+}
+
+/* Breadcrumb with gradient */
+.theme-doc-breadcrumbs {
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  padding: 1rem;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
+  border-radius: 8px;
+}
+
+/* Doc footer with gradient */
+.theme-doc-footer {
+  max-width: 800px;
+  margin: 4rem auto 0;
+  padding: 2rem 0;
+  border-top: 2px solid transparent;
+  border-image: linear-gradient(90deg, #3b82f6 0%, #f97316 100%) 1;
+}
+
+/* Edit this page link with gradient */
+.theme-doc-footer-edit-meta-row {
+  justify-content: center;
+}
+
+.theme-doc-footer-edit-meta-row a {
+  color: #60a5fa;
+  transition: all 0.2s ease;
+}
+
+.theme-doc-footer-edit-meta-row a:hover {
+  color: #f97316;
+  transform: translateX(2px);
+}
+
+/* Version badge with gradient */
+.theme-doc-version-badge {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(249, 115, 22, 0.1) 100%);
+  border: 1px solid transparent;
+  border-image: linear-gradient(135deg, #3b82f6 0%, #f97316 100%) 1;
+  color: #60a5fa;
 }
