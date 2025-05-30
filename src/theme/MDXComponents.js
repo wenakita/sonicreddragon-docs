@@ -54,14 +54,20 @@ export default {
     return <div className="immersive-diagram">{children}</div>;
   },
   // Override the default mermaid component with our ModernMermaid component
-  'mermaid': ({children}) => {
-    return (
-      <ModernMermaid 
-        chart={children} 
-        animated={true}
-        interactive={true}
-        showControls={true}
-      />
-    );
+  'code': (props) => {
+    const {children, className} = props;
+    // If this is a mermaid code block
+    if (className === 'language-mermaid') {
+      return (
+        <ModernMermaid 
+          chart={children} 
+          animated={true}
+          interactive={true}
+          showControls={true}
+        />
+      );
+    }
+    // Otherwise, use the default code component
+    return <MDXComponents.code {...props} />;
   },
 };
