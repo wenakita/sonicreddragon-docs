@@ -185,6 +185,57 @@ export default function ImmersiveMermaid({
     setIsFullscreen(!isFullscreen);
   };
 
+  // Replay animation
+  const replayAnimation = () => {
+    if (containerRef.current) {
+      const diagramContainer = containerRef.current.querySelector(`.${styles.diagramContainer}`);
+      if (diagramContainer) {
+        animateMermaidDiagram(diagramContainer as HTMLElement);
+      }
+    }
+  };
+
+  // Handle control button clicks
+  useEffect(() => {
+    if (!isRendered || !containerRef.current) return;
+
+    const container = containerRef.current;
+    
+    // Find control buttons
+    const replayButton = container.querySelector('.mermaid-control-button[title="Replay animation"]');
+    const fullscreenButton = container.querySelector('.mermaid-control-button[title="Toggle fullscreen"]');
+    
+    // Add event listeners
+    if (replayButton) {
+      // Remove existing listeners
+      const newReplayButton = replayButton.cloneNode(true);
+      replayButton.parentNode?.replaceChild(newReplayButton, replayButton);
+      
+      // Add new listener
+      newReplayButton.addEventListener('click', replayAnimation);
+    }
+    
+    if (fullscreenButton) {
+      // Remove existing listeners
+      const newFullscreenButton = fullscreenButton.cloneNode(true);
+      fullscreenButton.parentNode?.replaceChild(newFullscreenButton, fullscreenButton);
+      
+      // Add new listener
+      newFullscreenButton.addEventListener('click', toggleFullscreen);
+    }
+    
+    return () => {
+      // Cleanup
+      if (replayButton) {
+        replayButton.removeEventListener('click', replayAnimation);
+      }
+      
+      if (fullscreenButton) {
+        fullscreenButton.removeEventListener('click', toggleFullscreen);
+      }
+    };
+  }, [isRendered]);
+
   return (
     <div 
       className={`${styles.container} ${isFullscreen ? styles.fullscreen : ''} ${styles.gradientBorder} ${className}`}
