@@ -1,0 +1,311 @@
+---
+sidebar_position: 3
+title: Immersive Diagrams
+description: Create stunning, interactive diagrams with advanced animations and visual effects
+---
+
+# Immersive Diagrams
+
+Take your diagrams to the next level with immersive effects, particle animations, and advanced interactivity using our ImmersiveMermaid component.
+
+## Introduction
+
+The `ImmersiveMermaid` component provides a premium, visually stunning way to display Mermaid diagrams in your documentation. It includes:
+
+- Advanced animations with multiple animation styles
+- Particle effects that respond to user interaction
+- Glowing highlights and gradient borders
+- Interactive node connections that highlight relationships
+- Fullscreen immersive viewing experience
+- High-quality visual effects optimized for performance
+
+## Basic Usage
+
+To use the ImmersiveMermaid component, import it and pass your Mermaid diagram code as the `chart` prop:
+
+```jsx
+import ImmersiveMermaid from '@site/src/components/ImmersiveMermaid';
+
+<ImmersiveMermaid 
+  chart={`
+    graph TD
+      A[Start] --> B{Is it working?}
+      B -->|Yes| C[Great!]
+      B -->|No| D[Debug]
+      D --> B
+  `}
+  title="Interactive Flowchart"
+  caption="An immersive flowchart with particle effects and animations"
+  particles={true}
+  glowEffect={true}
+  gradientBorder={true}
+/>
+```
+
+## Example
+
+Here's an example of a flowchart rendered with ImmersiveMermaid:
+
+import ImmersiveMermaid from '@site/src/components/ImmersiveMermaid';
+
+<ImmersiveMermaid 
+  chart={`
+    graph TD
+      A[Start] --> B{Is it working?}
+      B -->|Yes| C[Great!]
+      B -->|No| D[Debug]
+      D --> B
+  `}
+  title="Interactive Flowchart"
+  caption="An immersive flowchart with particle effects and animations"
+/>
+
+## Sequence Diagram Example
+
+Sequence diagrams look amazing with the immersive effects:
+
+<ImmersiveMermaid 
+  chart={`
+    sequenceDiagram
+      participant User
+      participant API
+      participant Database
+      participant Notification
+      
+      User->>API: Request data
+      API->>Database: Query data
+      Database-->>API: Return results
+      API-->>User: Display results
+      
+      User->>API: Update record
+      API->>Database: Save changes
+      Database-->>API: Confirm update
+      API->>Notification: Trigger notification
+      Notification-->>User: Show success message
+  `}
+  title="System Interaction Flow"
+  caption="A sequence diagram with immersive visual effects"
+  glowIntensity="medium"
+/>
+
+## Class Diagram Example
+
+Class diagrams benefit from the enhanced visual hierarchy:
+
+<ImmersiveMermaid 
+  chart={`
+    classDiagram
+      class Controller {
+        +handleRequest()
+        +validateInput()
+        +formatResponse()
+      }
+      
+      class Service {
+        +processData()
+        +calculateResults()
+        +generateReport()
+      }
+      
+      class Repository {
+        +findAll()
+        +findById()
+        +save()
+        +delete()
+      }
+      
+      class Model {
+        +attributes
+        +validate()
+        +toJSON()
+      }
+      
+      Controller --> Service
+      Service --> Repository
+      Repository --> Model
+  `}
+  title="Application Architecture"
+  caption="A class diagram showing component relationships"
+  particleDirection="radial"
+/>
+
+## Component Props
+
+The ImmersiveMermaid component accepts the following props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `chart` | string | (required) | The Mermaid diagram code |
+| `title` | string | undefined | Optional title to display above the diagram |
+| `caption` | string | undefined | Optional caption to display below the diagram |
+| `className` | string | '' | Additional CSS class to apply to the container |
+| `theme` | 'default' \| 'dark' \| 'neutral' \| 'forest' | 'default' | The Mermaid theme to use |
+| `animated` | boolean | true | Whether to animate the diagram |
+| `interactive` | boolean | true | Whether to make the diagram interactive |
+| `showControls` | boolean | true | Whether to show the control buttons |
+| `particles` | boolean | true | Whether to show particle effects |
+| `glowEffect` | boolean | true | Whether to apply glow effects to nodes |
+| `gradientBorder` | boolean | true | Whether to show a gradient border |
+| `particleColor` | string | undefined | Custom color for particles (defaults to theme color) |
+| `particleCount` | number | 30 | Number of particles to display |
+| `particleDirection` | 'random' \| 'sequential' \| 'radial' \| 'parallel' | 'radial' | Direction pattern for particles |
+| `glowIntensity` | 'subtle' \| 'medium' \| 'strong' | 'medium' | Intensity of the glow effect |
+
+## Visual Effects
+
+### Particle Effects
+
+The ImmersiveMermaid component includes dynamic particle effects that float around the diagram. You can customize these particles with the following props:
+
+- `particles`: Enable or disable particles
+- `particleColor`: Set a custom color for particles
+- `particleCount`: Control the number of particles
+- `particleDirection`: Set the movement pattern of particles
+
+```jsx
+<ImmersiveMermaid 
+  chart={`...`}
+  particles={true}
+  particleColor="#8b5cf6"
+  particleCount={50}
+  particleDirection="radial"
+/>
+```
+
+### Glow Effects
+
+Nodes in the diagram can have a subtle glow effect that enhances their visibility and adds depth:
+
+- `glowEffect`: Enable or disable the glow
+- `glowIntensity`: Control the intensity of the glow
+
+```jsx
+<ImmersiveMermaid 
+  chart={`...`}
+  glowEffect={true}
+  glowIntensity="strong"
+/>
+```
+
+### Gradient Border
+
+A beautiful gradient border can be added to the diagram container:
+
+```jsx
+<ImmersiveMermaid 
+  chart={`...`}
+  gradientBorder={true}
+/>
+```
+
+## Advanced Animations
+
+The ImmersiveMermaid component automatically selects the best animation type based on the diagram structure:
+
+- **Sequential**: Elements animate one after another
+- **Staggered**: Elements animate with staggered timing
+- **Parallel**: All elements animate simultaneously
+- **Cascade**: Elements animate in a cascading pattern from top-left to bottom-right
+- **Radial**: Elements animate from the center outward
+
+The animation system analyzes your diagram and chooses the most appropriate animation style, but you can override this by modifying the component if needed.
+
+## Interactive Features
+
+### Node Highlighting
+
+Click on any node to highlight it and its connections. This makes it easy to visualize relationships in complex diagrams.
+
+### Connection Tracing
+
+When you hover over a node, all connected nodes and edges are highlighted, making it easy to trace relationships.
+
+### Fullscreen Mode
+
+Click the fullscreen button to expand the diagram to fill the entire screen for a more immersive experience.
+
+## Accessibility
+
+The ImmersiveMermaid component is designed with accessibility in mind:
+
+- All animations respect the user's `prefers-reduced-motion` setting
+- Interactive elements have appropriate ARIA labels
+- Color contrast ratios meet WCAG standards
+- Visual effects degrade gracefully in assistive technologies
+
+## Performance Considerations
+
+The immersive effects are optimized for performance, but for very complex diagrams or on lower-powered devices, you might want to disable some effects:
+
+```jsx
+<ImmersiveMermaid 
+  chart={`...`}
+  particles={false}
+  glowEffect={false}
+/>
+```
+
+## Best Practices
+
+For the best results with ImmersiveMermaid:
+
+1. Use it for important diagrams that deserve emphasis
+2. Consider reducing particle count for complex diagrams
+3. Test on different devices to ensure performance
+4. Choose appropriate glow intensity based on diagram complexity
+5. Use the gradient border for standalone diagrams, but consider disabling it when multiple diagrams are placed close together
+
+## Combining with Other Components
+
+The ImmersiveMermaid component works well with other interactive components:
+
+```jsx
+import ImmersiveMermaid from '@site/src/components/ImmersiveMermaid';
+import AnimatedText from '@site/src/components/AnimatedText';
+import ScrollReveal from '@site/src/components/ScrollReveal';
+
+<ScrollReveal>
+  <AnimatedText 
+    text="System Architecture" 
+    tag="h2" 
+    animation="fadeIn"
+  />
+  
+  <ImmersiveMermaid 
+    chart={`...`}
+    title="Component Interaction"
+  />
+</ScrollReveal>
+```
+
+## Customization
+
+While the ImmersiveMermaid component provides many customization options through props, you can also extend it for more specific needs:
+
+```jsx
+import ImmersiveMermaid from '@site/src/components/ImmersiveMermaid';
+
+// Custom wrapper with specific settings
+function CustomDiagram(props) {
+  return (
+    <ImmersiveMermaid
+      particles={true}
+      particleCount={40}
+      particleColor="#60a5fa"
+      glowEffect={true}
+      glowIntensity="medium"
+      gradientBorder={true}
+      {...props}
+    />
+  );
+}
+
+<CustomDiagram 
+  chart={`...`}
+  title="Custom Styled Diagram"
+/>
+```
+
+## Conclusion
+
+The ImmersiveMermaid component provides a premium way to display diagrams in your documentation. Use it for important diagrams that deserve special emphasis, or when you want to create a more engaging and interactive experience for your users.

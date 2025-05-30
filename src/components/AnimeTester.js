@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import useIsBrowser from '@docusaurus/useIsBrowser';
-import { getAnime } from '../utils/animeUtils';
+import { anime } from '../utils/animeUtils';
 import styles from './styles.module.css';
 
 /**
@@ -15,7 +15,7 @@ export default function AnimeTester() {
     if (!isBrowser || !containerRef.current) return;
     
     // Simple animation that doesn't rely on other elements
-    const animation = getAnime()({
+    const animation = anime({
       targets: '.anime-test-box',
       translateX: 250,
       rotate: '1turn',
@@ -57,4 +57,4 @@ export default function AnimeTester() {
       </p>
     </div>
   );
-} 
+}

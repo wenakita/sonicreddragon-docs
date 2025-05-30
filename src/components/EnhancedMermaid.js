@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { animateMermaidDiagram } from '../utils/animeUtils';
+import { animateMermaidDiagram } from '../utils/enhancedMermaidAnimations';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import styles from './styles.module.css';
@@ -151,4 +151,4 @@ function MermaidRenderer({
       {caption && <p className={styles.mermaidCaption || ''}>{caption}</p>}
     </div>
   );
-} 
+}

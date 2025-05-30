@@ -1,0 +1,36 @@
+# Ignore everything
+/*
+
+# But not these files/directories
+!contracts/
+!.gitignore
+!README.md
+!foundry.toml
+!remappings.txt
+!.gitmodules
+!lib/
+
+# Ignore build artifacts even in contracts
+contracts/out/
+contracts/cache/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# OS files
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/
+
+# Foundry/Forge
+out/
+cache/
+broadcast/
+
+# Node (if ever needed)
+node_modules/

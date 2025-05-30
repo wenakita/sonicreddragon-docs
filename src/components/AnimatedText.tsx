@@ -1,295 +1,240 @@
-import React, { useRef, useEffect } from 'react';
-import anime from 'animejs/lib/anime.es.js';
-import useIsBrowser from '@docusaurus/useIsBrowser';
-import clsx from 'clsx';
+/**
+ * AnimatedText Component
+ * 
+ * A component that animates text with various effects.
+ */
+
+import React, { useEffect, useRef, ElementType } from 'react';
+import { prefersReducedMotion } from '../utils/enhancedMermaidAnimations';
+import anime from 'animejs';
 
 interface AnimatedTextProps {
-  children: React.ReactNode;
-  animation?: 'typewriter' | 'fadeInUp' | 'slideInLeft' | 'slideInRight' | 'scale' | 'wave' | 'glow';
+  text: string;
+  tag?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div';
+  animation?: 'fadeIn' | 'fadeInUp' | 'fadeInDown' | 'fadeInLeft' | 'fadeInRight' | 'typing' | 'none';
   delay?: number;
   duration?: number;
   className?: string;
-  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div';
-  loop?: boolean;
-  autoPlay?: boolean;
+  splitBy?: 'chars' | 'words' | 'lines' | 'none';
+  staggerDelay?: number;
+  easing?: string;
+  once?: boolean;
+  children?: React.ReactNode;
 }
 
-export default function AnimatedText({
-  children,
-  animation = 'fadeInUp',
+const AnimatedText: React.FC<AnimatedTextProps> = ({
+  text,
+  tag = 'p',
+  animation = 'fadeIn',
   delay = 0,
-  duration = 1000,
-  className,
-  as: Component = 'div',
-  loop = false,
-  autoPlay = true
-}: AnimatedTextProps) {
-  const textRef = useRef<HTMLElement>(null);
-  const isBrowser = useIsBrowser();
-
+  duration = 800,
+  className = '',
+  splitBy = 'none',
+  staggerDelay = 30,
+  easing = 'cubicBezier(0.22, 1, 0.36, 1)',
+  once = true,
+  children,
+}) => {
+  const elementRef = useRef<HTMLElement>(null);
+  const hasAnimated = useRef<boolean>(false);
+  
   useEffect(() => {
-    if (!isBrowser || !textRef.current || !autoPlay) return;
-
-    const element = textRef.current;
+    // Skip animation if user prefers reduced motion
+    if (prefersReducedMotion()) return;
     
-    // Safely convert children to string
-    let textContent = '';
-    try {
-      if (typeof children === 'string') {
-        textContent = children;
-      } else if (typeof children === 'number') {
-        textContent = String(children);
-      } else if (React.isValidElement(children)) {
-        // For React elements, try to extract text content
-        textContent = element.textContent || element.innerText || '';
-      } else {
-        textContent = String(children || '');
-      }
-    } catch (error) {
-      console.warn('AnimatedText: Error converting children to string:', error);
-      textContent = '';
-    }
+    // Skip if already animated and once is true
+    if (once && hasAnimated.current) return;
     
-    if (!textContent) {
-      // If no text content, just show children without animation
-      element.style.opacity = '1';
-      return;
-    }
+    const element = elementRef.current;
+    if (!element) return;
     
-    // Clear any existing content and prepare for animation
-    element.innerHTML = '';
+    // Set has animated flag
+    hasAnimated.current = true;
     
+    // Handle different animation types
     switch (animation) {
-      case 'typewriter':
-        animateTypewriter(element, textContent, duration, delay, loop);
+      case 'typing':
+        handleTypingAnimation(element);
         break;
-      case 'fadeInUp':
-        animateFadeInUp(element, textContent, duration, delay);
-        break;
-      case 'slideInLeft':
-        animateSlideIn(element, textContent, duration, delay, 'left');
-        break;
-      case 'slideInRight':
-        animateSlideIn(element, textContent, duration, delay, 'right');
-        break;
-      case 'scale':
-        animateScale(element, textContent, duration, delay);
-        break;
-      case 'wave':
-        animateWave(element, textContent, duration, delay, loop);
-        break;
-      case 'glow':
-        animateGlow(element, textContent, duration, delay, loop);
+      case 'none':
+        // No animation
         break;
       default:
-        element.textContent = textContent;
+        handleStandardAnimation(element);
+        break;
     }
-  }, [isBrowser, children, animation, delay, duration, loop, autoPlay]);
-
-  const animateTypewriter = (element: HTMLElement, text: string, duration: number, delay: number, loop: boolean) => {
-    try {
-      element.textContent = '';
-      // Ensure text is a string
-      const textString = String(text || '');
-      if (!textString) return;
-      const chars = textString.split('');
+  }, [animation, delay, duration, easing, once, splitBy, staggerDelay, text]);
+  
+  // Handle typing animation
+  const handleTypingAnimation = (element: HTMLElement) => {
+    // Clear element content
+    element.innerHTML = '';
     
-      const typeAnimation = () => {
-        element.textContent = '';
-        chars.forEach((char, index) => {
-          setTimeout(() => {
-            element.textContent += char;
-            if (index === chars.length - 1 && loop) {
-              setTimeout(() => {
-                element.textContent = '';
-                setTimeout(typeAnimation, 500);
-              }, 2000);
-            }
-          }, (duration / chars.length) * index + delay);
-        });
-      };
-      
-      typeAnimation();
-    } catch (error) {
-      console.warn('AnimatedText typewriter error:', error);
-      element.textContent = text;
+    // Create wrapper for cursor
+    const wrapper = document.createElement('span');
+    wrapper.style.position = 'relative';
+    
+    // Create text span
+    const textSpan = document.createElement('span');
+    wrapper.appendChild(textSpan);
+    
+    // Create cursor element
+    const cursor = document.createElement('span');
+    cursor.textContent = '|';
+    cursor.style.position = 'absolute';
+    cursor.style.right = '-4px';
+    cursor.style.top = '0';
+    cursor.style.animation = 'cursorBlink 1s infinite';
+    wrapper.appendChild(cursor);
+    
+    // Add wrapper to element
+    element.appendChild(wrapper);
+    
+    // Add cursor blink animation if it doesn't exist
+    if (!document.getElementById('cursor-blink-animation')) {
+      const style = document.createElement('style');
+      style.id = 'cursor-blink-animation';
+      style.textContent = `
+        @keyframes cursorBlink {
+          0%, 70% { opacity: 1; }
+          71%, 100% { opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
     }
+    
+    // Start typing after delay
+    setTimeout(() => {
+      let i = 0;
+      const typeInterval = setInterval(() => {
+        if (i < text.length) {
+          textSpan.textContent += text.charAt(i);
+          i++;
+        } else {
+          clearInterval(typeInterval);
+        }
+      }, 50);
+    }, delay);
   };
-
-  const animateFadeInUp = (element: HTMLElement, text: string, duration: number, delay: number) => {
-    try {
-      element.textContent = text;
-      element.style.opacity = '0';
-      element.style.transform = 'translateY(20px)';
-      
-      anime({
-        targets: element,
-        opacity: [0, 1],
-        translateY: [20, 0],
-        duration,
-        delay,
-        easing: 'easeOutExpo'
-      });
-    } catch (error) {
-      console.warn('AnimatedText fadeInUp error:', error);
-      element.textContent = text;
-      element.style.opacity = '1';
-    }
-  };
-
-  const animateSlideIn = (element: HTMLElement, text: string, duration: number, delay: number, direction: 'left' | 'right') => {
-    try {
-      element.textContent = text;
-      element.style.opacity = '0';
-      element.style.transform = direction === 'left' ? 'translateX(-30px)' : 'translateX(30px)';
-      
-      anime({
-        targets: element,
-        opacity: [0, 1],
-        translateX: [direction === 'left' ? -30 : 30, 0],
-        duration,
-        delay,
-        easing: 'easeOutCubic'
-      });
-    } catch (error) {
-      console.warn('AnimatedText slideIn error:', error);
-      element.textContent = text;
-      element.style.opacity = '1';
-    }
-  };
-
-  const animateScale = (element: HTMLElement, text: string, duration: number, delay: number) => {
-    try {
-      element.textContent = text;
-      element.style.opacity = '0';
-      element.style.transform = 'scale(0.8)';
-      
-      anime({
-        targets: element,
-        opacity: [0, 1],
-        scale: [0.8, 1],
-        duration,
-        delay,
-        easing: 'easeOutBack'
-      });
-    } catch (error) {
-      console.warn('AnimatedText scale error:', error);
-      element.textContent = text;
-      element.style.opacity = '1';
-    }
-  };
-
-  const animateWave = (element: HTMLElement, text: string, duration: number, delay: number, loop: boolean) => {
-    try {
+  
+  // Handle standard animations (fade, slide, etc.)
+  const handleStandardAnimation = (element: HTMLElement) => {
+    // Prepare animation targets based on split option
+    let targets: HTMLElement | HTMLElement[] = element;
+    
+    if (splitBy !== 'none') {
+      // Clear element content
+      const originalHTML = element.innerHTML;
       element.innerHTML = '';
-      // Ensure text is a string
-      const textString = String(text || '');
-      if (!textString) return;
       
-      const chars = textString.split('').map((char, index) => {
+      // Split text based on option
+      let splitText: string[] = [];
+      
+      switch (splitBy) {
+        case 'chars':
+          splitText = text.split('');
+          break;
+        case 'words':
+          splitText = text.split(/\s+/);
+          break;
+        case 'lines':
+          splitText = text.split(/\n/);
+          break;
+        default:
+          splitText = [text];
+      }
+      
+      // Create spans for each split item
+      const spans: HTMLSpanElement[] = [];
+      
+      splitText.forEach((item, index) => {
         const span = document.createElement('span');
-        span.textContent = char === ' ' ? '\u00A0' : char;
-        span.style.display = 'inline-block';
+        span.textContent = item;
+        
+        if (splitBy === 'words' || splitBy === 'lines') {
+          // Add space or newline after each item except the last
+          if (index < splitText.length - 1) {
+            if (splitBy === 'words') {
+              span.textContent += ' ';
+            } else if (splitBy === 'lines') {
+              span.textContent += '\n';
+            }
+          }
+        }
+        
+        // Set initial style
         span.style.opacity = '0';
-        span.style.transform = 'translateY(20px)';
+        span.style.display = 'inline-block';
+        
+        // Add to element
         element.appendChild(span);
-        return span;
+        spans.push(span);
       });
-
-      const waveAnimation = () => {
-        anime({
-          targets: chars,
+      
+      // Update targets to spans
+      targets = spans;
+    } else {
+      // Set initial style for whole element
+      element.style.opacity = '0';
+    }
+    
+    // Create animation based on type
+    let animationProps: any = {};
+    
+    switch (animation) {
+      case 'fadeIn':
+        animationProps = {
+          opacity: [0, 1],
+        };
+        break;
+      case 'fadeInUp':
+        animationProps = {
           opacity: [0, 1],
           translateY: [20, 0],
-          duration: 600,
-          delay: anime.stagger(50, { start: delay }),
-          easing: 'easeOutExpo',
-          complete: () => {
-            if (loop) {
-              setTimeout(() => {
-                anime({
-                  targets: chars,
-                  opacity: [1, 0],
-                  translateY: [0, -20],
-                  duration: 400,
-                  delay: anime.stagger(30),
-                  easing: 'easeInExpo',
-                  complete: () => {
-                    setTimeout(waveAnimation, 500);
-                  }
-                });
-              }, 2000);
-            }
-          }
-        });
-      };
-
-      waveAnimation();
-    } catch (error) {
-      console.warn('AnimatedText wave error:', error);
-      element.textContent = text;
-      element.style.opacity = '1';
-    }
-  };
-
-  const animateGlow = (element: HTMLElement, text: string, duration: number, delay: number, loop: boolean) => {
-    try {
-      element.textContent = text;
-      element.style.opacity = '0';
-      element.style.textShadow = '0 0 0px currentColor';
-      
-      const glowAnimation = () => {
-        anime({
-          targets: element,
+        };
+        break;
+      case 'fadeInDown':
+        animationProps = {
           opacity: [0, 1],
-          textShadow: [
-            '0 0 0px currentColor',
-            '0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor'
-          ],
-          duration,
-          delay,
-          easing: 'easeOutExpo',
-          complete: () => {
-            if (loop) {
-              setTimeout(() => {
-                anime({
-                  targets: element,
-                  textShadow: [
-                    '0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor',
-                    '0 0 0px currentColor'
-                  ],
-                  duration: duration / 2,
-                  easing: 'easeInExpo',
-                  complete: () => {
-                    setTimeout(glowAnimation, 500);
-                  }
-                });
-              }, 2000);
-            }
-          }
-        });
-      };
-
-      glowAnimation();
-    } catch (error) {
-      console.warn('AnimatedText glow error:', error);
-      element.textContent = text;
-      element.style.opacity = '1';
+          translateY: [-20, 0],
+        };
+        break;
+      case 'fadeInLeft':
+        animationProps = {
+          opacity: [0, 1],
+          translateX: [-20, 0],
+        };
+        break;
+      case 'fadeInRight':
+        animationProps = {
+          opacity: [0, 1],
+          translateX: [20, 0],
+        };
+        break;
+      default:
+        animationProps = {
+          opacity: [0, 1],
+        };
     }
+    
+    // Create animation
+    anime({
+      targets,
+      ...animationProps,
+      duration,
+      delay: splitBy !== 'none' ? anime.stagger(staggerDelay, { start: delay }) : delay,
+      easing,
+    });
   };
-
-  const classes = clsx(
-    'animated-text',
-    `animated-text--${animation}`,
-    className
+  
+  // Render the component with the specified tag
+  const Component = tag as ElementType;
+  
+  return (
+    <Component ref={elementRef as any} className={className}>
+      {children || text}
+    </Component>
   );
+};
 
-  return React.createElement(Component, {
-    ref: textRef,
-    className: classes,
-    style: {
-      willChange: 'transform, opacity',
-      backfaceVisibility: 'hidden'
-    }
-  });
-} 
+export default AnimatedText;

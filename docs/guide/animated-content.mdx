@@ -1,119 +1,323 @@
 ---
-title: Elegant Animated Content
-description: Create immersive animated content using Anime.js
-sidebar_position: 4
+title: Creating Animated Content
+description: Learn how to add beautiful animations to your documentation using anime.js
 ---
 
-import AnimatedCard from '@site/src/components/AnimatedCard';
+# Creating Animated Content
 
-# Creating Immersive Animated Content
+This guide will show you how to add beautiful animations to your documentation using our anime.js integration.
 
-This guide demonstrates how to use Anime.js to create beautiful, animated content for your documentation.
+## Introduction
 
-## Animated Cards
+Animations can make your documentation more engaging and help illustrate complex concepts. Our anime.js integration provides:
 
-The AnimatedCard component provides an elegant way to highlight important information:
+- **Smooth animations** - Elegant, performant animations that enhance the user experience
+- **Scroll-triggered effects** - Elements that animate as they enter the viewport
+- **Interactive elements** - Hover effects and click animations
+- **Particle effects** - Beautiful background particles for immersive sections
+- **Accessibility** - All animations respect the user's motion preferences
 
-<div className="row">
-  <div className="col col--6">
-    <AnimatedCard
-      title="Cross-Chain Support"
-      icon="network"
-      color="primary"
-    >
-      <p>OmniDragon leverages LayerZero V2 to provide seamless cross-chain transfers across all major EVM-compatible networks.</p>
-      <p>Users can transfer tokens between chains with minimal gas fees and maximum security.</p>
-    </AnimatedCard>
-  </div>
-  <div className="col col--6">
-    <AnimatedCard
-      title="Economic Security"
-      icon="security"
-      color="success"
-    >
-      <p>Our protocol is designed with robust security mechanisms to protect user funds and ensure economic stability.</p>
-      <p>Regular audits and formal verification ensure the highest standards of security.</p>
-    </AnimatedCard>
-  </div>
+## Basic Animation Components
+
+### Animated Text
+
+You can animate text elements by adding the `data-animated-text` attribute:
+
+```jsx
+<h2 data-animated-text>This text will animate in</h2>
+<p data-animated-text data-animation-delay="200">This text will animate in with a delay</p>
+```
+
+### Scroll Reveal
+
+Elements with the `data-scroll-reveal` attribute will animate as they enter the viewport:
+
+```jsx
+<div data-scroll-reveal>
+  <p>This content will fade in when scrolled into view</p>
 </div>
 
-<div className="row">
-  <div className="col col--6">
-    <AnimatedCard
-      title="Token Economics"
-      icon="token"
-      color="warning"
-    >
-      <p>The OmniDragon token (OMNI) features a deflationary mechanism with a portion of each transaction fee used for token burns.</p>
-      <p>This creates sustainable value for long-term holders while supporting ecosystem growth.</p>
-    </AnimatedCard>
-  </div>
-  <div className="col col--6">
-    <AnimatedCard
-      title="Developer Resources"
-      color="danger"
-    >
-      <p>Comprehensive documentation, SDKs, and code examples make it easy to integrate OmniDragon into your applications.</p>
-      <p>Our developer community provides support and guidance for all implementation needs.</p>
-    </AnimatedCard>
-  </div>
+<div data-scroll-reveal data-animation="slide-up">
+  <p>This content will slide up when scrolled into view</p>
 </div>
+```
 
-## Using the AnimatedCard Component
+Available animation types:
+- `fade-in` (default)
+- `slide-up`
+- `slide-down`
+- `slide-left`
+- `slide-right`
+- `zoom-in`
+- `zoom-out`
 
-To use the animated card component in your MDX files:
+### Interactive Elements
+
+Add the `interactive-element` class to create elements that respond to hover:
+
+```jsx
+<div className="interactive-element">
+  <h3>Hover over me</h3>
+  <p>I'll respond with a subtle animation</p>
+</div>
+```
+
+### Animated Buttons
+
+Add the `data-animated-button` attribute to create buttons with hover effects:
+
+```jsx
+<button data-animated-button>
+  Click me
+</button>
+
+<a href="/some-page" data-animated-button>
+  Learn more
+</a>
+```
+
+## Advanced Animation Components
+
+### Animated Cards
+
+Use the `AnimatedCard` component to create cards that animate on hover:
 
 ```jsx
 import AnimatedCard from '@site/src/components/AnimatedCard';
 
 <AnimatedCard
-  title="My Card Title"
-  icon="network" // Optional: network, security, token
-  color="primary" // Optional: primary, success, warning, danger
-  withHover={true} // Optional: enables hover animations
->
-  <p>Card content goes here...</p>
-</AnimatedCard>
+  title="Feature Title"
+  description="Feature description goes here."
+  icon="rocket"
+  link="/feature"
+/>
 ```
 
-## Creating Custom Animations
+### Particle Backgrounds
 
-You can create custom animations using Anime.js directly in your components. Here's an example of how to set up a basic animation:
+Add particle effects to any container using the `ParticleBackground` component:
+
+```jsx
+import ParticleBackground from '@site/src/components/ParticleBackground';
+
+<div style={{ position: 'relative', minHeight: '300px' }}>
+  <ParticleBackground />
+  <div style={{ position: 'relative', zIndex: 1 }}>
+    <h2>Content with particles</h2>
+    <p>This content has a beautiful particle background</p>
+  </div>
+</div>
+```
+
+### Gradient Backgrounds
+
+Add gradient backgrounds using the `GradientBackground` component:
+
+```jsx
+import GradientBackground from '@site/src/components/GradientBackground';
+
+<div style={{ position: 'relative', minHeight: '300px' }}>
+  <GradientBackground animated />
+  <div style={{ position: 'relative', zIndex: 1 }}>
+    <h2>Content with gradient</h2>
+    <p>This content has a beautiful gradient background</p>
+  </div>
+</div>
+```
+
+### Immersive Timeline
+
+Create an immersive timeline using the `ImmersiveTimeline` component:
+
+```jsx
+import ImmersiveTimeline from '@site/src/components/ImmersiveTimeline';
+
+const timelineItems = [
+  {
+    title: 'Phase 1: Research',
+    date: 'Q1 2023',
+    description: 'Research and design phase',
+    icon: 'search',
+  },
+  {
+    title: 'Phase 2: Development',
+    date: 'Q2 2023',
+    description: 'Core development phase',
+    icon: 'code',
+  },
+  {
+    title: 'Phase 3: Testing',
+    date: 'Q3 2023',
+    description: 'Testing and auditing phase',
+    icon: 'check',
+  },
+  {
+    title: 'Phase 4: Launch',
+    date: 'Q4 2023',
+    description: 'Mainnet launch phase',
+    icon: 'rocket',
+  },
+];
+
+<ImmersiveTimeline items={timelineItems} />
+```
+
+## Animated Diagrams
+
+### Animated Mermaid Diagrams
+
+All Mermaid diagrams are automatically animated. See the [Elegant Diagrams](/guide/elegant-diagrams) guide for more information.
+
+### Custom Animated Diagrams
+
+For more complex animations, you can use our specialized animation components:
+
+```jsx
+import CrossChainRandomnessAnimation from '@site/src/components/CrossChainRandomnessAnimation';
+
+<CrossChainRandomnessAnimation />
+```
+
+Available animation components:
+- `CrossChainRandomnessAnimation` - Illustrates cross-chain randomness flow
+- `TokenFeeAnimation` - Shows how token fees are distributed
+- `VotingDecayAnimation` - Demonstrates voting power decay over time
+- `PartnerBoostAnimation` - Shows partner boost mechanics
+- `CubeRootAnimation` - Visualizes the cube root function used in the protocol
+
+## Animation Utilities
+
+### Scroll Reveal Wrapper
+
+Wrap any content with `ScrollRevealWrapper` to animate it when scrolled into view:
+
+```jsx
+import ScrollRevealWrapper from '@site/src/components/ScrollRevealWrapper';
+
+<ScrollRevealWrapper animation="slide-up" delay={200}>
+  <div>
+    <h2>This content will animate</h2>
+    <p>When it scrolls into view</p>
+  </div>
+</ScrollRevealWrapper>
+```
+
+### Animation Provider
+
+Use the `AnimationProvider` to control animations for a section of content:
+
+```jsx
+import AnimationProvider from '@site/src/components/AnimationProvider';
+
+<AnimationProvider enabled={true} reducedMotion={false}>
+  <div>
+    <h2 data-animated-text>This text will animate</h2>
+    <p data-animated-text>Even if the user has reduced motion enabled</p>
+  </div>
+</AnimationProvider>
+```
+
+## Best Practices
+
+Here are some best practices for using animations effectively:
+
+1. **Use animations purposefully** - Animations should enhance the content, not distract from it
+2. **Keep it subtle** - Subtle animations are more effective than flashy ones
+3. **Consider performance** - Too many animations can impact performance
+4. **Respect user preferences** - Always respect the user's motion preferences
+5. **Test on different devices** - Make sure animations work well on all devices
+6. **Provide fallbacks** - Content should still be usable without animations
+
+## Accessibility
+
+All animations respect the user's motion preferences. If a user has enabled the "reduced motion" setting in their operating system, animations will be disabled or simplified.
+
+You can test this by enabling the "reduced motion" setting in your operating system:
+- **macOS**: System Preferences > Accessibility > Display > Reduce motion
+- **Windows**: Settings > Ease of Access > Display > Show animations in Windows
+- **iOS**: Settings > Accessibility > Motion > Reduce Motion
+- **Android**: Settings > Accessibility > Remove animations
+
+## Advanced Techniques
+
+### Custom Animations with anime.js
+
+You can create custom animations using the anime.js library directly:
 
 ```jsx
 import React, { useEffect, useRef } from 'react';
-import anime from 'animejs/lib/anime.es.js';
+import anime from 'animejs';
 
-function MyAnimatedComponent() {
+function CustomAnimation() {
   const elementRef = useRef(null);
   
   useEffect(() => {
-    // Simple animation
-    anime({
-      targets: elementRef.current,
-      translateY: [20, 0],
-      opacity: [0, 1],
-      duration: 800,
-      easing: 'easeOutElastic(1, .8)'
-    });
+    if (elementRef.current) {
+      anime({
+        targets: elementRef.current,
+        translateY: [50, 0],
+        opacity: [0, 1],
+        duration: 1000,
+        easing: 'easeOutCubic',
+      });
+    }
   }, []);
   
   return (
     <div ref={elementRef} style={{ opacity: 0 }}>
-      This content will animate in
+      <p>This element has a custom animation</p>
     </div>
   );
 }
 ```
 
-## Animation Best Practices
+### Sequenced Animations
 
-For the most elegant and immersive documentation experience, follow these animation best practices:
+You can create sequenced animations by chaining anime.js animations:
 
-1. **Subtlety is key** - Use gentle animations that enhance rather than distract
-2. **Consistent timing** - Maintain consistent animation durations throughout your documentation
-3. **Purpose-driven** - Only animate elements when it serves a purpose (highlighting, revealing, etc.)
-4. **Performance** - Animate properties that trigger fewer repaints (transform, opacity)
-5. **Accessibility** - Respect user preferences for reduced motion
+```jsx
+import React, { useEffect } from 'react';
+import anime from 'animejs';
 
-By following these guidelines, you can create an elegant, immersive documentation experience that enhances understanding without overwhelming users. 
+function SequencedAnimation() {
+  useEffect(() => {
+    const timeline = anime.timeline({
+      easing: 'easeOutExpo',
+    });
+    
+    timeline
+      .add({
+        targets: '.step-1',
+        translateY: [50, 0],
+        opacity: [0, 1],
+        duration: 500,
+      })
+      .add({
+        targets: '.step-2',
+        translateY: [50, 0],
+        opacity: [0, 1],
+        duration: 500,
+      })
+      .add({
+        targets: '.step-3',
+        translateY: [50, 0],
+        opacity: [0, 1],
+        duration: 500,
+      });
+  }, []);
+  
+  return (
+    <div>
+      <div className="step-1" style={{ opacity: 0 }}>Step 1</div>
+      <div className="step-2" style={{ opacity: 0 }}>Step 2</div>
+      <div className="step-3" style={{ opacity: 0 }}>Step 3</div>
+    </div>
+  );
+}
+```
+
+## Conclusion
+
+With our anime.js integration, you can create beautiful, engaging animations that enhance your documentation. Use these features to illustrate complex concepts, guide the user's attention, and create a more immersive experience.
+
+For more examples, see the [Enhanced Mermaid Diagrams](/mermaid-working) page.

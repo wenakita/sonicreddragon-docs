@@ -216,13 +216,18 @@ const config: Config = {
           title: 'Resources',
           items: [
             {
-              label: 'GitHub',
-              href: 'https://github.com/wenakita/sonicreddragon',
-              className: 'footer__link--modern footer__link--github',
+              label: 'Elegant Diagrams',
+              to: '/guide/elegant-diagrams',
+              className: 'footer__link--modern',
             },
             {
-              label: 'Blog',
-              href: 'https://blog.sonicreddragon.io',
+              label: 'Animated Content',
+              to: '/guide/animated-content',
+              className: 'footer__link--modern',
+            },
+            {
+              label: 'Enhanced Mermaid',
+              to: '/mermaid-working',
               className: 'footer__link--modern',
             },
           ],

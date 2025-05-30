@@ -3,7 +3,7 @@
 /* Custom Font Import */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* Root Variables - Clean Professional Colors */
+/* Root Variables - Immersive Professional Colors */
 :root {
   /* Primary color palette */
   --ifm-color-primary: #3b82f6;
@@ -18,6 +18,8 @@
   --accent-orange: #f97316;
   --accent-orange-light: #fb923c;
   --accent-orange-dark: #ea580c;
+  --accent-orange-lighter: #fdba74;
+  --accent-orange-lightest: #ffedd5;
   
   /* Neutral colors */
   --neutral-50: #f9fafb;
@@ -60,6 +62,10 @@
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
   --gradient-accent: linear-gradient(135deg, #3b82f6 0%, #f97316 100%);
+  --gradient-blue-orange: linear-gradient(135deg, var(--ifm-color-primary) 0%, var(--accent-orange) 100%);
+  --gradient-dark-blue: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --gradient-blue-dark: linear-gradient(135deg, var(--ifm-color-primary-dark) 0%, #0f172a 100%);
+  --gradient-orange-dark: linear-gradient(135deg, var(--accent-orange) 0%, #7c2d12 100%);
 }
 
 /* Global Styles */
@@ -83,24 +89,36 @@ body {
   color: var(--ifm-color-primary-darkest);
 }
 
-/* Dark Mode Variables */
+/* Dark Mode Variables - Immersive Experience */
 [data-theme='dark'] {
   --ifm-background-color: #0a0a0a;
   --ifm-background-surface-color: #141414;
   --ifm-hover-overlay: rgba(96, 165, 250, 0.12);
-  --navbar-bg: rgba(10, 10, 10, 0.95);
+  --navbar-bg: rgba(10, 10, 10, 0.8);
   --footer-bg: #0a0a0a;
   --code-bg: #1a1a1a;
   --ifm-color-content: #e5e7eb;
   --ifm-color-content-secondary: #9ca3af;
   --ifm-heading-color: #f9fafb;
-  --ifm-card-background-color: #141414;
-  --ifm-toc-border-color: rgba(255, 255, 255, 0.1);
+  --ifm-card-background-color: rgba(20, 20, 20, 0.7);
+  --ifm-toc-border-color: rgba(59, 130, 246, 0.2);
+  
+  /* Immersive dark mode specific */
+  --immersive-bg-gradient: radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.1) 0%, rgba(10, 10, 10, 0) 70%),
+                          radial-gradient(circle at 90% 90%, rgba(249, 115, 22, 0.1) 0%, rgba(10, 10, 10, 0) 70%);
+  --card-glow-blue: 0 0 20px rgba(59, 130, 246, 0.2);
+  --card-glow-orange: 0 0 20px rgba(249, 115, 22, 0.2);
+  --text-glow-heading: 0 0 10px rgba(59, 130, 246, 0.3);
+  --immersive-border: 1px solid rgba(59, 130, 246, 0.2);
+  --immersive-border-hover: 1px solid rgba(59, 130, 246, 0.5);
 }
 
 [data-theme='dark'] body {
   background-color: var(--ifm-background-color);
   color: var(--ifm-color-content);
+  background-image: var(--immersive-bg-gradient);
+  background-attachment: fixed;
+  background-size: cover;
 }
 
 /* Modern Navbar */
@@ -179,16 +197,16 @@ body {
   padding-top: var(--ifm-navbar-height);
 }
 
-/* Documentation Container - Centered */
+/* Documentation Container - Wider for better content display */
 main > .container {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 3rem auto;
   padding: 0 2rem;
 }
 
 /* Article Styling */
 article {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
 }
@@ -311,25 +329,53 @@ table td {
   border-bottom-color: rgba(255, 255, 255, 0.05);
 }
 
-/* Cards */
+/* Cards - Immersive Glass Effect */
 .card {
   background: white;
   border: 1px solid var(--neutral-200);
   border-radius: var(--ifm-card-radius);
   padding: 1.5rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   height: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 [data-theme='dark'] .card {
   background: var(--ifm-card-background-color);
-  border-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-color: var(--immersive-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--ifm-color-primary-light);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: var(--shadow-xl), var(--card-glow-blue);
+  border-color: var(--immersive-border-hover);
+  z-index: 1;
+}
+
+/* Card gradient border effect on hover */
+[data-theme='dark'] .card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: var(--ifm-card-radius);
+  padding: 1px;
+  background: var(--gradient-blue-orange);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+[data-theme='dark'] .card:hover::before {
+  opacity: 1;
 }
 
 /* Buttons */
@@ -563,7 +609,7 @@ table td {
   text-decoration: none;
 }
 
-/* Mermaid Diagrams */
+/* Mermaid Diagrams - Immersive Experience */
 .docusaurus-mermaid-container {
   background: var(--neutral-50);
   border: 1px solid var(--neutral-200);
@@ -571,11 +617,55 @@ table td {
   padding: 2rem;
   margin: 2rem 0;
   overflow-x: auto;
+  max-width: 100%;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 [data-theme='dark'] .docusaurus-mermaid-container {
-  background: rgba(255, 255, 255, 0.02);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(26, 26, 26, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), var(--card-glow-blue);
+}
+
+/* Mermaid diagram hover effect */
+[data-theme='dark'] .docusaurus-mermaid-container:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), var(--card-glow-blue), var(--card-glow-orange);
+  border-color: rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Mermaid SVG elements */
+[data-theme='dark'] .docusaurus-mermaid-container svg {
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.1));
+}
+
+[data-theme='dark'] .docusaurus-mermaid-container .node rect,
+[data-theme='dark'] .docusaurus-mermaid-container .node circle,
+[data-theme='dark'] .docusaurus-mermaid-container .node ellipse,
+[data-theme='dark'] .docusaurus-mermaid-container .node polygon,
+[data-theme='dark'] .docusaurus-mermaid-container .node path {
+  stroke: var(--ifm-color-primary);
+  fill: rgba(20, 20, 20, 0.8);
+  transition: all 0.3s ease;
+}
+
+[data-theme='dark'] .docusaurus-mermaid-container .edgePath .path {
+  stroke: var(--ifm-color-primary);
+  stroke-width: 2px;
+  transition: all 0.3s ease;
+}
+
+[data-theme='dark'] .docusaurus-mermaid-container .edgeLabel {
+  background-color: rgba(20, 20, 20, 0.7);
+  color: var(--ifm-color-content);
+}
+
+[data-theme='dark'] .docusaurus-mermaid-container .cluster rect {
+  fill: rgba(59, 130, 246, 0.05);
+  stroke: var(--ifm-color-primary);
 }
 
 /* Hide sidebar on intro page */
@@ -707,6 +797,24 @@ article.intro-page {
   .pagination-nav {
     grid-template-columns: 1fr;
   }
+  
+  /* Fix for sidebar on mobile */
+  .theme-doc-sidebar-container {
+    position: relative !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  
+  /* Ensure main content doesn't overlap sidebar on mobile */
+  .docMainContainer {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+  
+  /* Improve mobile sidebar navigation */
+  .menu {
+    padding: 1rem 0;
+  }
 }
 
 @media (max-width: 640px) {
@@ -754,4 +862,429 @@ article.intro-page {
     margin: 0;
     padding: 0;
   }
-} 
+}
+
+/* Enhanced Animation Styles */
+/* Particle container styles */
+.particlesContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Particle styles */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Immersive Mermaid Styles */
+.immersive-mermaid {
+  position: relative;
+  overflow: hidden;
+}
+
+.immersive-mermaid--glow {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(59, 130, 246, 0.4), 0 0 30px rgba(249, 115, 22, 0.2) !important;
+}
+
+.immersive-mermaid--gradient-border {
+  border-image: linear-gradient(45deg, #3b82f6, #f97316) 1 !important;
+  border-image-slice: 1 !important;
+}
+
+/* Animated Button Styles */
+.animated-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  color: white;
+  border: none;
+  outline: none;
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+}
+
+.animated-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(59, 130, 246, 0.3);
+}
+
+.animated-button--pulse {
+  animation: button-pulse 2s infinite;
+}
+
+.animated-button--glow {
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  transition: box-shadow 0.3s ease;
+}
+
+.animated-button--glow:hover {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+}
+
+.animated-button--bounce:hover {
+  animation: button-bounce 0.5s;
+}
+
+/* Animated Text Styles */
+.animated-text {
+  display: inline-block;
+}
+
+/* Scroll Reveal Styles */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Keyframes */
+@keyframes button-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+@keyframes button-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Enhanced Mermaid Styling */
+.docusaurus-mermaid-container {
+  background: rgba(248, 250, 252, 0.8);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin: 2rem 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.docusaurus-mermaid-container:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15), 0 0 20px rgba(37, 99, 235, 0.15);
+  border-color: rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
+}
+
+[data-theme='dark'] .docusaurus-mermaid-container {
+  background: rgba(26, 26, 26, 0.4);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  margin: 2rem 0;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme='dark'] .docusaurus-mermaid-container:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(59, 130, 246, 0.2), 0 0 20px rgba(249, 115, 22, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Mermaid diagram elements */
+.mermaid text,
+.mermaid .label {
+  font-family: var(--ifm-font-family-base) !important;
+  font-size: 14px !important;
+}
+
+[data-theme='dark'] .mermaid text,
+[data-theme='dark'] .mermaid .label {
+  fill: #E2E8F0 !important;
+  color: #E2E8F0 !important;
+}
+
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon {
+  fill: #F8FAFC !important;
+  stroke: #3b82f6 !important;
+  rx: 6px;
+  ry: 6px;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme='dark'] .mermaid .node rect,
+[data-theme='dark'] .mermaid .node circle,
+[data-theme='dark'] .mermaid .node ellipse,
+[data-theme='dark'] .mermaid .node polygon {
+  fill: #2A2A2A !important;
+  stroke: #3b82f6 !important;
+  rx: 6px;
+  ry: 6px;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.mermaid .edgePath .path {
+  stroke: #3b82f6 !important;
+  stroke-width: 2px !important;
+  transition: all 0.3s ease;
+}
+
+[data-theme='dark'] .mermaid .edgePath .path {
+  stroke: #3b82f6 !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid .arrowheadPath {
+  fill: #3b82f6 !important;
+  stroke: #3b82f6 !important;
+}
+
+[data-theme='dark'] .mermaid .arrowheadPath {
+  fill: #3b82f6 !important;
+  stroke: #3b82f6 !important;
+}
+
+.mermaid .cluster rect {
+  fill: rgba(59, 130, 246, 0.05) !important;
+  stroke: #3b82f6 !important;
+  rx: 8px;
+  ry: 8px;
+}
+
+[data-theme='dark'] .mermaid .cluster rect {
+  fill: rgba(59, 130, 246, 0.1) !important;
+  stroke: #3b82f6 !important;
+  rx: 8px;
+  ry: 8px;
+}
+
+/* Hover effects */
+.mermaid .node:hover rect,
+.mermaid .node:hover circle,
+.mermaid .node:hover ellipse,
+.mermaid .node:hover polygon {
+  fill: rgba(59, 130, 246, 0.1) !important;
+  stroke: #2563eb !important;
+  stroke-width: 2.5px !important;
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
+  transform: translateY(-2px) scale(1.02);
+}
+
+[data-theme='dark'] .mermaid .node:hover rect,
+[data-theme='dark'] .mermaid .node:hover circle,
+[data-theme='dark'] .mermaid .node:hover ellipse,
+[data-theme='dark'] .mermaid .node:hover polygon {
+  fill: rgba(59, 130, 246, 0.15) !important;
+  stroke: #60a5fa !important;
+  stroke-width: 2.5px !important;
+  filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.5));
+  transform: translateY(-3px) scale(1.03);
+}
+
+.mermaid .edgePath:hover .path {
+  stroke: #2563eb !important;
+  stroke-width: 2.5px !important;
+  filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.3));
+}
+
+[data-theme='dark'] .mermaid .edgePath:hover .path {
+  stroke: #60a5fa !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+}
+
+/* Immersive diagram styles */
+.immersive-diagram {
+  position: relative;
+  margin: 3rem 0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.immersive-diagram .docusaurus-mermaid-container {
+  background: rgba(248, 250, 252, 0.9);
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  padding: 2rem;
+}
+
+[data-theme='dark'] .immersive-diagram .docusaurus-mermaid-container {
+  background: rgba(10, 10, 10, 0.7);
+  border: none;
+  box-shadow: none;
+}
+
+.immersive-diagram::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: linear-gradient(
+    45deg,
+    rgba(59, 130, 246, 0.5),
+    rgba(16, 185, 129, 0),
+    rgba(249, 115, 22, 0.5),
+    rgba(59, 130, 246, 0)
+  );
+  border-radius: 16px;
+  z-index: -1;
+  background-size: 400% 400%;
+  animation: gradientBorder 8s linear infinite;
+}
+
+@keyframes gradientBorder {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.immersive-diagram .diagram-title {
+  margin: 0;
+  padding: 1.5rem 2rem;
+  background: rgba(248, 250, 252, 0.9);
+  color: var(--neutral-900);
+  font-size: 1.5rem;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+[data-theme='dark'] .immersive-diagram .diagram-title {
+  background: rgba(10, 10, 10, 0.8);
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.immersive-diagram .diagram-caption {
+  margin: 0;
+  padding: 1.5rem 2rem;
+  background: rgba(248, 250, 252, 0.9);
+  color: var(--neutral-600);
+  font-size: 1rem;
+  font-style: italic;
+  border-top: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+[data-theme='dark'] .immersive-diagram .diagram-caption {
+  background: rgba(10, 10, 10, 0.8);
+  color: rgba(255, 255, 255, 0.8);
+  border-top: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Mermaid controls */
+.mermaid-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mermaid-control-button:hover {
+  background: rgba(59, 130, 246, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+.mermaid-control-button svg {
+  width: 22px;
+  height: 22px;
+  fill: var(--ifm-color-primary);
+}
+
+[data-theme='dark'] .mermaid-control-button {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme='dark'] .mermaid-control-button:hover {
+  background: rgba(59, 130, 246, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+[data-theme='dark'] .mermaid-control-button svg {
+  fill: rgba(255, 255, 255, 0.9);
+}
+
+/* Fullscreen mode */
+.mermaid-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(248, 250, 252, 0.95);
+}
+
+[data-theme='dark'] .mermaid-fullscreen {
+  background-color: rgba(10, 10, 10, 0.95);
+}
+
+.mermaid-fullscreen svg {
+  max-height: 90vh;
+  max-width: 90vw;
+  margin: auto;
+}

@@ -298,6 +298,22 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Documentation Guide',
+      link: {
+        type: 'generated-index',
+        title: 'Documentation Guide',
+        description: 'Learn how to use the enhanced documentation features',
+        slug: '/category/documentation-guide',
+        keywords: ['guide', 'diagrams', 'animations', 'documentation'],
+      },
+      items: [
+        'guide/elegant-diagrams',
+        'guide/immersive-diagrams',
+        'guide/animated-content',
+      ],
+    },
+    {
+      type: 'category',
       label: 'Updates & Changes',
       link: {
         type: 'generated-index',
@@ -490,4 +506,3 @@ const sidebars: SidebarsConfig = {
 };
 
 export default sidebars;
-

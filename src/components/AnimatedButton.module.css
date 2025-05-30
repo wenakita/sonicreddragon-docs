@@ -1,0 +1,176 @@
+/**
+ * AnimatedButton Component Styles
+ */
+
+/* Base button styles */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  border: none;
+  font-family: var(--ifm-font-family-base);
+}
+
+.button:focus-visible {
+  box-shadow: 0 0 0 2px var(--ifm-color-primary-lightest);
+}
+
+/* Button sizes */
+.small {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  height: 2rem;
+}
+
+.medium {
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  height: 2.5rem;
+}
+
+.large {
+  padding: 0.625rem 1.25rem;
+  font-size: 1rem;
+  height: 3rem;
+}
+
+/* Button variants */
+.primary {
+  background-color: var(--ifm-color-primary);
+  color: white;
+}
+
+.primary:hover:not(.disabled) {
+  background-color: var(--ifm-color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.primary:active:not(.disabled) {
+  background-color: var(--ifm-color-primary-darker);
+  transform: translateY(0);
+}
+
+.secondary {
+  background-color: var(--ifm-color-secondary);
+  color: white;
+}
+
+.secondary:hover:not(.disabled) {
+  background-color: var(--ifm-color-secondary-dark);
+  transform: translateY(-1px);
+}
+
+.secondary:active:not(.disabled) {
+  background-color: var(--ifm-color-secondary-darker);
+  transform: translateY(0);
+}
+
+.ghost {
+  background-color: transparent;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.ghost:hover:not(.disabled) {
+  background-color: var(--ifm-color-emphasis-100);
+  color: var(--ifm-color-emphasis-900);
+  transform: translateY(-1px);
+}
+
+.ghost:active:not(.disabled) {
+  background-color: var(--ifm-color-emphasis-200);
+  transform: translateY(0);
+}
+
+.outline {
+  background-color: transparent;
+  color: var(--ifm-color-primary);
+  border: 1px solid var(--ifm-color-primary);
+}
+
+.outline:hover:not(.disabled) {
+  background-color: var(--ifm-color-primary-lightest);
+  transform: translateY(-1px);
+}
+
+.outline:active:not(.disabled) {
+  background-color: var(--ifm-color-primary-lighter);
+  transform: translateY(0);
+}
+
+/* Full width button */
+.fullWidth {
+  width: 100%;
+}
+
+/* Icon button */
+.icon {
+  padding: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+}
+
+.icon.small {
+  width: 2rem;
+  height: 2rem;
+}
+
+.icon.large {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Disabled state */
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Ripple effect */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Dark theme adjustments */
+:global([data-theme='dark']) .ghost {
+  color: var(--ifm-color-emphasis-600);
+}
+
+:global([data-theme='dark']) .ghost:hover:not(.disabled) {
+  color: var(--ifm-color-emphasis-800);
+}
+
+:global([data-theme='dark']) .ripple {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Light theme adjustments */
+:global([data-theme='light']) .primary,
+:global([data-theme='light']) .secondary {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+:global([data-theme='light']) .ripple {
+  background-color: rgba(0, 0, 0, 0.1);
+}
