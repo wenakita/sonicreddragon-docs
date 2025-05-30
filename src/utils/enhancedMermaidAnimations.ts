@@ -197,7 +197,83 @@ export function addParticleEffects(container: HTMLElement, options: any = {}): (
 }
 
 /**
- * Animate a Mermaid diagram
+ * Analyze diagram structure to determine flow direction and node relationships
+ * @param svg - The SVG element containing the diagram
+ * @returns Object with diagram analysis
+ */
+function analyzeDiagramStructure(svg: SVGElement) {
+  // Get all nodes and edges
+  const nodes = Array.from(svg.querySelectorAll('.node'));
+  const edges = Array.from(svg.querySelectorAll('.edgePath'));
+  
+  // Determine if diagram is TD (top-down) or LR (left-right)
+  // We'll check the general positioning of nodes
+  let isTopDown = true;
+  let minX = Infinity, maxX = -Infinity;
+  let minY = Infinity, maxY = -Infinity;
+  
+  // Get bounding boxes for all nodes
+  const nodeBounds = nodes.map(node => {
+    const rect = node.getBoundingClientRect();
+    minX = Math.min(minX, rect.left);
+    maxX = Math.max(maxX, rect.right);
+    minY = Math.min(minY, rect.top);
+    maxY = Math.max(maxY, rect.bottom);
+    return { node, rect };
+  });
+  
+  // If width is greater than height, it's likely a left-right diagram
+  const width = maxX - minX;
+  const height = maxY - minY;
+  isTopDown = height > width;
+  
+  // Build node relationships (which nodes are connected to which)
+  const nodeRelationships: Record<string, string[]> = {};
+  const edgeSourceTargets: Array<{source: string, target: string}> = [];
+  
+  // Extract source and target from edge IDs
+  edges.forEach(edge => {
+    const edgeId = edge.id;
+    // Edge IDs are typically in format: "L-node1-node2-R" or similar
+    const parts = edgeId.split('-').filter(p => p !== 'L' && p !== 'R');
+    
+    if (parts.length >= 2) {
+      const source = parts[0];
+      const target = parts[1];
+      
+      if (!nodeRelationships[source]) {
+        nodeRelationships[source] = [];
+      }
+      nodeRelationships[source].push(target);
+      
+      edgeSourceTargets.push({ source, target });
+    }
+  });
+  
+  // Find root nodes (nodes with no incoming edges)
+  const allTargets = new Set(edgeSourceTargets.map(e => e.target));
+  const rootNodes = nodes
+    .map(node => node.id)
+    .filter(id => !allTargets.has(id));
+  
+  // Find leaf nodes (nodes with no outgoing edges)
+  const allSources = new Set(edgeSourceTargets.map(e => e.source));
+  const leafNodes = nodes
+    .map(node => node.id)
+    .filter(id => !allSources.has(id));
+  
+  return {
+    isTopDown,
+    rootNodes,
+    leafNodes,
+    nodeRelationships,
+    edgeSourceTargets,
+    nodeBounds
+  };
+}
+
+/**
+ * Animate a Mermaid diagram with flow-based animations
  * @param container - The container element
  */
 export function animateMermaidDiagram(container: HTMLElement) {
@@ -205,71 +281,145 @@ export function animateMermaidDiagram(container: HTMLElement) {
   const svg = container.querySelector('svg');
   if (!svg) return;
   
-  // Animate paths
-  const paths = svg.querySelectorAll('path');
-  if (paths.length > 0) {
-    drawPath(paths, {
-      duration: 1500,
-      easing: 'easeInOutSine',
-      delay: (el: Element, i: number) => i * 150
+  // Analyze diagram structure
+  const structure = analyzeDiagramStructure(svg as SVGElement);
+  
+  // Determine animation direction based on diagram type
+  const animationDirection = structure.isTopDown ? 'top-down' : 'left-right';
+  
+  // First, animate the root nodes
+  const rootNodeElements = structure.rootNodes.map(id => 
+    svg.querySelector(`#${id}`)
+  ).filter(el => el !== null) as SVGElement[];
+  
+  // Set initial state for all elements
+  const allNodes = svg.querySelectorAll('.node');
+  const allEdges = svg.querySelectorAll('.edgePath');
+  const allLabels = svg.querySelectorAll('.label');
+  
+  // Hide all elements initially
+  allNodes.forEach(node => {
+    (node as SVGElement).style.opacity = '0';
+    (node as SVGElement).style.transform = 'scale(0.9)';
+  });
+  
+  allEdges.forEach(edge => {
+    (edge as SVGElement).style.opacity = '0';
+  });
+  
+  allLabels.forEach(label => {
+    (label as SVGElement).style.opacity = '0';
+  });
+  
+  // Function to animate a node and its connected elements
+  const animateNodeAndConnections = (nodeId: string, delay: number) => {
+    // Animate the node
+    const nodeElement = svg.querySelector(`#${nodeId}`);
+    if (nodeElement) {
+      setTimeout(() => {
+        (nodeElement as SVGElement).style.opacity = '1';
+        (nodeElement as SVGElement).style.transform = 'scale(1)';
+        (nodeElement as SVGElement).style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
+      }, delay);
+      
+      // Find edges from this node
+      const connectedEdges = svg.querySelectorAll(`.edgePath[id*="${nodeId}"]`);
+      
+      // Animate each edge after the node
+      connectedEdges.forEach((edge, i) => {
+        setTimeout(() => {
+          (edge as SVGElement).style.opacity = '1';
+          (edge as SVGElement).style.transition = 'opacity 0.5s ease';
+          
+          // Animate the path
+          const path = edge.querySelector('.path');
+          if (path) {
+            const pathLength = (path as SVGPathElement).getTotalLength();
+            (path as SVGPathElement).style.strokeDasharray = `${pathLength}`;
+            (path as SVGPathElement).style.strokeDashoffset = `${pathLength}`;
+            (path as SVGPathElement).style.transition = `stroke-dashoffset 0.8s ease`;
+            
+            setTimeout(() => {
+              (path as SVGPathElement).style.strokeDashoffset = '0';
+            }, 50);
+          }
+          
+          // Animate the edge label
+          const edgeLabel = edge.querySelector('.edgeLabel');
+          if (edgeLabel) {
+            setTimeout(() => {
+              (edgeLabel as SVGElement).style.opacity = '1';
+              (edgeLabel as SVGElement).style.transition = 'opacity 0.5s ease';
+            }, 300);
+          }
+          
+          // Find the target node and animate it
+          const edgeId = edge.id;
+          const parts = edgeId.split('-').filter(p => p !== 'L' && p !== 'R');
+          
+          if (parts.length >= 2) {
+            const source = parts[0];
+            const target = parts[1];
+            
+            // Only animate the target if this edge is coming from the current node
+            if (source === nodeId) {
+              // Recursively animate the target node and its connections
+              animateNodeAndConnections(target, delay + 500 + (i * 150));
+            }
+          }
+        }, delay + 300 + (i * 100));
+      });
+    }
+  };
+  
+  // Start animation from root nodes
+  structure.rootNodes.forEach((nodeId, i) => {
+    animateNodeAndConnections(nodeId, 100 + (i * 150));
+  });
+  
+  // If no root nodes were found, fall back to animating all nodes sequentially
+  if (structure.rootNodes.length === 0) {
+    allNodes.forEach((node, i) => {
+      setTimeout(() => {
+        (node as SVGElement).style.opacity = '1';
+        (node as SVGElement).style.transform = 'scale(1)';
+        (node as SVGElement).style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
+      }, 100 + (i * 100));
     });
+    
+    // Then animate all edges
+    setTimeout(() => {
+      allEdges.forEach((edge, i) => {
+        setTimeout(() => {
+          (edge as SVGElement).style.opacity = '1';
+          (edge as SVGElement).style.transition = 'opacity 0.5s ease';
+          
+          // Animate the path
+          const path = edge.querySelector('.path');
+          if (path) {
+            const pathLength = (path as SVGPathElement).getTotalLength();
+            (path as SVGPathElement).style.strokeDasharray = `${pathLength}`;
+            (path as SVGPathElement).style.strokeDashoffset = `${pathLength}`;
+            (path as SVGPathElement).style.transition = `stroke-dashoffset 0.8s ease`;
+            
+            setTimeout(() => {
+              (path as SVGPathElement).style.strokeDashoffset = '0';
+            }, 50);
+          }
+        }, i * 100);
+      });
+    }, allNodes.length * 100 + 200);
+    
+    // Finally animate all labels
+    setTimeout(() => {
+      allLabels.forEach((label, i) => {
+        setTimeout(() => {
+          (label as SVGElement).style.opacity = '1';
+          (label as SVGElement).style.transition = 'opacity 0.5s ease';
+        }, i * 50);
+      });
+    }, allNodes.length * 100 + allEdges.length * 100 + 300);
   }
-  
-  // Animate nodes
-  const nodes = svg.querySelectorAll('.node');
-  nodes.forEach((node, index) => {
-    const element = node as HTMLElement;
-    element.style.opacity = '0';
-    element.style.transform = 'translateY(20px) scale(0.95)';
-    element.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
-    element.style.transitionDelay = `${index * 120}ms`;
-    
-    setTimeout(() => {
-      element.style.opacity = '1';
-      element.style.transform = 'translateY(0) scale(1)';
-    }, 100);
-  });
-  
-  // Animate edges
-  const edges = svg.querySelectorAll('.edgePath');
-  edges.forEach((edge, index) => {
-    const element = edge as HTMLElement;
-    element.style.opacity = '0';
-    element.style.transition = 'opacity 0.6s ease';
-    element.style.transitionDelay = `${(nodes.length * 120) + (index * 100)}ms`;
-    
-    setTimeout(() => {
-      element.style.opacity = '1';
-    }, (nodes.length * 120) + 100);
-  });
-  
-  // Animate clusters
-  const clusters = svg.querySelectorAll('.cluster');
-  clusters.forEach((cluster, index) => {
-    const element = cluster as HTMLElement;
-    element.style.opacity = '0';
-    element.style.transform = 'scale(0.95)';
-    element.style.transition = 'opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
-    element.style.transitionDelay = `${index * 150}ms`;
-    
-    setTimeout(() => {
-      element.style.opacity = '1';
-      element.style.transform = 'scale(1)';
-    }, 100);
-  });
-  
-  // Animate labels
-  const labels = svg.querySelectorAll('.label');
-  labels.forEach((label, index) => {
-    const element = label as HTMLElement;
-    element.style.opacity = '0';
-    element.style.transition = 'opacity 0.6s ease';
-    element.style.transitionDelay = `${(nodes.length * 120) + (edges.length * 100) + (index * 50)}ms`;
-    
-    setTimeout(() => {
-      element.style.opacity = '1';
-    }, (nodes.length * 120) + (edges.length * 100) + 100);
-  });
 }
 
 /**
