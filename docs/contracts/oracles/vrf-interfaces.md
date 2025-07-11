@@ -1,5 +1,7 @@
 ---
 sidebar_position: 5
+title: Vrf Interfaces
+description: Detailed explanation of this concept
 ---
 
 # VRF Interfaces
@@ -18,15 +20,13 @@ This interface defines how contracts interact with the dRAND network integrator:
 
 ```solidity
 interface IDragonVRFIntegrator {
-    /**
-     * @dev Returns the latest randomness value
+    /***@dev Returns the latest randomness value
      * @return random The randomness value
      * @return round The round number
      */
     function getLatestRandomness() external view returns (uint256 random, uint256 round);
     
-    /**
-     * @dev Fulfills a randomness request
+    /***@dev Fulfills a randomness request
      * @param _requestId The request ID to fulfill
      */
     function fulfillRandomness(uint256 _requestId) external;
@@ -39,8 +39,7 @@ This interface defines how consumer contracts receive randomness:
 
 ```solidity
 interface IDragonVRFConsumer {
-    /**
-     * @dev Fulfills a randomness request
+    /***@dev Fulfills a randomness request
      * @param _requestId The request ID
      * @param _randomness The randomness value
      * @param _round The round number
@@ -51,8 +50,7 @@ interface IDragonVRFConsumer {
         uint256 _round
     ) external;
     
-    /**
-     * @dev Gets the randomness for a specific request
+    /***@dev Gets the randomness for a specific request
      * @param _requestId The request ID
      */
     function getRequestRandomness(
@@ -67,8 +65,7 @@ This interface defines the advanced multi-source randomness consumer:
 
 ```solidity
 interface IOmniDragonVRFConsumer {
-    /**
-     * @dev Adds a new dRAND network
+    /***@dev Adds a new dRAND network
      * @param _networkId The network identifier
      * @param _integrator The integrator contract address
      * @param _weight The weight for this network
@@ -79,8 +76,7 @@ interface IOmniDragonVRFConsumer {
         uint256 _weight
     ) external;
     
-    /**
-     * @dev Updates a network
+    /***@dev Updates a network
      * @param _networkId The network identifier
      * @param _integrator The integrator contract address
      * @param _weight The weight for this network
@@ -93,26 +89,22 @@ interface IOmniDragonVRFConsumer {
         bool _active
     ) external;
     
-    /**
-     * @dev Removes a network
+    /***@dev Removes a network
      * @param _networkId The network identifier
      */
     function removeNetwork(bytes32 _networkId) external;
     
-    /**
-     * @dev Aggregates randomness from all networks
+    /***@dev Aggregates randomness from all networks
      */
     function aggregateRandomness() external;
     
-    /**
-     * @dev Fulfills randomness for a consumer
+    /***@dev Fulfills randomness for a consumer
      * @param _consumer The consumer address
      * @param _requestId The request ID
      */
     function fulfillRandomness(address _consumer, uint256 _requestId) external;
     
-    /**
-     * @dev Sets authorization for a consumer
+    /***@dev Sets authorization for a consumer
      * @param _consumer The consumer address
      * @param _authorized Whether the consumer is authorized
      */
@@ -124,27 +116,27 @@ interface IOmniDragonVRFConsumer {
 
 These interfaces are designed with the following considerations:
 
-1. **Security**: Strict access control for randomness fulfillment
-2. **Flexibility**: Support for different randomness sources
-3. **Reliability**: Multiple fallback mechanisms
-4. **Gas Efficiency**: Optimized for gas usage
+1.**Security**: Strict access control for randomness fulfillment
+2.**Flexibility**: Support for different randomness sources
+3.**Reliability**: Multiple fallback mechanisms
+4.**Gas Efficiency**: Optimized for gas usage
 
 ## dRAND Networks
 
 OmniDragon integrates with several dRAND networks:
 
 ### League of Entropy Mainnet
-- **Period**: 30 seconds
-- **Use Case**: Primary randomness source for jackpot drawings
+-**Period**: 30 seconds
+-**Use Case**: Primary randomness source for jackpot drawings
 
 ### Quicknet
-- **Period**: 3 seconds
-- **Use Case**: Time-sensitive operations requiring fast randomness
+-**Period**: 3 seconds
+-**Use Case**: Time-sensitive operations requiring fast randomness
 
 ### EVMnet
-- **Period**: 3 seconds
-- **Features**: Optimized for EVM chains, lower gas costs for verification
-- **Use Case**: On-chain verification when needed
+-**Period**: 3 seconds
+-**Features**: Optimized for EVM chains, lower gas costs for verification
+-**Use Case**: On-chain verification when needed
 
 ## Integration Example
 

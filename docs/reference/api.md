@@ -1,12 +1,17 @@
+---
+title: Api
+sidebar_position: 1
+description: Technical reference information
+---
 # API Reference
 
 ## Overview
 
-This section provides comprehensive API documentation for the OmniDragon cross-chain VRF system.
+This section provides comprehensive API documentation for the omnidragon cross-chain VRF system.
 
 ## Core Contracts
 
-### OmniDragon Main Contract
+### omnidragon Main Contract
 
 The primary contract for cross-chain VRF requests and management.
 
@@ -14,28 +19,13 @@ The primary contract for cross-chain VRF requests and management.
 
 ##### `requestRandomness(uint256 seed, uint32 callbackGasLimit)`
 
-Requests randomness from the VRF system.
-
-**Parameters:**
-- `seed`: Random seed for the request
-- `callbackGasLimit`: Gas limit for the callback function
-
-**Returns:**
-- `requestId`: Unique identifier for the request
-
-**Events:**
-- `RandomnessRequested(bytes32 indexed requestId, address indexed requester, uint256 seed)`
+Requests randomness from the VRF system.**Parameters:**- `seed`: Random seed for the request
+- `callbackGasLimit`: Gas limit for the callback function**Returns:**- `requestId`: Unique identifier for the request**Events:**- `RandomnessRequested(bytes32 indexed requestId, address indexed requester, uint256 seed)`
 
 ##### `fulfillRandomness(bytes32 requestId, uint256 randomness)`
 
-Fulfills a randomness request (internal function called by VRF coordinator).
-
-**Parameters:**
-- `requestId`: The request identifier
-- `randomness`: The generated random number
-
-**Events:**
-- `RandomnessFulfilled(bytes32 indexed requestId, uint256 randomness)`
+Fulfills a randomness request (internal function called by VRF coordinator).**Parameters:**- `requestId`: The request identifier
+- `randomness`: The generated randomness**Events:**- `RandomnessFulfilled(bytes32 indexed requestId, uint256 randomness)`
 
 ### VRF Coordinator
 
@@ -45,22 +35,12 @@ Manages VRF requests and coordinates with multiple randomness sources.
 
 ##### `addRandomnessSource(address source, uint256 weight)`
 
-Adds a new randomness source to the system.
-
-**Parameters:**
-- `source`: Address of the randomness source
-- `weight`: Weight for the source in aggregation
-
-**Access:** Admin only
+Adds a new randomness source to the system.**Parameters:**- `source`: Address of the randomness source
+- `weight`: Weight for the source in aggregation**Access:**Admin only
 
 ##### `removeRandomnessSource(address source)`
 
-Removes a randomness source from the system.
-
-**Parameters:**
-- `source`: Address of the randomness source to remove
-
-**Access:** Admin only
+Removes a randomness source from the system.**Parameters:**- `source`: Address of the randomness source to remove**Access:**Admin only
 
 ## Cross-Chain Integration
 
@@ -116,17 +96,17 @@ interface ILayerZeroEndpoint {
 
 ### Optimization Tips
 
-1. **Batch Requests**: Combine multiple requests to reduce overhead
-2. **Callback Optimization**: Keep callback functions lightweight
-3. **Gas Limit Setting**: Set appropriate gas limits for cross-chain calls
+1.**Batch Requests**: Combine multiple requests to reduce overhead
+2.**Callback Optimization**: Keep callback functions lightweight
+3.**Gas Limit Setting**: Set appropriate gas limits for cross-chain calls
 
 ## Rate Limits
 
 ### Request Limits
 
-- **Per Address**: 10 requests per block
-- **Global**: 100 requests per block
-- **Cross-chain**: 50 requests per block per chain
+-**Per Address**: 10 requests per block
+-**Global**: 100 requests per block
+-**Cross-chain**: 50 requests per block per chain
 
 ### Fee Structure
 
@@ -144,7 +124,7 @@ struct FeeConfig {
 
 ```solidity
 contract MyContract {
-    IOmniDragon public omniDragon;
+    Iomnidragon public omniDragon;
     
     function requestRandom() external {
         uint256 seed = uint256(keccak256(abi.encode(block.timestamp, msg.sender)));
@@ -178,10 +158,10 @@ contract CrossChainLottery {
 
 ### Best Practices
 
-1. **Validate Callbacks**: Always verify the caller in callback functions
-2. **Handle Failures**: Implement proper error handling for failed requests
-3. **Fee Management**: Ensure sufficient fees for cross-chain operations
-4. **Reentrancy Protection**: Use reentrancy guards in callback functions
+1.**Validate Callbacks**: Always verify the caller in callback functions
+2.**Handle Failures**: Implement proper error handling for failed requests
+3.**Fee Management**: Ensure sufficient fees for cross-chain operations
+4.**Reentrancy Protection**: Use reentrancy guards in callback functions
 
 ### Common Pitfalls
 
@@ -201,28 +181,28 @@ contract CrossChainLottery {
 
 ### Metrics
 
-- **Request Success Rate**: Percentage of successful requests
-- **Average Fulfillment Time**: Time from request to fulfillment
-- **Cross-Chain Latency**: Time for cross-chain message delivery
-- **Gas Efficiency**: Average gas used per operation
+-**Request Success Rate**: Percentage of successful requests
+-**Average Fulfillment Time**: Time from request to fulfillment
+-**Cross-Chain Latency**: Time for cross-chain message delivery
+-**Gas Efficiency**: Average gas used per operation
 
 ## Support and Resources
 
 ### Documentation Links
 
-- [Smart Contracts Documentation](../contracts/core/omnidragon.md)
-- [Integration Guide](../guides/development.md)
-- [Security Audit](../audit/AUDIT_DOCUMENTATION_SUMMARY.md)
+- [Smart Contracts Documentation](/contracts/core/omnidragon.md)
+- [Integration Guide](/guide/developer-guide.mdx)
+- [Security Audit](/audit/AUDIT_DOCUMENTATION_SUMMARY.md)
 
 ### Community
 
-- **Discord**: [OmniDragon Community](https://discord.gg/omnidragon)
-- **GitHub**: [OmniDragon Repository](https://github.com/wenakita/omnidragon)
-- **Forum**: [Developer Forum](https://forum.omnidragon.io)
+-**Discord**: [omnidragon Community](https://discord.gg/omnidragon)
+-**GitHub**: [omnidragon Repository](https://github.com/wenakita/omnidragon)
+-**Forum**: [Developer Forum](https://forum.omnidragon.io)
 
 ### Support
 
 For technical support and integration assistance:
 - Email: support@omnidragon.io
 - Documentation: [docs.omnidragon.io](https://docs.omnidragon.io)
-- Bug Reports: [GitHub Issues](https://github.com/wenakita/omnidragon/issues) 
+- Bug Reports: [GitHub Issues](https://github.com/wenakita/omnidragon/issues)

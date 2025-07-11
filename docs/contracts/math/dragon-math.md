@@ -1,35 +1,40 @@
+---
+title: DRAGON Math
+sidebar_position: 1
+description: Detailed explanation of this concept
+---
 # DragonMath Library
 
-The **DragonMath** library is the core mathematical engine powering the OmniDragon ecosystem. It provides secure, gas-optimized mathematical functions for probability calculations, boost multipliers, fee processing, and complex financial computations.
+The**DragonMath**library is the core mathematical engine powering the OmniDragon ecosystem. It provides secure, gas-optimized mathematical functions for probability calculations, boost multipliers, fee processing, and complex financial computations.
 
 ## Overview
 
 DragonMath serves as the mathematical foundation for:
-- **Probability Calculations**: Lottery win probability and randomness distribution
-- **Boost Multipliers**: Voting power and staking reward calculations
-- **Fee Processing**: Dynamic fee calculations and distribution ratios
-- **Financial Mathematics**: Interest rates, yield calculations, and token economics
-- **Security Functions**: Overflow protection and precision handling
+-**Probability Calculations**: Lottery win probability and randomness distribution
+-**Boost Multipliers**: Voting power and staking reward calculations
+-**Fee Processing**: Dynamic fee calculations and distribution ratios
+-**Financial Mathematics**: Interest rates, yield calculations, and token economics
+-**Security Functions**: Overflow protection and precision handling
 
 ## Key Features
 
 ### 🧮 Advanced Mathematics
-- **Precision Arithmetic**: 18-decimal precision for accurate calculations
-- **Overflow Protection**: SafeMath integration with custom optimizations
-- **Gas Optimization**: Efficient algorithms for on-chain computation
-- **Rounding Control**: Configurable rounding modes for different use cases
+-**Precision Arithmetic**: 18-decimal precision for accurate calculations
+-**Overflow Protection**: SafeMath integration with custom optimizations
+-**Gas Optimization**: Efficient algorithms for on-chain computation
+-**Rounding Control**: Configurable rounding modes for different use cases
 
-### 🎯 Specialized Functions
-- **Probability Models**: Statistical functions for lottery and gaming
-- **Boost Calculations**: Non-linear boost curves for incentive systems
-- **Fee Mathematics**: Complex fee distribution and processing logic
-- **Token Economics**: Supply, inflation, and deflation calculations
+###  Specialized Functions
+-**Probability Models**: Statistical functions for jackpot and gaming
+-**Boost Calculations**: Non-linear boost curves for incentive systems
+-**Fee Mathematics**: Complex fee distribution and processing logic
+-**Token Economics**: Supply, inflation, and deflation calculations
 
 ### 🔒 Security Features
-- **Bounds Checking**: Automatic validation of input ranges
-- **Precision Loss Prevention**: Careful handling of decimal operations
-- **Integer Overflow Protection**: Safe arithmetic operations
-- **Deterministic Results**: Consistent outputs across different environments
+-**Bounds Checking**: Automatic validation of input ranges
+-**Precision Loss Prevention**: Careful handling of decimal operations
+-**Integer Overflow Protection**: Safe arithmetic operations
+-**Deterministic Results**: Consistent outputs across different environments
 
 ## Core Constants
 
@@ -67,11 +72,7 @@ uint256 public constant MAX_CALCULATION_AMOUNT = 1e30; // Maximum amount for cal
 ```solidity
 function mulDiv(uint256 a, uint256 b, uint256 denominator) 
     public pure returns (uint256 result);
-```
-
-**Purpose**: Performs `(a * b) / denominator` with overflow protection and precision handling.
-
-**Features**:
+```**Purpose**: Performs `(a * b) / denominator` with overflow protection and precision handling.**Features**:
 - Overflow protection for intermediate calculations
 - Precision preservation for large numbers
 - Gas-optimized implementation
@@ -81,21 +82,13 @@ function mulDiv(uint256 a, uint256 b, uint256 denominator)
 ```solidity
 function calculatePercentage(uint256 amount, uint256 percentage) 
     public pure returns (uint256);
-```
-
-**Purpose**: Calculates percentage of an amount with precision.
-
-**Formula**: `result = (amount * percentage) / PERCENTAGE_DENOMINATOR`
+```**Purpose**: Calculates percentage of an amount with precision.**Formula**: `result = (amount * percentage) / PERCENTAGE_DENOMINATOR`
 
 #### Basis Points Calculations
 ```solidity
 function calculateBasisPoints(uint256 amount, uint256 bps) 
     public pure returns (uint256);
-```
-
-**Purpose**: Calculates basis points of an amount (1 bps = 0.01%).
-
-**Formula**: `result = (amount * bps) / BPS_DENOMINATOR`
+```**Purpose**: Calculates basis points of an amount (1 bps = 0.01%).**Formula**: `result = (amount * bps) / BPS_DENOMINATOR`
 
 ### Boost Multiplier Calculations
 
@@ -103,11 +96,7 @@ function calculateBasisPoints(uint256 amount, uint256 bps)
 ```solidity
 function calculateBoostMultiplier(uint256 votingPower, uint256 maxBoostBps) 
     public pure returns (uint256 multiplier);
-```
-
-**Purpose**: Calculates boost multiplier based on voting power using a non-linear curve.
-
-**Algorithm**:
+```**Purpose**: Calculates boost multiplier based on voting power using a non-linear curve.**Algorithm**:
 ```solidity
 // Normalize voting power to [0, 1] range
 uint256 normalizedPower = min(votingPower, MAX_VOTING_POWER) * PRECISION / MAX_VOTING_POWER;
@@ -120,9 +109,7 @@ uint256 boostBps = (boostFactor * maxBoostBps) / PRECISION;
 
 // Return as multiplier (10000 = 1.0x, 15000 = 1.5x)
 return BPS_DENOMINATOR + boostBps;
-```
-
-**Features**:
+```**Features**:
 - Non-linear boost curve with diminishing returns
 - Configurable maximum boost percentage
 - Smooth scaling from 0 to maximum voting power
@@ -132,11 +119,7 @@ return BPS_DENOMINATOR + boostBps;
 ```solidity
 function applyBoost(uint256 baseAmount, uint256 boostMultiplier) 
     public pure returns (uint256 boostedAmount);
-```
-
-**Purpose**: Applies a boost multiplier to a base amount.
-
-**Formula**: `boostedAmount = (baseAmount * boostMultiplier) / BPS_DENOMINATOR`
+```**Purpose**: Applies a boost multiplier to a base amount.**Formula**: `boostedAmount = (baseAmount * boostMultiplier) / BPS_DENOMINATOR`
 
 ### Probability Mathematics
 
@@ -149,11 +132,7 @@ function calculateWinProbability(
     uint256 minProbabilityBps,
     uint256 maxProbabilityBps
 ) public pure returns (uint256 probabilityBps);
-```
-
-**Purpose**: Calculates win probability using linear interpolation between bounds.
-
-**Algorithm**:
+```**Purpose**: Calculates win probability using linear interpolation between bounds.**Algorithm**:
 ```solidity
 if (baseAmount <= minAmount) {
     return minProbabilityBps;
@@ -173,11 +152,7 @@ if (baseAmount <= minAmount) {
 ```solidity
 function determineOutcome(uint256 probabilityBps, uint256 randomValue) 
     public pure returns (bool success);
-```
-
-**Purpose**: Determines if a random outcome succeeds based on probability.
-
-**Algorithm**:
+```**Purpose**: Determines if a random outcome succeeds based on probability.**Algorithm**:
 ```solidity
 // Calculate threshold
 uint256 threshold = (probabilityBps * type(uint256).max) / BPS_DENOMINATOR;
@@ -196,11 +171,7 @@ function calculateDynamicFees(
     uint256 volumeMultiplier,
     uint256 timeMultiplier
 ) public pure returns (uint256 totalFees);
-```
-
-**Purpose**: Calculates dynamic fees based on multiple factors.
-
-**Algorithm**:
+```**Purpose**: Calculates dynamic fees based on multiple factors.**Algorithm**:
 ```solidity
 // Apply base fees
 uint256 baseFees = (baseAmount * baseFeesBps) / BPS_DENOMINATOR;
@@ -220,31 +191,19 @@ function distributeFees(
     uint256 totalFees,
     uint256[] memory distributionBps
 ) public pure returns (uint256[] memory distributions);
-```
-
-**Purpose**: Distributes total fees according to specified basis point allocations.
-
-**Validation**: Ensures distribution basis points sum to exactly 10000 (100%).
+```**Purpose**: Distributes total fees according to specified basis point allocations.**Validation**: Ensures distribution basis points sum to exactly 10000 (100%).
 
 ### Advanced Mathematical Functions
 
 #### Square Root Calculation
 ```solidity
 function sqrt(uint256 x) public pure returns (uint256 result);
-```
-
-**Purpose**: Calculates integer square root using Newton's method.
-
-**Algorithm**: Optimized Newton-Raphson iteration for gas efficiency.
+```**Purpose**: Calculates integer square root using Newton's method.**Algorithm**: Optimized Newton-Raphson iteration for gas efficiency.
 
 #### Power Calculation
 ```solidity
 function pow(uint256 base, uint256 exponent) public pure returns (uint256 result);
-```
-
-**Purpose**: Calculates integer exponentiation with overflow protection.
-
-**Features**:
+```**Purpose**: Calculates integer exponentiation with overflow protection.**Features**:
 - Efficient exponentiation by squaring
 - Overflow detection and prevention
 - Gas-optimized implementation
@@ -252,11 +211,7 @@ function pow(uint256 base, uint256 exponent) public pure returns (uint256 result
 #### Logarithm Calculation
 ```solidity
 function log2(uint256 x) public pure returns (uint256 result);
-```
-
-**Purpose**: Calculates base-2 logarithm for advanced calculations.
-
-**Use Cases**: Compound interest, decay functions, scaling algorithms.
+```**Purpose**: Calculates base-2 logarithm for advanced calculations.**Use Cases**: Compound interest, decay functions, scaling algorithms.
 
 ### Token Economics Functions
 
@@ -267,11 +222,7 @@ function calculateInflation(
     uint256 inflationRateBps,
     uint256 timeElapsed
 ) public pure returns (uint256 newTokens);
-```
-
-**Purpose**: Calculates token inflation over time.
-
-**Formula**: `newTokens = currentSupply * inflationRateBps * timeElapsed / (BPS_DENOMINATOR * SECONDS_PER_YEAR)`
+```**Purpose**: Calculates token inflation over time.**Formula**: `newTokens = currentSupply * inflationRateBps * timeElapsed / (BPS_DENOMINATOR * SECONDS_PER_YEAR)`
 
 #### Calculate Compound Interest
 ```solidity
@@ -281,11 +232,7 @@ function calculateCompoundInterest(
     uint256 timeElapsed,
     uint256 compoundingFrequency
 ) public pure returns (uint256 finalAmount);
-```
-
-**Purpose**: Calculates compound interest for staking and yield farming.
-
-**Algorithm**: Uses approximation for gas efficiency while maintaining accuracy.
+```**Purpose**: Calculates compound interest for staking and yield farming.**Algorithm**: Uses approximation for gas efficiency while maintaining accuracy.
 
 ### Validation Functions
 
@@ -293,23 +240,17 @@ function calculateCompoundInterest(
 ```solidity
 function validateRange(uint256 value, uint256 min, uint256 max) 
     public pure returns (bool valid);
-```
-
-**Purpose**: Validates that a value falls within specified bounds.
+```**Purpose**: Validates that a value falls within specified bounds.
 
 #### Validate Percentage
 ```solidity
 function validatePercentage(uint256 percentage) public pure returns (bool valid);
-```
-
-**Purpose**: Validates that a percentage is within 0-100 range.
+```**Purpose**: Validates that a percentage is within 0-100 range.
 
 #### Validate Basis Points
 ```solidity
 function validateBasisPoints(uint256 bps) public pure returns (bool valid);
-```
-
-**Purpose**: Validates that basis points are within 0-10000 range.
+```**Purpose**: Validates that basis points are within 0-10000 range.
 
 ## Security Features
 
@@ -355,10 +296,10 @@ modifier validInput(uint256 value) {
 
 ### Efficient Algorithms
 
-1. **Bit Manipulation**: Uses bit operations for power-of-2 calculations
-2. **Lookup Tables**: Pre-computed values for common calculations
-3. **Early Returns**: Optimized control flow to minimize gas usage
-4. **Packed Structs**: Efficient storage layout for complex calculations
+1.**Bit Manipulation**: Uses bit operations for power-of-2 calculations
+2.**Lookup Tables**: Pre-computed values for common calculations
+3.**Early Returns**: Optimized control flow to minimize gas usage
+4.**Packed Structs**: Efficient storage layout for complex calculations
 
 ### Assembly Optimizations
 
@@ -378,7 +319,7 @@ function efficientMulDiv(uint256 a, uint256 b, uint256 c)
 ### Lottery Probability Calculation
 
 ```solidity
-// Calculate lottery win probability
+// Calculate jackpot win probability
 uint256 swapAmount = 1000 * 1e18; // $1000
 uint256 votingPower = 500 * 1e18;  // 500 voting power
 
@@ -480,18 +421,18 @@ Critical functions undergo formal verification to ensure:
 
 ### For Developers
 
-1. **Always validate inputs** before calling DragonMath functions
-2. **Handle precision loss** in multi-step calculations
-3. **Use appropriate precision** for your use case
-4. **Test edge cases** thoroughly
-5. **Monitor gas usage** for complex calculations
+1.**Always validate inputs**before calling DragonMath functions
+2.**Handle precision loss**in multi-step calculations
+3.**Use appropriate precision**for your use case
+4.**Test edge cases**thoroughly
+5.**Monitor gas usage**for complex calculations
 
 ### For Protocol Integration
 
-1. **Cache frequently used calculations** to save gas
-2. **Batch operations** when possible
-3. **Use view functions** for read-only calculations
-4. **Implement proper error handling** for all mathematical operations
+1.**Cache frequently used calculations**to save gas
+2.**Batch operations**when possible
+3.**Use view functions**for read-only calculations
+4.**Implement proper error handling**for all mathematical operations
 
 ## Performance Metrics
 
@@ -507,14 +448,14 @@ Critical functions undergo formal verification to ensure:
 
 ### Precision Accuracy
 
-- **18 decimal places** for token amounts
-- **4 decimal places** for percentages (basis points)
-- **Rounding errors** < 1 wei for typical operations
-- **Deterministic results** across all EVM implementations
+-**18 decimal places**for token amounts
+-**4 decimal places**for percentages (basis points)
+-**Rounding errors**< 1 wei for typical operations
+-**Deterministic results**across all EVM implementations
 
 ## Links
 
-- **Social**: [Twitter](https://x.com/sonicreddragon) | [Telegram](https://t.me/sonicreddragon)
-- **Repository**: [GitHub](https://github.com/wenakita/omnidragon)
-- **Audit**: [Security Documentation](/audit/AUDIT_DOCUMENTATION_SUMMARY)
-- **Integration**: [Lottery Manager](/contracts/core/lottery-manager) | [OmniDragon Token](/contracts/core/omnidragon) 
+-**Social**: [Twitter](https://x.com/sonicreddragon) | [Telegram](https://t.me/sonicreddragon)
+-**Repository**: [GitHub](https://github.com/wenakita/OmniDragon)
+-**Audit**: [Security Documentation](/audit/AUDIT_DOCUMENTATION_SUMMARY)
+-**Integration**: [Lottery Manager](/contracts/core/jackpot-manager) | [OmniDragon Token](/contracts/core/OmniDragon) 

@@ -1,5 +1,7 @@
 ---
 sidebar_position: 2
+title: Chainlink
+description: Detailed explanation of this concept
 ---
 
 # Chainlink VRF Integration
@@ -10,17 +12,17 @@ OmniDragon integrates with Chainlink VRF 2.5 through a sophisticated cross-chain
 
 ```mermaid
 graph LR
-    A[Sonic: Randomness Provider] --> B[Sonic: Chainlink Integrator]
-    B --> C[LayerZero: Cross-Chain Message]
-    C --> D[Arbitrum: VRF Requester]
-    D --> E[Arbitrum: VRF Coordinator]
-    E --> F[Chainlink VRF 2.5]
-    F --> E
-    E --> D
-    D --> G[LayerZero: Response Message]
-    G --> B
-    B --> A
-    
+A[Sonic: Randomness Provider] -->|> B[Sonic: Chainlink Integrator]
+    B| C[LayerZero: Cross-Chain Message]
+    C -->|> D[Arbitrum: VRF Requester]
+    D| E[Arbitrum: VRF Coordinator]
+    E -->|> F[Chainlink VRF 2.5]
+    F| E
+    E -->|> D
+    D| G[LayerZero: Response Message]
+    G -->|> B
+    B| A
+
     style A fill:#ff6b6b
     style B fill:#4ecdc4
     style D fill:#45b7d1
@@ -44,10 +46,7 @@ contract ChainlinkVRFIntegrator {
     // LayerZero message handling
     function lzReceive(uint16 _srcChainId, bytes calldata _srcAddress, uint64 _nonce, bytes calldata _payload) external;
 }
-```
-
-**Key Features:**
-- Manages cross-chain VRF requests
+```**Key Features:**- Manages cross-chain VRF requests
 - Handles LayerZero messaging
 - Maintains request-response mapping
 - Provides gas estimation for cross-chain calls
@@ -88,14 +87,11 @@ contract OmniDragonVRFRequester is VRFConsumerBaseV2 {
     // VRF callback - relays to Sonic via LayerZero
     function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override;
 }
-```
-
-**Configuration:**
-- **VRF Coordinator**: `0x3C0Ca683b403E37668AE3DC4FB62F4B29B6f7a3e`
-- **Key Hash**: `0x68d24f9a037a649944964c2a1ebd0b2918f4a243d2a99701cc22b548cf2daff0`
-- **Subscription ID**: Configured per deployment
-- **Gas Limit**: 2.5M gas for callback
-- **Confirmations**: 3 blocks
+```**Configuration:**-**VRF Coordinator**: `0x3C0Ca683b403E37668AE3DC4FB62F4B29B6f7a3e`
+-**Key Hash**: `0x68d24f9a037a649944964c2a1ebd0b2918f4a243d2a99701cc22b548cf2daff0`
+-**Subscription ID**: Configured per deployment
+-**Gas Limit**: 2.5M gas for callback
+-**Confirmations**: 3 blocks
 
 ## Request Flow
 
@@ -214,18 +210,18 @@ vrfRequester.setMinDstGas(SONIC_LZ_CHAIN_ID, 0, 100000);
 ## Cost Structure
 
 ### LayerZero Fees
-- **Sonic → Arbitrum**: ~0.01 S (varies with gas prices)
-- **Arbitrum → Sonic**: ~0.001 ETH (varies with gas prices)
+-**Sonic → Arbitrum**: ~0.01 S (varies with gas prices)
+-**Arbitrum → Sonic**: ~0.001 ETH (varies with gas prices)
 
 ### VRF Fees
-- **Base Fee**: 0.25 LINK per request
-- **Gas Fee**: Variable based on callback gas usage
-- **Total**: ~0.3-0.5 LINK per request
+-**Base Fee**: 0.25 LINK per request
+-**Gas Fee**: Variable based on callback gas usage
+-**Total**: ~0.3-0.5 LINK per request
 
 ### Gas Usage
-- **Request**: ~200k gas on Sonic
-- **Fulfillment**: ~100k gas on Sonic
-- **VRF Callback**: ~2.5M gas on Arbitrum
+-**Request**: ~200k gas on Sonic
+-**Fulfillment**: ~100k gas on Sonic
+-**VRF Callback**: ~2.5M gas on Arbitrum
 
 ## Security Features
 
@@ -285,10 +281,10 @@ function emergencyWithdraw() external onlyOwner {
 ```
 
 ### Automated Monitoring
-- **Subscription Balance**: Alert when LINK balance < threshold
-- **Request Timeouts**: Monitor for stuck requests
-- **LayerZero Connectivity**: Verify cross-chain messaging
-- **Gas Price Monitoring**: Adjust gas limits based on network conditions
+-**Subscription Balance**: Alert when LINK balance < threshold
+-**Request Timeouts**: Monitor for stuck requests
+-**LayerZero Connectivity**: Verify cross-chain messaging
+-**Gas Price Monitoring**: Adjust gas limits based on network conditions
 
 ## Integration Examples
 
@@ -342,18 +338,15 @@ function estimateVRFCost() external view returns (uint256 sonicGas, uint256 link
 
 ### Common Issues
 
-1. **Request Timeout**
-   - Check LayerZero connectivity
+1.**Request Timeout**- Check LayerZero connectivity
    - Verify subscription funding
    - Monitor Arbitrum network congestion
 
-2. **Insufficient LINK**
-   - Top up VRF subscription
+2.**Insufficient LINK**- Top up VRF subscription
    - Monitor balance alerts
    - Set up automated funding
 
-3. **Gas Estimation Errors**
-   - Update gas limits for network conditions
+3.**Gas Estimation Errors**- Update gas limits for network conditions
    - Check LayerZero fee calculations
    - Verify adapter parameters
 
@@ -371,15 +364,15 @@ function debugRequest(uint256 requestId) external view returns (
 
 ## Best Practices
 
-1. **Always fund VRF subscription** with sufficient LINK
-2. **Monitor LayerZero fees** and adjust accordingly
-3. **Implement proper timeout handling** for requests
-4. **Use appropriate gas limits** for callbacks
-5. **Set up monitoring alerts** for system health
+1.**Always fund VRF subscription**with sufficient LINK
+2.**Monitor LayerZero fees**and adjust accordingly
+3.**Implement proper timeout handling**for requests
+4.**Use appropriate gas limits**for callbacks
+5.**Set up monitoring alerts**for system health
 
 ## Links
 
-- **[Randomness Provider](/contracts/core/randomness-provider)**: Core randomness contract
-- **[VRF Overview](/contracts/randomness/overview)**: System architecture
-- **[Drand Integration](/contracts/randomness/drand)**: Alternative randomness source
-- **[LayerZero Integration](/integrations/layerzero)**: Cross-chain messaging
+-**[Randomness Provider](/contracts/core/randomness-provider)**: Core randomness contract
+-**[VRF Overview](/contracts/randomness/overview)**: System architecture
+-**[Drand Integration](/contracts/randomness/drand)**: Alternative randomness source
+-**[LayerZero Integration](/integrations/LayerZero)**: Cross-chain messaging

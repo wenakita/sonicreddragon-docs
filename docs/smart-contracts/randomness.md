@@ -1,12 +1,15 @@
-# Sonic Red Dragon Randomness
+---
+title: Randomness
+sidebar_position: 1
+description: Detailed explanation of this concept
+---
+# Sonic Red DRAGON Randomness
 
-This document provides technical details about the Sonic Red Dragon randomness contract implementation, which integrates with dRAND for verifiable randomness generation.
+This document provides technical details about the Sonic Red DRAGON randomness contract implementation, which integrates with dRAND for verifiable randomness generation.
 
 ## Contract Overview
 
-The Sonic Red Dragon randomness contract integrates with the dRAND network to provide cryptographically secure and verifiable randomness for various on-chain applications.
-
-**Contract Address (Ethereum)**: Coming Soon
+The Sonic Red DRAGON randomness contract integrates with the dRAND network to provide cryptographically secure and verifiable randomness for various on-chain applications.**Contract Address (Ethereum)**: Coming Soon
 
 ## Key Features
 
@@ -189,11 +192,11 @@ This enables:
 
 The contract implements robust error handling:
 
-- **Validation Errors**: Invalid parameters or states
-- **Security Errors**: Unauthorized access attempts
-- **Rate Limit Errors**: Exceeded request limits
-- **Proof Errors**: Invalid dRAND proofs
-- **Recovery Mechanisms**: Administrative recovery options
+-**Validation Errors**: Invalid parameters or states
+-**Security Errors**: Unauthorized access attempts
+-**Rate Limit Errors**: Exceeded request limits
+-**Proof Errors**: Invalid dRAND proofs
+-**Recovery Mechanisms**: Administrative recovery options
 
 ## Development
 
@@ -237,26 +240,22 @@ The randomness contract source code will be verified on all deployed chain explo
 
 When using the randomness contract:
 
-1. **Request Management**
-   - Monitor request status
+1.**Request Management**- Monitor request status
    - Handle failed requests
    - Implement retry logic
    - Use appropriate gas limits
 
-2. **Security**
-   - Verify randomness proofs
+2.**Security**- Verify randomness proofs
    - Implement rate limiting
    - Use secure callback patterns
    - Monitor for anomalies
 
-3. **Integration**
-   - Test with testnet dRAND
+3.**Integration**- Test with testnet dRAND
    - Implement fallback mechanisms
    - Handle cross-chain scenarios
    - Monitor gas costs
 
-4. **Maintenance**
-   - Regular security audits
+4.**Maintenance**- Regular security audits
    - Endpoint monitoring
    - Performance optimization
    - Emergency response plan 

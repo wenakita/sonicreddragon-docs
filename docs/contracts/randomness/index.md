@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Index
+description: Detailed explanation of this concept
 ---
 
 # Randomness System
@@ -13,25 +15,19 @@ The randomness system uses a distributed approach with components across multipl
 ```mermaid
 flowchart TD
     subgraph "Sonic Chain"
-        A[OmniDragonVRFConsumer] --> B[ChainlinkVRFIntegrator]
-        A --> C[drand Integrator]
-        A --> D[Other Integrators]
-        
-        E[Jackpot Vault] --> A
-        F[SwapTriggerOracle] --> A
-        G[OmniDragon Token] --> F
-    end
-    
+    A[OmniDragonVRFConsumer] -->|> B[ChainlinkVRFIntegrator]
+    A| C[drand Integrator]
+    A -->|> D[Other Integrators]
+    E[Jackpot Vault]| A
+    F[SwapTriggerOracle] -->|> A
+    G[OmniDragon Token]| F
     subgraph "LayerZero Network"
-        H[Cross-Chain Messaging]
-    end
-    
+    H[Cross-Chain Messaging]
     subgraph "Arbitrum Chain"
-        I[ArbitrumVRFRequester] --> J[Chainlink VRF Coordinator]
-    end
-    
-    B <--> H
-    H <--> I
+    I[ArbitrumVRFRequester] -->|>|> J[Chainlink VRF Coordinator]
+    end    B <| H    endH <| I    end
+endend
+end
 ```
 
 ## Key Components
@@ -83,57 +79,49 @@ A library of helper functions for working with random numbers:
 ## Cross-Chain Flow
 
 The complete cross-chain randomness flow operates as follows:
+```
 
-```mermaid
-sequenceDiagram
-    participant Consumer as OmniDragon Consumer
-    participant VRFConsumer as OmniDragonVRFConsumer
-    participant ChainlinkInt as ChainlinkVRFIntegrator
-    participant LZ1 as LayerZero (Sonic)
-    participant LZ2 as LayerZero (Arbitrum)
-    participant Requester as ArbitrumVRFRequester
-    participant Chainlink as Chainlink VRF
-    
-    Consumer->>VRFConsumer: requestRandomness()
-    
-    VRFConsumer->>ChainlinkInt: fulfillRandomness(requestId)
-    
-    ChainlinkInt->>ChainlinkInt: Record pending request
-    ChainlinkInt->>LZ1: send(arbitrumChainId, address, payload)
-    
-    LZ1->>LZ2: Cross-chain message
-    LZ2->>Requester: lzReceive(srcChainId, srcAddress, payload)
-    
-    Requester->>Requester: Store request mapping
-    Requester->>Chainlink: requestRandomWords()
-    
+```mermaidsequenceDiagram
+participant Consumer as OmniDragon Consumer
+participant VRFConsumer as OmniDragonVRFConsumer
+participant ChainlinkInt as ChainlinkVRFIntegrator
+participant LZ1 as LayerZero (Sonic)
+participant LZ2 as LayerZero (Arbitrum)
+participant Requester as ArbitrumVRFRequester
+participant Chainlink as Chainlink VRF
+    Consumer ->> VRFConsumer: requestRandomness()
+    VRFConsumer ->> ChainlinkInt: fulfillRandomness(requestId)
+    ChainlinkInt ->> ChainlinkInt: Record pending request
+    ChainlinkInt ->> LZ1: send(arbitrumChainId, address, payload)
+
+    LZ1 ->> LZ2: Cross-chain message
+    LZ2 ->> Requester: lzReceive(srcChainId, srcAddress, payload)
+    Requester ->> Requester: Store request mapping
+    Requester ->> Chainlink: requestRandomWords()
+
     Note over Chainlink: Generate verifiable randomness
-    
-    Chainlink->>Requester: fulfillRandomWords(requestId, randomWords)
-    
-    Requester->>LZ2: send(sonicChainId, address, payload)
-    
-    LZ2->>LZ1: Cross-chain message
-    LZ1->>ChainlinkInt: lzReceive(srcChainId, srcAddress, payload)
-    
-    ChainlinkInt->>ChainlinkInt: Update latest randomness
-    ChainlinkInt->>VRFConsumer: Send randomness via fulfillRandomness
-    
-    VRFConsumer->>VRFConsumer: Aggregate with other sources
-    VRFConsumer->>Consumer: fulfillRandomness(requestId, randomness)
+    Chainlink ->> Requester: fulfillRandomWords(requestId, randomWords)
+    Requester ->> LZ2: send(sonicChainId, address, payload)
+
+    LZ2 ->> LZ1: Cross-chain message
+    LZ1 ->> ChainlinkInt: lzReceive(srcChainId, srcAddress, payload)
+    ChainlinkInt ->> ChainlinkInt: Update latest randomness
+    ChainlinkInt ->> VRFConsumer: Send randomness via fulfillRandomness
+    VRFConsumer ->> VRFConsumer: Aggregate with other sources
+    VRFConsumer ->> Consumer: fulfillRandomness(requestId, randomness)
 ```
 
 ## Security Features
 
 The randomness system implements multiple security measures:
 
-1. **Multi-Source Verification**: Uses multiple independent randomness sources for added security
-2. **Cross-Chain Redundancy**: Leverages the security properties of different blockchains
-3. **Weighted Aggregation**: Combines randomness with weights to prevent manipulation by any single source
-4. **Fallback Mechanisms**: Continues operating even if some randomness sources fail
-5. **Request Authentication**: Only authorized consumers can request randomness
-6. **Source Validation**: Verifies that cross-chain messages come from trusted contracts
-7. **Request Deduplication**: Prevents duplicate processing of randomness requests
+1.**Multi-Source Verification**: Uses multiple independent randomness sources for added security
+2.**Cross-Chain Redundancy**: Leverages the security properties of different blockchains
+3.**Weighted Aggregation**: Combines randomness with weights to prevent manipulation by any single source
+4.**Fallback Mechanisms**: Continues operating even if some randomness sources fail
+5.**Request Authentication**: Only authorized consumers can request randomness
+6.**Source Validation**: Verifies that cross-chain messages come from trusted contracts
+7.**Request Deduplication**: Prevents duplicate processing of randomness requests
 
 ## Integration Examples
 
@@ -141,25 +129,24 @@ The randomness system implements multiple security measures:
 
 The OmniDragon jackpot system uses the randomness infrastructure to select winners:
 
-```mermaid
-flowchart LR
-    A[User Swap] --> B[SwapTriggerOracle]
-    B --> C[OmniDragonVRFConsumer]
-    C --> D[Randomness Aggregation]
-    D --> E[Winner Selection]
-    E --> F[Jackpot Distribution]
+```mermaidflowchart LR
+    A[User Swap] -->|> B[SwapTriggerOracle]
+    B| C[OmniDragonVRFConsumer]
+    C -->|>|> D[Randomness Aggregation]
+    D| E[Winner Selection]
+    E| F[Jackpot Distribution]
 ```
 
 ### Governance
 
 Random sampling for certain governance decisions:
+```
 
-```mermaid
-flowchart LR
-    A[Governance Proposal] --> B[Random Committee Selection]
-    B --> C[OmniDragonVRFConsumer]
-    C --> D[Committee Members]
-    D --> E[Proposal Decision]
+```mermaidflowchart LR
+    A[Governance Proposal] -->|> B[Random Committee Selection]
+    B| C[OmniDragonVRFConsumer]
+    C -->|> D[Committee Members]
+    D| E[Proposal Decision]
 ```
 
 ## Using the Randomness System
@@ -228,11 +215,11 @@ contract RandomnessConsumer {
 
 When using the cross-chain randomness system, be aware of the gas costs involved:
 
-1. **Initial Request**: Gas cost on Sonic for initiating the request
-2. **Cross-Chain Fee**: LayerZero fee for sending the message to Arbitrum
-3. **Chainlink Fee**: LINK token cost for using Chainlink VRF on Arbitrum
-4. **Return Message Fee**: LayerZero fee for sending the result back to Sonic
-5. **Fulfillment Cost**: Gas cost on Sonic for processing the randomness
+1.**Initial Request**: Gas cost on Sonic for initiating the request
+2.**Cross-Chain Fee**: LayerZero fee for sending the message to Arbitrum
+3.**Chainlink Fee**: LINK token cost for using Chainlink VRF on Arbitrum
+4.**Return Message Fee**: LayerZero fee for sending the result back to Sonic
+5.**Fulfillment Cost**: Gas cost on Sonic for processing the randomness
 
 The ChainlinkVRFIntegrator includes an `estimateFees()` function to help calculate the cross-chain costs.
 
@@ -240,7 +227,7 @@ The ChainlinkVRFIntegrator includes an `estimateFees()` function to help calcula
 
 Key considerations for operating the randomness system:
 
-1. **Chainlink Subscription**: Maintain a funded Chainlink VRF subscription on Arbitrum
-2. **LayerZero Gas**: Ensure sufficient ETH for LayerZero fees on both chains
-3. **Oracle Monitoring**: Regularly monitor the health of all randomness sources
-4. **Configuration Updates**: Periodically review and update randomness weights and parameters 
+1.**Chainlink Subscription**: Maintain a funded Chainlink VRF subscription on Arbitrum
+2.**LayerZero Gas**: Ensure sufficient ETH for LayerZero fees on both chains
+3.**Oracle Monitoring**: Regularly monitor the health of all randomness sources
+4.**Configuration Updates**: Periodically review and update randomness weights and parameters 

@@ -1,46 +1,41 @@
 ---
 sidebar_position: 1
 title: OmniDragon Token
-description: The main ERC20 token with cross-chain functionality, fee distributions, and jackpot system
+description: >-
+  The main ERC20 token with cross-chain functionality, fee distributions, and
+  jackpot system
 ---
 
 # OmniDragon Token
 
-The `OmniDragon` token is the central component of the Sonic Red Dragon ecosystem. It's an ERC20 token with advanced features including cross-chain functionality, automated fee distributions, and integration with the jackpot lottery system.
+The `OmniDragon` token is the central component of the Sonic Red DRAGON ecosystem. It's an ERC20 token with advanced features including cross-chain functionality, automated fee distributions, and integration with the jackpot jackpot system.
 
 ## Overview
 
 ```mermaid
 flowchart TD
-    Token["OmniDragon Token"] --> LZ["LayerZero V2"]
-    Token --> Governance["ve69LP Governance"]
-    Token --> JackpotSystem["Jackpot System"]
-    
+    Token["OmniDragon Token"] -->|>|> LZ["LayerZero V2"]
+    Token| Governance["ve69LP Governance"]
+    Token| JackpotSystem["Jackpot System"]
     subgraph "Cross-Chain Infrastructure"
-        LZ
-        MessageLib["Message Library"]
-        Endpoint["LZ Endpoint"]
-    end
-    
+    LZ
+    MessageLib["Message Library"]
+    Endpoint["LZ Endpoint"]
     subgraph "Governance System"
-        Governance
-        Voting["Voting"]
-        Treasury["Treasury"]
-    end
-    
+    Governance
+    Voting["Voting"]
+    Treasury["Treasury"]
     subgraph "Lottery & Jackpot"
-        JackpotSystem
-        SwapOracle["Swap Trigger Oracle"]
-        JackpotVault["Jackpot Vault"]
-        Distributor["Jackpot Distributor"]
-    end
-    
+    JackpotSystem
+    SwapOracle["Swap Trigger Oracle"]
+    JackpotVault["Jackpot Vault"]
+    Distributor["Jackpot Distributor"]
     Token -->|"6.9% fee"| JackpotVault
     Token -->|"2.41% fee"| Treasury
     Token -->|"0.69% fee"| Burn["Token Burn"]
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white;
-    class Token highlight
+    end    classDef highlight fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff    endclass Token primary    end
+endend
+end
 ```
 
 ## Contract Implementation
@@ -56,12 +51,12 @@ contract OmniDragon is ERC20, Ownable, ReentrancyGuard, IOmniDragon {
     address public jackpotVault;     // Jackpot vault
     address public revenueDistributor;  // Primary fee distributor
     address public wrappedNativeToken;    // WrappedNativeToken/WETH
-    address public swapTrigger;      // Swap trigger for lottery entries
+    address public swapTrigger;      // Swap trigger for jackpot entries
     address public chainRegistry;    // Chain registry for chain ID verification
     address public uniswapRouter;    // Uniswap router address
     address public immutable thisAddress; // This contract's address
     
-    // Dragon Partners integration
+    // DRAGON Partners integration
     address public dragonPartnerRegistry;  // Registry for partner addresses
     address public dragonPartnerFactory;   // Factory for creating partner pools
     
@@ -125,15 +120,14 @@ The default fee configuration is:
 | Jackpot | 6.9% | 6.9% | 0% |
 | ve69LP | 2.41% | 2.41% | 0% |
 | Burn | 0.69% | 0.69% | 0.69% |
-| **Total** | **10%** | **10%** | **0.69%** |
+|**Total**|**10%**|**10%**|**0.69%**|
 
 ## Cross-Chain Functionality
 
 The token integrates with LayerZero to enable seamless cross-chain transfers:
 
 ```solidity
-/**
- * @dev OFTv2 functionality: Send tokens to another chain
+/***@dev OFTv2 functionality: Send tokens to another chain
  */
 function sendTokens(
     uint16 _dstChainId, 
@@ -161,18 +155,17 @@ function sendTokens(
 
 Key cross-chain features include:
 
-1. **Chain ID Verification**: Integration with ChainRegistry for secure chain identification
-2. **Trusted Remote Setting**: Configuration for trusted contracts on other chains
-3. **Fee Estimation**: Ability to estimate cross-chain transfer fees
-4. **LayerZero V2 Compatibility**: Latest OFT protocol compatibility
+1.**Chain ID Verification**: Integration with ChainRegistry for secure chain identification
+2.**Trusted Remote Setting**: Configuration for trusted contracts on other chains
+3.**Fee Estimation**: Ability to estimate cross-chain transfer fees
+4.**LayerZero V2 Compatibility**: Latest OFT protocol compatibility
 
 ## Jackpot and Lottery System
 
 The token integrates with the jackpot system through several mechanisms:
 
 ```solidity
-/**
- * @dev Process potential jackpot entry on token buy (swap)
+/***@dev Process potential jackpot entry on token buy (swap)
  * @param user The user who performed the swap
  * @param amount The amount being swapped
  */
@@ -201,8 +194,7 @@ The jackpot system works by:
 The token overrides the standard ERC20 transfer functions to apply fees:
 
 ```solidity
-/**
- * @dev Override ERC20 _transfer to apply fees and special handling
+/***@dev Override ERC20 _transfer to apply fees and special handling
  */
 function _transfer(
     address sender,
@@ -259,8 +251,7 @@ function _transfer(
 The contract implements automatic liquidity management:
 
 ```solidity
-/**
- * @dev Swap accumulated tokens for native tokens and add liquidity
+/***@dev Swap accumulated tokens for native tokens and add liquidity
  */
 function _swapAndLiquify() private lockTheSwap {
     // Cache the amount to be swapped
@@ -296,8 +287,7 @@ function _swapAndLiquify() private lockTheSwap {
 The token includes functionality for partner integrations:
 
 ```solidity
-/**
- * @dev Register a partner pool
+/***@dev Register a partner pool
  * @param _pool Partner pool address
  * @param _partnerId Partner ID
  */
@@ -319,12 +309,12 @@ function registerPartnerPool(address _pool, uint256 _partnerId) external onlyOwn
 
 The contract implements multiple security features:
 
-1. **ReentrancyGuard**: Protection against reentrancy attacks
-2. **Ownership Controls**: Restricts critical functions to the owner
-3. **Error Handling**: Explicit error types for all potential failures
-4. **Fee Exemptions**: Ability to exclude addresses from fees
-5. **Swap Lock**: Prevents reentrant swaps during liquidity operations
-6. **Emergency Pause**: Ability to pause transfers in emergency situations
+1.**ReentrancyGuard**: Protection against reentrancy attacks
+2.**Ownership Controls**: Restricts critical functions to the owner
+3.**Error Handling**: Explicit error types for all potential failures
+4.**Fee Exemptions**: Ability to exclude addresses from fees
+5.**Swap Lock**: Prevents reentrant swaps during liquidity operations
+6.**Emergency Pause**: Ability to pause transfers in emergency situations
 
 ## Error Types
 
@@ -366,8 +356,7 @@ error NotPartnerPool();
 The token is initialized with a specific supply and configuration:
 
 ```solidity
-/**
- * @dev Constructor to initialize the token
+/***@dev Constructor to initialize the token
  */
 constructor(
     string memory _name,
@@ -419,25 +408,22 @@ The token is deployed on multiple chains with identical functionality:
 | Base | L2 | 8453 | 184 | Scaling, Lower Fees |
 
 ## Token Flow Example
+```
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant DEX as DEX (Uniswap)
-    participant Token as OmniDragon Token
-    participant Jackpot as Jackpot Vault
-    participant Treasury as ve69LP Treasury
-    
-    User->>DEX: Swap ETH for DRAGON
-    DEX->>Token: Call transfer()
-    
+```mermaidsequenceDiagram
+participant User
+participant DEX as DEX (Uniswap)
+participant Token as OmniDragon Token
+participant Jackpot as Jackpot Vault
+participant Treasury as ve69LP Treasury
+    User ->> DEX: Swap ETH for DRAGON
+    DEX ->> Token: Call transfer()
+
     Note over Token: Apply 10% buy fee
-    
-    Token->>Token: Calculate fees
-    Token->>Jackpot: Send 6.9% to jackpot
-    Token->>Treasury: Send 2.41% to treasury
-    Token->>Token: Burn 0.69% of tokens
-    
-    Token->>Token: Process jackpot entry
-    Token->>User: Deliver remaining tokens
+    Token ->> Token: Calculate fees
+    Token ->> Jackpot: Send 6.9% to jackpot
+    Token ->> Treasury: Send 2.41% to treasury
+    Token ->> Token: Burn 0.69% of tokens
+    Token ->> Token: Process jackpot entry
+    Token ->> User: Deliver remaining tokens
 ``` 

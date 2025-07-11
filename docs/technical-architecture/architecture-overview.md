@@ -1,26 +1,30 @@
-# Sonic Red Dragon Architecture Overview
+---
+title: Architecture Overview
+sidebar_position: 1
+description: Detailed explanation of this concept
+---
+# Sonic Red DRAGON Architecture Overview
 
-This document provides a high-level overview of the Sonic Red Dragon ecosystem architecture, explaining how different components interact to enable cross-chain functionality, verifiable randomness, and secure token operations.
+This document provides a high-level overview of the Sonic Red DRAGON ecosystem architecture, explaining how different components interact to enable cross-chain functionality, verifiable randomness, and secure token operations.
 
 ## System Components
 
-```mermaid
-flowchart TD
-    A[Sonic Red Dragon Token] --> B[LayerZero V2]
-    A --> C[dRAND Network]
-    A --> D[Bridge Contract]
-    D --> B
-    D --> E[Security Manager]
-    C --> F[Randomness Contract]
-    F --> G[Applications]
-    E --> H[Access Control]
-    E --> I[Rate Limiting]
-    E --> J[Cross-Chain Validation]
+```mermaidflowchart TD
+    A[Sonic Red DRAGON Token] -->|> B[LayerZero V2]
+    A| C[dRAND Network]
+    A -->|> D[Bridge Contract]
+    D| B
+    D -->|> E[Security Manager]
+    C| F[Randomness Contract]
+    F -->|> G[Applications]
+    E| H[Access Control]
+    E -->|> I[Rate Limiting]
+    E| J[Cross-Chain Validation]
 ```
 
 ## Core Components
 
-### Sonic Red Dragon Token
+### Sonic Red DRAGON Token
 
 The central component of the ecosystem, implementing:
 - ERC-20 standard functionality
@@ -61,23 +65,22 @@ Implements comprehensive security measures:
 - Emergency pause capabilities
 
 ## Data Flow
+```
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant Token
-    participant Bridge
-    participant dRAND
-    participant Security
-    
-    User->>Token: Cross-chain transfer
-    Token->>Bridge: Initiate bridge
-    Bridge->>Security: Validate request
-    Security->>Bridge: Approve/Reject
-    Bridge->>Token: Execute transfer
-    Token->>dRAND: Request randomness
-    dRAND->>Token: Provide randomness
-    Token->>User: Complete transfer
+```mermaidsequenceDiagram
+participant User
+participant Token
+participant Bridge
+participant dRAND
+participant Security
+    User ->> Token: Cross-chain transfer
+    Token ->> Bridge: Initiate bridge
+    Bridge ->> Security: Validate request
+    Security ->> Bridge: Approve/Reject
+    Bridge ->> Token: Execute transfer
+    Token ->> dRAND: Request randomness
+    dRAND ->> Token: Provide randomness
+    Token ->> User: Complete transfer
 ```
 
 ## Cross-Chain Architecture
@@ -89,11 +92,9 @@ flowchart TD
     A[Main Chain Token] -->|LayerZero V2| B[Chain A Token]
     A -->|LayerZero V2| C[Chain B Token]
     A -->|LayerZero V2| D[Chain C Token]
-    
     B -->|Bridge| A
     C -->|Bridge| A
     D -->|Bridge| A
-    
     B -->|dRAND| E[Global Randomness]
     C -->|dRAND| E
     D -->|dRAND| E
@@ -104,12 +105,12 @@ flowchart TD
 
 Multiple security layers protect the ecosystem:
 
-- **Access Control**: Role-based permissions for administrative functions
-- **Pausability**: Emergency pause capabilities for critical functions
-- **Rate Limiting**: Throttling mechanisms to prevent abuse
-- **Cross-Chain Validation**: Verification of cross-chain messages
-- **dRAND Integration**: Verifiable randomness for security-critical operations
-- **Timelock Controls**: Delay period for sensitive parameter changes
+-**Access Control**: Role-based permissions for administrative functions
+-**Pausability**: Emergency pause capabilities for critical functions
+-**Rate Limiting**: Throttling mechanisms to prevent abuse
+-**Cross-Chain Validation**: Verification of cross-chain messages
+-**dRAND Integration**: Verifiable randomness for security-critical operations
+-**Timelock Controls**: Delay period for sensitive parameter changes
 
 ## Future Extensibility
 

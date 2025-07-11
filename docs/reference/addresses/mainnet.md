@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Mainnet
+description: Technical reference information
 ---
 
 # Mainnet

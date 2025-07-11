@@ -1,11 +1,13 @@
 ---
 title: Randomness System Explained
 sidebar_position: 3
-description: Interactive explanation of OmniDragon's multi-source cross-chain randomness system
+description: >-
+  Interactive explanation of OmniDragon's multi-source cross-chain randomness
+  system
 ---
 
 import CrossChainRandomnessAnimation from '@site/src/components/CrossChainRandomnessAnimation';
-import EnhancedMermaid from '@site/src/components/EnhancedMermaid';
+import UnifiedMermaid from '@site/src/components/UnifiedMermaid';
 
 # OmniDragon Randomness System Explained
 
@@ -21,22 +23,21 @@ The following animation illustrates how randomness is requested, generated, veri
 
 OmniDragon uses a multi-provider approach to randomness, combining different sources for maximum security and reliability.
 
-```mermaid
-flowchart TB
-  A[Application Contract] --> B[OmniDragonVRFConsumer]
-  B --> C[ChainlinkVRFIntegrator]
-  B --> D[DrandIntegrator]
-  C --> E[LayerZero]
-  E --> F[ArbitrumVRFRequester]
-  F --> G[Chainlink VRF]
-  G --> F
-  F --> E
-  E --> C
-  D --> H[Drand Network]
-  H --> D
-  C --> B
-  D --> B
-  B --> A
+```mermaidflowchart TB
+A[Application Contract] -->|> B[OmniDragonVRFConsumer]
+    B| C[ChainlinkVRFIntegrator]
+    B -->|> D[DrandIntegrator]
+    C| E[LayerZero]
+    E -->|> F[ArbitrumVRFRequester]
+    F| G[Chainlink VRF]
+    G -->|> F
+    F| E
+    E -->|> C
+    D| H[Drand Network]
+    H -->|> D
+    C| B
+    D -->|> B
+    B| A
 ```
 
 ## Key Components
@@ -49,24 +50,22 @@ This is the main entry point for randomness requests in the system. It:
 - Distributes requests to multiple providers
 - Aggregates and verifies responses
 - Delivers secured, reliable randomness to the application
+```
 
-```mermaid
-classDiagram
-  class OmniDragonVRFConsumer {
-    +requestRandomness(uint256 requestId)
+```mermaidclassDiagram
+class OmniDragonVRFConsumer {
++requestRandomness(uint256 requestId)
     +fulfillRandomness(uint256 requestId, uint256 randomness)
     +registerProvider(address provider)
     +verifyRandomness(uint256 requestId, uint256 randomness)
     -aggregateResponses(uint256[] responses)
-  }
-  
-  class IVRFProvider {
-    <<interface>>
+    }
+    class IVRFProvider {
+<<interface>>
     +requestRandomness(uint256 requestId)
     +fulfillRandomness(uint256 requestId, uint256 randomness)
-  }
-  
-  OmniDragonVRFConsumer --> IVRFProvider
+    }
+    OmniDragonVRFConsumer --> IVRFProvider
 ```
 
 ### 2. ChainlinkVRFIntegrator
@@ -87,7 +86,7 @@ This component:
 
 ## Multi-Chain Flow
 
-<EnhancedMermaid 
+<UnifiedMermaid 
   title="Cross-Chain Randomness Flow"
   chart={`
     sequenceDiagram
@@ -115,16 +114,18 @@ This component:
       deactivate Consumer
   `}
   caption="Sequence diagram showing the full randomness request/response flow"
+  animated={true}
+  interactive={true}
 />
 
 ## Security Benefits of Multi-Provider Approach
 
 Using multiple sources of randomness provides several key security benefits:
 
-1. **Redundancy**: If one provider fails, the system continues to function
-2. **Compromise Resistance**: An attacker would need to compromise multiple independent systems
-3. **Verifiability**: Each source can be independently verified
-4. **Latency Optimization**: Can use the fastest available source when speed is critical
+1.**Redundancy**: If one provider fails, the system continues to function
+2.**Compromise Resistance**: An attacker would need to compromise multiple independent systems
+3.**Verifiability**: Each source can be independently verified
+4.**Latency Optimization**: Can use the fastest available source when speed is critical
 
 ```mermaid
 pie title Randomness Source Distribution
@@ -165,4 +166,4 @@ contract RandomnessConsumer {
 }
 ```
 
-With this interactive explanation, you should have a better understanding of how OmniDragon's randomness system operates across multiple chains and providers to deliver secure and verifiable randomness for various applications. 
+With this interactive explanation, you should have a better understanding of how OmniDragon's randomness system operates across multiple chains and providers to deliver secure and verifiable randomness for various applications.

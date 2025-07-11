@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Endpoints
+description: Technical reference information
 ---
 
 # Endpoints

@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Overview
+description: Detailed explanation of this concept
 ---
 
 # Smart Contracts Overview
@@ -15,79 +17,68 @@ The OmniDragon ecosystem consists of several interconnected components that work
 ```mermaid
 flowchart LR
     %% Color classes for different components
-    classDef coreSystem fill:#e1f5fe,stroke:#0288d1,color:#000000
-    classDef tokenSystem fill:#e8eaf6,stroke:#5c6bc0,color:#000000
-    classDef userSystem fill:#fff3e0,stroke:#f57c00,color:#000000
-    classDef journeyStep fill:#fff8e1,stroke:#ffb300,color:#000000
-    classDef externalSystem fill:#e3f2fd,stroke:#1e88e5,color:#000000
-    
+    classDef coreSystem fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef tokenSystem fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef userSystem fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef journeyStep fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef externalSystem fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
     %% Core Protocol
     subgraph Core["Core Protocol"]
         direction TB
-        
-        OmniDragon["OmniDragon Token<br>• ERC20 with lottery<br>• Cross-chain capability<br>• Fee distribution"]:::coreSystem
-        SwapTriggerOracle["SwapTriggerOracle<br>• Monitors trading<br>• Triggers lottery draws"]:::coreSystem
-        ChainRegistry["ChainRegistry<br>• Manages chain IDs<br>• Cross-chain config"]:::coreSystem
-        
-        subgraph TokensLP["Token Ecosystem"]
-            direction TB
-            LPToken["69LP Token<br>• Liquidity provider token<br>• Earns trading fees"]:::tokenSystem
-        end
-    end
-    
-    %% User Journey
+        OmniDragon["OmniDragon Token<br> ERC20 with jackpot<br> Cross-chain capability<br> Fee distribution"]:::coreSystem
+        SwapTriggerOracle["SwapTriggerOracle<br> Monitors trading<br> Triggers jackpot draws"]:::coreSystem
+        ChainRegistry["ChainRegistry<br> Manages chain IDs<br> Cross-chain config"]:::coreSystem
+    subgraph TokensLP["Token Ecosystem"]
+        direction TB
+        LPToken["69LP Token<br> Liquidity provider token<br> Earns trading fees"]:::tokenSystem
+        %% User Journey
     subgraph UserJourney["User Journey"]
         direction TB
-        
         %% Main user
         User["User<br>Entry point"]:::userSystem
-        
         %% Journey steps
-        Trading["Trading<br>• Buy/Sell OmniDragon<br>• Generates fees<br>• Lottery entry"]:::journeyStep
-        AddLiquidity["Add Liquidity<br>• Create 69LP tokens<br>• Earn trading fees"]:::journeyStep
-        StakeLock["Stake & Lock<br>• 69LP → ve69LP<br>• Governance rights"]:::journeyStep
-        Vote["Vote & Boost<br>• Governance proposals<br>• Weekly gauge voting"]:::journeyStep
-        Collect["Collect Rewards<br>• Fee distribution<br>• Lottery winnings"]:::journeyStep
-    end
-    
-    %% External DEXs
+        Trading["Trading<br> Buy/Sell OmniDragon<br> Generates fees<br> Lottery entry"]:::journeyStep
+        AddLiquidity["Add Liquidity<br> Create 69LP tokens<br> Earn trading fees"]:::journeyStep
+        StakeLock["Stake & Lock<br> 69LP  ve69LP<br> Governance rights"]:::journeyStep
+        Vote["Vote & Boost<br> Governance proposals<br> Weekly gauge voting"]:::journeyStep
+        Collect["Collect Rewards<br> Fee distribution<br> Lottery winnings"]:::journeyStep
+        %% External DEXs
     subgraph ExternalDEX["External DEXes"]
         direction LR
         UniswapV2["Uniswap V2"]:::externalSystem
         UniswapV3["Uniswap V3"]:::externalSystem
         Balancer["Balancer"]:::externalSystem
-    end
-    
-    %% Connect User Journey to System
-    User -- "Starts here" --> Trading
-    Trading -- "Next step" --> AddLiquidity
-    AddLiquidity -- "Next step" --> StakeLock
-    StakeLock -- "Next step" --> Vote
-    Vote -- "Final step" --> Collect
-    Trading -- "Lottery" --> Collect
-    
-    Trading -- "Swap" --> ExternalDEX
-    ExternalDEX -- "Provide liquidity" --> AddLiquidity
-    
-    %% Core Connections
-    ChainRegistry -- "Chain management" --> OmniDragon
-    OmniDragon -- "Monitoring" --> SwapTriggerOracle
-    AddLiquidity -- "Creates" --> LPToken
-    
-    %% Style the containers
-    style UserJourney fill:#fff9c4,stroke:#ffb300,
-    style Core fill:#e1f5fe,stroke:#0288d1,
-    style ExternalDEX fill:#e3f2fd,stroke:#1e88e5,
+        %% Connect User Journey to System
+        User -->|"Starts here"| Trading
+        Trading -->|"Next step"| AddLiquidity
+        AddLiquidity -->|"Next step"| StakeLock
+        StakeLock -->|"Next step"| Vote
+        Vote -->|"Final step"| Collect
+        Trading -->|"Lottery"| Collect
+        Trading -->|"Swap"| ExternalDEX
+        ExternalDEX -->|"Provide liquidity"| AddLiquidity
+        %% Core Connections
+        ChainRegistry -->|"Chain management"| OmniDragon
+        OmniDragon -->|"Monitoring"| SwapTriggerOracle
+        AddLiquidity -->|"Creates"| LPToken
+        %% Style the containers
+        style UserJourney fill:#fff9c4,stroke:#ffb300
+        style Core fill:#e1f5fe,stroke:#0288d1
+        style ExternalDEX fill:#e3f2fd,stroke:#1e88e5
+endend
+endend
+endend
+end
 ```
 
 ### Randomness System
+```
 
 ```mermaid
 flowchart LR
     %% Color classes for different components
-    classDef randomnessSystem fill:#e1f5fe,stroke:#1976d2,color:#000000
-    classDef processSystem fill:#fff3e0,stroke:#ff9800,color:#000000
-    
+    classDef randomnessSystem fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef processSystem fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
     %% Randomness Sources
     subgraph Sources["External Randomness Sources"]
         direction LR
@@ -95,47 +86,40 @@ flowchart LR
         DrandEVMNet["drand EVMNet<br>EVM optimized"]:::randomnessSystem
         DrandQuickNet["drand QuickNet<br>Fast verification"]:::randomnessSystem
         ChainlinkVRF["ChainlinkVRF2.5<br>Cross-chain via LayerZero"]:::randomnessSystem
-    end
-    
-    %% Integrators
+        %% Integrators
     subgraph Integrators["Integrator Layer"]
         direction LR
-        DefaultIntegrator["Default Integrator<br>• Verifies & formats"]:::randomnessSystem
-        EVMNetIntegrator["EVMNet Integrator<br>• Low latency"]:::randomnessSystem
-        QuickNetIntegrator["QuickNet Integrator<br>• Fastest verification"]:::randomnessSystem
-        ChainlinkRequester["ChainlinkVRFRequester<br>• Request gateway"]:::randomnessSystem
-    end
-    
-    %% Consumer
-    OmniDragonVRFConsumer["OmniDragonVRFConsumer<br>• Aggregates all sources<br>• Priority-based fallback<br>• Caching & redundancy"]:::randomnessSystem
-    
-    %% Process Flow
+        DefaultIntegrator["Default Integrator<br> Verifies & formats"]:::randomnessSystem
+        EVMNetIntegrator["EVMNet Integrator<br> Low latency"]:::randomnessSystem
+        QuickNetIntegrator["QuickNet Integrator<br> Fastest verification"]:::randomnessSystem
+        ChainlinkRequester["ChainlinkVRFRequester<br> Request gateway"]:::randomnessSystem
+        %% Consumer
+        OmniDragonVRFConsumer["OmniDragonVRFConsumer<br> Aggregates all sources<br> Priority-based fallback<br> Caching & redundancy"]:::randomnessSystem
+        %% Process Flow
     subgraph Process["Lottery Randomness Flow"]
         direction TB
         Step1["1. Multiple sources<br>provide entropy"]:::processSystem
         Step2["2. Integrators verify<br>& format randomness"]:::processSystem
         Step3["3. VRFConsumer<br>aggregates sources"]:::processSystem
         Step4["4. SwapTrigger receives<br>secure random values"]:::processSystem
-        Step5["5. OmniDragon determines<br>lottery winners"]:::processSystem
-        
-        Step1 --> Step2 --> Step3 --> Step4 --> Step5
-    end
-    
-    %% Connect Components
-    DrandDefault --> DefaultIntegrator
-    DrandEVMNet --> EVMNetIntegrator
-    DrandQuickNet --> QuickNetIntegrator
-    ChainlinkVRF --> ChainlinkRequester
-    
-    DefaultIntegrator --> OmniDragonVRFConsumer
-    EVMNetIntegrator --> OmniDragonVRFConsumer
-    QuickNetIntegrator --> OmniDragonVRFConsumer
-    ChainlinkRequester --> OmniDragonVRFConsumer
-    
-    %% Style Containers
-    style Sources fill:#e1f5fe,stroke:#1976d2,
-    style Integrators fill:#e3f2fd,stroke:#1976d2,
-    style Process fill:#fff8e1,stroke:#ff9800,
+        Step5["5. OmniDragon determines<br>jackpot winners"]:::processSystem
+        Step1 -->|>|> Step2| Step3| Step4 -->|> Step5
+        %% Connect Components
+        DrandDefault| DefaultIntegrator
+        DrandEVMNet -->|> EVMNetIntegrator
+        DrandQuickNet| QuickNetIntegrator
+        ChainlinkVRF -->|> ChainlinkRequester
+        DefaultIntegrator| OmniDragonVRFConsumer
+        EVMNetIntegrator -->|>|> OmniDragonVRFConsumer
+        QuickNetIntegrator| OmniDragonVRFConsumer
+        ChainlinkRequester| OmniDragonVRFConsumer
+        %% Style Containers
+        style Sources fill:#e1f5fe,stroke:#1976d2
+        style Integrators fill:#e3f2fd,stroke:#1976d2
+        style Process fill:#fff8e1,stroke:#ff9800
+endend
+endend
+end
 ```
 
 ### Economic System & Jackpot
@@ -143,86 +127,106 @@ flowchart LR
 ```mermaid
 flowchart LR
     %% Color classes for different components
-    classDef jackpotSystem fill:#fff3e0,stroke:#fb8c00,color:#000000
-    classDef feeSystem fill:#e1f5fe,stroke:#00acc1,color:#000000
-    
+    classDef jackpotSystem fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef feeSystem fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
     %% Economic System - Fee Collection
     subgraph FeeCollection["Fee Collection & Distribution"]
         direction TB
-        FeeCollector["Fee Collector<br>• Processes all swaps<br>• Splits fees by purpose"]:::feeSystem
-        BurnMechanism["Burn Mechanism<br>• 0.69% of each swap<br>• Supply reduction"]:::feeSystem
-    end
-    
-    %% Jackpot Mechanism
+        FeeCollector["Fee Collector<br> Processes all swaps<br> Splits fees by purpose"]:::feeSystem
+        BurnMechanism["Burn Mechanism<br> 0.69% of each swap<br> Supply reduction"]:::feeSystem
+        %% Jackpot Mechanism
     subgraph JackpotMechanism["Jackpot Mechanism"]
         direction TB
-        JackpotVault["JackpotVault<br>• Holds 6.9% of all swaps<br>• Secure prize pool"]:::jackpotSystem
-        JackpotDistributor["JackpotDistributor<br>• Determines winners<br>• Distributes rewards"]:::jackpotSystem
-        WinProbability["Win Probability<br>• Based on swap size<br>• Dynamic adjustments"]:::jackpotSystem
-        LotteryWinners["Lottery Winners<br>• Selected via VRF<br>• Receive jackpot prizes"]:::jackpotSystem
-    end
-    
-    %% Connect Components
-    FeeCollector -- "6.9% of swap" --> JackpotVault
-    FeeCollector -- "0.69% of swap" --> BurnMechanism
-    
-    WinProbability -- "Determines win chance" --> JackpotDistributor
-    JackpotVault -- "Funds prize pool" --> JackpotDistributor
-    JackpotDistributor -- "Distributes prizes" --> LotteryWinners
-    
-    %% Style Containers
-    style FeeCollection fill:#e1f5fe,stroke:#00acc1,
-    style JackpotMechanism fill:#fff3e0,stroke:#fb8c00,
+        JackpotVault["JackpotVault<br> Holds 6.9% of all swaps<br> Secure jackpot"]:::jackpotSystem
+        JackpotDistributor["JackpotDistributor<br> Determines winners<br> Distributes rewards"]:::jackpotSystem
+        WinProbability["Win Probability<br> Based on swap size<br> Dynamic adjustments"]:::jackpotSystem
+        LotteryWinners["Lottery Winners<br> Selected via VRF<br> Receive jackpot prizes"]:::jackpotSystem
+        %% Connect Components
+        FeeCollector -->|"6.9% of swap"| JackpotVault
+        FeeCollector -->|"0.69% of swap"| BurnMechanism
+        WinProbability -->|"Determines win chance"| JackpotDistributor
+        JackpotVault -->|"Funds jackpot"| JackpotDistributor
+        JackpotDistributor -->|"Distributes prizes"| LotteryWinners
+        %% Style Containers
+        style FeeCollection fill:#e1f5fe,stroke:#00acc1
+        style JackpotMechanism fill:#fff3e0,stroke:#fb8c00
+end
+end
 ```
+
+<div data-immersive>
+```
+
+```mermaidclassDiagram
+class OmniDragonLotteryManager {
++address omniDragonToken
+    +address jackpotVault
+    +address randomnessProvider
+    +address priceOracle
+    +uint256 BASE_WIN_PROB_BPS
+    +uint256 MAX_BOOSTED_WIN_PROB_BPS
+    +createLotteryEntry(address user, uint256 amount, uint256 votingPower)
+    +fulfillRandomness(uint256 requestId, uint256 randomValue)
+    +calculateLotteryProbability(uint256 swapAmount, uint256 votingPower)
+    +calculateJackpotPayout(uint256 jackpotSize, uint256 winnerVotingPower)
+    }
+    class LotteryEntry {
++address user
+    +uint256 swapAmountUSD
+    +uint256 userVotingPower
+    +uint256 probabilityBps
+    +uint256 timestamp
+    +uint256 randomnessRequestId
+    +bool processed
+    +bool won
+    +uint256 payoutAmount
+    }
+    OmniDragonLotteryManager -- LotteryEntry : manages
+```
+
+</div>
 
 ### Governance & Partner Ecosystem
 
 ```mermaid
 flowchart LR
     %% Color classes for different components
-    classDef governanceSystem fill:#e3f2fd,stroke:#1976d2,color:#000000
-    classDef externalSystem fill:#fff3e0,stroke:#f57c00,color:#000000
-    
+    classDef governanceSystem fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef externalSystem fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
     %% ve69LP System
     subgraph VeTokenSystem["ve69LP Governance System"]
         direction TB
-        ve69LP["ve69LP Token<br>• Locked LP position<br>• Time-weighted voting power"]:::governanceSystem
-        ve69LPFeeDistributor["ve69LP Fee Distributor<br>• Receives 2.41% of swaps<br>• Proportional distribution"]:::governanceSystem
-        ProposalVoting["Protocol Governance<br>• Parameter changes<br>• Treasury management"]:::governanceSystem
-    end
-    
-    %% Weekly Epoch System
+        ve69LP["ve69LP Token<br> Locked LP position<br> Time-weighted voting power"]:::governanceSystem
+        ve69LPFeeDistributor["ve69LP Fee Distributor<br> Receives 2.41% of swaps<br> Proportional distribution"]:::governanceSystem
+        ProposalVoting["Protocol Governance<br> Parameter changes<br> Treasury management"]:::governanceSystem
+        %% Weekly Epoch System
     subgraph GaugeSystem["Weekly Gauge & Boost System"]
         direction TB
-        EpochReset["Weekly Epoch Reset<br>• 7-day voting cycle"]:::governanceSystem
-        GaugeVoting["Partner Pool Voting<br>• ve69LP holders allocate votes"]:::governanceSystem
-        GaugeController["Gauge Controller<br>• Tallies all votes<br>• Sets boost allocation"]:::governanceSystem
-    end
-    
-    %% Partners
+        EpochReset["Weekly Epoch Reset<br> 7-day voting cycle"]:::governanceSystem
+        GaugeVoting["Partner Pool Voting<br> ve69LP holders allocate votes"]:::governanceSystem
+        GaugeController["Gauge Controller<br> Tallies all votes<br> Sets boost allocation"]:::governanceSystem
+        %% Partners
     subgraph PartnerSystem["Partner Pools & Rewards"]
         direction TB
-        PartnerRegistry["Partner Registry<br>• Official partner onboarding"]:::externalSystem
-        PartnerPools["Partner Liquidity Pools<br>• Dragon + Partner token"]:::externalSystem
-        ProbabilityBoost["Probability Boost<br>• Increases win chance"]:::externalSystem
-    end
-    
-    %% Connect Components
-    ve69LP -- "Earns from fees" --> ve69LPFeeDistributor
-    ve69LP -- "Grants governance rights" --> ProposalVoting
-    
-    ve69LP -- "Enables gauge voting" --> GaugeVoting
-    GaugeVoting -- "Vote allocation" --> GaugeController
-    EpochReset -- "Weekly reset" --> GaugeVoting
-    GaugeController -- "Calculate weights" --> ProbabilityBoost
-    
-    PartnerRegistry -- "Register partner" --> PartnerPools
-    ProbabilityBoost -- "Increase probability" --> PartnerPools
-    
-    %% Style Containers
-    style VeTokenSystem fill:#e3f2fd,stroke:#1976d2,
-    style GaugeSystem fill:#e0f7fa,stroke:#00acc1,
-    style PartnerSystem fill:#fff3e0,stroke:#f57c00,
+        PartnerRegistry["Partner Registry<br> Official partner onboarding"]:::externalSystem
+        PartnerPools["Partner Liquidity Pools<br> DRAGON + Partner token"]:::externalSystem
+        ProbabilityBoost["Probability Boost<br> Increases win chance"]:::externalSystem
+        %% Connect Components
+        ve69LP -->|"Earns from fees"| ve69LPFeeDistributor
+        ve69LP -->|"Grants governance rights"| ProposalVoting
+        ve69LP -->|"Enables gauge voting"| GaugeVoting
+        GaugeVoting -->|"Vote allocation"| GaugeController
+        EpochReset -->|"Weekly reset"| GaugeVoting
+        GaugeController -->|"Calculate weights"| ProbabilityBoost
+        PartnerRegistry -->|"Register partner"| PartnerPools
+        ProbabilityBoost -->|"Increase probability"| PartnerPools
+        %% Style Containers
+        style VeTokenSystem fill:#e3f2fd,stroke:#1976d2
+        style GaugeSystem fill:#e0f7fa,stroke:#00acc1
+        style PartnerSystem fill:#fff3e0,stroke:#f57c00
+endend
+endend
+end
 ```
 
 ## Core Contracts
@@ -236,6 +240,46 @@ The main token contract that implements the ERC-20 standard with LayerZero compa
 - Access control for administrative functions
 - Integration with VRF providers for randomness
 - Built-in jackpot mechanics and fee structure
+
+<div data-immersive>
+```
+
+```mermaidclassDiagram
+class OmniDragon {
++address jackpotVault
+    +address revenueDistributor
+    +address lzEndpoint
+    +address chainRegistry
+    +uint256 MAX_SUPPLY
+    +uint256 INITIAL_SUPPLY
+    +transfer(address to, uint256 amount)
+    +processLotteryEntry(address user, uint256 amount)
+    +distributeFees(uint256 jackpotAmount, uint256 ve69Amount)
+    +sendTokens(uint16 dstChainId, bytes32 toAddress, uint256 amount)
+    }
+    class ERC20 {
++string name
+    +string symbol
+    +uint256 totalSupply
+    +balanceOf(address account)
+    +transfer(address to, uint256 amount)
+    +approve(address spender, uint256 amount)
+    +transferFrom(address from, address to, uint256 amount)
+    }
+    class Ownable {
++address owner
+    +onlyOwner()
+    +transferOwnership(address newOwner)
+    }
+    class ReentrancyGuard {
++nonReentrant()
+    }
+    OmniDragon --|> ERC20
+    OmniDragon --|> Ownable
+    OmniDragon --|> ReentrancyGuard
+```
+
+</div>
 
 #### Key Functions
 ```solidity
@@ -287,6 +331,29 @@ Manages the integration with verifiable randomness providers:
 - Request and callback mechanisms
 - Fallback randomness sources
 
+<div data-immersive>
+
+```mermaid
+classDiagram
+class OmniDragonRandomnessProvider {
++enum VRFSource
+    +requestRandomness()
+    +drawFromRandomnessPool()
+    +fulfillRandomness(uint256 requestId, uint256 randomValue)
+    +aggregateDrandRandomness()
+    }
+    class VRFSource {
+CHAINLINK_V2_5
+    DRAND_BEACON
+    CHAINLINK_V2_0
+    DRAND_QUICKNET
+    DRAND_EVMNET
+    }
+    OmniDragonRandomnessProvider -- VRFSource
+```
+
+</div>
+
 #### Key Functions
 ```solidity
 // Aggregate randomness from multiple sources
@@ -325,19 +392,16 @@ function setAuthorizedConsumer(address _consumer, bool _authorized) external onl
 
 To integrate OmniDragon into your project:
 
-1. **Token Integration**
-   ```solidity
-   import "@omnidragon/contracts/OmniDragon.sol";
+1.**Token Integration**```solidity
+   import "@OmniDragon/contracts/OmniDragon.sol";
    ```
 
-2. **Chain Registry Integration**
-   ```solidity
-   import "@omnidragon/contracts/ChainRegistry.sol";
+2.**Chain Registry Integration**```solidity
+   import "@OmniDragon/contracts/ChainRegistry.sol";
    ```
 
-3. **Randomness Integration**
-   ```solidity
-   import "@omnidragon/contracts/drand/OmniDragonVRFConsumer.sol";
+3.**Randomness Integration**```solidity
+   import "@OmniDragon/contracts/drand/OmniDragonVRFConsumer.sol";
    ```
 
 ## Contract Addresses
@@ -358,7 +422,7 @@ For developers looking to contribute or build on OmniDragon:
 
 1. Clone our repository:
    ```bash
-   git clone https://github.com/wenakita/omnidragon.git
+   git clone https://github.com/wenakita/OmniDragon.git
    ```
 
 2. Install dependencies:
@@ -377,19 +441,16 @@ Security is our top priority. Our contracts have undergone multiple audits and a
 
 ### Security Best Practices
 
-1. **Access Control**
-   - Always use the provided role-based access control
+1.**Access Control**- Always use the provided role-based access control
    - Implement multi-signature for critical operations
    - Regularly review and update access permissions
 
-2. **Cross-Chain Operations**
-   - Verify message sources
+2.**Cross-Chain Operations**- Verify message sources
    - Implement replay protection
    - Use appropriate gas limits
    - Monitor bridge operations
 
-3. **Randomness Usage**
-   - Verify randomness proofs
+3.**Randomness Usage**- Verify randomness proofs
    - Implement fallback mechanisms
    - Use appropriate timeouts
    - Monitor VRF network status
@@ -397,7 +458,7 @@ Security is our top priority. Our contracts have undergone multiple audits and a
 ## Support
 
 For technical support or questions about contract integration:
-- Join our [Discord](https://discord.gg/omnidragon)
+- Join our [Discord](https://discord.gg/OmniDragon)
 - Open an issue on [GitHub](https://github.com/wenakita/sonicreddragon)
 - Contact us at support@sonicreddragon.io
 
@@ -406,36 +467,36 @@ For technical support or questions about contract integration:
 The OmniDragon contracts are organized into the following categories:
 
 ### Core
-- [OmniDragon.sol](./core/omni-dragon): Main token contract with cross-chain capabilities
-- [OmniDragonPeriphery.sol](./core/periphery): Helper contract for managing token integrations
-- [ChainRegistry.sol](./core/chain-registry): Manages endpoints across supported chains
-- [ChainSpecificEndpoint.sol](./core/chain-endpoint): Chain-specific configurations
+- [OmniDragon.sol](/core/OmniDragon): Main token contract with cross-chain capabilities
+- [OmniDragonPeriphery.sol](/core/periphery): Helper contract for managing token integrations
+- [ChainRegistry.sol](/core/chain-registry): Manages endpoints across supported chains
+- [ChainSpecificEndpoint.sol](/core/chain-endpoint): Chain-specific configurations
 
 ### Jackpot
-- [DragonJackpotDistributor.sol](./jackpot/distributor): Distributes jackpot winnings to winners
-- [DragonJackpotVault.sol](./jackpot/vault): Securely stores jackpot funds
-- [OmniDragonSwapTriggerOracle.sol](./jackpot/trigger-oracle): Creates lottery entries from swaps
+- [DragonJackpotDistributor.sol](/jackpot/distributor): Distributes jackpot winnings to winners
+- [DragonJackpotVault.sol](/jackpot/vault): Securely stores jackpot funds
+- [OmniDragonSwapTriggerOracle.sol](/jackpot/trigger-oracle): Creates jackpot entries from swaps
 
 ### Math
-- [DragonMathLib.sol](./math/dragon-math-lib): Core mathematical utilities
-- [HermesMath.sol](./math/hermes-math): Jackpot distribution mathematics
-- [DragonDateTimeLib.sol](./math/date-time-lib): Time-related calculations
-- [ve69LPMath.sol](./math/ve69lp-math): veToken staking mathematics
-- [VotingPowerCalculator.sol](./math/voting-power): Governance voting power calculations
-- [DragonAdaptiveFeeManager.sol](./math/adaptive-fee): Dynamic fee adjustment system
-- [MarketConditionOracle.sol](./math/market-oracle): Market condition monitoring for adaptations
+- [DragonMathLib.sol](/math/DRAGON-math-lib): Core mathematical utilities
+- [HermesMath.sol](/math/hermes-math): Jackpot distribution mathematics
+- [DragonDateTimeLib.sol](/math/date-time-lib): Time-related calculations
+- [ve69LPMath.sol](/math/ve69LP-math): veToken staking mathematics
+- [VotingPowerCalculator.sol](/math/voting-power): Governance voting power calculations
+- [DragonAdaptiveFeeManager.sol](/math/adaptive-fee): Dynamic fee adjustment system
+- [MarketConditionOracle.sol](/math/market-oracle): Market condition monitoring for adaptations
 
 ### Randomness
-- [OmniDragonVRFConsumer.sol](./randomness/vrf-consumer): Main verifiable randomness consumer
-- [DragonVRFIntegrator.sol](./randomness/vrf-integrator): External randomness integration
-- [DragonVRFConsumer.sol](./randomness/vrf-consumer-base): Base randomness consumer contract
+- [OmniDragonVRFConsumer.sol](/randomness/vrf-consumer): Main verifiable randomness consumer
+- [DragonVRFIntegrator.sol](/randomness/vrf-integrator): External randomness integration
+- [DragonVRFConsumer.sol](/randomness/vrf-consumer-base): Base randomness consumer contract
 
 ### Governance
-- [OmniDragonGovernor.sol](./governance/governor): Governance contract for protocol decisions
-- [OmniDragonTimelockController.sol](./governance/timelock): Timelock for governance actions
-- [ve69LP.sol](./governance/ve69lp): Vote-escrowed LP token for governance
+- [OmniDragonGovernor.sol](/governance/governor): Governance contract for protocol decisions
+- [OmniDragonTimelockController.sol](/governance/timelock): Timelock for governance actions
+- [ve69LP.sol](/governance/ve69LP): Vote-escrowed LP token for governance
 
 ### Partners
-- [DragonPartnerRegistry.sol](./partners/registry): Registry for partner integration
-- [DragonPartnerFactory.sol](./partners/factory): Factory for creating partner pools
-- [DragonPartnerPool.sol](./partners/pool): Partner-specific pools and incentives 
+- [DragonPartnerRegistry.sol](/partners/registry): Registry for partner integration
+- [DragonPartnerFactory.sol](/partners/factory): Factory for creating partner pools
+- [DragonPartnerPool.sol](/partners/pool): Partner-specific pools and incentives

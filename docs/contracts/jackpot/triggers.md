@@ -1,72 +1,66 @@
 ---
 sidebar_position: 4
 title: Swap-Based Jackpot Trigger System
+description: Detailed explanation of this concept
 ---
 
 # Swap-Based Jackpot Trigger System
 
-The OmniDragon ecosystem uses a sophisticated swap-based trigger system implemented in the `OmniDragonSwapTriggerOracle` contract to determine lottery entries and potential jackpot winners.
+The OmniDragon ecosystem uses a sophisticated swap-based trigger system implemented in the `OmniDragonSwapTriggerOracle` contract to determine jackpot entries and potential jackpot winners.
 
 ## Architecture Overview
 
-The OmniDragon trigger system uses a price-aware, swap-activity monitoring approach to create a fair and engaging lottery experience:
+The OmniDragon trigger system uses a price-aware, swap-activity monitoring approach to create a fair and engaging jackpot experience:
 
 ```mermaid
 flowchart TB
-    %% Define main components of the trigger system
-    subgraph TriggerCore ["Trigger Contract"]
+%% Define main components of the trigger system
+    subgraph TriggerCore["Trigger Contract"]
         direction TB
         INTERFACE["IOmniDragonSwapTriggerOracle"]:::interface
         SWAP_ORACLE["OmniDragonSwapTriggerOracle"]:::impl
-    end
-    
-    subgraph OracleSources ["Price Oracles"]
+    subgraph OracleSources["Price Oracles"]
         direction TB
         CHAINLINK["Chainlink Feed"]:::oracle
         API3["API3 Feed"]:::oracle
         BAND["Band Protocol"]:::oracle
         PYTH["Pyth Network"]:::oracle
         STORK["Stork Network"]:::oracle
-    end
-    
-    subgraph Mechanisms ["Probability Mechanisms"]
+    subgraph Mechanisms["Probability Mechanisms"]
         direction TB
         BASE_PROB["Base Probability"]:::mechanism
         SWAP_SIZE["Swap Size Bonus"]:::mechanism
         LOGARITHMIC["Logarithmic Scaling"]:::mechanism
         MAX_CAP["Maximum Probability Cap"]:::mechanism
-    end
-    
-    %% Connect the systems
-    OracleSources -->|"Price Data"| SWAP_ORACLE
-    INTERFACE -->|"Implemented by"| SWAP_ORACLE
-    Mechanisms -->|"Determines Win Chance"| SWAP_ORACLE
-    
-    %% Connect to external systems
-    OMNI_DRAGON["OmniDragon Token"]:::external
-    JACKPOT_VAULT["Jackpot Vault"]:::external
-    OFF_CHAIN["Off-Chain Random Selection"]:::external
-    
-    OMNI_DRAGON -->|"Calls on Swap"| SWAP_ORACLE
-    SWAP_ORACLE -->|"Emits Events"| OFF_CHAIN
-    SWAP_ORACLE -.->|"Can Interact with"| JACKPOT_VAULT
-    
-    %% Apply styling
-    classDef interface fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1
-    classDef impl fill:#e8f5e9,stroke:#43a047,color:#1b5e20
-    classDef oracle fill:#f3e5f5,stroke:#8e24aa,color:#4a148c
-    classDef mechanism fill:#fff8e1,stroke:#ffb300,color:#ff6f00
-    classDef external fill:#fce4ec,stroke:#ec407a,color:#880e4f
-    
-    %% Style subgraphs
-    style TriggerCore fill:#e3f2fd,stroke:#bbdefb,color:#1565c0
-    style OracleSources fill:#f3e5f5,stroke:#e1bee7,color:#6a1b9a
-    style Mechanisms fill:#fff8e1,stroke:#ffecb3,color:#ff8f00
+        %% Connect the systems
+        OracleSources -->|"Price Data"| SWAP_ORACLE
+        INTERFACE -->|"Implemented by"| SWAP_ORACLE
+        Mechanisms -->|"Determines Win Chance"| SWAP_ORACLE
+        %% Connect to external systems
+        OMNI_DRAGON["OmniDragon Token"]:::external
+        JACKPOT_VAULT["Jackpot Vault"]:::external
+        OFF_CHAIN["Off-Chain Random Selection"]:::external
+        OMNI_DRAGON -->|"Calls on Swap"| SWAP_ORACLE
+        SWAP_ORACLE -->|"Emits Events"| OFF_CHAIN
+        SWAP_ORACLE -.->|"Can Interact with"| JACKPOT_VAULT
+        %% Apply styling
+    classDef interface fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef impl fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef oracle fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef mechanism fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef external fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+        %% Style subgraphs
+        style TriggerCore fill:#e3f2fd,stroke:#bbdefb,color:#1565c0
+        style OracleSources fill:#f3e5f5,stroke:#e1bee7,color:#6a1b9a
+        style Mechanisms fill:#fff8e1,stroke:#ffecb3,color:#ff8f00
+endend
+endend
+end
 ```
 
 ## Swap-Based Trigger Mechanism
 
-The OmniDragon system uses token swap activity to trigger lottery entries, with the probability of winning proportional to swap size:
+The OmniDragon system uses token swap activity to trigger jackpot entries, with the probability of winning proportional to swap size:
 
 ```solidity
 function onSwap(address user, uint256 amount) external override onlyOmniDragon nonReentrant {
@@ -175,29 +169,29 @@ function getAggregatedPrice() public view returns (int256 aggregatedPrice, bool 
 
 The trigger system includes several measures to prevent abuse and ensure fair participation:
 
-1. **Minimum Swap Amount**: Requires swaps to exceed a configurable minimum amount
+1.**Minimum Swap Amount**: Requires swaps to exceed a configurable minimum amount
    ```solidity
    require(amount >= minSwapAmount, "Swap too small");
    ```
 
-2. **User Cooldown**: Prevents users from participating too frequently
+2.**User Cooldown**: Prevents users from participating too frequently
    ```solidity
    require(block.timestamp >= lastEntry[user] + cooldownPeriod, "Cooldown active");
    ```
 
-3. **Multiple Oracle Consensus**: Requires multiple trusted price sources to agree
+3.**Multiple Oracle Consensus**: Requires multiple trusted price sources to agree
    ```solidity
    if (validPrices < minimumOracleResponses) {
        return (0, false);
    }
    ```
 
-4. **Logarithmic Scaling**: Prevents large swaps from having disproportionate advantages
+4.**Logarithmic Scaling**: Prevents large swaps from having disproportionate advantages
    ```solidity
    uint256 logFactor = 10000 * (1 + _log2(swapRatio / 10000));
    ```
 
-5. **Maximum Probability Cap**: Ensures even large swaps have a maximum win probability
+5.**Maximum Probability Cap**: Ensures even large swaps have a maximum win probability
    ```solidity
    return probability > maxWinProbability ? maxWinProbability : probability;
    ```
@@ -217,29 +211,26 @@ The system can be configured with these parameters:
 ## Implementation Details
 
 The OmniDragonSwapTriggerOracle contract inherits from multiple OpenZeppelin contracts for security and extensibility:
+```
 
-```mermaid
-classDiagram
-    %% Define the contract hierarchy
+```mermaidclassDiagram
+%% Define the contract hierarchy
     class Ownable {
-        <<OpenZeppelin>>
+<<OpenZeppelin>>
         +owner: address
         +transferOwnership(address)
         +onlyOwner() modifier
     }
-    
     class ReentrancyGuard {
-        <<OpenZeppelin>>
+<<OpenZeppelin>>
         +nonReentrant() modifier
     }
-    
     class IOmniDragonSwapTriggerOracle {
-        <<interface>>
+<<interface>>
         +onSwap(address user, uint256 amount)
     }
-    
     class OmniDragonSwapTriggerOracle {
-        -omniDragon: address
+-omniDragon: address
         -jackpotVault: address
         -minSwapAmount: uint256
         -cooldownPeriod: uint256
@@ -257,97 +248,84 @@ classDiagram
         +setCooldownPeriod(uint256)
         +addOracle(uint8, address, OracleType, uint8)
     }
-    
     Ownable <|-- OmniDragonSwapTriggerOracle
     ReentrancyGuard <|-- OmniDragonSwapTriggerOracle
     IOmniDragonSwapTriggerOracle <|.. OmniDragonSwapTriggerOracle
-    
+
     %% Additional classes related to the system
     class AggregatorV3Interface {
-        <<Chainlink>>
+<<Chainlink>>
         +latestRoundData()
     }
-    
     class IDragonJackpotVault {
-        <<interface>>
+<<interface>>
         +addToJackpot(uint256)
     }
-    
-    OmniDragonSwapTriggerOracle --> AggregatorV3Interface : uses
-    OmniDragonSwapTriggerOracle --> IDragonJackpotVault : can interact with
-    
+    OmniDragonSwapTriggerOracle -->|> AggregatorV3Interface : uses
+    OmniDragonSwapTriggerOracle| IDragonJackpotVault : can interact with
+
     %% Apply styling
-    classDef interface fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1
-    classDef implementation fill:#e8f5e9,stroke:#43a047,color:#1b5e20
-    classDef external fill:#f3e5f5,stroke:#8e24aa,color:#4a148c
-    
-    class IOmniDragonSwapTriggerOracle,IDragonJackpotVault,AggregatorV3Interface interface
+    classDef interface fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef implementation fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef external fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class IOmniDragonSwapTriggerOracle interface
+    class IDragonJackpotVaultAggregatorV3Interface interface
     class OmniDragonSwapTriggerOracle implementation
-    class Ownable,ReentrancyGuard external
+    class Ownable external
+    class ReentrancyGuard external
 ```
 
 ## Trigger Process Flow
 
-The swap-to-lottery entry process follows this sequence:
+The swap-to-jackpot entry process follows this sequence:
 
 ```mermaid
 sequenceDiagram
-    participant User
-    participant OmniDragon as OmniDragon Token
-    participant SwapOracle as Swap Trigger Oracle
-    participant PriceOracles as Price Oracles
-    participant OffChain as Off-Chain System
-    
+participant User
+participant OmniDragon as OmniDragon Token
+participant SwapOracle as Swap Trigger Oracle
+participant PriceOracles as Price Oracles
+participant OffChain as Off-Chain System
+
     %% Style regions
     rect rgb(233, 245, 255)
     note over User,OmniDragon: Swap Initiation
-    
     User->>+OmniDragon: Perform token swap
-    OmniDragon->>OmniDragon: Process swap
+    OmniDragon ->> OmniDragon: Process swap
     OmniDragon->>+SwapOracle: onSwap(user, amount)
-    end
-    
     rect rgb(245, 235, 255)
     note over SwapOracle,PriceOracles: Eligibility & Probability
-    
-    SwapOracle->>SwapOracle: Check min amount
-    SwapOracle->>SwapOracle: Check user cooldown
+    SwapOracle ->> SwapOracle: Check min amount
+    SwapOracle ->> SwapOracle: Check user cooldown
     SwapOracle->>+PriceOracles: getAggregatedPrice()
     PriceOracles-->>-SwapOracle: Return median price
-    SwapOracle->>SwapOracle: Calculate win probability
-    end
-    
+    SwapOracle ->> SwapOracle: Calculate win probability
     rect rgb(242, 255, 235)
     note over SwapOracle,OffChain: Entry Recording
-    
-    SwapOracle->>SwapOracle: Record user probability
-    SwapOracle->>SwapOracle: Update swap statistics
-    SwapOracle->>SwapOracle: Update last entry time
-    SwapOracle->>OffChain: Emit LotteryEntry event
-    end
-    
+    SwapOracle ->> SwapOracle: Record user probability
+    SwapOracle ->> SwapOracle: Update swap statistics
+    SwapOracle ->> SwapOracle: Update last entry time
+    SwapOracle ->> OffChain: Emit LotteryEntry event
     SwapOracle-->>-OmniDragon: Return
     OmniDragon-->>-User: Complete swap
-    
+
     rect rgb(255, 240, 245)
     note over OffChain,User: Off-Chain Winner Selection
-    
-    OffChain->>OffChain: Monitor entry events
-    OffChain->>OffChain: Periodically select winners
-    OffChain->>User: Notify if selected as winner
-    end
+    OffChain ->> OffChain: Monitor entry events
+    OffChain ->> OffChain: Periodically select winners
+    OffChain ->> User: Notify if selected as winner
 ```
 
 ## Key Features
 
 The OmniDragon swap-based trigger system provides several unique features:
 
-1. **Market-Aware Probabilities**: Uses oracle price data to ensure fair calculations
-2. **Proportional Rewards**: Larger swaps have higher (but not disproportionate) win chances
-3. **Multi-Oracle Support**: Aggregates data from multiple oracles for reliability
-4. **Anti-Abuse Protections**: User cooldowns and minimum swap requirements
-5. **Configurable Parameters**: Allows fine-tuning of the system as needed
-6. **Emitted Events**: Enables off-chain systems to track entries and manage winner selection
+1.**Market-Aware Probabilities**: Uses oracle price data to ensure fair calculations
+2.**Proportional Rewards**: Larger swaps have higher (but not disproportionate) win chances
+3.**Multi-Oracle Support**: Aggregates data from multiple oracles for reliability
+4.**Anti-Abuse Protections**: User cooldowns and minimum swap requirements
+5.**Configurable Parameters**: Allows fine-tuning of the system as needed
+6.**Emitted Events**: Enables off-chain systems to track entries and manage winner selection
 
 ## Integration Example
 
@@ -371,7 +349,7 @@ contract OmniDragonToken {
         
         // If this is a swap with a DEX or specific contract
         if (isSwapTransaction(from, to)) {
-            // Trigger lottery entry
+            // Trigger jackpot entry
             swapTriggerOracle.onSwap(from, amount);
         }
     }

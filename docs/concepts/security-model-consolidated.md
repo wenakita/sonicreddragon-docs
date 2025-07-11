@@ -1,0 +1,758 @@
+---
+sidebar_position: 7
+title: Security Model
+description: Comprehensive explanation of OmniDragon's security architecture and measures
+---
+
+# Security Model
+
+The OmniDragon protocol implements a comprehensive security model to protect user funds, ensure system integrity, and maintain operational resilience. This document provides a comprehensive overview of the security architecture.
+
+## Security Architecture
+
+OmniDragon's security is built on a multi-layered approach:
+
+```mermaid
+flowchart TB
+subgraph "Protocol Security Layers"
+    direction TB
+    CRYPTO["Cryptographic Security"]
+    CONTRACT["Smart Contract Security"]
+    ECONOMIC["Economic Security"]
+    GOVERNANCE["Governance Security"]
+    OPERATIONAL["Operational Security"]
+    subgraph "External Security"
+    direction TB
+    AUDIT["External Audits"]
+    BOUNTY["Bug Bounty Program"]
+    MONITORING["24/7 Monitoring"]
+    subgraph "User Security"
+    direction TB
+    INTERFACE["Interface Security"]
+    EDUCATION["User Education"]
+    TRANSPARENCY["Transparency"]
+    CRYPTO -->|> CONTRACT
+    CONTRACT| ECONOMIC
+    ECONOMIC -->|> GOVERNANCE
+    GOVERNANCE| OPERATIONAL
+    AUDIT -->|> CONTRACT
+    BOUNTY| CONTRACT
+    MONITORING -->|>|> OPERATIONAL
+    INTERFACE| EDUCATION
+    EDUCATION| TRANSPARENCY
+    classDef protocol fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef external fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef user fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class CRYPTO protocol
+    class CONTRACTECONOMI protocol
+    class C protocol
+    class GOVERNANCE protocol
+    class OPERATIONAL protocol
+    class AUDIT external
+    class BOUNTYMONITORING external
+    class INTERFACE user
+    class EDUCATIONTRANSPARENCY user
+endend
+endend
+end
+```
+
+## Core Security Principles
+
+### 1. Defense in Depth
+
+OmniDragon implements multiple layers of security controls:
+
+-**Cryptographic Verification**: All critical operations require cryptographic verification
+-**Access Control**: Granular permission system for contract functions
+-**Circuit Breakers**: Emergency pause functionality for critical components
+-**Rate Limiting**: Protection against spam and abuse
+-**Formal Verification**: Mathematical proofs of contract correctness
+
+### 2. Least Privilege
+
+The system follows the principle of least privilege:
+
+-**Role-Based Access**: Each component has only the permissions it needs
+-**Function-Level Permissions**: Granular control over who can call specific functions
+-**Time-Locked Operations**: Sensitive operations require time delays
+-**Multi-Signature Requirements**: Critical functions require multiple approvals
+
+### 3. Secure by Default
+
+The protocol is designed to be secure by default:
+
+-**Safe Math**: Protection against integer overflow/underflow
+-**Reentrancy Guards**: Protection against reentrancy attacks
+-**Input Validation**: Strict validation of all inputs
+-**Secure Randomness**: Verifiable randomness from multiple sources
+-**Fail-Safe Defaults**: Conservative default settings
+
+## Smart Contract Security
+
+### Access Control
+
+The protocol implements a robust access control system:
+
+```solidity
+// Role-based access control
+bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
+bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+
+// Function-level access control
+modifier onlyRole(bytes32 role) {
+    require(hasRole(role, msg.sender), "Caller does not have required role");
+    _;
+}
+
+// Time-locked operations
+mapping(bytes32 => uint256) public operationTimestamps;
+uint256 public constant TIMELOCK_DELAY = 2 days;
+
+function scheduleOperation(bytes32 operationId) external onlyRole(ADMIN_ROLE) {
+    operationTimestamps[operationId] = block.timestamp + TIMELOCK_DELAY;
+    emit OperationScheduled(operationId, operationTimestamps[operationId]);
+}
+
+function executeOperation(bytes32 operationId) external onlyRole(ADMIN_ROLE) {
+    require(
+        operationTimestamps[operationId] > 0 &&
+        block.timestamp >= operationTimestamps[operationId],
+        "Operation not scheduled or timelock not expired"
+    );
+    
+    // Execute operation
+    // ...
+    
+    delete operationTimestamps[operationId];
+    emit OperationExecuted(operationId);
+}
+```
+
+### Circuit Breakers
+
+The protocol includes emergency pause functionality:
+
+```solidity
+// Pausable functionality
+bool public paused;
+
+modifier whenNotPaused() {
+    require(!paused, "Contract is paused");
+    _;
+}
+
+function pause() external onlyRole(PAUSER_ROLE) {
+    paused = true;
+    emit Paused(msg.sender);
+}
+
+function unpause() external onlyRole(ADMIN_ROLE) {
+    paused = false;
+    emit Unpaused(msg.sender);
+}
+```
+
+### Reentrancy Protection
+
+All functions that interact with external contracts include reentrancy guards:
+
+```solidity
+// Reentrancy guard
+bool private _locked;
+
+modifier nonReentrant() {
+    require(!_locked, "Reentrant call");
+    _locked = true;
+    _;
+    _locked = false;
+}
+
+function externalInteraction() external nonReentrant {
+    // Safe to interact with external contracts
+    externalContract.call{value: amount}("");
+}
+```
+
+### Secure Randomness
+
+The protocol uses multiple independent sources of randomness:
+
+```solidity
+function getSecureRandomness() internal returns (uint256) {
+    // Get randomness from Drand
+    (uint256 drandRound, bytes memory drandSignature) = drandBeacon.fetchLatestBeacon();
+    uint256 drandRandomness = uint256(keccak256(abi.encodePacked(drandRound, drandSignature)));
+    
+    // Get randomness from Chainlink
+    uint256 chainlinkRandomness = chainlinkConsumer.getLatestRandomness();
+    
+    // Combine randomness from all sources
+    return uint256(
+        keccak256(
+            abi.encodePacked(
+                drandRandomness,
+                chainlinkRandomness,
+                block.timestamp
+            )
+        )
+    );
+}
+```
+
+## Cross-Chain Security
+
+The cross-chain infrastructure includes additional security measures:
+```
+
+```mermaidsequenceDiagram
+participant User
+participant SourceChain
+participant LayerZero
+participant DVN as Data Verification Network
+participant DestChain
+    User ->> SourceChain: initiateCrossChainAction()
+    SourceChain ->> LayerZero: sendMessage()
+    LayerZero ->> DVN: verifyMessage()
+    DVN -->> LayerZero: verificationResult
+    LayerZero ->> DestChain: deliverMessage()
+    DestChain ->> DestChain: validateMessage()
+    DestChain ->> DestChain: executeAction()
+    DestChain -->> User: actionCompleted()
+```
+
+### Message Verification
+
+All cross-chain messages are cryptographically verified:
+
+```solidity
+function lzReceive(
+    uint16 _srcChainId,
+    bytes memory _srcAddress,
+    uint64 _nonce,
+    bytes memory _payload
+) external override {
+    // Verify sender
+    require(msg.sender == lzEndpoint, "Invalid endpoint");
+    
+    // Verify source address
+    require(
+        _srcAddress.length == trustedRemoteLookup[_srcChainId].length &&
+        keccak256(_srcAddress) == keccak256(trustedRemoteLookup[_srcChainId]),
+        "Invalid source address"
+    );
+    
+    // Process message
+    _processMessage(_srcChainId, _srcAddress, _nonce, _payload);
+}
+```
+
+### Trusted Remote Configuration
+
+The protocol maintains a list of trusted remote addresses:
+
+```solidity
+function setTrustedRemote(
+    uint16 _remoteChainId,
+    bytes calldata _remoteAddress
+) external onlyRole(ADMIN_ROLE) {
+    trustedRemoteLookup[_remoteChainId] = _remoteAddress;
+    emit TrustedRemoteSet(_remoteChainId, _remoteAddress);
+}
+```
+
+### Cross-Chain Rate Limiting
+
+The protocol implements rate limiting for cross-chain operations:
+
+```solidity
+// Rate limiting for cross-chain operations
+mapping(uint16 => uint256) public lastOperationTimestamp;
+mapping(uint16 => uint256) public operationCount;
+uint256 public constant RATE_LIMIT_PERIOD = 1 hours;
+uint256 public constant MAX_OPERATIONS_PER_PERIOD = 100;
+
+function enforceRateLimit(uint16 chainId) internal {
+    // Reset counter if period has passed
+    if (block.timestamp > lastOperationTimestamp[chainId] + RATE_LIMIT_PERIOD) {
+        operationCount[chainId] = 0;
+        lastOperationTimestamp[chainId] = block.timestamp;
+    }
+    
+    // Enforce rate limit
+    require(
+        operationCount[chainId] < MAX_OPERATIONS_PER_PERIOD,
+        "Rate limit exceeded"
+    );
+    
+    // Increment counter
+    operationCount[chainId]++;
+}
+```
+
+## Economic Security
+
+The protocol's economic security is based on several mechanisms:
+
+### Fee Distribution
+
+The fee system creates economic incentives for security:
+
+```mermaidflowchart TB
+A[Transaction Fees] -->|> B[Fee Distribution]
+    B| C[Jackpot System]
+    B -->|> D[Governance Rewards]
+    B| E[Token Burning]
+    C -->|> F[User Engagement]
+    D| G[Governance Participation]
+    E -->|> H[Supply Reduction]
+    F| I[Protocol Growth]
+    G -->|> J[Security Oversight]
+    H| K[Value Accrual]
+    I -->|>|> L[Economic Security]
+    J| L
+    K| L
+    classDef default fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+```
+
+### Value Capture
+
+The token's value capture mechanisms enhance security:
+
+-**Fee Collection**: 10% fee on all swaps creates sustainable revenue
+-**Deflationary Pressure**: 0.69% of all fees are burned, reducing supply
+-**Governance Rewards**: 2.41% of fees incentivize governance participation
+-**Jackpot System**: 6.9% of fees fund the jackpot, increasing engagement
+
+### Economic Attack Resistance
+
+The protocol is designed to resist economic attacks:
+
+-**Minimum Liquidity**: A portion of liquidity is permanently locked
+-**Anti-Whale Measures**: Maximum transaction and wallet size limits
+-**Slippage Protection**: Built-in slippage tolerance for swaps
+-**Flash Loan Attack Prevention**: Time-weighted price oracles
+
+## Governance Security
+
+The governance system includes security measures:
+```
+
+```mermaidflowchart TB
+A[Governance Proposal] -->|>|> B[Review Period]
+    B| C[Voting Period]
+    C| D{Threshold Met?}
+    D -->|Yes| E[Timelock]
+    D -->|>|No| F[Rejected]
+    E| G[Execution]
+    classDef process fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef decision fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef endpoint fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class A process
+    class B process
+    class C process
+    class E process
+    class G process
+    class D decision
+    class F endpoint
+```
+
+### Multi-Signature Governance
+
+Critical operations require multiple signatures:
+
+```solidity
+// Multi-signature functionality
+mapping(bytes32 => mapping(address => bool)) public confirmations;
+mapping(bytes32 => bool) public executed;
+uint256 public required;
+address[] public owners;
+
+function submitTransaction(
+    address destination,
+    uint256 value,
+    bytes memory data
+) external returns (bytes32 transactionId) {
+    transactionId = keccak256(abi.encodePacked(destination, value, data, block.timestamp));
+    confirmTransaction(transactionId);
+}
+
+function confirmTransaction(bytes32 transactionId) public {
+    require(isOwner[msg.sender], "Not an owner");
+    require(!confirmations[transactionId][msg.sender], "Already confirmed");
+    
+    confirmations[transactionId][msg.sender] = true;
+    emit Confirmation(msg.sender, transactionId);
+    
+    executeTransaction(transactionId);
+}
+
+function executeTransaction(bytes32 transactionId) public {
+    require(!executed[transactionId], "Already executed");
+    
+    uint256 confirmationCount = 0;
+    for (uint256 i = 0; i < owners.length; i++) {
+        if (confirmations[transactionId][owners[i]]) {
+            confirmationCount++;
+        }
+    }
+    
+    require(confirmationCount >= required, "Not enough confirmations");
+    
+    executed[transactionId] = true;
+    
+    // Execute transaction
+    // ...
+    
+    emit Execution(transactionId);
+}
+```
+
+### Time-Locked Upgrades
+
+All protocol upgrades are subject to a time delay:
+
+```solidity
+// Upgrade timelock
+mapping(address => uint256) public upgradeTimestamps;
+uint256 public constant UPGRADE_DELAY = 7 days;
+
+function scheduleUpgrade(address newImplementation) external onlyRole(ADMIN_ROLE) {
+    upgradeTimestamps[newImplementation] = block.timestamp + UPGRADE_DELAY;
+    emit UpgradeScheduled(newImplementation, upgradeTimestamps[newImplementation]);
+}
+
+function executeUpgrade(address newImplementation) external onlyRole(ADMIN_ROLE) {
+    require(
+        upgradeTimestamps[newImplementation] > 0 &&
+        block.timestamp >= upgradeTimestamps[newImplementation],
+        "Upgrade not scheduled or timelock not expired"
+    );
+    
+    // Perform upgrade
+    _upgradeTo(newImplementation);
+    
+    delete upgradeTimestamps[newImplementation];
+    emit UpgradeExecuted(newImplementation);
+}
+```
+
+### Governance Participation
+
+The ve69LP governance system incentivizes security-focused participation:
+
+-**Vote-Escrowed Tokens**: Longer lock periods grant higher voting power
+-**Fee Distribution**: Governance participants earn a share of protocol fees
+-**Proposal Thresholds**: Minimum token requirements to submit proposals
+-**Delegation**: Vote delegation for specialized governance participants
+
+## Operational Security
+
+The protocol's operational security includes:
+
+### Monitoring and Alerting
+
+```mermaid
+flowchart TB
+A[Protocol Events] -->|> B[Monitoring System]
+    B| C{Anomaly Detected?}
+    C -->|Yes| D[Alert Triggered]
+    C -->|>|No| E[Normal Operation]
+    D| F[Response Team]
+    F -->|> G[Investigation]
+    G| H{Critical Issue?}
+    H -->|Yes| I[Emergency Response]
+    H -->|>|>|No| J[Standard Response]
+    I| K[Circuit Breaker]
+    J| L[Scheduled Fix]
+    classDef process fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef decision fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef alert fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class A process
+    class BE process
+    class F process
+    class G process
+    class K process
+    class L process
+    class C decision
+    class H decision
+    class D alert
+    class IJ alert
+```
+
+### Incident Response
+
+The protocol has a defined incident response process:
+
+1.**Detection**: Automated monitoring detects anomalies
+2.**Triage**: Security team assesses severity and impact
+3.**Containment**: Circuit breakers activated if necessary
+4.**Remediation**: Issue fixed and tested
+5.**Recovery**: Systems restored to normal operation
+6.**Post-Mortem**: Incident analyzed and improvements implemented
+
+### Continuous Security Testing
+
+The protocol undergoes continuous security testing:
+
+-**Automated Testing**: Comprehensive test suite for all functionality
+-**Fuzzing**: Automated fuzzing to find edge cases
+-**Penetration Testing**: Regular penetration testing by security experts
+-**Formal Verification**: Mathematical verification of critical components
+
+## External Security Measures
+
+### Security Audits
+
+The protocol undergoes regular security audits:
+
+-**Smart Contract Audits**: Comprehensive review of all contract code
+-**Economic Audit**: Analysis of economic incentives and attack vectors
+-**Cross-Chain Security Audit**: Specialized review of cross-chain functionality
+-**Governance Audit**: Review of governance mechanisms and security
+
+### Bug Bounty Program
+
+The protocol maintains a bug bounty program:
+
+| Severity | Description | Reward |
+|----------|-------------|--------|
+| Critical | Issues that can lead to direct loss of funds | $50,000 - $250,000 |
+| High | Significant vulnerabilities with indirect impact | $10,000 - $50,000 |
+| Medium | Issues that could potentially be exploited | $5,000 - $10,000 |
+| Low | Minor issues with limited impact | $1,000 - $5,000 |
+
+### Security Partnerships
+
+The protocol partners with leading security firms:
+
+-**24/7 Monitoring**: Continuous monitoring of protocol activity
+-**Threat Intelligence**: Access to latest security threats and vulnerabilities
+-**Emergency Response**: Dedicated security team for incident response
+-**Security Research**: Ongoing research into blockchain security
+
+## User Security
+
+### Interface Security
+
+The user interface includes security features:
+
+-**Transaction Confirmation**: Clear confirmation of all transactions
+-**Slippage Protection**: Configurable slippage tolerance
+-**Gas Estimation**: Accurate gas estimates for all transactions
+-**Security Warnings**: Warnings for potentially risky actions
+
+### User Education
+
+The protocol provides comprehensive security education:
+
+-**Security Guide**: Detailed guide to secure protocol usage
+-**Risk Disclosure**: Clear disclosure of all protocol risks
+-**Best Practices**: Recommendations for secure wallet management
+-**Scam Prevention**: Information on common scams and how to avoid them
+
+### Transparency
+
+The protocol maintains high transparency:
+
+-**Open Source Code**: All contract code is open source and verified
+-**Security Documentation**: Comprehensive security documentation
+-**Audit Reports**: Public disclosure of all audit reports
+-**Incident Disclosure**: Transparent disclosure of security incidents
+
+## Common Attack Vectors and Mitigations
+
+### 1. Reentrancy Attacks**Attack Vector**: An attacker calls a contract function that makes an external call, which then calls back into the original contract before the first invocation is complete.**Mitigation**:
+```solidity
+// Reentrancy guard
+bool private _locked;
+
+modifier nonReentrant() {
+    require(!_locked, "Reentrant call");
+    _locked = true;
+    _;
+    _locked = false;
+}
+
+function withdraw(uint256 amount) external nonReentrant {
+    require(balances[msg.sender] >= amount, "Insufficient balance");
+    
+    balances[msg.sender] -= amount;
+    
+    // External call
+    (bool success, ) = msg.sender.call{value: amount}("");
+    require(success, "Transfer failed");
+}
+```
+
+### 2. Front-Running Attacks**Attack Vector**: An attacker observes a pending transaction and submits their own transaction with a higher gas price to be executed first.**Mitigation**:
+```solidity
+// Commit-reveal scheme
+mapping(bytes32 => bool) public commits;
+mapping(bytes32 => uint256) public commitTimestamps;
+uint256 public constant REVEAL_DELAY = 5 minutes;
+
+function commit(bytes32 commitHash) external {
+    commits[commitHash] = true;
+    commitTimestamps[commitHash] = block.timestamp;
+    
+    emit Committed(msg.sender, commitHash);
+}
+
+function reveal(bytes32 secret, uint256 action) external {
+    bytes32 commitHash = keccak256(abi.encodePacked(msg.sender, secret, action));
+    
+    require(commits[commitHash], "Invalid commit");
+    require(
+        block.timestamp >= commitTimestamps[commitHash] + REVEAL_DELAY,
+        "Reveal delay not expired"
+    );
+    
+    // Execute action
+    // ...
+    
+    // Clean up
+    delete commits[commitHash];
+    delete commitTimestamps[commitHash];
+    
+    emit Revealed(msg.sender, action);
+}
+```
+
+### 3. Flash Loan Attacks**Attack Vector**: An attacker takes out a flash loan to manipulate market prices or governance votes.**Mitigation**:
+```solidity
+// Time-weighted average price
+struct PriceObservation {
+    uint256 timestamp;
+    uint256 price;
+}
+
+PriceObservation[] public priceHistory;
+uint256 public constant PRICE_WINDOW = 1 hours;
+
+function addPriceObservation(uint256 price) external {
+    priceHistory.push(PriceObservation({
+        timestamp: block.timestamp,
+        price: price
+    }));
+}
+
+function getTimeWeightedAveragePrice() public view returns (uint256) {
+    uint256 cutoffTimestamp = block.timestamp - PRICE_WINDOW;
+    uint256 totalWeight = 0;
+    uint256 weightedSum = 0;
+    
+    for (uint256 i = priceHistory.length; i > 0; i--) {
+        PriceObservation memory observation = priceHistory[i - 1];
+        
+        if (observation.timestamp < cutoffTimestamp) {
+            break;
+        }
+        
+        uint256 weight = i;
+        totalWeight += weight;
+        weightedSum += observation.price * weight;
+    }
+    
+    return weightedSum / totalWeight;
+}
+```
+
+### 4. Oracle Manipulation**Attack Vector**: An attacker manipulates price oracle data to exploit price-dependent functions.**Mitigation**:
+```solidity
+// Multiple oracle sources
+function getPrice() public view returns (uint256) {
+    uint256 price1 = oracle1.getPrice();
+    uint256 price2 = oracle2.getPrice();
+    uint256 price3 = oracle3.getPrice();
+    
+    // Sort prices
+    if (price1 > price2) {
+        (price1, price2) = (price2, price1);
+    }
+    if (price2 > price3) {
+        (price2, price3) = (price3, price2);
+    }
+    if (price1 > price2) {
+        (price1, price2) = (price2, price1);
+    }
+    
+    // Return median price
+    return price2;
+}
+```
+
+### 5. Access Control Vulnerabilities**Attack Vector**: Unauthorized access to privileged functions due to improper access control.**Mitigation**:
+```solidity
+// Role-based access control
+bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
+
+mapping(bytes32 => mapping(address => bool)) public roles;
+mapping(bytes32 => mapping(bytes32 => bool)) public roleHierarchy;
+
+modifier onlyRole(bytes32 role) {
+    require(
+        roles[role][msg.sender] || checkRoleHierarchy(role, msg.sender),
+        "Access denied"
+    );
+    _;
+}
+
+function checkRoleHierarchy(bytes32 role, address account) internal view returns (bool) {
+    for (bytes32 i = 0; i < 32; i++) {
+        bytes32 parentRole = bytes32(uint256(i));
+        if (roleHierarchy[parentRole][role] && roles[parentRole][account]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function grantRole(bytes32 role, address account) external onlyRole(ADMIN_ROLE) {
+    roles[role][account] = true;
+    emit RoleGranted(role, account, msg.sender);
+}
+
+function revokeRole(bytes32 role, address account) external onlyRole(ADMIN_ROLE) {
+    roles[role][account] = false;
+    emit RoleRevoked(role, account, msg.sender);
+}
+```
+
+## Security Roadmap
+
+The protocol's security roadmap includes:
+
+### Short-term Initiatives
+
+-**Additional Audits**: Engage additional audit firms for comprehensive review
+-**Formal Verification**: Formal verification of critical components
+-**Bug Bounty Expansion**: Increase scope and rewards for bug bounty program
+-**Security Dashboard**: Public dashboard of security metrics
+
+### Medium-term Goals
+
+-**Security Council**: Establish dedicated security governance council
+-**Automated Monitoring**: Enhance automated monitoring and alerting
+-**Cross-Chain Security Standards**: Develop and implement cross-chain security standards
+-**Security Certifications**: Obtain industry security certifications
+
+### Long-term Vision
+
+-**Zero-Knowledge Security**: Implement zero-knowledge proofs for enhanced privacy
+-**Quantum-Resistant Cryptography**: Prepare for post-quantum cryptographic threats
+-**Decentralized Security DAO**: Fully decentralized security governance
+-**Security Research Lab**: Establish dedicated blockchain security research lab
+
+## Conclusion
+
+The OmniDragon security model provides a comprehensive approach to protecting the protocol and its users. By implementing multiple layers of security controls, economic incentives, and governance mechanisms, the protocol ensures the highest level of security while maintaining usability and performance.
+
+## Further Reading
+
+- [Token System](/concepts/fee-system-consolidated.md): Detailed information about the token mechanics
+- [Jackpot System](/concepts/jackpot-system-consolidated.md): Comprehensive documentation of the jackpot system
+- [Cross-Chain Architecture](/concepts/cross-chain-consolidated.md): Detailed explanation of cross-chain functionality
+- [Randomness System](/concepts/randomness-consolidated.md): In-depth documentation of the randomness infrastructure

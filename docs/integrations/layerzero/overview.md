@@ -1,42 +1,40 @@
 ---
 sidebar_position: 1
 title: LayerZero Integration
+description: Detailed explanation of this concept
 ---
 
 # LayerZero Integration
 
-OmniDragon leverages [LayerZero](https://layerzero.network/) as its primary cross-chain messaging protocol. This integration enables OmniDragon tokens to seamlessly move across multiple blockchains while maintaining a unified token economy and jackpot system.
+OmniDragon leverages [LayerZero](https://LayerZero.network/) as its primary cross-chain messaging protocol. This integration enables OmniDragon tokens to seamlessly move across multiple blockchains while maintaining a unified token economy and jackpot system.
 
 ## What is LayerZero?
 
 LayerZero is a powerful omnichain interoperability protocol designed for lightweight cross-chain messaging. It provides:
 
-- **Security**: Uses a dual-node validation system with Oracle and Relayer
-- **Efficiency**: Optimized for low gas costs and high throughput
-- **Flexibility**: Supports various message types and complex cross-chain applications
-- **Unified UX**: Enables seamless user experiences across multiple chains
+-**Security**: Uses a dual-node validation system with Oracle and Relayer
+-**Efficiency**: Optimized for low gas costs and high throughput
+-**Flexibility**: Supports various message types and complex cross-chain applications
+-**Unified UX**: Enables seamless user experiences across multiple chains
 
 ## OmniDragon's LayerZero Implementation
 
 ```mermaid
 sequenceDiagram
-    participant User
-    participant Source as OmniDragon (Source Chain)
-    participant LZ as LayerZero Protocol
-    participant Dest as OmniDragon (Destination Chain)
-    
-    User->>Source: sendToChain(destChainId, recipient, amount)
-    Source->>Source: Check if destination chain is supported
-    Source->>Source: Validate parameters
-    Source->>Source: Burn tokens on source chain
-    Source->>LZ: Send cross-chain message(payload)
-    
-    LZ->>LZ: Process message through Oracle & Relayer
-    
-    LZ->>Dest: Deliver message
-    Dest->>Dest: Verify message source
-    Dest->>Dest: Decode payload
-    Dest->>Dest: Mint tokens to recipient
+participant User
+participant Source as OmniDragon (Source Chain)
+participant LZ as LayerZero Protocol
+participant Dest as OmniDragon (Destination Chain)
+    User ->> Source: sendToChain(destChainId, recipient, amount)
+    Source ->> Source: Check if destination chain is supported
+    Source ->> Source: Validate parameters
+    Source ->> Source: Burn tokens on source chain
+    Source ->> LZ: Send cross-chain message(payload)
+    LZ ->> LZ: Process message through Oracle & Relayer
+    LZ ->> Dest: Deliver message
+    Dest ->> Dest: Verify message source
+    Dest ->> Dest: Decode payload
+    Dest ->> Dest: Mint tokens to recipient
     Note over Dest: Tokens received on destination chain
 ```
 
@@ -140,9 +138,9 @@ contract OmniDragon is ERC20, ILayerZeroReceiver {
 
 Cross-chain transfers incur several types of fees:
 
-1. **LayerZero Protocol Fees**: Paid to the LayerZero protocol for message delivery
-2. **Gas Fees**: Covers gas costs on the destination chain
-3. **Cross-Chain Bridge Fees**: Optional fees for using OmniDragon's bridge services
+1.**LayerZero Protocol Fees**: Paid to the LayerZero protocol for message delivery
+2.**Gas Fees**: Covers gas costs on the destination chain
+3.**Cross-Chain Bridge Fees**: Optional fees for using OmniDragon's bridge services
 
 ## Supported Chains
 
@@ -190,13 +188,13 @@ OmniDragon has implemented LayerZero V2 compatibility with the `setPeer` functio
 
 When using OmniDragon's LayerZero integration:
 
-1. **Message Verification**: Always verify that messages come from trusted sources
-2. **Gas Limits**: Set appropriate gas limits for cross-chain operations
-3. **Peer Addresses**: Ensure peer addresses are correctly configured
-4. **Timeout Handling**: Implement proper handling for message delivery timeouts
+1.**Message Verification**: Always verify that messages come from trusted sources
+2.**Gas Limits**: Set appropriate gas limits for cross-chain operations
+3.**Peer Addresses**: Ensure peer addresses are correctly configured
+4.**Timeout Handling**: Implement proper handling for message delivery timeouts
 
 ## Additional Resources
 
-- [LayerZero Documentation](https://docs.layerzero.network/)
+- [LayerZero Documentation](https://docs.LayerZero.network/)
 - [LayerZero GitHub](https://github.com/LayerZero-Labs)
-- [OmniDragon Setup Guide](/integrations/layerzero/setup)
+- [OmniDragon Setup Guide](/partner/integrations/layerzero/setup)

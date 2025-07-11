@@ -1,10 +1,12 @@
 ---
 sidebar_position: 1
+title: Drand Network
+description: Detailed explanation of this concept
 ---
 
 # dRAND Network Integration
 
-OmniDragon integrates with the dRAND network to provide verifiable randomness for various operations. This integration ensures fair and transparent random number generation across all supported chains.
+OmniDragon integrates with the dRAND network to provide verifiable randomness for various operations. This integration ensures fair and transparent randomness generation across all supported chains.
 
 ## What is dRAND?
 
@@ -19,23 +21,22 @@ dRAND (Distributed Random Beacon) is a public randomness service that provides c
 
 Our integration with dRAND serves several purposes:
 
-1. **Fair Distribution**: Ensuring fair token distribution and airdrops
-2. **Game Mechanics**: Powering random events in games and applications
-3. **Security**: Adding entropy to security-critical operations
-4. **Cross-Chain Operations**: Providing consistent randomness across chains
+1.**Fair Distribution**: Ensuring fair token distribution and airdrops
+2.**Game Mechanics**: Powering random events in games and applications
+3.**Security**: Adding entropy to security-critical operations
+4.**Cross-Chain Operations**: Providing consistent randomness across chains
 
 ## Technical Implementation
 
 OmniDragon implements multiple layers of randomness integration through a set of specialized contracts:
 
-1. **DragonVRFIntegrator**: Direct interface to the dRAND network
-2. **DragonVRFConsumer**: Base contract for consuming randomness
-3. **OmniDragonVRFConsumer**: Advanced consumer with multi-source aggregation
+1.**DragonVRFIntegrator**: Direct interface to the dRAND network
+2.**DragonVRFConsumer**: Base contract for consuming randomness
+3.**OmniDragonVRFConsumer**: Advanced consumer with multi-source aggregation
 
 ### Randomness Request Flow
 
-1. **Request Initiation**
-   ```solidity
+1.**Request Initiation**```solidity
    function requestRandomness() external returns (uint256 requestId) {
        requestIdCounter++;
        uint256 requestId = requestIdCounter;
@@ -51,8 +52,7 @@ OmniDragon implements multiple layers of randomness integration through a set of
    }
    ```
 
-2. **Callback Processing**
-   ```solidity
+2.**Callback Processing**```solidity
    function fulfillRandomness(
        uint256 _requestId, 
        uint256 _randomness,
@@ -134,10 +134,10 @@ function aggregateRandomness() public {
 
 ### Integration Points
 
-- **Token Distribution**: Random selection for airdrops and rewards
-- **Bridge Security**: Random challenges for cross-chain operations
-- **Game Mechanics**: Fair random number generation for games
-- **Security Features**: Additional entropy for security measures
+-**Token Distribution**: Random selection for airdrops and rewards
+-**Bridge Security**: Random challenges for cross-chain operations
+-**Game Mechanics**: Fair randomness generation for games
+-**Security Features**: Additional entropy for security measures
 
 ## Security Considerations
 
@@ -162,7 +162,7 @@ uint256 requestId = consumer.requestRandomness();
 function _fulfillRandomness(uint256 _requestId, uint256 _randomness) internal override {
     // Use the randomness value
     uint256 randomNumber = _randomness % maxValue;
-    // Process the random number
+    // Process the randomness
 }
 ```
 

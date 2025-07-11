@@ -1,0 +1,227 @@
+/**
+ * Mermaid Enhanced CSS
+ *
+ * This CSS provides comprehensive styling for Mermaid diagrams.
+ */
+
+/* Base styles for Mermaid diagrams */
+.mermaid {
+  display: block !important;
+  visibility: visible !important;
+  background-color: #1e1e1e;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  overflow: auto;
+  min-height: 100px;
+}
+
+/* Ensure SVG is visible */
+.mermaid svg {
+  display: block !important;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto !important;
+  min-height: 50px;
+}
+
+/* Loading indicator for diagrams that are not yet processed */
+.mermaid:not([data-processed="true"])::before {
+  content: "Loading diagram...";
+  display: block;
+  text-align: center;
+  padding: 1rem;
+  color: #e0e0e0;
+  background-color: #1e1e1e;
+  border-radius: 0.5rem;
+  visibility: visible;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Ensure text in diagrams is visible */
+.mermaid .label {
+  color: #e0e0e0 !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+/* Fix for Mermaid nodes */
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon,
+.mermaid .node path {
+  fill: #2a2a2a !important;
+  stroke: #3b82f6 !important;
+}
+
+/* Fix for Mermaid clusters */
+.mermaid .cluster rect,
+.mermaid .cluster polygon {
+  fill: rgba(59, 130, 246, 0.1) !important;
+  stroke: #3b82f6 !important;
+}
+
+/* Fix for Mermaid edges */
+.mermaid .edgePath .path {
+  stroke: #3b82f6 !important;
+  stroke-width: 2px !important;
+}
+
+/* Fix for Mermaid arrowheads */
+.mermaid .arrowheadPath {
+  fill: #3b82f6 !important;
+  stroke: none !important;
+}
+
+/* Fix for Mermaid markers */
+.mermaid marker {
+  fill: #3b82f6 !important;
+}
+
+/* Fix for Mermaid flowchart labels */
+.mermaid .edgeLabel {
+  background-color: #1e1e1e !important;
+  color: #e0e0e0 !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+/* Fix for Mermaid sequence diagram actors */
+.mermaid .actor {
+  fill: #2a2a2a !important;
+  stroke: #3b82f6 !important;
+}
+
+/* Fix for Mermaid sequence diagram notes */
+.mermaid .note {
+  fill: rgba(59, 130, 246, 0.1) !important;
+  stroke: #3b82f6 !important;
+}
+
+/* Fix for Mermaid sequence diagram text */
+.mermaid text.actor {
+  fill: #e0e0e0 !important;
+}
+
+/* Fix for Mermaid class diagram */
+.mermaid .classGroup rect {
+  fill: #2a2a2a !important;
+  stroke: #3b82f6 !important;
+}
+
+.mermaid .classGroup text {
+  fill: #e0e0e0 !important;
+}
+
+/* Fix for Mermaid state diagram */
+.mermaid .stateGroup rect {
+  fill: #2a2a2a !important;
+  stroke: #3b82f6 !important;
+}
+
+.mermaid .stateGroup text {
+  fill: #e0e0e0 !important;
+}
+
+/* Fix for Mermaid gantt chart */
+.mermaid .taskText {
+  fill: #e0e0e0 !important;
+}
+
+.mermaid .taskTextOutsideRight {
+  fill: #e0e0e0 !important;
+}
+
+.mermaid .taskTextOutsideLeft {
+  fill: #e0e0e0 !important;
+}
+
+/* Fix for Mermaid pie chart */
+.mermaid .pieTitleText {
+  fill: #e0e0e0 !important;
+}
+
+.mermaid .pieSectionText {
+  fill: #e0e0e0 !important;
+}
+
+/* Fix for Mermaid ER diagram */
+.mermaid .entityBox {
+  fill: #2a2a2a !important;
+  stroke: #3b82f6 !important;
+}
+
+.mermaid .entityLabel {
+  fill: #e0e0e0 !important;
+}
+
+/* Ensure Mermaid initialization works properly */
+.mermaid:not([data-processed="true"]) {
+  position: relative;
+}
+
+.mermaid[data-processed="true"],
+.mermaid-visible {
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Fix for Docusaurus Mermaid container */
+.docusaurus-mermaid-container {
+  background-color: #1e1e1e !important;
+  padding: 1rem !important;
+  border-radius: 0.5rem !important;
+  margin: 1.5rem 0 !important;
+  overflow: auto !important;
+}
+
+/* Fix for Unified Mermaid component */
+.unified-mermaid-wrapper {
+  margin: 2rem 0 !important;
+}
+
+/* Fix for Mermaid diagrams in MDX */
+.mdx-page .mermaid {
+  background-color: #1e1e1e !important;
+  padding: 1rem !important;
+  border-radius: 0.5rem !important;
+  margin: 1.5rem 0 !important;
+}
+
+/* Fix for Mermaid diagrams in dark mode */
+[data-theme='dark'] .mermaid {
+  background-color: #1e1e1e !important;
+}
+
+[data-theme='dark'] .mermaid .label {
+  color: #e0e0e0 !important;
+}
+
+[data-theme='dark'] .mermaid .node rect,
+[data-theme='dark'] .mermaid .node circle,
+[data-theme='dark'] .mermaid .node ellipse,
+[data-theme='dark'] .mermaid .node polygon,
+[data-theme='dark'] .mermaid .node path {
+  fill: #2a2a2a !important;
+  stroke: #3b82f6 !important;
+}
+
+/* Fix for Mermaid diagrams in light mode */
+[data-theme='light'] .mermaid {
+  background-color: #f8fafc !important;
+}
+
+[data-theme='light'] .mermaid .label {
+  color: #1e293b !important;
+}
+
+[data-theme='light'] .mermaid .node rect,
+[data-theme='light'] .mermaid .node circle,
+[data-theme='light'] .mermaid .node ellipse,
+[data-theme='light'] .mermaid .node polygon,
+[data-theme='light'] .mermaid .node path {
+  fill: #e2e8f0 !important;
+  stroke: #2563eb !important;
+}

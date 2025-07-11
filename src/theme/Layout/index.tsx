@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import OriginalLayout from '@theme-original/Layout';
 import { useLocation } from '@docusaurus/router';
-import CustomSidebar from '../../components/CustomSidebar';
-import anime from 'animejs/lib/anime.es.js';
+import { anime, useAnimationPerformance } from '../../utils/animationUtils';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 
 interface Props {
@@ -19,6 +18,45 @@ export default function Layout({ children, wrapperClassName }: Props): React.Rea
   const isDocsPage = location.pathname.startsWith('/') && 
                      !location.pathname.startsWith('/blog') &&
                      location.pathname !== '/';
+                     
+  // Apply consistent background
+  useEffect(() => {
+    if (!isBrowser) return;
+    
+    // Apply background to the root element
+    const docusaurusRoot = document.getElementById('__docusaurus');
+    if (docusaurusRoot) {
+      docusaurusRoot.style.backgroundAttachment = 'fixed';
+      docusaurusRoot.style.backgroundSize = 'cover';
+      docusaurusRoot.style.backgroundRepeat = 'no-repeat';
+      
+      // For dark mode, ensure the gradient is applied
+      const isDarkMode = document.documentElement.dataset.theme === 'dark';
+      if (isDarkMode) {
+        const style = getComputedStyle(document.documentElement);
+        const gradient = style.getPropertyValue('--immersive-bg-gradient');
+        if (gradient) {
+          docusaurusRoot.style.backgroundImage = gradient;
+        }
+      }
+    }
+    
+    // Make sure all content containers are transparent
+    const containers = document.querySelectorAll('.container, .docMainContainer, .docSidebarContainer, .docItemContainer');
+    containers.forEach(container => {
+      if (container instanceof HTMLElement) {
+        container.style.background = 'transparent';
+      }
+    });
+    
+    // Ensure content areas don't break the background
+    const contentAreas = document.querySelectorAll('article, .markdown');
+    contentAreas.forEach(area => {
+      if (area instanceof HTMLElement) {
+        area.style.background = 'transparent';
+      }
+    });
+  }, [isBrowser, location.pathname]);
 
   // Page transition animations
   useEffect(() => {
@@ -115,8 +153,7 @@ export default function Layout({ children, wrapperClassName }: Props): React.Rea
   //         position: 'relative',
   //         overflow: 'hidden'
   //       }}>
-  //         <CustomSidebar />
-  //         <div 
+    //         <div 
   //           ref={contentRef}
   //           style={{
   //             marginLeft: '250px',
@@ -154,4 +191,4 @@ export default function Layout({ children, wrapperClassName }: Props): React.Rea
       </div>
     </OriginalLayout>
   );
-} 
+}

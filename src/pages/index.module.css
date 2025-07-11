@@ -8,6 +8,8 @@
   text-align: center;
   position: relative;
   overflow: hidden;
+  background: var(--omni-gradient-primary);
+  color: var(--omni-text-light);
 }
 
 @media screen and (max-width: 996px) {
@@ -20,4 +22,59 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.buttons .button {
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.75rem 2rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.buttons .button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--omni-shadow-medium);
+}
+
+.buttons .button--secondary {
+  background: var(--omni-text-light);
+  color: var(--omni-cloud-burst);
+  border: 2px solid var(--omni-text-light);
+}
+
+.buttons .button--secondary:hover {
+  background: transparent;
+  color: var(--omni-text-light);
+  border-color: var(--omni-text-light);
+}
+
+.buttons .button--outline {
+  background: transparent;
+  color: var(--omni-text-light);
+  border: 2px solid var(--omni-text-light);
+}
+
+.buttons .button--outline:hover {
+  background: var(--omni-text-light);
+  color: var(--omni-cloud-burst);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .heroBanner {
+    padding: 2rem 0;
+  }
+  
+  .buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .buttons .button {
+    width: 100%;
+    max-width: 300px;
+  }
 }

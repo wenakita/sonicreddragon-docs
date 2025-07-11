@@ -1,17 +1,15 @@
 ---
 sidebar_position: 6
 title: DragonAdaptiveFeeManager
-description: Dynamic fee adjustment system that responds to market conditions and protocol metrics
+description: >-
+  Dynamic fee adjustment system that responds to market conditions and protocol
+  metrics
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# DragonAdaptiveFeeManager
-
-**Dynamic fee adjustment system that responds to market conditions and protocol metrics**
-
-<div className="contract-badges">
+# DragonAdaptiveFeeManager**Dynamic fee adjustment system that responds to market conditions and protocol metrics**<div className="contract-badges">
   <span className="contract-badge fee">Fee Management</span>
   <span className="contract-badge market">Market Responsive</span>
   <span className="contract-badge adaptive">Adaptive System</span>
@@ -23,42 +21,34 @@ The `DragonAdaptiveFeeManager` implements a sophisticated dynamic fee adjustment
 
 ```mermaid
 flowchart TB
-    subgraph "Input Metrics"
-        Volume["Trading Volume"]
-        Volatility["Market Volatility"]
-        Liquidity["Liquidity Depth"]
-        UserActivity["User Activity"]
-    end
-    
+subgraph "Input Metrics"
+    Volume["Trading Volume"]
+    Volatility["Market Volatility"]
+    Liquidity["Liquidity Depth"]
+    UserActivity["User Activity"]
     subgraph "Processing Layer"
-        BaseRate["Base Fee Rate"]
-        Modifiers["Fee Modifiers"]
-        Thresholds["Adaptive Thresholds"]
-        Calculation["Fee Calculation"]
-    end
-    
+    BaseRate["Base Fee Rate"]
+    Modifiers["Fee Modifiers"]
+    Thresholds["Adaptive Thresholds"]
+    Calculation["Fee Calculation"]
     subgraph "Output Controls"
-        SwapFee["Swap Fee"]
-        JackpotRate["Jackpot Allocation"]
-        LPRate["LP Rewards Allocation"]
-        BurnRate["Burn Rate"]
-    end
-    
-    Volume --> Calculation
-    Volatility --> Calculation
-    Liquidity --> Calculation
-    UserActivity --> Calculation
-    
-    BaseRate --> Calculation
-    Modifiers --> Calculation
-    Thresholds --> Calculation
-    
-    Calculation --> SwapFee
-    Calculation --> JackpotRate
-    Calculation --> LPRate
-    Calculation --> BurnRate
-    
-    class Calculation highlight
+    SwapFee["Swap Fee"]
+    JackpotRate["Jackpot Allocation"]
+    LPRate["LP Rewards Allocation"]
+    BurnRate["Burn Rate"]
+    Volume -->|> Calculation
+    Volatility| Calculation
+    Liquidity -->|> Calculation
+    UserActivity| Calculation
+    BaseRate -->|> Calculation
+    Modifiers| Calculation
+    Thresholds -->|> Calculation
+    Calculation| SwapFee
+    Calculation -->|>|> JackpotRate
+    Calculation| LPRate
+    end    Calculation| BurnRate    endclass Calculation primary    end
+endend
+end
 ```
 
 ## Key Functions
@@ -111,21 +101,17 @@ Computes a normalized volatility metric based on recent price movements.
 The adaptive fee system employs several response curves to ensure optimal protocol behavior:
 
 ### Volatility Response
+```
 
-```mermaid
-flowchart LR
+```mermaidflowchart LR
     subgraph "Volatility Impact on Fees"
-        direction TB
-        Inputs["Market Volatility"] --> Curve["Response Curve"]
-        Curve --> Output["Fee Modifier"]
-    end
-    
+    direction TB
+    Inputs["Market Volatility"] -->|> Curve["Response Curve"]
+    Curve| Output["Fee Modifier"]
     Curve --- Low["Low (+0%)"]
     Curve --- Medium["Medium (+0.1%)"]
     Curve --- High["High (+0.25%)"]
-    Curve --- Extreme["Extreme (+0.4%)"]
-    
-    class Curve highlight
+    Curve --- Extreme["Extreme (+0.4%)"]    endclass Curve primary    end
 ```
 
 As market volatility increases, fees are proportionally increased to compensate for increased risk and provide additional jackpot funding.
@@ -135,17 +121,13 @@ As market volatility increases, fees are proportionally increased to compensate 
 ```mermaid
 flowchart LR
     subgraph "Liquidity Impact on Fees"
-        direction TB
-        Inputs["Liquidity Depth"] --> Curve["Response Curve"]
-        Curve --> Output["Fee Discount"]
-    end
-    
+    direction TB
+    Inputs["Liquidity Depth"] -->|> Curve["Response Curve"]
+    Curve| Output["Fee Discount"]
     Curve --- Low["Low (0%)"]
     Curve --- Medium["Medium (-0.05%)"]
     Curve --- High["High (-0.1%)"]
-    Curve --- Deep["Deep (-0.15%)"]
-    
-    class Curve highlight
+    Curve --- Deep["Deep (-0.15%)"]    endclass Curve primary    end
 ```
 
 Deeper liquidity results in fee discounts to incentivize trading in well-capitalized pools.
@@ -231,10 +213,10 @@ contract FeeDistributor {
 
 The adaptive fee system implements dynamic range controls to ensure fees remain within acceptable bounds:
 
-1. **Minimum Fee**: Ensures protocol sustainability by maintaining a floor fee rate
-2. **Maximum Fee**: Prevents user friction by capping maximum fees during extreme conditions
-3. **Response Dampening**: Smooths fee changes to prevent rapid oscillations
-4. **Time-Weighted Adjustments**: Incorporates historical data to avoid reactionary changes
+1.**Minimum Fee**: Ensures protocol sustainability by maintaining a floor fee rate
+2.**Maximum Fee**: Prevents user friction by capping maximum fees during extreme conditions
+3.**Response Dampening**: Smooths fee changes to prevent rapid oscillations
+4.**Time-Weighted Adjustments**: Incorporates historical data to avoid reactionary changes
 
 <div className="security-consideration">
   <h4>Security Considerations</h4>

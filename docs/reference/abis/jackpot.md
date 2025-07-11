@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Jackpot
+description: Technical reference information
 ---
 
 # Jackpot

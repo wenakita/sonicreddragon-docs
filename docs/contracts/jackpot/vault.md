@@ -1,31 +1,29 @@
 ---
 sidebar_position: 1
 title: DragonJackpotVault
-description: The jackpot vault contract that manages and distributes lottery prizes
+description: The jackpot vault contract that manages and distributes jackpot prizes
 ---
 
 # DragonJackpotVault
 
-The `DragonJackpotVault` contract is responsible for securely storing and distributing jackpot funds within the Sonic Red Dragon ecosystem. It serves as the treasury for all jackpot winnings and interfaces with the lottery distribution system.
+The `DragonJackpotVault` contract is responsible for securely storing and distributing jackpot funds within the Sonic Red DRAGON ecosystem. It serves as the treasury for all jackpot winnings and interfaces with the jackpot distribution system.
 
 ## Overview
 
-```mermaid
-flowchart TD
+```mermaidflowchart TD
     OmniDragon["OmniDragon Token"] -->|"Sends 6.9% of fees"| JackpotVault["DragonJackpotVault"]
     Distributor["DragonJackpotDistributor"] -->|"Requests funds"| JackpotVault
     JackpotVault -->|"Transfers prize"| Winner["Lottery Winner"]
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white;
-    class JackpotVault highlight
+    classDef highlight fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class JackpotVault primary
 ```
 
 The vault is a simple yet secure smart contract that:
 
-1. **Accumulates funds** from transaction fees (primarily the 6.9% jackpot portion)
-2. **Tracks balances** for different tokens that might be used for jackpot rewards
-3. **Distributes winnings** to lottery winners when triggered by the distributor
-4. **Maintains records** of jackpot history and win timestamps
+1.**Accumulates funds**from transaction fees (primarily the 6.9% jackpot portion)
+2.**Tracks balances**for different tokens that might be used for jackpot rewards
+3.**Distributes winnings**to jackpot winners when triggered by the distributor
+4.**Maintains records**of jackpot history and win timestamps
 
 ## Contract Implementation
 
@@ -158,18 +156,18 @@ Returns the timestamp of the last jackpot win.
 
 ## Security Considerations
 
-1. **Access Control**: Only the owner (typically the distributor contract) can trigger jackpot payments
-2. **Balance Verification**: Checks are performed to ensure sufficient balance before payments
-3. **SafeERC20**: Uses SafeERC20 for all token transfers to prevent common vulnerabilities
-4. **ETH Reception**: Includes a `receive()` function to accept ETH transfers if needed
+1.**Access Control**: Only the owner (typically the distributor contract) can trigger jackpot payments
+2.**Balance Verification**: Checks are performed to ensure sufficient balance before payments
+3.**SafeERC20**: Uses SafeERC20 for all token transfers to prevent common vulnerabilities
+4.**ETH Reception**: Includes a `receive()` function to accept ETH transfers if needed
 
 ## Integration Points
 
 The DragonJackpotVault integrates with:
 
-1. **OmniDragon Token**: Receives jackpot fees from token transactions
-2. **DragonJackpotDistributor**: Receives payment requests when winners are selected
-3. **Multiple Tokens**: Can hold and distribute various tokens as prizes
+1.**OmniDragon Token**: Receives jackpot fees from token transactions
+2.**DragonJackpotDistributor**: Receives payment requests when winners are selected
+3.**Multiple Tokens**: Can hold and distribute various tokens as prizes
 
 ## Events
 
@@ -180,22 +178,20 @@ The DragonJackpotVault integrates with:
 | `WrappedNativeTokenSet(address indexed oldToken, address indexed newToken)` | Emitted when the wrapped native token address is updated |
 
 ## Jackpot Flow
+```
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant OmniDragon
-    participant Vault as DragonJackpotVault
-    participant Distributor
-    participant Winner
-    
-    User->>OmniDragon: Trade Token (generates fees)
-    OmniDragon->>Vault: addToJackpot(amount)
+```mermaidsequenceDiagram
+participant User
+participant OmniDragon
+participant Vault as DragonJackpotVault
+participant Distributor
+participant Winner
+    User ->> OmniDragon: Trade Token (generates fees)
+    OmniDragon ->> Vault: addToJackpot(amount)
     Note over Vault: Jackpot balance increases
-    
-    User->>OmniDragon: Makes winning trade
-    OmniDragon->>Distributor: Notifies of winner
-    Distributor->>Vault: payJackpot(winner, amount)
-    Vault->>Winner: Transfer jackpot amount
+    User ->> OmniDragon: Makes winning trade
+    OmniDragon ->> Distributor: Notifies of winner
+    Distributor ->> Vault: payJackpot(winner, amount)
+    Vault ->> Winner: Transfer jackpot amount
     Note over Vault: Update lastWinTimestamp
 ```

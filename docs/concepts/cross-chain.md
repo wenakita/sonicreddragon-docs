@@ -1,246 +1,560 @@
 ---
-title: Cross-Chain Architecture
 sidebar_position: 5
+title: Cross-Chain Infrastructure
+description: Comprehensive explanation of OmniDragon's cross-chain architecture
 ---
 
-# OmniDragon Cross-Chain Architecture
+# Cross-Chain Infrastructure
 
-OmniDragon is built from the ground up as a cross-chain token system, enabling seamless operations across multiple blockchains while maintaining coherent state and security.
+The OmniDragon protocol implements a sophisticated cross-chain infrastructure that enables seamless operation across multiple blockchains. This document provides a comprehensive overview of the cross-chain architecture.
 
-## System Architecture
+## System Overview
 
-The diagram below illustrates the high-level architecture of OmniDragon's cross-chain functionality:
+OmniDragon's cross-chain infrastructure allows the protocol to operate across multiple blockchains:
 
 ```mermaid
 flowchart TB
-    %% Define main components with clear visual hierarchy
-    subgraph Core ["Core Protocol"]
-        direction TB
-        TOKEN["OmniDragon Token"]:::core
-        BRIDGE["OmniDragon Bridge"]:::core
-        ROUTER["Message Router"]:::core
-    end
-    
-    subgraph LZ ["LayerZero Protocol"]
-        direction TB
-        LZ_EP["LayerZero Endpoint"]:::lz
-        LZ_R["LayerZero Relayer"]:::lz
-        LZ_O["LayerZero Oracle"]:::lz
-    end
-    
-    subgraph Networks ["Blockchain Networks"]
-        direction LR
-        ETH["Ethereum"]:::eth
-        ARB["Arbitrum"]:::arb
-        OPT["Optimism"]:::opt
-        BSC["BNB Chain"]:::bsc
-        AVAX["Avalanche"]:::avax
-    end
-    
-    %% Connect components
-    TOKEN -->|Uses| BRIDGE
-    BRIDGE -->|Uses| ROUTER
-    ROUTER -->|Sends via| LZ_EP
-    LZ_EP -->|Relayed by| LZ_R
-    LZ_EP -->|Verified by| LZ_O
-    
-    %% Connect networks to protocol
-    ETH --- LZ_EP
-    ARB --- LZ_EP
-    OPT --- LZ_EP
-    BSC --- LZ_EP
-    AVAX --- LZ_EP
-    
-    %% Apply styling
-    classDef core fill:#e3f2fd,stroke:#2196f3,color:#0d47a1
-    classDef lz fill:#e8f5e9,stroke:#4caf50,color:#1b5e20
-    classDef eth fill:#eceff1,stroke:#607d8b,color:#263238
-    classDef arb fill:#ede7f6,stroke:#7e57c2,color:#311b92
-    classDef opt fill:#e8eaf6,stroke:#5c6bc0,color:#1a237e
-    classDef bsc fill:#fff8e1,stroke:#ffc107,color:#ff6f00
-    classDef avax fill:#ffebee,stroke:#f44336,color:#b71c1c
-    
-    %% Style subgraphs
-    style Core fill:#e3f2fd,stroke:#bbdefb,color:#0d47a1
-    style LZ fill:#e8f5e9,stroke:#c8e6c9,color:#1b5e20
-    style Networks fill:#f5f5f5,stroke:#e0e0e0,color:#424242
+subgraph "Ethereum"
+    ETH_TOKEN["OmniDragon Token"]
+    ETH_BRIDGE["Cross-Chain Bridge"]
+    ETH_LZ["LayerZero Endpoint"]
+    subgraph "BNB Chain"
+    BSC_TOKEN["OmniDragon Token"]
+    BSC_BRIDGE["Cross-Chain Bridge"]
+    BSC_LZ["LayerZero Endpoint"]
+    subgraph "Arbitrum"
+    ARB_TOKEN["OmniDragon Token"]
+    ARB_BRIDGE["Cross-Chain Bridge"]
+    ARB_LZ["LayerZero Endpoint"]
+    subgraph "Avalanche"
+    AVAX_TOKEN["OmniDragon Token"]
+    AVAX_BRIDGE["Cross-Chain Bridge"]
+    AVAX_LZ["LayerZero Endpoint"]
+    ETH_TOKEN -->|> ETH_BRIDGE
+    ETH_BRIDGE| ETH_LZ
+    BSC_TOKEN -->|> BSC_BRIDGE
+    BSC_BRIDGE| BSC_LZ
+    ARB_TOKEN -->|> ARB_BRIDGE
+    ARB_BRIDGE| ARB_LZ
+    AVAX_TOKEN -->|>|>|>|>|>|>|> AVAX_BRIDGE
+    AVAX_BRIDGE| AVAX_LZ
+    ETH_LZ <| BSC_LZ
+    ETH_LZ <| ARB_LZ
+    ETH_LZ <| AVAX_LZ
+    BSC_LZ <| ARB_LZ
+    BSC_LZ <| AVAX_LZ
+    ARB_LZ <| AVAX_LZ
+    classDef eth fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef bsc fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef arb fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef avax fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class ETH_TOKEN eth
+    class ETH_BRIDGE_LZ eth
+    class BSC_TOKEN bsc
+    class BSC_BRIDGE_LZ bsc
+    class ARB_TOKEN arb
+    class ARB_BRIDGE_LZ arb
+    class AVAX_TOKEN avax
+    class AVAX_BRIDGE_LZ avax
+endend
+endend
+endend
+end
 ```
 
-## Message Flow Sequence
+## Supported Chains
 
-The sequence diagram below demonstrates how messages and tokens flow between chains:
+The OmniDragon protocol currently supports the following blockchains:
+
+| Chain | Network ID | Description |
+|-------|------------|-------------|
+| Ethereum | 1 | The primary chain for governance and liquidity |
+| BNB Chain | 56 | Optimized for lower transaction costs |
+| Arbitrum | 42161 | Optimized for Ethereum scalability |
+| Avalanche | 43114 | Optimized for high throughput |
+
+## Cross-Chain Architecture
+
+The cross-chain architecture consists of several key components:
+
+### 1. OmniDragon Token
+
+The OmniDragon token is deployed on each supported chain:
+
+-**Ethereum**: The primary deployment with full functionality
+-**BNB Chain**: Secondary deployment with optimized gas costs
+-**Arbitrum**: Secondary deployment with Ethereum compatibility
+-**Avalanche**: Secondary deployment with high throughput
+
+### 2. Cross-Chain Bridge
+
+The cross-chain bridge enables token transfers between chains:
+
+-**Token Locking/Burning**: Tokens are locked or burned on the source chain
+-**Message Passing**: A cross-chain message is sent via LayerZero
+-**Token Minting/Unlocking**: Tokens are minted or unlocked on the destination chain
+
+### 3. LayerZero Integration
+
+LayerZero provides secure cross-chain messaging:
+
+-**Endpoints**: Each chain has a LayerZero endpoint
+-**Relayers**: Messages are relayed by LayerZero relayers
+-**Oracles**: Oracles verify the messages
+-**Validators**: Validators ensure message integrity
+
+## Cross-Chain Flow
+
+The following sequence diagram illustrates the cross-chain transfer process:
+```
+
+```mermaidsequenceDiagram
+participant User
+participant SourceToken
+participant SourceBridge
+participant LayerZero
+participant DestBridge
+participant DestToken
+    User ->> SourceToken: Approve bridge
+    User ->> SourceBridge: Request cross-chain transfer
+    SourceBridge ->> SourceToken: Burn tokens
+    SourceBridge ->> LayerZero: Send cross-chain message
+    LayerZero ->> DestBridge: Deliver message
+    DestBridge ->> DestBridge: Verify message
+    DestBridge ->> DestToken: Mint tokens
+    DestToken ->> User: Receive tokens on destination chain
+```
+
+## Implementation Details
+
+### Cross-Chain Bridge Contract
+
+The cross-chain bridge contract handles token transfers between chains:
+
+```solidity
+contract OmniDragonBridge is ILayerZeroReceiver {
+    address public omniDragon;
+    address public lzEndpoint;
+    
+    // Trusted remote addresses
+    mapping(uint16 => bytes) public trustedRemoteLookup;
+    
+    // Cross-chain fee
+    uint256 public crossChainFee = 69; // 0.69%
+    
+    event TokensSent(uint16 indexed chainId, address indexed from, uint256 amount);
+    event TokensReceived(uint16 indexed chainId, address indexed to, uint256 amount);
+    
+    constructor(address _omniDragon, address _lzEndpoint) {
+        omniDragon = _omniDragon;
+        lzEndpoint = _lzEndpoint;
+    }
+    
+    function sendTokens(
+        uint16 _dstChainId,
+        bytes memory _toAddress,
+        uint256 _amount,
+        address payable _refundAddress,
+        address _zroPaymentAddress,
+        bytes memory _adapterParams
+    ) external payable {
+        // Apply cross-chain fee
+        uint256 feeAmount = (_amount * crossChainFee) / 10000;
+        uint256 amountAfterFee = _amount - feeAmount;
+        
+        // Process fee
+        if (feeAmount > 0) {
+            IOmniDragon(omniDragon).transferFrom(msg.sender, address(this), feeAmount);
+            // Process fee (e.g., add to jackpot)
+        }
+        
+        // Burn tokens on source chain
+        IOmniDragon(omniDragon).burnFrom(msg.sender, amountAfterFee);
+        
+        // Prepare payload for cross-chain message
+        bytes memory payload = abi.encode(msg.sender, _toAddress, amountAfterFee);
+        
+        // Send cross-chain message via LayerZero
+        ILayerZeroEndpoint(lzEndpoint).send{value: msg.value}(
+            _dstChainId,
+            trustedRemoteLookup[_dstChainId],
+            payload,
+            _refundAddress,
+            _zroPaymentAddress,
+            _adapterParams
+        );
+        
+        emit TokensSent(_dstChainId, msg.sender, amountAfterFee);
+    }
+    
+    function lzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload
+    ) external override {
+        // Verify sender
+        require(msg.sender == lzEndpoint, "Invalid endpoint");
+        
+        // Verify source address
+        require(
+            _srcAddress.length == trustedRemoteLookup[_srcChainId].length &&
+            keccak256(_srcAddress) == keccak256(trustedRemoteLookup[_srcChainId]),
+            "Invalid source address"
+        );
+        
+        // Decode payload
+        (address from, bytes memory toAddressBytes, uint256 amount) = abi.decode(
+            _payload,
+            (address, bytes, uint256)
+        );
+        
+        // Convert bytes to address
+        address toAddress = _bytesToAddress(toAddressBytes);
+        
+        // Mint tokens on destination chain
+        IOmniDragon(omniDragon).mint(toAddress, amount);
+        
+        emit TokensReceived(_srcChainId, toAddress, amount);
+    }
+    
+    function setTrustedRemote(
+        uint16 _remoteChainId,
+        bytes calldata _remoteAddress
+    ) external onlyOwner {
+        trustedRemoteLookup[_remoteChainId] = _remoteAddress;
+    }
+    
+    function setCrossChainFee(uint256 _fee) external onlyOwner {
+        require(_fee <= 100, "Fee too high"); // Max 1%
+        crossChainFee = _fee;
+    }
+    
+    function _bytesToAddress(bytes memory _bytes) internal pure returns (address addr) {
+        require(_bytes.length == 20, "Invalid address length");
+        assembly {
+            addr := mload(add(_bytes, 20))
+        }
+    }
+}
+```
+
+### Token Contract Cross-Chain Integration
+
+The token contract integrates with the cross-chain bridge:
+
+```solidity
+contract OmniDragon is ERC20, Ownable {
+    address public bridge;
+    
+    modifier onlyBridge() {
+        require(msg.sender == bridge, "Only bridge can call this function");
+        _;
+    }
+    
+    function setBridge(address _bridge) external onlyOwner {
+        bridge = _bridge;
+    }
+    
+    function mint(address to, uint256 amount) external onlyBridge {
+        _mint(to, amount);
+    }
+    
+    function burnFrom(address account, uint256 amount) external onlyBridge {
+        _burn(account, amount);
+    }
+}
+```
+
+## Cross-Chain Security
+
+The cross-chain infrastructure includes several security measures:
+
+### 1. Trusted Remote Verification
+
+Only trusted remote addresses can send cross-chain messages:
+
+```solidity
+function lzReceive(
+    uint16 _srcChainId,
+    bytes memory _srcAddress,
+    uint64 _nonce,
+    bytes memory _payload
+) external override {
+    // Verify sender
+    require(msg.sender == lzEndpoint, "Invalid endpoint");
+    
+    // Verify source address
+    require(
+        _srcAddress.length == trustedRemoteLookup[_srcChainId].length &&
+        keccak256(_srcAddress) == keccak256(trustedRemoteLookup[_srcChainId]),
+        "Invalid source address"
+    );
+    
+    // Process message
+    // ...
+}
+```
+
+### 2. Message Verification
+
+All cross-chain messages are cryptographically verified:
 
 ```mermaid
 sequenceDiagram
-    participant User
-    participant Source as Source Chain
-    participant Bridge as LayerZero Bridge
-    participant Dest as Destination Chain
-    
-    %% Add styling to different sections
-    rect rgb(238, 242, 255)
-    note over User,Source: Transaction initiation
-    end
-    
-    User->>+Source: Send tokens to destination chain
-    Source->>Source: Lock or burn tokens
-    Source->>+Bridge: Send cross-chain message
-    
-    rect rgb(239, 246, 239)
-    note over Bridge: Cross-chain verification
-    end
-    
-    Bridge->>Bridge: Validate message
-    Bridge->>Bridge: Generate and verify proofs
-    Bridge->>+Dest: Deliver verified message
-    
-    rect rgb(240, 244, 248)
-    note over Dest,User: Transaction completion
-    end
-    
-    Dest->>Dest: Process message
-    Dest->>Dest: Mint or unlock tokens
-    Dest->>-User: Credit tokens on destination
-    
-    Bridge-->>-Source: Confirm message processed
-    Source-->>-User: Transaction complete
+participant User
+participant SourceChain
+participant LayerZero
+participant DVN as Data Verification Network
+participant DestChain
+    User ->> SourceChain: initiateCrossChainAction()
+    SourceChain ->> LayerZero: sendMessage()
+    LayerZero ->> DVN: verifyMessage()
+    DVN -->> LayerZero: verificationResult
+    LayerZero ->> DestChain: deliverMessage()
+    DestChain ->> DestChain: validateMessage()
+    DestChain ->> DestChain: executeAction()
+    DestChain -->> User: actionCompleted()
 ```
 
-## Token Consistency Model
+### 3. Rate Limiting
 
-OmniDragon maintains token supply consistency across chains using a hybrid lock/mint model:
+The protocol implements rate limiting for cross-chain operations:
 
-```mermaid
-flowchart LR
-    %% Define the consistency model
-    subgraph Home ["Home Chain (Ethereum)"]
-        direction TB
-        MASTER["Master Supply"]:::primary
-        LOCKED["Locked Tokens"]:::primary
-    end
+```solidity
+// Rate limiting for cross-chain operations
+mapping(uint16 => uint256) public lastOperationTimestamp;
+mapping(uint16 => uint256) public operationCount;
+uint256 public constant RATE_LIMIT_PERIOD = 1 hours;
+uint256 public constant MAX_OPERATIONS_PER_PERIOD = 100;
+
+function enforceRateLimit(uint16 chainId) internal {
+    // Reset counter if period has passed
+    if (block.timestamp > lastOperationTimestamp[chainId] + RATE_LIMIT_PERIOD) {
+        operationCount[chainId] = 0;
+        lastOperationTimestamp[chainId] = block.timestamp;
+    }
     
-    subgraph Remote ["Remote Chains"]
-        direction TB
-        subgraph Chain1 ["Arbitrum"]
-            ARB_SUPPLY["Local Supply"]:::secondary
-        end
-        
-        subgraph Chain2 ["Optimism"]
-            OPT_SUPPLY["Local Supply"]:::secondary
-        end
-        
-        subgraph Chain3 ["BNB Chain"]
-            BSC_SUPPLY["Local Supply"]:::secondary
-        end
-    end
+    // Enforce rate limit
+    require(
+        operationCount[chainId] < MAX_OPERATIONS_PER_PERIOD,
+        "Rate limit exceeded"
+    );
     
-    %% Define token flow
-    MASTER -->|"Lock"| LOCKED
-    LOCKED -->|"Unlock on return"| MASTER
-    
-    LOCKED -->|"Mint equivalent"| ARB_SUPPLY
-    LOCKED -->|"Mint equivalent"| OPT_SUPPLY
-    LOCKED -->|"Mint equivalent"| BSC_SUPPLY
-    
-    ARB_SUPPLY -->|"Burn on exit"| LOCKED
-    OPT_SUPPLY -->|"Burn on exit"| LOCKED
-    BSC_SUPPLY -->|"Burn on exit"| LOCKED
-    
-    %% Apply styling
-    classDef primary fill:#e3f2fd,stroke:#2196f3,color:#0d47a1
-    classDef secondary fill:#f3e5f5,stroke:#9c27b0,color:#4a148c
-    
-    %% Style subgraphs
-    style Home fill:#e3f2fd,stroke:#bbdefb,color:#0d47a1
-    style Remote fill:#f3e5f5,stroke:#e1bee7,color:#4a148c
-    style Chain1 fill:#ede7f6,stroke:#d1c4e9,color:#311b92
-    style Chain2 fill:#e8eaf6,stroke:#c5cae9,color:#1a237e
-    style Chain3 fill:#fff8e1,stroke:#ffecb3,color:#ff6f00
+    // Increment counter
+    operationCount[chainId]++;
+}
 ```
 
-## Contract Architecture
+### 4. Emergency Pause
 
-The following class diagram shows the key contracts that enable cross-chain functionality:
+The cross-chain bridge can be paused in case of emergency:
 
-```mermaid
-classDiagram
-    %% Define key interfaces
-    class IOmniDragonToken {
-        <<interface>>
-        +mint(address, uint256)
-        +burn(address, uint256)
-        +transferFrom(address, address, uint256)
-    }
-    
-    class IOmniDragonBridge {
-        <<interface>>
-        +sendTokens(uint16 chainId, address to, uint256 amount)
-        +receiveTokens(uint16 chainId, address to, uint256 amount)
-    }
-    
-    class ILayerZeroEndpoint {
-        <<interface>>
-        +send(uint16 dstChainId, bytes payload, address payable refundAddress)
-        +receivePayload(uint16 srcChainId, bytes srcAddress, bytes payload)
-    }
-    
-    %% Define implementation classes
-    class OmniDragonToken {
-        -mapping balances
-        -uint256 totalSupply
-        -address bridge
-        +mint(address, uint256)
-        +burn(address, uint256)
-        +transferFrom(address, address, uint256)
-    }
-    
-    class OmniDragonBridge {
-        -address token
-        -address lzEndpoint
-        -mapping remoteTokens
-        -mapping remoteChains
-        +sendTokens(uint16 chainId, address to, uint256 amount)
-        +receiveTokens(uint16 chainId, address to, uint256 amount)
-        +lzReceive(uint16 srcChainId, bytes srcAddress, bytes payload)
-    }
-    
-    class LayerZeroEndpoint {
-        -address relayer
-        -address oracle
-        +send(uint16 dstChainId, bytes payload, address payable refundAddress)
-        +receivePayload(uint16 srcChainId, bytes srcAddress, bytes payload)
-    }
-    
-    %% Define relationships
-    IOmniDragonToken <|-- OmniDragonToken
-    IOmniDragonBridge <|-- OmniDragonBridge
-    ILayerZeroEndpoint <|-- LayerZeroEndpoint
-    
-    OmniDragonBridge --> OmniDragonToken
-    OmniDragonBridge --> LayerZeroEndpoint
-    
-    %% Apply styling
-    classDef interface fill:#e3f2fd,stroke:#2196f3,color:#0d47a1
-    classDef token fill:#e8f5e9,stroke:#4caf50,color:#1b5e20
-    classDef bridge fill:#f3e5f5,stroke:#9c27b0,color:#4a148c
-    classDef lz fill:#fff8e1,stroke:#ffc107,color:#ff6f00
-    
-    class IOmniDragonToken interface
-    class IOmniDragonBridge interface
-    class ILayerZeroEndpoint interface
-    class OmniDragonToken token
-    class OmniDragonBridge bridge
-    class LayerZeroEndpoint lz
+```solidity
+bool public paused;
+
+modifier whenNotPaused() {
+    require(!paused, "Bridge is paused");
+    _;
+}
+
+function pause() external onlyOwner {
+    paused = true;
+    emit Paused(msg.sender);
+}
+
+function unpause() external onlyOwner {
+    paused = false;
+    emit Unpaused(msg.sender);
+}
 ```
 
-## Security Features
+## Cross-Chain Jackpot
 
-OmniDragon's cross-chain system implements multiple security measures:
+The jackpot system works across multiple chains:
 
-1. **Message Verification**: All cross-chain messages are cryptographically verified
-2. **Oracle Validation**: Independent oracle networks verify cross-chain state
-3. **Consistency Checks**: Built-in checks ensure token supply consistency across chains
-4. **Relayer Redundancy**: Multiple relayers ensure message delivery
-5. **Timeout Handling**: Automatic handling of timeout conditions with recovery mechanisms
+### Cross-Chain Entry
 
-By leveraging LayerZero's secure cross-chain messaging infrastructure and adding OmniDragon-specific security measures, the system ensures reliable and secure token movement across blockchain networks.
+Users can participate in the jackpot from any supported chain:
+
+1.**Local Entry**: Buy transactions on the local chain create local entries
+2.**Cross-Chain Entry**: Cross-chain transfers create entries on the destination chain
+3.**Global Pool**: All chains contribute to a global jackpot pool
+4.**Chain-Specific Pools**: Each chain also has a local jackpot pool
+
+### Cross-Chain Distribution
+
+When a jackpot is won, rewards can be distributed across chains:
+
+1.**Local Distribution**: Winners on the local chain receive rewards directly
+2.**Cross-Chain Distribution**: Winners on other chains receive rewards via the bridge
+3.**Multi-Chain Winners**: Multiple winners can be selected across different chains
+
+## Cross-Chain Governance
+
+The governance system works across multiple chains:
+
+### Governance Mechanism
+
+Token holders can participate in governance from any supported chain:
+
+1.**Proposal Creation**: Proposals can be created on the primary chain (Ethereum)
+2.**Cross-Chain Voting**: Votes can be cast from any supported chain
+3.**Vote Aggregation**: Votes are aggregated on the primary chain
+4.**Execution**: Passed proposals are executed on all relevant chains
+
+### Implementation
+
+The cross-chain governance is implemented using LayerZero:
+
+```solidity
+function castVoteFromOtherChain(
+    uint16 _srcChainId,
+    bytes memory _srcAddress,
+    uint64 _nonce,
+    bytes memory _payload
+) external {
+    // Verify sender
+    require(msg.sender == lzEndpoint, "Invalid endpoint");
+    
+    // Verify source address
+    require(
+        _srcAddress.length == trustedRemoteLookup[_srcChainId].length &&
+        keccak256(_srcAddress) == keccak256(trustedRemoteLookup[_srcChainId]),
+        "Invalid source address"
+    );
+    
+    // Decode payload
+    (address voter, uint256 proposalId, bool support, uint256 votingPower) = abi.decode(
+        _payload,
+        (address, uint256, bool, uint256)
+    );
+    
+    // Cast vote
+    _castVote(voter, proposalId, support, votingPower);
+}
+```
+
+## Cross-Chain Fee Economics
+
+The cross-chain infrastructure includes a fee mechanism:
+
+### Fee Structure
+
+Cross-chain transfers incur a small fee:
+
+1.**Base Fee**: 0.69% fee on all cross-chain transfers
+2.**LayerZero Fee**: Additional fee to cover the cost of the LayerZero message
+3.**Destination Gas**: Fee to cover the cost of minting tokens on the destination chain
+
+### Fee Distribution
+
+The collected fees are distributed as follows:
+
+1.**Jackpot Contribution**: A portion of fees goes to the jackpot vault
+2.**Protocol Treasury**: A portion of fees goes to the protocol treasury
+3.**LayerZero Payment**: A portion of fees covers the LayerZero message cost
+
+## User Experience
+
+From a user perspective, the cross-chain experience is designed to be seamless:
+
+### Cross-Chain Transfer
+
+Users can transfer tokens between chains with a simple interface:
+
+1.**Chain Selection**: User selects the destination chain
+2.**Amount Input**: User inputs the amount to transfer
+3.**Fee Display**: User sees the fee breakdown
+4.**Confirmation**: User confirms the transfer
+5.**Status Tracking**: User can track the status of the transfer
+
+### Cross-Chain Jackpot
+
+Users can participate in the jackpot from any chain:
+
+1.**Automatic Entry**: Buy transactions automatically qualify for jackpot entries
+2.**Cross-Chain Wins**: Wins can occur on any chain
+3.**Reward Distribution**: Rewards are distributed on the chain where the win occurred
+
+## Integration with Other Components
+
+The cross-chain infrastructure integrates with several other components of the OmniDragon ecosystem:
+
+### Token Integration
+
+The token contract integrates with the cross-chain bridge:
+
+```solidity
+function mint(address to, uint256 amount) external onlyBridge {
+    _mint(to, amount);
+}
+
+function burnFrom(address account, uint256 amount) external onlyBridge {
+    _burn(account, amount);
+}
+```
+
+### Jackpot Integration
+
+The jackpot system integrates with the cross-chain bridge:
+
+```solidity
+function addCrossChainJackpotEntry(
+    address user,
+    uint256 amount,
+    uint16 srcChainId
+) external onlyBridge {
+    // Create jackpot entry for cross-chain transfer
+    _createJackpotEntry(user, amount, srcChainId);
+}
+```
+
+### Governance Integration
+
+The governance system integrates with the cross-chain bridge:
+
+```solidity
+function castCrossChainVote(
+    address voter,
+    uint256 proposalId,
+    bool support,
+    uint256 votingPower,
+    uint16 srcChainId
+) external onlyBridge {
+    // Cast vote from another chain
+    _castVote(voter, proposalId, support, votingPower);
+}
+```
+
+## Future Expansion
+
+The cross-chain infrastructure is designed to be expandable:
+
+### Additional Chains
+
+Support for additional chains can be added:
+
+1.**Contract Deployment**: Deploy the OmniDragon token on the new chain
+2.**Bridge Configuration**: Configure the cross-chain bridge for the new chain
+3.**LayerZero Integration**: Set up the LayerZero endpoint for the new chain
+4.**Trusted Remote Configuration**: Configure trusted remote addresses
+
+### Enhanced Functionality
+
+Additional cross-chain functionality can be added:
+
+1.**Cross-Chain Staking**: Stake tokens on one chain and earn rewards on another
+2.**Cross-Chain Liquidity**: Provide liquidity on one chain and use it on another
+3.**Cross-Chain Governance**: Create proposals on one chain and execute on another
+
+## Conclusion
+
+The OmniDragon cross-chain infrastructure provides a seamless experience for users across multiple blockchains. By leveraging LayerZero for secure cross-chain messaging, the protocol enables token transfers, jackpot participation, and governance across Ethereum, BNB Chain, Arbitrum, and Avalanche.
+
+## Further Reading
+
+- [Token System](/concepts/token-system-consolidated-consolidated): Detailed information about the token mechanics
+- [Jackpot System](/concepts/jackpot-system-consolidated-system-consolidated): Comprehensive documentation of the jackpot system
+- [Governance System](/concepts/token-system-consolidated-consolidated#governance): In-depth documentation of the governance system
+- [Security Model](/concepts/security-model): Comprehensive overview of the security architecture

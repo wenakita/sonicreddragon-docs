@@ -1,6 +1,7 @@
 ---
 sidebar_position: 1
 title: Chainlink Integration
+description: Detailed explanation of this concept
 ---
 
 # Chainlink Integration
@@ -11,40 +12,35 @@ OmniDragon integrates with [Chainlink](https://chain.link/) services to enhance 
 
 Chainlink is a decentralized oracle network that enables smart contracts to securely access off-chain data feeds, web APIs, and traditional bank payments. For OmniDragon, we leverage:
 
-- **Chainlink VRF**: Verifiable Random Function for secure on-chain randomness
-- **Chainlink Price Feeds**: For accurate token pricing in certain operations
-- **Chainlink Automation**: For triggering time-based system operations
+-**Chainlink VRF**: Verifiable Random Function for secure on-chain randomness
+-**Chainlink Price Feeds**: For accurate token pricing in certain operations
+-**Chainlink Automation**: For triggering time-based system operations
 
 ## OmniDragon's Chainlink VRF Implementation
 
 ```mermaid
 flowchart TB
-    classDef primary fill:#375bd2,stroke:#2a45a3,color:#ffffff,font-weight:bold
-    classDef secondary fill:#43a047,stroke:#2e7d32,color:#ffffff
-    classDef tertiary fill:#ff9800,stroke:#f57c00,color:#ffffff
-    
+classDef primary fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef secondary fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef tertiary fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
     Chainlink["Chainlink VRF"]:::primary
-    
-    subgraph OmniDragon ["OmniDragon Protocol"]
+    subgraph OmniDragon["OmniDragon Protocol"]
         direction TB
         ChainlinkVRF["ChainlinkVRFIntegrator"]:::secondary
         VRFConsumer["OmniDragonVRFConsumer"]:::secondary
-        
-        subgraph Applications ["Applications"]
-            direction TB
-            Jackpot["Jackpot System"]:::tertiary
-            Games["Game Mechanics"]:::tertiary
-            Fallback["Fallback System"]:::tertiary
-        end
-    end
-    
-    Chainlink -->|"VRF Callback"| ChainlinkVRF
-    ChainlinkVRF -->|"Process<br>Randomness"| VRFConsumer
-    VRFConsumer -->|"Provide<br>Verified<br>Randomness"| Applications
-    
-    Applications -->|"Request<br>Randomness"| VRFConsumer
-    VRFConsumer -->|"Request<br>Randomness"| ChainlinkVRF
-    ChainlinkVRF -->|"Request<br>Random Words"| Chainlink
+    subgraph Applications["Applications"]
+        direction TB
+        Jackpot["Jackpot System"]:::tertiary
+        Games["Game Mechanics"]:::tertiary
+        Fallback["Fallback System"]:::tertiary
+        Chainlink -->|"VRF Callback"| ChainlinkVRF
+        ChainlinkVRF -->|"Process<br>Randomness"| VRFConsumer
+        VRFConsumer -->|"Provide<br>Verified<br>Randomness"| Applications
+        Applications -->|"Request<br>Randomness"| VRFConsumer
+        VRFConsumer -->|"Request<br>Randomness"| ChainlinkVRF
+        ChainlinkVRF -->|"Request<br>Random Words"| Chainlink
+end
+end
 ```
 
 ## Core Features
@@ -150,26 +146,23 @@ contract ArbitrumVRFConsumer is IDragonVRFIntegrator {
 ## Chainlink VRF Request Flow
 
 The request flow for Chainlink VRF in OmniDragon:
+```
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant VRF as OmniDragonVRFConsumer
-    participant Integrator as ChainlinkVRFIntegrator
-    participant Coordinator as Chainlink VRF Coordinator
-    
-    App->>VRF: requestRandomness()
-    VRF->>VRF: Generate requestId
-    VRF->>Integrator: requestRandomness(requestId)
-    
-    Integrator->>Coordinator: requestRandomWords()
-    Coordinator-->>Integrator: Return vrfRequestId
-    
+```mermaidsequenceDiagram
+participant App as Application
+participant VRF as OmniDragonVRFConsumer
+participant Integrator as ChainlinkVRFIntegrator
+participant Coordinator as Chainlink VRF Coordinator
+    App ->> VRF: requestRandomness()
+    VRF ->> VRF: Generate requestId
+    VRF ->> Integrator: requestRandomness(requestId)
+    Integrator ->> Coordinator: requestRandomWords()
+    Coordinator -->> Integrator: Return vrfRequestId
+
     Note over Coordinator: Chainlink processes<br>the request off-chain
-    
-    Coordinator->>Integrator: fulfillRandomWords(vrfRequestId, randomWords)
-    Integrator->>VRF: fulfillRandomness(requestId, randomness)
-    VRF->>App: consumeRandomness(requestId, randomness)
+    Coordinator ->> Integrator: fulfillRandomWords(vrfRequestId, randomWords)
+    Integrator ->> VRF: fulfillRandomness(requestId, randomness)
+    VRF ->> App: consumeRandomness(requestId, randomness)
 ```
 
 ## Chainlink Price Feeds
@@ -221,8 +214,8 @@ Here's an example of how to use OmniDragon's Chainlink VRF integration:
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@omnidragon/contracts/interfaces/IOmniDragonVRFConsumer.sol";
-import "@omnidragon/contracts/interfaces/IDragonVRFConsumer.sol";
+import "@OmniDragon/contracts/interfaces/IOmniDragonVRFConsumer.sol";
+import "@OmniDragon/contracts/interfaces/IDragonVRFConsumer.sol";
 
 contract ChainlinkRandomnessExample is IDragonVRFConsumer {
     IOmniDragonVRFConsumer public vrfConsumer;
@@ -269,13 +262,13 @@ OmniDragon's Chainlink VRF integration is available on the following networks:
 
 When using OmniDragon's Chainlink integration:
 
-1. **Fulfillment Gas**: Ensure sufficient gas is allocated for Chainlink VRF callbacks
-2. **Request Rate**: Be mindful of request rate limits on the Chainlink subscription
-3. **Price Feed Staleness**: Check the timestamp of price feeds to ensure data freshness
-4. **Multiple Verifications**: For critical applications, verify randomness from multiple sources
+1.**Fulfillment Gas**: Ensure sufficient gas is allocated for Chainlink VRF callbacks
+2.**Request Rate**: Be mindful of request rate limits on the Chainlink subscription
+3.**Price Feed Staleness**: Check the timestamp of price feeds to ensure data freshness
+4.**Multiple Verifications**: For critical applications, verify randomness from multiple sources
 
 ## Additional Resources
 
 - [Chainlink Documentation](https://docs.chain.link/)
 - [Chainlink VRF Documentation](https://docs.chain.link/vrf/)
-- [OmniDragon VRF Integration Guide](/integrations/chainlink/vrf)
+- [OmniDragon VRF Integration Guide](/partner/integrations/chainlink/vrf)

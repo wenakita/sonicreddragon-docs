@@ -1,0 +1,274 @@
+import {themes as prismThemes} from 'prism-react-renderer';
+import type {Config} from '@docusaurus/types';
+import type * as Preset from '@docusaurus/preset-classic';
+
+// This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
+
+const config: Config = {
+  title: 'OmniDragon Protocol',
+  tagline: 'Cross-Chain Token Protocol with Automatic Jackpots',
+  favicon: 'img/favicon.ico',
+
+  // Set the production url of your site here
+  url: 'https://docs.sonicreddragon.io',
+  // Set the /<baseUrl>/ pathname under which your site is served
+  // For GitHub pages deployment, it is often '/<projectName>/'
+  baseUrl: '/',
+
+  // GitHub pages deployment config.
+  // If you aren't using GitHub pages, you don't need these.
+  organizationName: 'sonicreddragon', // Usually your GitHub org/user name.
+  projectName: 'sonicreddragon-docs', // Usually your repo name.
+
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'warn',
+
+  // Even if you don't use internationalization, you can use this field to set
+  // useful metadata like html lang. For example, if your site is Chinese, you
+  // may want to replace "en" with "zh-Hans".
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en'],
+  },
+
+  presets: [
+    [
+      'classic',
+      {
+        docs: {
+          path: 'docs-new', // Updated to use new structure
+          sidebarPath: './sidebars-new.ts', // Updated to use new sidebars
+          routeBasePath: '/', // Docs-only mode
+          // Please change this to your repo.
+          // Remove this to remove the "edit this page" links.
+          editUrl:
+            'https://github.com/sonicreddragon/sonicreddragon-docs/tree/main/',
+          showLastUpdateAuthor: true,
+          showLastUpdateTime: true,
+          breadcrumbs: true,
+        },
+        blog: false, // Disable blog
+        theme: {
+          customCss: './src/css/custom.css',
+        },
+      } satisfies Preset.Options,
+    ],
+  ],
+
+  themeConfig: {
+    // Replace with your project's social card
+    image: 'img/sonicreddragon-social-card.jpg',
+    colorMode: {
+      defaultMode: 'dark',
+      disableSwitch: false,
+      respectPrefersColorScheme: false,
+    },
+    navbar: {
+      title: 'SonicRedDragon',
+      logo: {
+        alt: 'SonicRedDragon Logo',
+        src: 'img/logo.svg',
+      },
+      items: [
+        {
+          type: 'docSidebar',
+          sidebarId: 'docs',
+          position: 'left',
+          label: 'Concepts',
+          to: '/concepts/overview',
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'docs',
+          position: 'left',
+          label: 'Guides',
+          to: '/guides/getting-started/quick-start',
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'docs',
+          position: 'left',
+          label: 'Build',
+          to: '/build/smart-contracts/core/token',
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'docs',
+          position: 'left',
+          label: 'Reference',
+          to: '/reference/contracts/addresses',
+        },
+        {
+          type: 'docSidebar',
+          sidebarId: 'docs',
+          position: 'left',
+          label: 'Partner',
+          to: '/partner/onboarding/overview',
+        },
+        {
+          href: 'https://github.com/omnidragon/omnidragon-protocol',
+          label: 'GitHub',
+          position: 'right',
+        },
+      ],
+    },
+    footer: {
+      style: 'dark',
+      links: [
+        {
+          title: 'Documentation',
+          items: [
+            {
+              label: 'Get Started',
+              to: '/concepts/overview',
+            },
+            {
+              label: 'Developer Guides',
+              to: '/guides/developer-guides/integration-guide',
+            },
+            {
+              label: 'API Reference',
+              to: '/reference/api/rest-api',
+            },
+          ],
+        },
+        {
+          title: 'Community',
+          items: [
+            {
+              label: 'Discord',
+              href: 'https://discord.gg/omnidragon',
+            },
+            {
+              label: 'Twitter',
+              href: 'https://twitter.com/omnidragonio',
+            },
+            {
+              label: 'Telegram',
+              href: 'https://t.me/omnidragon',
+            },
+          ],
+        },
+        {
+          title: 'More',
+          items: [
+            {
+              label: 'GitHub',
+              href: 'https://github.com/sonicreddragon/sonicreddragon-protocol',
+            },
+            {
+              label: 'Security Audits',
+              to: '/resources/security/audits',
+            },
+            {
+              label: 'Bug Bounty',
+              to: '/resources/security/bug-bounty',
+            },
+          ],
+        },
+      ],
+      copyright: `Copyright © ${new Date().getFullYear()} OmniDragon Protocol. Built with Docusaurus.`,
+    },
+    prism: {
+      theme: prismThemes.github,
+      darkTheme: prismThemes.dracula,
+      additionalLanguages: ['solidity', 'json', 'bash'],
+    },
+    // Temporarily disabled until proper Algolia credentials are configured
+    // algolia: {
+    //   // The application ID provided by Algolia
+    //   appId: 'YOUR_APP_ID',
+    //   // Public API key: it is safe to commit it
+    //   apiKey: 'YOUR_SEARCH_API_KEY',
+    //   indexName: 'omnidragon-docs',
+    //   // Optional: see doc section below
+    //   contextualSearch: true,
+    //   // Optional: Specify domains where the navigation should occur through window.location instead on history.push
+    //   externalUrlRegex: 'external\\.com|domain\\.com',
+    //   // Optional: Replace parts of the item URLs from Algolia. Useful when using the same search index for multiple deployments using a different baseUrl.
+    //   replaceSearchResultPathname: {
+    //     from: '/docs/', // or as RegExp: /\/docs\//
+    //     to: '/',
+    //   },
+    //   // Optional: Algolia search parameters
+    //   searchParameters: {},
+    //   // Optional: path for search page that enabled by default (`false` to disable it)
+    //   searchPagePath: 'search',
+    // },
+    mermaid: {
+      theme: {
+        light: 'neutral',
+        dark: 'dark'
+      },
+      options: {
+        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+        fontSize: 14,
+        primaryColor: '#CD7D58',        // Raw Sienna from brand kit
+        primaryTextColor: '#152B43',    // Cloud Burst from brand kit
+        primaryBorderColor: '#B86A47',  // Primary dark from brand kit
+        lineColor: '#8E9AAA',          // Janna from brand kit
+        secondaryColor: '#E8E2C4',     // Half Baked from brand kit
+        tertiaryColor: '#D3E5F2',      // Catskill White from brand kit
+        background: 'transparent',
+        mainBkg: '#D3E5F2',           // Catskill White
+        secondBkg: '#E8E2C4',         // Half Baked
+        tertiaryBkg: '#f8fafc'
+      }
+    },
+  } satisfies Preset.ThemeConfig,
+
+  plugins: [
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          // Redirect old paths to new structure
+          {
+            to: '/concepts/overview',
+            from: ['/intro', '/getting-started/overview'],
+          },
+          {
+            to: '/guides/getting-started/quick-start',
+            from: '/getting-started/quick-start',
+          },
+          {
+            to: '/build/smart-contracts/core/token',
+            from: '/contracts/core/token',
+          },
+          {
+            to: '/partner/case-studies/layerzero',
+            from: '/integrations/layerzero/overview',
+          },
+          {
+            to: '/resources/security/audits',
+            from: '/audit',
+          },
+        ],
+      },
+    ],
+  ],
+
+  clientModules: [
+    require.resolve('./src/clientModules/mermaidInit.js'),
+    require.resolve('./src/clientModules/consolidatedMermaidAnimations.js'),
+    require.resolve('./src/clientModules/smoothNavigation.js'),
+    require.resolve('./src/clientModules/spaNavigationFix.js'),
+    require.resolve('./src/clientModules/mermaidInteractiveModule.js')
+  ,
+    require.resolve('./src/clientModules/optimizedMermaidInit.js'),
+    require.resolve('./src/clientModules/mermaidAnimations.js'),
+    require.resolve('./src/clientModules/mermaidAnimeIntegration.js')
+  
+  
+  
+  
+  
+  ],
+
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
+} satisfies Config;
+
+export default config;

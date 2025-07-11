@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Promotions
+description: Detailed explanation of this concept
 ---
 
 # Promotions

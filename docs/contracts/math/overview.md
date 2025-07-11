@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Overview
+description: Detailed explanation of this concept
 ---
 
 # Mathematical Framework
@@ -13,29 +15,24 @@ Our mathematical framework is organized into modular libraries that address diff
 ```mermaid
 flowchart TD
     subgraph "Protocol Core"
-        CoreMath["Core Mathematics"]
-        DistributionSystem["Distribution System"]
-        TimeCalculations["Time Calculations"]
-    end
-    
+    CoreMath["Core Mathematics"]
+    DistributionSystem["Distribution System"]
+    TimeCalculations["Time Calculations"]
     subgraph "Domain Applications"
-        Governance["Governance"]
-        Jackpot["Jackpot System"]
-        Market["Market Operations"]
-        Tokenomics["Token Economics"]
-    end
-    
+    Governance["Governance"]
+    Jackpot["Jackpot System"]
+    Market["Market Operations"]
+    Tokenomics["Token Economics"]
     CoreMath -->|"Supports"| DistributionSystem
     CoreMath -->|"Supports"| TimeCalculations
-    
     DistributionSystem -->|"Powers"| Jackpot
     CoreMath -->|"Enables"| Governance
     TimeCalculations -->|"Schedules"| Jackpot
     TimeCalculations -->|"Synchronizes"| Market
     DistributionSystem -->|"Optimizes"| Tokenomics
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white;
-    class CoreMath,DistributionSystem highlight
+    classDef highlight fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    end    class CoreMath primary    endclass DistributionSystem primary    end
+end
 ```
 
 ## System Architecture
@@ -46,19 +43,19 @@ The mathematical framework consists of specialized libraries that work together 
 
 | Library | Purpose | Key Features |
 |---------|---------|-------------|
-| [`DragonMathLib`](./dragon-math-lib) | Fundamental mathematical operations | Cube root, voting power, weighted averages |
-| [`HermesMath`](./hermes-math) | Jackpot distribution mathematics | Dynamic prize allocation, win probability |
-| [`DragonDateTimeLib`](./date-time-lib) | Time-based calculations | Epoch conversion, duration calculations |
+| [`DragonMathLib`](/DRAGON-math-lib) | Fundamental mathematical operations | Cube root, voting power, weighted averages |
+| [`HermesMath`](/hermes-math) | Jackpot distribution mathematics | Dynamic prize allocation, win probability |
+| [`DragonDateTimeLib`](/date-time-lib) | Time-based calculations | Epoch conversion, duration calculations |
 
 ### Domain-Specific Libraries
 
 | Library | Purpose | Key Features |
 |---------|---------|-------------|
-| [`ve69LPMath`](./ve69lp-math) | Vote-escrowed LP calculations | Lock duration, voting power decay |
-| [`VotingPowerCalculator`](./voting-power) | Governance weighting | Equitable delegation, proposal thresholds |
-| [`DragonAdaptiveFeeManager`](./adaptive-fee) | Dynamic fee adjustment | Market-responsive fee scaling |
-| [`HermesMathIntegration`](./hermes-integration) | Application layer | Contract interfaces for formula application |
-| [`MarketConditionOracle`](./market-oracle) | Market analytics | Price impact, volatility measurements |
+| [`ve69LPMath`](/ve69LP-math) | Vote-escrowed LP calculations | Lock duration, voting power decay |
+| [`VotingPowerCalculator`](/voting-power) | Governance weighting | Equitable delegation, proposal thresholds |
+| [`DragonAdaptiveFeeManager`](/adaptive-fee) | Dynamic fee adjustment | Market-responsive fee scaling |
+| [`HermesMathIntegration`](/hermes-integration) | Application layer | Contract interfaces for formula application |
+| [`MarketConditionOracle`](/market-oracle) | Market analytics | Price impact, volatility measurements |
 
 ## Mathematical Principles
 
@@ -194,8 +191,8 @@ contract JackpotExample {
 
 The math libraries implement several security measures:
 
-1. **Overflow Protection**: Using Solidity 0.8+ built-in overflow checks
-2. **Division Safety**: Checks for division by zero in all calculations
-3. **Precision Management**: Careful handling of precision to avoid rounding errors
-4. **Gas Optimization**: Iterative approximations with early exit conditions
-5. **Parameter Bounds**: Enforcing safe ranges for input parameters 
+1.**Overflow Protection**: Using Solidity 0.8+ built-in overflow checks
+2.**Division Safety**: Checks for division by zero in all calculations
+3.**Precision Management**: Careful handling of precision to avoid rounding errors
+4.**Gas Optimization**: Iterative approximations with early exit conditions
+5.**Parameter Bounds**: Enforcing safe ranges for input parameters 

@@ -1,0 +1,268 @@
+/**
+ * Custom Sidebar Styling
+ * 
+ * This CSS file enhances the sidebar appearance and functionality
+ */
+
+/* OmniDragon Docs - Elegant Sidebar Design */
+
+/* Modern Sidebar Container */
+.theme-doc-sidebar-container {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+[data-theme='dark'] .theme-doc-sidebar-container {
+  background: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(20px) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Sidebar Menu */
+.menu {
+  padding: 1rem !important;
+}
+
+/* Menu Categories */
+.menu__list-item {
+  margin: 0.25rem 0 !important;
+}
+
+.menu__list-item--collapsed .menu__list {
+  display: none;
+}
+
+/* Menu Links - Base Style */
+.menu__link {
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  color: #475569 !important;
+  text-decoration: none !important;
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+[data-theme='dark'] .menu__link {
+  color: rgba(241, 245, 249, 0.9) !important;
+}
+
+/* Menu Link Hover Effects */
+.menu__link:hover {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(96, 165, 250, 0.05)) !important;
+  color: #2563eb !important;
+  transform: translateX(4px) !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15) !important;
+}
+
+[data-theme='dark'] .menu__link:hover {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(147, 187, 252, 0.1)) !important;
+  color: #93bbfc !important;
+  box-shadow: 0 2px 8px rgba(96, 165, 250, 0.25) !important;
+}
+
+/* Active Menu Link */
+.menu__link--active {
+  background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+  transform: translateX(2px) !important;
+}
+
+[data-theme='dark'] .menu__link--active {
+  background: linear-gradient(135deg, #60a5fa, #93bbfc) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.4) !important;
+}
+
+/* Category Headers */
+.menu__list-item > .menu__link {
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  color: #1e293b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 0.5rem !important;
+  padding: 1rem !important;
+  background: rgba(248, 250, 252, 0.8) !important;
+  border: 1px solid rgba(226, 232, 240, 0.5) !important;
+}
+
+[data-theme='dark'] .menu__list-item > .menu__link {
+  color: #f1f5f9 !important;
+  background: rgba(30, 41, 59, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Nested Menu Items */
+.menu__list .menu__list {
+  margin-left: 0 !important;
+  padding-left: 1rem !important;
+  border-left: 2px solid rgba(37, 99, 235, 0.2) !important;
+  margin-top: 0.5rem !important;
+}
+
+[data-theme='dark'] .menu__list .menu__list {
+  border-left-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.menu__list .menu__list .menu__link {
+  font-size: 13px !important;
+  padding: 0.5rem 0.75rem !important;
+  color: #64748b !important;
+}
+
+[data-theme='dark'] .menu__list .menu__list .menu__link {
+  color: rgba(203, 213, 225, 0.8) !important;
+}
+
+/* Collapse/Expand Icons */
+.menu__caret {
+  transition: transform 0.3s ease !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .menu__caret {
+  color: rgba(148, 163, 184, 0.8) !important;
+}
+
+.menu__list-item--collapsed .menu__caret {
+  transform: rotate(-90deg) !important;
+}
+
+/* Scrollbar Styling */
+.theme-doc-sidebar-container ::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.theme-doc-sidebar-container ::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.theme-doc-sidebar-container ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4) !important;
+  border-radius: 3px !important;
+  transition: background 0.3s ease !important;
+}
+
+.theme-doc-sidebar-container ::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7) !important;
+}
+
+[data-theme='dark'] .theme-doc-sidebar-container ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme='dark'] .theme-doc-sidebar-container ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Mobile Sidebar */
+@media (max-width: 996px) {
+  .navbar-sidebar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+  }
+  
+  [data-theme='dark'] .navbar-sidebar {
+    background: rgba(15, 23, 42, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+  }
+  
+  .navbar-sidebar__backdrop {
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(4px) !important;
+  }
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  padding: 1.5rem 1rem !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.8), rgba(241, 245, 249, 0.6)) !important;
+}
+
+[data-theme='dark'] .sidebar-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.4)) !important;
+}
+
+/* Animation for menu items */
+.menu__link {
+  position: relative !important;
+}
+
+.menu__link::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  height: 100% !important;
+  width: 3px !important;
+  background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+  transform: scaleY(0) !important;
+  transition: transform 0.3s ease !important;
+  border-radius: 0 2px 2px 0 !important;
+}
+
+.menu__link--active::before,
+.menu__link:hover::before {
+  transform: scaleY(1) !important;
+}
+
+[data-theme='dark'] .menu__link::before {
+  background: linear-gradient(135deg, #60a5fa, #93bbfc) !important;
+}
+
+/* Smooth transitions for all interactive elements */
+.menu__link,
+.menu__caret,
+.theme-doc-sidebar-container {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Focus states for accessibility */
+.menu__link:focus {
+  outline: 2px solid #2563eb !important;
+  outline-offset: 2px !important;
+}
+
+[data-theme='dark'] .menu__link:focus {
+  outline-color: #60a5fa !important;
+}
+
+/* Enhanced visual hierarchy */
+.menu__list-item > .menu__link {
+  position: relative !important;
+}
+
+.menu__list-item > .menu__link::after {
+  content: '' !important;
+  position: absolute !important;
+  right: 1rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 4px !important;
+  height: 4px !important;
+  background: #2563eb !important;
+  border-radius: 50% !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+[data-theme='dark'] .menu__list-item > .menu__link::after {
+  background: #60a5fa !important;
+}
+
+.menu__list-item > .menu__link:hover::after,
+.menu__list-item > .menu__link--active::after {
+  opacity: 1 !important;
+}

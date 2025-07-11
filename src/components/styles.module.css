@@ -1,778 +1,443 @@
-/* Animation Components Styling */
-.animationContainer {
-  margin: 2rem 0;
-  padding: 2rem;
-  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+/**
+ * Component Styles Module
+ * 
+ * This module contains styles for various components including UnifiedMermaid.
+ */
+
+/* UnifiedMermaid Component */
+.unifiedMermaidWrapper {
+  position: relative;
+  margin: 3rem 0;
+  border-radius: 16px;
   overflow: hidden;
-  border: 1px solid var(--ifm-color-emphasis-200);
-  transition: all 0.3s ease;
-}
-
-.animationContainer:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.animationTitle {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--ifm-color-primary);
-  text-align: center;
-  letter-spacing: -0.02em;
-}
-
-.animationDescription {
-  margin-bottom: 2rem;
-  text-align: center;
-  font-size: 1rem;
-  color: var(--ifm-color-emphasis-700);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.animationError {
-  margin: 2rem 0;
+  background: rgba(248, 250, 252, 0.9);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  transform: translateZ(0);
   padding: 1.5rem;
-  background: var(--ifm-color-danger-lightest, rgba(255, 0, 0, 0.05));
-  border: 1px solid var(--ifm-color-danger-light, rgba(255, 0, 0, 0.2));
-  border-radius: 8px;
-  color: var(--ifm-color-danger-darker, #a50000);
-  text-align: center;
-  font-size: 0.95rem;
 }
 
-.animationError p {
-  margin: 0.5rem 0;
+/* Dark theme styles */
+[data-theme='dark'] .unifiedMermaidWrapper {
+  background: rgba(10, 10, 10, 0.7);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
-/* Voting Power Animation */
-.votingPowerContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  max-width: 700px;
-  margin: 0 auto;
+/* Hover effects */
+.unifiedMermaidWrapper:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
 }
 
-.timelineLabels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  color: var(--ifm-color-emphasis-700);
-  font-weight: 500;
+[data-theme='dark'] .unifiedMermaidWrapper:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(59, 130, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.5);
 }
 
-.votingPowerTrack {
-  height: 36px;
-  background-color: var(--ifm-color-emphasis-200);
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.votingPowerTrack .voting-power-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 0%;
-  background-color: var(--ifm-color-primary);
-  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
-  background-size: 30px 30px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Partner Boost Animation */
-.partnerBoostContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.partner {
-  display: flex;
-  align-items: center;
-  background: var(--ifm-color-emphasis-100);
-  border-radius: 10px;
-  padding: 0.75rem 1rem;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.partner:hover {
-  background: var(--ifm-color-emphasis-200);
-}
-
-.partnerName {
-  flex: 0 0 120px;
+/* Diagram title */
+.diagramTitle {
+  margin: 0 0 1.5rem 0;
+  padding: 0 0 1rem 0;
+  color: var(--ifm-color-gray-900);
+  font-size: 1.5rem;
   font-weight: 600;
-  z-index: 2;
-  color: var(--ifm-font-color-base);
-}
-
-.boostTrack {
-  flex-grow: 1;
-  height: 28px;
-  background: var(--ifm-color-emphasis-200);
-  border-radius: 6px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.boostTrack .boost-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 0%;
-  background-color: var(--ifm-color-primary);
-  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.1) 75%, transparent 75%, transparent);
-  background-size: 28px 28px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.percentage {
-  margin-left: 16px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  min-width: 50px;
-  text-align: right;
-  color: var(--ifm-color-emphasis-900);
-  transition: all 0.3s ease;
-}
-
-.totalAllocation {
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--ifm-color-emphasis-200);
-}
-
-.totalLabel {
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-  color: var(--ifm-color-primary-darker);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
   text-align: center;
 }
 
-.totalBar {
-  height: 8px;
-  background-color: var(--ifm-color-emphasis-300);
-  border-radius: 4px;
+[data-theme='dark'] .diagramTitle {
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Diagram caption */
+.diagramCaption {
+  margin: 1.5rem 0 0 0;
+  padding: 1rem 0 0 0;
+  color: var(--ifm-color-gray-600);
+  font-size: 1rem;
+  font-style: italic;
+  border-top: 1px solid rgba(59, 130, 246, 0.2);
+  text-align: center;
+}
+
+[data-theme='dark'] .diagramCaption {
+  color: rgba(255, 255, 255, 0.8);
+  border-top: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Mermaid container */
+.mermaidContainer {
   position: relative;
-  overflow: hidden;
-}
-
-.totalBar:after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 6.9%;
-  height: 100%;
-  background-color: var(--ifm-color-primary-darker);
-  border-radius: 4px;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-/* Cube Root Visualization */
-.calculationContainer {
+  min-height: 150px;
+  transition: all 0.3s ease;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-top: 2rem;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 1.5rem;
-  background: var(--ifm-color-emphasis-100);
-  border-radius: 10px;
 }
 
-.inputSide, .resultSide {
+.mermaidContainer svg {
+  max-width: 100%;
+  height: auto !important;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* Loading indicator */
+.loadingIndicator {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  position: relative;
-}
-
-.arrowRight {
-  position: relative;
-  width: 60px;
-  height: 20px;
-}
-
-.arrowRight:after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  background-color: var(--ifm-color-emphasis-600);
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-}
-
-.arrowRight:before {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%) rotate(45deg);
-  width: 12px;
-  height: 12px;
-  border-top: 2px solid var(--ifm-color-emphasis-600);
-  border-right: 2px solid var(--ifm-color-emphasis-600);
-}
-
-.processingText {
-  font-size: 0.9rem;
-  color: var(--ifm-color-emphasis-800);
-  margin: 0 1rem;
-  font-weight: 500;
+  justify-content: center;
+  padding: 2rem;
   text-align: center;
+  color: var(--ifm-color-gray-600);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
 }
 
-.input-cube, .result-cube {
+[data-theme='dark'] .loadingIndicator {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Loading spinner */
+.loadingSpinner {
+  display: inline-block;
+  position: relative;
   width: 80px;
   height: 80px;
-  background: linear-gradient(45deg, var(--ifm-color-primary), var(--ifm-color-primary-lighter));
-  border-radius: 12px;
-  opacity: 0;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  margin-bottom: 1rem;
 }
 
-.result-cube {
-  width: 50px;
-  height: 50px;
-  background: linear-gradient(45deg, var(--ifm-color-success), var(--ifm-color-success-light, #4CAF50));
+.loadingSpinner div {
+  position: absolute;
+  top: 33px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--ifm-color-primary);
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
 }
 
-.input-value, .result-value {
-  font-weight: 700;
-  opacity: 0;
-  font-size: 1.1rem;
-  color: var(--ifm-font-color-base);
+.loadingSpinner div:nth-child(1) {
+  left: 8px;
+  animation: loadingSpinner1 0.6s infinite;
 }
 
-/* Mermaid Diagram Enhancement */
-:global(.docusaurus-mermaid-container) {
-  background-color: var(--card-bg);
-  padding: 2rem;
-  border-radius: var(--ifm-global-radius);
-  margin: 2rem 0;
-  border: 1px solid var(--ifm-toc-border-color);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  max-width: 100%;
-  overflow: auto;
+.loadingSpinner div:nth-child(2) {
+  left: 8px;
+  animation: loadingSpinner2 0.6s infinite;
+}
+
+.loadingSpinner div:nth-child(3) {
+  left: 32px;
+  animation: loadingSpinner2 0.6s infinite;
+}
+
+.loadingSpinner div:nth-child(4) {
+  left: 56px;
+  animation: loadingSpinner3 0.6s infinite;
+}
+
+@keyframes loadingSpinner1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes loadingSpinner2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
+}
+
+@keyframes loadingSpinner3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+
+/* Error message */
+.errorMessage {
+  padding: 1.5rem;
+  margin: 1rem 0;
+  background-color: rgba(220, 38, 38, 0.1);
+  border-left: 4px solid rgba(220, 38, 38, 0.7);
+  border-radius: 0.5rem;
+  color: var(--ifm-color-gray-800);
+}
+
+[data-theme='dark'] .errorMessage {
+  background-color: rgba(220, 38, 38, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.errorMessage pre {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+}
+
+[data-theme='dark'] .errorMessage pre {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Mermaid controls */
+.mermaidControls {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem;
+  border-radius: 2rem;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-:global(.docusaurus-mermaid-container:hover) {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+[data-theme='dark'] .mermaidControls {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .calculationContainer {
-    flex-direction: column;
-    height: auto;
-    gap: 2rem;
-    padding: 1rem;
-  }
-  
-  .processingText {
-    margin: 1rem 0;
-  }
-  
-  .arrowRight {
-    transform: rotate(90deg);
-    margin: 0.5rem 0;
-  }
-  
-  .partner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-  
-  .partnerName {
-    flex: none;
-    margin-bottom: 0.5rem;
-  }
-  
-  .boostTrack {
-    width: 100%;
-  }
-  
-  .percentage {
-    margin-left: 0;
-    align-self: flex-end;
-  }
-}
-
-/* Cross Chain Randomness Animation */
-.crossChainContainer {
+/* Control buttons */
+.mermaidControlButton {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 2rem;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 1.5rem;
-  background: var(--ifm-color-emphasis-100);
-  border-radius: 10px;
-  position: relative;
-}
-
-.chainBox {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  width: 200px;
-  height: 100px;
-  background: linear-gradient(135deg, #334155, #1e293b);
-  border-radius: 8px;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  position: relative;
-  margin: 0.5rem 0;
-}
-
-.chainLabel {
-  font-weight: 600;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-  color: #fff;
-}
-
-.nodeBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  width: 150px;
-  height: 80px;
-  background: #2A58DA;
-  border-radius: 8px;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  position: relative;
-  margin: 0.5rem 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  cursor: pointer;
   transition: all 0.3s ease;
-}
-
-.nodeLabel {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #fff;
-}
-
-.arrowSvg {
-  margin: 0;
   padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  color: var(--ifm-color-gray-900);
+  outline: none;
 }
 
-/* Responsive styles for cross-chain animation */
-@media (max-width: 768px) {
-  .crossChainContainer {
-    padding: 1rem;
-    width: 100%;
-  }
-  
-  .chainBox, .nodeBox {
-    width: 160px;
-    height: 80px;
-    padding: 0.75rem;
-  }
-  
-  .chainLabel, .nodeLabel {
-    font-size: 0.8rem;
-  }
+[data-theme='dark'] .mermaidControlButton {
+  background: rgba(59, 130, 246, 0.2);
+  color: rgba(255, 255, 255, 0.9);
 }
 
-/* MermaidDiagram component styling */
-.mermaidContainer {
-  margin: 2rem 0;
-  padding: 1rem;
-  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--ifm-color-emphasis-200);
-  transition: all 0.3s ease;
+.mermaidControlButton svg {
+  width: 18px;
+  height: 18px;
 }
 
-.mermaidContainer:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.mermaidControlButton:hover {
+  background: rgba(59, 130, 246, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 8px rgba(59, 130, 246, 0.4);
 }
 
-.mermaidTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: var(--ifm-color-primary);
-  text-align: center;
+[data-theme='dark'] .mermaidControlButton:hover {
+  background: rgba(59, 130, 246, 0.3);
 }
 
-.mermaidCaption {
-  font-size: 0.9rem;
-  color: var(--ifm-color-emphasis-700);
-  margin-top: 1rem;
-  text-align: center;
-  font-style: italic;
+.mermaidControlButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
 }
 
-/* Custom styling for the mermaid diagrams inside our component */
-.mermaidContainer :global(.mermaid-diagram) {
+.mermaidControlButton:active {
+  transform: translateY(1px);
+}
+
+/* Fullscreen mode */
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  margin: 0;
+  padding: 2rem;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(248, 250, 252, 0.98);
+  border: none;
+}
+
+[data-theme='dark'] .fullscreen {
+  background-color: rgba(10, 10, 10, 0.98);
+}
+
+.fullscreen .mermaidContainer {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow-x: auto;
-  padding: 1rem 0;
+  overflow: auto;
+  padding: 2rem;
 }
 
-.mermaidContainer :global(.mermaid-diagram svg) {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Token Fee Animation Styles */
-.feeSystemContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 2rem;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 1.5rem;
-  background: var(--ifm-color-emphasis-100);
-  border-radius: 10px;
-  position: relative;
-}
-
-.tokenSwapNode {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  width: 180px;
-  height: 90px;
-  background: linear-gradient(135deg, #334155, #1e293b);
+.fullscreen .mermaidContainer svg {
+  max-height: 80vh;
+  max-width: 90vw;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+}
+
+[data-theme='dark'] .fullscreen .mermaidContainer svg {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Particles */
+.withParticles {
+  overflow: hidden;
   position: relative;
-  margin: 0.5rem 0;
 }
 
-.feePoolNode {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  width: 140px;
-  height: 70px;
-  background: #388E3C;
-  border-radius: 8px;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  position: relative;
-  margin: 0.5rem 0;
-  transition: all 0.3s ease;
-}
-
-.feeDistributionContainer {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-  margin: 0.5rem 0;
-}
-
-.feeDestinationsContainer {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-  margin: 0.5rem 0;
-}
-
-.feeDestinationNode {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  width: 120px;
-  height: 80px;
-  border-radius: 8px;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.jackpot-node {
-  background: #E19A00;
-}
-
-.ve69lp-node {
-  background: #3F51B5;
-}
-
-.burn-node {
-  background: #D32F2F;
-}
-
-.percentTag {
+.particle {
   position: absolute;
-  top: -10px;
-  right: -10px;
-  background: #E91E63;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: rgba(59, 130, 246, 0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: float 15s infinite ease-in-out;
+  z-index: 0;
 }
 
-/* Media queries for token fee animation */
-@media (max-width: 768px) {
-  .feeDestinationsContainer {
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
+.fullscreen .particle {
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
   }
-  
-  .feeDistributionContainer {
-    display: none;
+  25% {
+    transform: translateY(-30px) translateX(15px);
   }
-  
-  .percentTag {
-    position: relative;
-    top: auto;
-    right: auto;
-    margin-top: 0.5rem;
+  50% {
+    transform: translateY(-15px) translateX(-15px);
+  }
+  75% {
+    transform: translateY(-45px) translateX(10px);
   }
 }
 
-/* MermaidDiagram error state */
-.mermaidError {
-  padding: 1rem;
-  border-radius: 6px;
-  background-color: var(--ifm-color-danger-lightest, rgba(255, 0, 0, 0.05));
-  color: var(--ifm-color-danger-darker, #a50000);
-  text-align: center;
-  margin: 1rem 0;
-  font-size: 0.9rem;
-  border: 1px solid var(--ifm-color-danger-light, rgba(255, 0, 0, 0.2));
-}
-
-.mermaidLoading {
-  padding: 2rem;
-  text-align: center;
-  color: var(--ifm-color-emphasis-600);
-  font-size: 0.9rem;
-  font-style: italic;
-}
-
-/* Mermaid diagram styles */
-.mermaidContainer {
-  margin: 2rem 0;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background-color: var(--ifm-background-surface-color);
-  padding: 1rem;
-}
-
-.mermaidTitle {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: var(--ifm-color-primary);
-  text-align: center;
-}
-
-.mermaidCaption {
-  font-size: 0.9rem;
-  color: var(--ifm-color-secondary-darkest);
-  margin-top: 1rem;
-  text-align: center;
-  font-style: italic;
-}
-
-.mermaidError {
-  padding: 1rem;
-  border-radius: 4px;
-  background-color: rgba(255, 50, 50, 0.05);
-  border: 1px solid rgba(255, 50, 50, 0.2);
-  color: #ff5050;
-  margin: 1rem 0;
-}
-
-.mermaidError details {
-  margin-top: 0.5rem;
-}
-
-.mermaidError pre {
-  font-size: 0.8rem;
-  background-color: rgba(0, 0, 0, 0.05);
-  padding: 0.5rem;
-  border-radius: 4px;
-  overflow-x: auto;
-}
-
-/* Override default mermaid styles for better integration */
-:global(.docusaurus-mermaid-container) {
-  margin: 0 auto;
-  text-align: center;
-}
-
-:global(.docusaurus-mermaid-container .mermaid) {
-  overflow: visible !important;
-}
-
-:global(.mermaid .flowchart-link) {
-  stroke-width: 2px !important;
-}
-
-:global(.mermaid .marker) {
-  fill: var(--ifm-color-primary) !important;
-}
-
-:global(.mermaid .classLabel .label),
-:global(.mermaid .nodeLabel),
-:global(.mermaid .edgeLabel) {
-  font-family: var(--ifm-font-family-base) !important;
-}
-
-:global([data-theme='dark'] .mermaid .classLabel .label),
-:global([data-theme='dark'] .mermaid .nodeLabel),
-:global([data-theme='dark'] .mermaid .edgeLabel) {
-  color: var(--ifm-color-content) !important;
-  fill: var(--ifm-color-content) !important;
-}
-
-:global(.mermaid .flowchart-link) path {
-  stroke-width: 2px;
-}
-
-:global(.mermaid .actor) {
-  stroke: var(--ifm-color-primary) !important;
-  fill: var(--ifm-background-surface-color) !important;
-}
-
-:global(.mermaid .messageLine0) {
-  stroke-width: 1.5 !important;
-  stroke: var(--ifm-color-primary-darker) !important;
-}
-
-/* Style class notations in flowcharts */
-:global(.mermaid .cluster rect) {
-  fill: var(--ifm-color-emphasis-100) !important;
-  stroke: var(--ifm-color-emphasis-300) !important;
-}
-
-/* Fix font sizes for better readability */
-:global(.mermaid text.actor),
-:global(.mermaid .classLabel .label),
-:global(.mermaid .nodeLabel) {
-  font-size: 14px !important;
-}
-
-:global(.mermaid .edgeLabel) {
-  font-size: 12px !important;
-  background-color: var(--ifm-background-color) !important;
-}
-
-:global(.sequenceDiagram .messageText) {
-  font-size: 12px !important;
-}
-
-/* Make diagrams responsive */
-@media (max-width: 768px) {
-  :global(.mermaid) {
-    font-size: 12px !important;
-  }
-  
-  :global(.mermaid text.actor),
-  :global(.mermaid .classLabel .label),
-  :global(.mermaid .nodeLabel) {
-    font-size: 12px !important;
-  }
-  
-  :global(.mermaid .edgeLabel) {
-    font-size: 10px !important;
-  }
-}
-
-/* Animated Diagram styles */
+/* Animated diagram container */
 .animatedDiagramContainer {
-  margin: 2rem 0;
-  padding: 2rem;
-  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  border: 1px solid var(--ifm-color-emphasis-200);
-  transition: all 0.3s ease;
   position: relative;
-  min-height: 300px;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.9);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+[data-theme='dark'] .animatedDiagramContainer {
+  background: rgba(10, 10, 10, 0.7);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .animatedDiagramContainer:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme='dark'] .animatedDiagramContainer:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.animationTitle {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--ifm-color-gray-900);
+}
+
+[data-theme='dark'] .animationTitle {
+  color: #fff;
+}
+
+.animationDescription {
+  margin: 0 0 1.5rem 0;
+  color: var(--ifm-color-gray-600);
+}
+
+[data-theme='dark'] .animationDescription {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .animatedContent {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
   position: relative;
-  margin-top: 2rem;
+  min-height: 100px;
 }
 
+.animationLoading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--ifm-color-gray-600);
+  font-style: italic;
+}
+
+[data-theme='dark'] .animationLoading {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Animated node */
 .animatedNode {
-  padding: 1rem;
-  background: var(--ifm-color-emphasis-100);
-  border: 2px solid var(--ifm-color-primary);
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  margin: 0.5rem;
+  background-color: var(--ifm-color-primary-lightest);
+  color: var(--ifm-color-gray-900);
   border-radius: 8px;
-  min-width: 120px;
-  min-height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  text-align: center;
-  position: relative;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+}
+
+[data-theme='dark'] .animatedNode {
+  background-color: var(--ifm-color-primary-darkest);
+  color: #fff;
 }
 
 .animatedNode:hover {
@@ -780,479 +445,77 @@
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* Connection SVG */
 .connectionSvg {
-  pointer-events: none;
-  z-index: 1;
-}
-
-.connectionLabel {
-  font-size: 12px;
-  fill: var(--ifm-color-emphasis-700);
-  font-weight: 500;
-}
-
-/* Animated diagram type variants */
-.nodeContract {
-  background: linear-gradient(135deg, #334155, #1e293b);
-  color: white;
-  border-color: transparent;
-}
-
-.nodeEvent {
-  background: linear-gradient(135deg, #4a80d1, #3a6dbd);
-  color: white;
-  border-color: transparent;
-}
-
-.nodeProcess {
-  background: linear-gradient(135deg, #388e3c, #2e7d32);
-  color: white;
-  border-color: transparent;
-}
-
-.nodeUser {
-  background: linear-gradient(135deg, #7b1fa2, #6a1b9a);
-  color: white;
-  border-color: transparent;
-}
-
-/* Animated FlowChart Example */
-.flowChartContainer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  position: relative;
-}
-
-.flowChartStep {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 0.5rem;
-}
-
-.flowChartIcon {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ifm-color-primary);
-  color: white;
-  border-radius: 50%;
-  font-size: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.flowChartText {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ifm-color-emphasis-900);
-  max-width: 180px;
-}
-
-/* Responsive styles for animated diagrams */
-@media (max-width: 768px) {
-  .animatedDiagramContainer {
-    padding: 1rem;
-  }
-  
-  .flowChartContainer {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-  
-  .animatedNode {
-    min-width: 100px;
-    min-height: 50px;
-    padding: 0.75rem;
-    font-size: 14px;
-  }
-}
-
-/* Animation loading state */
-.animationLoading {
-  padding: 1rem;
-  text-align: center;
-  color: var(--ifm-color-emphasis-600);
-  font-style: italic;
-  background-color: var(--ifm-color-emphasis-100);
-  border-radius: 8px;
-  margin: 1rem auto;
-  max-width: 300px;
-  animation: pulse 1.5s infinite alternate;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.6; }
-  100% { opacity: 1; }
-}
-
-/* Enhanced Mermaid Container */
-.enhancedMermaidContainer {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
-  border-radius: 12px;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  border: 1px solid var(--ifm-color-emphasis-200);
-  transition: box-shadow 0.3s ease;
-  position: relative;
-}
-
-.enhancedMermaidContainer:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Loading indicator for Mermaid diagrams */
-.mermaidLoading {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(var(--ifm-background-color-rgb), 0.7);
-  backdrop-filter: blur(3px);
-  z-index: 10;
-}
-
-.loadingIndicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.loadingIndicator span {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  background: var(--ifm-color-primary);
-  border-radius: 50%;
-  animation: loadingPulse 1.4s infinite ease-in-out both;
-}
-
-.loadingIndicator span:nth-child(1) {
-  animation-delay: -0.32s;
-}
-
-.loadingIndicator span:nth-child(2) {
-  animation-delay: -0.16s;
-}
-
-@keyframes loadingPulse {
-  0%, 80%, 100% {
-    transform: scale(0);
-    opacity: 0.5;
-  }
-  40% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Enhance Mermaid diagram appearance */
-:global(.enhancedMermaidContainer .mermaid) {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
-:global(.enhancedMermaidContainer .mermaid svg) {
-  max-width: 100%;
-  height: auto !important;
-}
-
-:global(.enhancedMermaidContainer .actor) {
-  fill: var(--ifm-color-emphasis-100) !important;
-  stroke: var(--ifm-color-emphasis-300) !important;
-  stroke-width: 1px !important;
-}
-
-:global(.enhancedMermaidContainer .mermaid .flowchart-link) {
-  stroke-width: 2px !important;
-}
-
-:global(.enhancedMermaidContainer .mermaid .node rect),
-:global(.enhancedMermaidContainer .mermaid .node circle),
-:global(.enhancedMermaidContainer .mermaid .node ellipse) {
-  fill: var(--ifm-color-emphasis-100) !important;
-  stroke: var(--ifm-color-emphasis-300) !important;
-  stroke-width: 1px !important;
-  rx: 4px !important;
-  ry: 4px !important;
-  filter: drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.08));
-}
-
-:global(.enhancedMermaidContainer .node:hover rect),
-:global(.enhancedMermaidContainer .node:hover circle),
-:global(.enhancedMermaidContainer .node:hover ellipse) {
-  filter: drop-shadow(0px 3px 5px rgba(0, 0, 0, 0.15));
-  stroke: var(--ifm-color-primary) !important;
-  stroke-width: 1.5px !important;
-}
-
-:global(.enhancedMermaidContainer .statediagram-state rect) {
-  rx: 8px !important;
-  ry: 8px !important;
-}
-
-:global(.enhancedMermaidContainer .label) {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-}
-
-:global(.enhancedMermaidContainer .mermaid .edgeLabel) {
-  background-color: var(--ifm-background-surface-color) !important;
-  border-radius: 4px !important;
-  padding: 2px 6px !important;
-  font-size: 12px !important;
-}
-
-:global(.enhancedMermaidContainer .mermaid .edgeLabel text) {
-  fill: var(--ifm-color-emphasis-800) !important;
-}
-
-:global(.enhancedMermaidContainer .mermaid .note) {
-  fill: var(--ifm-color-emphasis-100) !important;
-  stroke: var(--ifm-color-emphasis-300) !important;
-  stroke-width: 1px !important;
-  rx: 4px !important;
-  ry: 4px !important;
-}
-
-/* Fade-in animation for the whole diagram when rendered */
-.rendered {
-  animation: fadeIn 0.5s ease forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0.5;
-    transform: translateY(10px);
-  } 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-:global(.rendered .docusaurus-mermaid-container svg .node:nth-child(odd)) {
-  animation-delay: 0.1s !important;
-}
-
-:global(.rendered .docusaurus-mermaid-container svg .node:nth-child(even)) {
-  animation-delay: 0.2s !important;
-}
-
-/* Animated Card Component */
-.animatedCard {
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-  border-radius: 12px;
-  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--ifm-color-emphasis-200);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.animatedCard.withHover:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.cardIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
-  background-color: var(--ifm-color-primary);
-  color: white;
-  border-radius: 50%;
-  margin-bottom: 1.25rem;
-  position: relative;
-  box-shadow: 0 4px 12px rgba(var(--ifm-color-primary-rgb), 0.2);
-}
-
-.cardTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--ifm-heading-color);
-  letter-spacing: -0.02em;
-}
-
-.cardContent {
-  color: var(--ifm-color-emphasis-800);
-}
-
-.cardContent p {
-  margin-bottom: 0.75rem;
-}
-
-/* Card color variants */
-.cardColor--primary .cardIcon {
-  background-color: var(--ifm-color-primary);
-  box-shadow: 0 4px 12px rgba(var(--ifm-color-primary-rgb), 0.2);
-}
-
-.cardColor--success .cardIcon {
-  background-color: var(--ifm-color-success);
-  box-shadow: 0 4px 12px rgba(var(--ifm-color-success-rgb), 0.2);
-}
-
-.cardColor--warning .cardIcon {
-  background-color: var(--ifm-color-warning);
-  box-shadow: 0 4px 12px rgba(var(--ifm-color-warning-rgb), 0.2);
-}
-
-.cardColor--danger .cardIcon {
-  background-color: var(--ifm-color-danger);
-  box-shadow: 0 4px 12px rgba(var(--ifm-color-danger-rgb), 0.2);
-}
-
-/* Standard Mermaid diagram container */
-.standardMermaidContainer {
-  margin: 2rem 0;
-  text-align: center;
-  overflow-x: auto;
-  background: var(--ifm-background-color);
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.standardMermaidContainer:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.standardMermaidContainer .mermaid {
-  background-color: transparent;
-}
-
-/* Ensure SVG renders at full width */
-.standardMermaidContainer svg {
-  max-width: 100%;
-  height: auto !important;
-}
-
-/* Error styling */
-.mermaidError {
-  padding: 1rem;
-  background-color: rgba(255, 0, 0, 0.1);
-  border-left: 4px solid #f56565;
-  margin: 1rem 0;
-  border-radius: 4px;
-  color: var(--ifm-color-danger);
-}
-
-/* Loading indicator */
-.mermaidLoading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100px;
-}
-
-.loadingIndicator {
-  display: flex;
-  gap: 8px;
-}
-
-.loadingIndicator span {
-  width: 12px;
-  height: 12px;
-  background-color: var(--ifm-color-primary);
-  border-radius: 50%;
-  animation: loadingPulse 1.5s infinite ease-in-out;
-}
-
-.loadingIndicator span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.loadingIndicator span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes loadingPulse {
-  0%, 100% {
-    transform: scale(0.8);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 1;
-  }
-}
-
-/* Style for processed mermaid diagrams */
-.mermaid.processed svg {
-  max-width: 100%;
-  height: auto !important;
-  margin: 0 auto;
-}
-
-/* Global mermaid styles */
-:global(.mermaid-error) {
-  padding: 0.75rem;
-  margin: 0.5rem 0;
-  background-color: rgba(255, 0, 0, 0.05);
-  border-radius: 4px;
-  color: var(--ifm-color-danger);
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-/* Enhance SVG styles */
-:global(.mermaid svg) {
-  max-width: 100%;
-  height: auto !important;
-}
-
-:global([data-theme='dark'] .standardMermaidContainer .mermaid .node rect),
-:global([data-theme='dark'] .standardMermaidContainer .mermaid .node circle),
-:global([data-theme='dark'] .standardMermaidContainer .mermaid .node ellipse) {
-  fill: rgba(45, 55, 72, 0.9) !important;
-  stroke: #4a5568 !important;
-}
-
-:global([data-theme='dark'] .standardMermaidContainer .mermaid .label) {
-  color: #e2e8f0 !important;
-  fill: #e2e8f0 !important;
-}
-
-:global([data-theme='dark'] .standardMermaidContainer .mermaid .cluster rect) {
-  fill: rgba(30, 41, 59, 0.4) !important;
-  stroke: #4a5568 !important;
-}
-
-.mermaidWrapper {
-  background: var(--ifm-card-background-color);
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 2rem 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow-x: auto;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.mermaidWrapper:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.mermaidContent {
   width: 100%;
   height: 100%;
-} 
+  pointer-events: none;
+  z-index: 0;
+}
+
+.connectionLabel {
+  fill: var(--ifm-color-gray-700);
+  font-size: 12px;
+}
+
+[data-theme='dark'] .connectionLabel {
+  fill: rgba(255, 255, 255, 0.8);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .unifiedMermaidWrapper {
+    margin: 2rem 0;
+  }
+  
+  .diagramTitle {
+    padding: 1rem 1.5rem;
+    font-size: 1.25rem;
+  }
+  
+  .diagramCaption {
+    padding: 1rem 1.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .mermaidContainer {
+    padding: 1rem;
+  }
+  
+  .mermaidControls {
+    bottom: 0.5rem;
+    right: 0.5rem;
+  }
+  
+  .mermaidControlButton {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .unifiedMermaidWrapper,
+  .unifiedMermaidWrapper:hover,
+  .mermaidControlButton,
+  .mermaidControlButton:hover,
+  .animatedDiagramContainer,
+  .animatedDiagramContainer:hover,
+  .animatedNode,
+  .animatedNode:hover {
+    transition: none !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  
+  .particle {
+    animation: none !important;
+  }
+  
+  .loadingSpinner div {
+    animation: none !important;
+  }
+}

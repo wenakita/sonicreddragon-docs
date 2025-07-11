@@ -1,12 +1,15 @@
-# Sonic Red Dragon Token
+---
+title: Token
+sidebar_position: 1
+description: Detailed explanation of this concept
+---
+# Sonic Red DRAGON Token
 
-This document provides technical details about the Sonic Red Dragon token contract implementation.
+This document provides technical details about the Sonic Red DRAGON token contract implementation.
 
 ## Contract Overview
 
-The Sonic Red Dragon token is a cross-chain ERC-20 compatible token built on LayerZero V2 with dRAND integration for verifiable randomness and enhanced security features.
-
-**Contract Address (Ethereum)**: Coming Soon
+The Sonic Red DRAGON token is a cross-chain ERC-20 compatible token built on LayerZero V2 with dRAND integration for verifiable randomness and enhanced security features.**Contract Address (Ethereum)**: Coming Soon
 
 ## Key Features
 
@@ -80,7 +83,7 @@ constructor(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| _name | string | Token name ("Sonic Red Dragon") |
+| _name | string | Token name ("Sonic Red DRAGON") |
 | _symbol | string | Token symbol ("SRD") |
 | _decimals | uint8 | Decimal places (18) |
 | _maxSupply | uint256 | Maximum token supply |
@@ -143,7 +146,7 @@ event MaxSupplyUpdated(uint256 newMaxSupply);
 
 ## Cross-Chain Implementation
 
-The Sonic Red Dragon token implements LayerZero V2 for cross-chain functionality:
+The Sonic Red DRAGON token implements LayerZero V2 for cross-chain functionality:
 
 ```solidity
 contract SonicRedDragon is ERC20, AccessControl, Pausable {
@@ -179,13 +182,13 @@ Features:
 
 The contract implements multiple security layers:
 
-- **Role-Based Access Control**: Granular permissions for different functions
-- **Pausable Transfers**: Emergency pause functionality
-- **Rate Limiting**: Prevents abuse of cross-chain and randomness functions
-- **Supply Enforcement**: Strict maximum supply management
-- **Input Validation**: Comprehensive validation for all functions
-- **Cross-Chain Security**: Message verification and validation
-- **Randomness Security**: Verification of dRAND proofs
+-**Role-Based Access Control**: Granular permissions for different functions
+-**Pausable Transfers**: Emergency pause functionality
+-**Rate Limiting**: Prevents abuse of cross-chain and randomness functions
+-**Supply Enforcement**: Strict maximum supply management
+-**Input Validation**: Comprehensive validation for all functions
+-**Cross-Chain Security**: Message verification and validation
+-**Randomness Security**: Verification of dRAND proofs
 
 ## Contract Verification
 

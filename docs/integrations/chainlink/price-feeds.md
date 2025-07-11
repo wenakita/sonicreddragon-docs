@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Price Feeds
+description: Detailed explanation of this concept
 ---
 
 # Price Feeds

@@ -7,11 +7,7 @@ description: Core mathematics library providing essential operations and calcula
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# DragonMathLib
-
-**Core mathematics library providing essential operations and calculations**
-
-<div className="contract-badges">
+# DragonMathLib**Core mathematics library providing essential operations and calculations**<div className="contract-badges">
   <span className="contract-badge utility">Utility Library</span>
   <span className="contract-badge core">Core Component</span>
   <span className="contract-badge optimized">Gas Optimized</span>
@@ -23,34 +19,30 @@ This library contains optimized mathematical operations for critical protocol fu
 
 ```mermaid
 flowchart TB
-    subgraph "DragonMathLib Functions"
-        cubeRoot["cubeRoot()<br>Newton's method implementation"]
-        votingPower["calculateVotingPower()<br>Governance calculations"]
-        percentage["calculatePercentage()<br>Precise percentages"]
-        boost["applyBoost()<br>Multiplier application"]
-        weighted["calculateWeightedAverage()<br>Combining values"]
-        range["mapRange()<br>Range transformation"]
-        interp["linearInterpolation()<br>Value interpolation"]
-    end
-    
+subgraph "DragonMathLib Functions"
+    cubeRoot["cubeRoot()<br>Newton's method implementation"]
+    votingPower["calculateVotingPower()<br>Governance calculations"]
+    percentage["calculatePercentage()<br>Precise percentages"]
+    boost["applyBoost()<br>Multiplier application"]
+    weighted["calculateWeightedAverage()<br>Combining values"]
+    range["mapRange()<br>Range transformation"]
+    interp["linearInterpolation()<br>Value interpolation"]
     subgraph "Protocol Applications"
-        governance["Governance System"]
-        jackpot["Jackpot Distribution"]
-        market["Market Functions"]
-        token["Token Economics"]
-    end
-    
-    cubeRoot --> votingPower
-    votingPower --> governance
-    percentage --> jackpot
-    percentage --> market
-    boost --> token
-    weighted --> jackpot
-    range --> market
-    interp --> market
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white;
-    class cubeRoot,votingPower highlight
+    governance["Governance System"]
+    jackpot["Jackpot Distribution"]
+    market["Market Functions"]
+    token["Token Economics"]
+    cubeRoot -->|> votingPower
+    votingPower| governance
+    percentage -->|> jackpot
+    percentage| market
+    boost -->|> token
+    weighted| jackpot
+    range -->|> market
+    interp| market
+    classDef highlight fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    end    class cubeRoot primary    endclass votingPower primary    end
+end
 ```
 
 ## Key Functions
@@ -60,8 +52,7 @@ flowchart TB
 The library implements an optimized cube root function using Newton's method:
 
 ```solidity
-/**
- * @dev Calculate cube root using Newton's method (used in voting power calculations)
+/***@dev Calculate cube root using Newton's method (used in voting power calculations)
  * @param n The number to find the cube root of
  * @return The cube root of n, with precision
  */
@@ -107,8 +98,7 @@ This implementation features several optimizations:
 A core function for the governance system that uses cube root normalization:
 
 ```solidity
-/**
- * @dev Calculate voting power using cube root normalization for more equitable distribution
+/***@dev Calculate voting power using cube root normalization for more equitable distribution
  * @param amount The amount of tokens
  * @return votingPower The calculated voting power
  */
@@ -127,8 +117,7 @@ This function implements the "cube root rule" (similar to the Wyoming Rule in po
 Precise percentage calculation with configurable precision:
 
 ```solidity
-/**
- * @dev Calculate normalized percentage with high precision
+/***@dev Calculate normalized percentage with high precision
  * @param numerator Numerator value
  * @param denominator Denominator value
  * @param precision Precision factor (e.g., 1e18)
@@ -149,8 +138,7 @@ function calculatePercentage(
 Apply multipliers to values with precision control:
 
 ```solidity
-/**
- * @dev Apply a boost multiplier to an amount with precise math
+/***@dev Apply a boost multiplier to an amount with precise math
  * @param amount Base amount
  * @param multiplier Boost multiplier (scaled by precision)
  * @param precision Precision factor (e.g., 10000 for 100.00%)
@@ -170,8 +158,7 @@ function applyBoost(
 Combine multiple values with different weights:
 
 ```solidity
-/**
- * @dev Calculate weighted average of multiple values
+/***@dev Calculate weighted average of multiple values
  * @param values Array of values
  * @param weights Array of weights (should sum to precision)
  * @param precision Precision factor (e.g., 1e18)
@@ -210,8 +197,7 @@ function calculateWeightedAverage(
 Transform values from one range to another:
 
 ```solidity
-/**
- * @dev Map a value from one range to another with precise math
+/***@dev Map a value from one range to another with precise math
  * @param value Input value
  * @param fromLow Lower bound of input range
  * @param fromHigh Upper bound of input range
@@ -245,8 +231,7 @@ function mapRange(
 Calculate values along a linear path between two points:
 
 ```solidity
-/**
- * @dev Calculate linear interpolation between two points
+/***@dev Calculate linear interpolation between two points
  * @param startValue Start value
  * @param endValue End value
  * @param startPosition Start position (0-1 scaled by precision)
@@ -344,18 +329,18 @@ contract DynamicPricingModel {
 
 The DragonMathLib implements several gas optimizations:
 
-1. **Early Returns**: Functions return early for edge cases like zero inputs
-2. **Limited Iterations**: Newton's method implementation caps iterations at 8
-3. **Smart Initial Guesses**: Uses logarithmic approximation for better starting points
-4. **Early Exit Conditions**: Breaks loops when convergence is detected
-5. **Precision Management**: Carefully manages multiplication/division order to maintain precision
+1.**Early Returns**: Functions return early for edge cases like zero inputs
+2.**Limited Iterations**: Newton's method implementation caps iterations at 8
+3.**Smart Initial Guesses**: Uses logarithmic approximation for better starting points
+4.**Early Exit Conditions**: Breaks loops when convergence is detected
+5.**Precision Management**: Carefully manages multiplication/division order to maintain precision
 
 ## Security Considerations
 
 When using the DragonMathLib, consider these security best practices:
 
-1. **Precision Handling**: Be consistent with precision factors across calculations
-2. **Overflow Awareness**: While Solidity 0.8+ has built-in overflow checks, be cautious with large numbers
-3. **Division Safety**: Always check for division by zero
-4. **Order of Operations**: The order of multiplication and division affects precision
-5. **Array Validation**: Validate array inputs before using functions like `calculateWeightedAverage` 
+1.**Precision Handling**: Be consistent with precision factors across calculations
+2.**Overflow Awareness**: While Solidity 0.8+ has built-in overflow checks, be cautious with large numbers
+3.**Division Safety**: Always check for division by zero
+4.**Order of Operations**: The order of multiplication and division affects precision
+5.**Array Validation**: Validate array inputs before using functions like `calculateWeightedAverage` 

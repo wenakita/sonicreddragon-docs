@@ -1,0 +1,850 @@
+---
+sidebar_position: 2
+title: Developer Guide
+description: Comprehensive guide for developers integrating with OmniDragon
+---
+
+# OmniDragon Developer Guide
+
+This guide provides comprehensive information for developers looking to integrate with the OmniDragon protocol. Whether you're building a dApp that interacts with OmniDragon or extending the protocol's functionality, this guide will help you understand the technical aspects of the OmniDragon ecosystem.
+
+## Getting Started
+
+### Development Environment Setup
+
+To set up your development environment:
+
+1. Install Node.js (v16 or later) and npm/yarn
+2. Clone the OmniDragon SDK repository:
+   ```bash
+   git clone https://github.com/OmniDragon/sdk.git
+   cd sdk
+   npm install
+   ```
+3. Install the OmniDragon SDK in your project:
+   ```bash
+   npm install @OmniDragon/sdk
+   ```
+
+### Network Configuration
+
+OmniDragon is deployed on multiple networks. Here are the contract addresses for each network:
+
+#### Ethereum Mainnet (Chain ID: 1)
+
+```javascript
+const ETHEREUM_CONTRACTS = {
+  token: "0x69420EaEd4a68B7af8C548Ae5F5b2E0D5B5A7699",
+  jackpotVault: "0x69420FbEd4a68B7af8C548Ae5F5b2E0D5B5A7700",
+  bridge: "0x69420CdEd4a68B7af8C548Ae5F5b2E0D5B5A7701",
+  governance: "0x69420DdEd4a68B7af8C548Ae5F5b2E0D5B5A7702",
+  randomnessProvider: "0x69420AaEd4a68B7af8C548Ae5F5b2E0D5B5A7703",
+  lzEndpoint: "0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675"
+};
+```
+
+#### BNB Chain (Chain ID: 56)
+
+```javascript
+const BSC_CONTRACTS = {
+  token: "0x69420EaEd4a68B7af8C548Ae5F5b2E0D5B5B7699",
+  jackpotVault: "0x69420FbEd4a68B7af8C548Ae5F5b2E0D5B5B7700",
+  bridge: "0x69420CdEd4a68B7af8C548Ae5F5b2E0D5B5B7701",
+  governance: "0x69420DdEd4a68B7af8C548Ae5F5b2E0D5B5B7702",
+  randomnessProvider: "0x69420AaEd4a68B7af8C548Ae5F5b2E0D5B5B7703",
+  lzEndpoint: "0x3c2269811836af69497E5F486A85D7316753cf62"
+};
+```
+
+#### Arbitrum (Chain ID: 42161)
+
+```javascript
+const ARBITRUM_CONTRACTS = {
+  token: "0x69420EaEd4a68B7af8C548Ae5F5b2E0D5B5C7699",
+  jackpotVault: "0x69420FbEd4a68B7af8C548Ae5F5b2E0D5B5C7700",
+  bridge: "0x69420CdEd4a68B7af8C548Ae5F5b2E0D5B5C7701",
+  governance: "0x69420DdEd4a68B7af8C548Ae5F5b2E0D5B5C7702",
+  randomnessProvider: "0x69420AaEd4a68B7af8C548Ae5F5b2E0D5B5C7703",
+  lzEndpoint: "0x3c2269811836af69497E5F486A85D7316753cf62"
+};
+```
+
+#### Avalanche (Chain ID: 43114)
+
+```javascript
+const AVALANCHE_CONTRACTS = {
+  token: "0x69420EaEd4a68B7af8C548Ae5F5b2E0D5B5D7699",
+  jackpotVault: "0x69420FbEd4a68B7af8C548Ae5F5b2E0D5B5D7700",
+  bridge: "0x69420CdEd4a68B7af8C548Ae5F5b2E0D5B5D7701",
+  governance: "0x69420DdEd4a68B7af8C548Ae5F5b2E0D5B5D7702",
+  randomnessProvider: "0x69420AaEd4a68B7af8C548Ae5F5b2E0D5B5D7703",
+  lzEndpoint: "0x3c2269811836af69497E5F486A85D7316753cf62"
+};
+```
+
+## SDK Integration
+
+### Initializing the SDK
+
+```javascript
+import { OmniDragonSDK, ChainId } from '@OmniDragon/sdk';
+import { ethers } from 'ethers';
+
+// Initialize with a provider
+const provider = new ethers.providers.Web3Provider(window.ethereum);
+const signer = provider.getSigner();
+
+// Create SDK instance
+const sdk = new OmniDragonSDK({
+  provider,
+  signer,
+  defaultChainId: ChainId.ETHEREUM
+});
+```
+
+### Switching Chains
+
+```javascript
+// Switch to BNB Chain
+await sdk.switchChain(ChainId.BNB Chain);
+
+// Get current chain
+const currentChain = sdk.getCurrentChain();
+console.log(`Current chain: ${currentChain.name} (${currentChain.chainId})`);
+```
+
+### Token Operations
+
+#### Getting Token Information
+
+```javascript
+// Get token information
+const tokenInfo = await sdk.token.getInfo();
+console.log(`Token name: ${tokenInfo.name}`);
+console.log(`Token symbol: ${tokenInfo.symbol}`);
+console.log(`Token decimals: ${tokenInfo.decimals}`);
+console.log(`Total supply: ${ethers.utils.formatUnits(tokenInfo.totalSupply, tokenInfo.decimals)}`);
+```
+
+#### Getting Token Balance
+
+```javascript
+// Get token balance
+const address = await signer.getAddress();
+const balance = await sdk.token.balanceOf(address);
+console.log(`Balance: ${ethers.utils.formatUnits(balance, 18)} DRAGON`);
+```
+
+#### Transferring Tokens
+
+```javascript
+// Transfer tokens
+const recipient = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e";
+const amount = ethers.utils.parseUnits("100", 18); // 100 DRAGON
+
+const tx = await sdk.token.transfer(recipient, amount);
+await tx.wait();
+console.log(`Transfer successful: ${tx.hash}`);
+```
+
+#### Approving Tokens
+
+```javascript
+// Approve tokens for a contract to spend
+const spender = sdk.contracts.jackpotVault.address;
+const amount = ethers.utils.parseUnits("1000", 18); // 1000 DRAGON
+
+const tx = await sdk.token.approve(spender, amount);
+await tx.wait();
+console.log(`Approval successful: ${tx.hash}`);
+```
+
+### Cross-Chain Operations
+
+#### Bridging Tokens
+
+```javascript
+// Bridge tokens from current chain to destination chain
+const destinationChainId = ChainId.ARBITRUM;
+const amount = ethers.utils.parseUnits("100", 18); // 100 DRAGON
+const recipient = await signer.getAddress(); // Same address on destination chain
+
+const tx = await sdk.bridge.sendTokens(
+  destinationChainId,
+  recipient,
+  amount,
+  { 
+    gasLimit: 500000,
+    value: ethers.utils.parseEther("0.01") // Native token for LayerZero fees
+  }
+);
+await tx.wait();
+console.log(`Bridge transaction initiated: ${tx.hash}`);
+```
+
+#### Estimating Bridge Fees
+
+```javascript
+// Estimate bridge fees
+const destinationChainId = ChainId.AVALANCHE;
+const amount = ethers.utils.parseUnits("100", 18); // 100 DRAGON
+
+const fees = await sdk.bridge.estimateFees(destinationChainId, amount);
+console.log(`Bridge fee: ${ethers.utils.formatEther(fees.bridgeFee)} ETH`);
+console.log(`LayerZero fee: ${ethers.utils.formatEther(fees.lzFee)} ETH`);
+console.log(`Total fee: ${ethers.utils.formatEther(fees.totalFee)} ETH`);
+```
+
+#### Tracking Cross-Chain Transactions
+
+```javascript
+// Track a cross-chain transaction
+const srcChainId = ChainId.ETHEREUM;
+const destChainId = ChainId.ARBITRUM;
+const txHash = "0x123..."; // Source chain transaction hash
+
+sdk.bridge.trackTransaction(srcChainId, destChainId, txHash, (status) => {
+  console.log(`Transaction status: ${status}`);
+  // Status can be: PENDING, CONFIRMED, DELIVERED, COMPLETED, FAILED
+});
+```
+
+### Jackpot System Integration
+
+#### Getting Jackpot Information
+
+```javascript
+// Get current jackpot information
+const jackpotInfo = await sdk.jackpot.getInfo();
+console.log(`Current jackpot: ${ethers.utils.formatEther(jackpotInfo.amount)} ETH`);
+console.log(`Last win time: ${new Date(jackpotInfo.lastWinTime * 1000)}`);
+console.log(`Total winners: ${jackpotInfo.totalWinners}`);
+```
+
+#### Getting User Entries
+
+```javascript
+// Get user's jackpot entries
+const address = await signer.getAddress();
+const entries = await sdk.jackpot.getUserEntries(address);
+console.log(`Total entries: ${entries.length}`);
+
+// Display entry details
+entries.forEach((entry, index) => {
+  console.log(`Entry ${index + 1}:`);
+  console.log(`  Amount: ${ethers.utils.formatUnits(entry.amount, 18)} DRAGON`);
+  console.log(`  Timestamp: ${new Date(entry.timestamp * 1000)}`);
+  console.log(`  Probability: 1 in ${entry.probability}`);
+});
+```
+
+#### Getting Recent Winners
+
+```javascript
+// Get recent jackpot winners
+const winners = await sdk.jackpot.getRecentWinners();
+console.log(`Recent winners: ${winners.length}`);
+
+// Display winner details
+winners.forEach((winner, index) => {
+  console.log(`Winner ${index + 1}:`);
+  console.log(`  Address: ${winner.address}`);
+  console.log(`  Amount: ${ethers.utils.formatEther(winner.amount)} ETH`);
+  console.log(`  Timestamp: ${new Date(winner.timestamp * 1000)}`);
+  console.log(`  Transaction: ${winner.transactionHash}`);
+});
+```
+
+### Governance Integration
+
+#### Getting Governance Information
+
+```javascript
+// Get governance information
+const govInfo = await sdk.governance.getInfo();
+console.log(`Total voting power: ${ethers.utils.formatUnits(govInfo.totalVotingPower, 18)}`);
+console.log(`Proposal count: ${govInfo.proposalCount}`);
+console.log(`Quorum: ${govInfo.quorum / 100}%`);
+```
+
+#### Getting Active Proposals
+
+```javascript
+// Get active proposals
+const proposals = await sdk.governance.getActiveProposals();
+console.log(`Active proposals: ${proposals.length}`);
+
+// Display proposal details
+proposals.forEach((proposal, index) => {
+  console.log(`Proposal ${index + 1}:`);
+  console.log(`  ID: ${proposal.id}`);
+  console.log(`  Title: ${proposal.title}`);
+  console.log(`  Description: ${proposal.description.substring(0, 100)}...`);
+  console.log(`  Proposer: ${proposal.proposer}`);
+  console.log(`  Start block: ${proposal.startBlock}`);
+  console.log(`  End block: ${proposal.endBlock}`);
+  console.log(`  Status: ${proposal.status}`);
+});
+```
+
+#### Voting on a Proposal
+
+```javascript
+// Vote on a proposal
+const proposalId = 1;
+const support = true; // true for yes, false for no
+
+const tx = await sdk.governance.castVote(proposalId, support);
+await tx.wait();
+console.log(`Vote cast successfully: ${tx.hash}`);
+```
+
+#### Creating a Proposal
+
+```javascript
+// Create a governance proposal
+const title = "Update Fee Structure";
+const description = "This proposal updates the fee structure to reduce the jackpot fee from 6.9% to 5.9% and increase the governance fee from 2.41% to 3.41%.";
+const actions = [
+  {
+    target: sdk.contracts.token.address,
+    value: 0,
+    signature: "setBuyFees(uint256,uint256,uint256)",
+    calldata: ethers.utils.defaultAbiCoder.encode(
+      ["uint256", "uint256", "uint256"],
+      [590, 341, 69] // 5.9%, 3.41%, 0.69%
+    )
+  }
+];
+
+const tx = await sdk.governance.createProposal(title, description, actions);
+await tx.wait();
+console.log(`Proposal created successfully: ${tx.hash}`);
+```
+
+### Randomness Integration
+
+#### Requesting Randomness
+
+```javascript
+// Request randomness
+const tx = await sdk.randomness.requestRandomness();
+await tx.wait();
+console.log(`Randomness requested: ${tx.hash}`);
+
+// Get request ID from event logs
+const receipt = await provider.getTransactionReceipt(tx.hash);
+const requestId = sdk.randomness.parseRequestIdFromLogs(receipt.logs);
+console.log(`Request ID: ${requestId}`);
+```
+
+#### Checking Randomness Status
+
+```javascript
+// Check randomness request status
+const requestId = "123456";
+const status = await sdk.randomness.getRequestStatus(requestId);
+console.log(`Request status: ${status}`);
+// Status can be: PENDING, FULFILLED, FAILED
+```
+
+#### Getting Randomness Result
+
+```javascript
+// Get randomness result
+const requestId = "123456";
+const result = await sdk.randomness.getRandomness(requestId);
+console.log(`Randomness result: ${result}`);
+```
+
+## Smart Contract Integration
+
+### Contract ABIs
+
+The OmniDragon SDK provides ABIs for all protocol contracts:
+
+```javascript
+import { 
+  TokenABI, 
+  JackpotVaultABI, 
+  BridgeABI, 
+  GovernanceABI, 
+  RandomnessProviderABI 
+} from '@OmniDragon/sdk';
+```
+
+### Direct Contract Interaction
+
+If you need more control, you can interact with the contracts directly:
+
+```javascript
+import { ethers } from 'ethers';
+import { TokenABI, ChainId, getContractAddress } from '@OmniDragon/sdk';
+
+// Initialize provider and signer
+const provider = new ethers.providers.Web3Provider(window.ethereum);
+const signer = provider.getSigner();
+
+// Get contract address for the current chain
+const tokenAddress = getContractAddress(ChainId.ETHEREUM, 'token');
+
+// Create contract instance
+const tokenContract = new ethers.Contract(tokenAddress, TokenABI, signer);
+
+// Call contract methods
+const name = await tokenContract.name();
+const symbol = await tokenContract.symbol();
+const decimals = await tokenContract.decimals();
+const totalSupply = await tokenContract.totalSupply();
+
+console.log(`Token: ${name} (${symbol})`);
+console.log(`Decimals: ${decimals}`);
+console.log(`Total supply: ${ethers.utils.formatUnits(totalSupply, decimals)}`);
+```
+
+### Event Listeners
+
+You can listen for contract events:
+
+```javascript
+// Listen for Transfer events
+const tokenContract = sdk.contracts.token;
+
+tokenContract.on("Transfer", (from, to, amount, event) => {
+  console.log(`Transfer event:`);
+  console.log(`  From: ${from}`);
+  console.log(`  To: ${to}`);
+  console.log(`  Amount: ${ethers.utils.formatUnits(amount, 18)} DRAGON`);
+  console.log(`  Transaction: ${event.transactionHash}`);
+});
+
+// Listen for JackpotWon events
+const jackpotContract = sdk.contracts.jackpotVault;
+
+jackpotContract.on("JackpotDistributed", (winner, amount, timestamp, event) => {
+  console.log(`Jackpot won!`);
+  console.log(`  Winner: ${winner}`);
+  console.log(`  Amount: ${ethers.utils.formatEther(amount)} ETH`);
+  console.log(`  Time: ${new Date(timestamp * 1000)}`);
+  console.log(`  Transaction: ${event.transactionHash}`);
+});
+```
+
+## Building a dApp
+
+### React Integration Example
+
+Here's an example of integrating OmniDragon with a React application:
+
+```jsx
+import React, { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+import { OmniDragonSDK, ChainId } from '@OmniDragon/sdk';
+
+function App() {
+  const [sdk, setSdk] = useState(null);
+  const [account, setAccount] = useState(null);
+  const [balance, setBalance] = useState(null);
+  const [jackpotAmount, setJackpotAmount] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Initialize SDK
+  useEffect(() => {
+    const initSDK = async () => {
+      if (window.ethereum) {
+        try {
+          // Request account access
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          
+          // Create provider and signer
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const signer = provider.getSigner();
+          const address = await signer.getAddress();
+          
+          // Create SDK instance
+          const dragonSDK = new OmniDragonSDK({
+            provider,
+            signer,
+            defaultChainId: ChainId.ETHEREUM
+          });
+          
+          setSdk(dragonSDK);
+          setAccount(address);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error initializing SDK:', error);
+          setLoading(false);
+        }
+      } else {
+        console.error('Ethereum provider not found');
+        setLoading(false);
+      }
+    };
+    
+    initSDK();
+  }, []);
+
+  // Load data
+  useEffect(() => {
+    const loadData = async () => {
+      if (sdk && account) {
+        try {
+          // Get token balance
+          const tokenBalance = await sdk.token.balanceOf(account);
+          setBalance(ethers.utils.formatUnits(tokenBalance, 18));
+          
+          // Get jackpot amount
+          const jackpotInfo = await sdk.jackpot.getInfo();
+          setJackpotAmount(ethers.utils.formatEther(jackpotInfo.amount));
+        } catch (error) {
+          console.error('Error loading data:', error);
+        }
+      }
+    };
+    
+    loadData();
+  }, [sdk, account]);
+
+  // Handle network change
+  const handleNetworkChange = async (chainId) => {
+    if (sdk) {
+      try {
+        await sdk.switchChain(chainId);
+        // Reload data after network change
+        const tokenBalance = await sdk.token.balanceOf(account);
+        setBalance(ethers.utils.formatUnits(tokenBalance, 18));
+        
+        const jackpotInfo = await sdk.jackpot.getInfo();
+        setJackpotAmount(ethers.utils.formatEther(jackpotInfo.amount));
+      } catch (error) {
+        console.error('Error switching network:', error);
+      }
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!sdk) {
+    return <div>Please install MetaMask to use this dApp</div>;
+  }
+
+  return (
+    <div className="App">
+      <h1>OmniDragon dApp</h1>
+      
+      <div>
+        <h2>Account</h2>
+        <p>Address: {account}</p>
+        <p>Balance: {balance} DRAGON</p>
+      </div>
+      
+      <div>
+        <h2>Network</h2>
+        <button onClick={() => handleNetworkChange(ChainId.ETHEREUM)}>Ethereum</button>
+        <button onClick={() => handleNetworkChange(ChainId.BNB Chain)}>BNB Chain</button>
+        <button onClick={() => handleNetworkChange(ChainId.ARBITRUM)}>Arbitrum</button>
+        <button onClick={() => handleNetworkChange(ChainId.AVALANCHE)}>Avalanche</button>
+      </div>
+      
+      <div>
+        <h2>Jackpot</h2>
+        <p>Current Jackpot: {jackpotAmount} ETH</p>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+```
+
+### Next.js Integration Example
+
+Here's an example of integrating OmniDragon with a Next.js application:
+
+```jsx
+// pages/index.js
+import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+import { OmniDragonSDK, ChainId } from '@OmniDragon/sdk';
+
+export default function Home() {
+  const [sdk, setSdk] = useState(null);
+  const [account, setAccount] = useState(null);
+  const [balance, setBalance] = useState(null);
+  const [jackpotAmount, setJackpotAmount] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Initialize SDK
+  useEffect(() => {
+    const initSDK = async () => {
+      if (typeof window !== 'undefined' && window.ethereum) {
+        try {
+          // Request account access
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          
+          // Create provider and signer
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const signer = provider.getSigner();
+          const address = await signer.getAddress();
+          
+          // Create SDK instance
+          const dragonSDK = new OmniDragonSDK({
+            provider,
+            signer,
+            defaultChainId: ChainId.ETHEREUM
+          });
+          
+          setSdk(dragonSDK);
+          setAccount(address);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error initializing SDK:', error);
+          setLoading(false);
+        }
+      } else {
+        console.error('Ethereum provider not found');
+        setLoading(false);
+      }
+    };
+    
+    initSDK();
+  }, []);
+
+  // Load data
+  useEffect(() => {
+    const loadData = async () => {
+      if (sdk && account) {
+        try {
+          // Get token balance
+          const tokenBalance = await sdk.token.balanceOf(account);
+          setBalance(ethers.utils.formatUnits(tokenBalance, 18));
+          
+          // Get jackpot amount
+          const jackpotInfo = await sdk.jackpot.getInfo();
+          setJackpotAmount(ethers.utils.formatEther(jackpotInfo.amount));
+        } catch (error) {
+          console.error('Error loading data:', error);
+        }
+      }
+    };
+    
+    loadData();
+  }, [sdk, account]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!sdk) {
+    return <div>Please install MetaMask to use this dApp</div>;
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">OmniDragon dApp</h1>
+      
+      <div className="mb-6 p-4 border rounded">
+        <h2 className="text-xl font-semibold mb-2">Account</h2>
+        <p>Address: {account}</p>
+        <p>Balance: {balance} DRAGON</p>
+      </div>
+      
+      <div className="mb-6 p-4 border rounded">
+        <h2 className="text-xl font-semibold mb-2">Jackpot</h2>
+        <p>Current Jackpot: {jackpotAmount} ETH</p>
+      </div>
+    </div>
+  );
+}
+```
+
+## Advanced Topics
+
+### Gas Optimization
+
+When interacting with OmniDragon contracts, consider these gas optimization techniques:
+
+1.**Batch Transactions**: Use multicall to batch multiple transactions
+2.**Gas Price Strategy**: Implement a gas price strategy based on network conditions
+3.**EIP-1559 Support**: Use EIP-1559 transaction format on supported networks
+
+Example of using EIP-1559 transactions:
+
+```javascript
+// EIP-1559 transaction
+const tx = await sdk.token.transfer(
+  recipient,
+  amount,
+  {
+    type: 2, // EIP-1559
+    maxFeePerGas: ethers.utils.parseUnits("50", "gwei"),
+    maxPriorityFeePerGas: ethers.utils.parseUnits("2", "gwei")
+  }
+);
+```
+
+### Error Handling
+
+Implement robust error handling for contract interactions:
+
+```javascript
+try {
+  const tx = await sdk.token.transfer(recipient, amount);
+  await tx.wait();
+  console.log(`Transfer successful: ${tx.hash}`);
+} catch (error) {
+  // Check for specific error types
+  if (error.code === 'INSUFFICIENT_FUNDS') {
+    console.error('Insufficient funds for transfer');
+  } else if (error.code === 'UNPREDICTABLE_GAS_LIMIT') {
+    console.error('Transaction may fail - check parameters');
+  } else if (error.message.includes('user rejected')) {
+    console.error('User rejected the transaction');
+  } else {
+    console.error('Transfer failed:', error);
+  }
+}
+```
+
+### Security Best Practices
+
+When integrating with OmniDragon, follow these security best practices:
+
+1.**Input Validation**: Always validate user inputs before sending transactions
+2.**Contract Verification**: Verify contract addresses against known values
+3.**Transaction Simulation**: Simulate transactions before sending them
+4.**Gas Limits**: Set appropriate gas limits to prevent out-of-gas errors
+5.**Error Handling**: Implement comprehensive error handling
+6.**User Confirmation**: Always get user confirmation for transactions
+7.**Secure Key Management**: Never expose private keys in client-side code
+
+Example of contract address verification:
+
+```javascript
+import { getContractAddress, ChainId } from '@OmniDragon/sdk';
+
+// Verify contract address
+function verifyContractAddress(address, contractType, chainId) {
+  const expectedAddress = getContractAddress(chainId, contractType);
+  if (address.toLowerCase() !== expectedAddress.toLowerCase()) {
+    throw new Error(`Invalid ${contractType} contract address`);
+  }
+  return true;
+}
+
+// Usage
+const tokenAddress = "0x69420EaEd4a68B7af8C548Ae5F5b2E0D5B5A7699";
+if (verifyContractAddress(tokenAddress, 'token', ChainId.ETHEREUM)) {
+  // Proceed with interaction
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Transaction Reverted
+
+If a transaction is reverted, check the following:
+
+1.**Insufficient Balance**: Ensure the user has enough tokens and ETH for gas
+2.**Incorrect Parameters**: Verify all function parameters are correct
+3.**Contract Restrictions**: Check if the contract has restrictions (e.g., paused)
+4.**Gas Limit**: Try increasing the gas limit
+
+#### Cross-Chain Issues
+
+If cross-chain operations fail:
+
+1.**LayerZero Fees**: Ensure enough native tokens are provided for LayerZero fees
+2.**Trusted Remote**: Verify the trusted remote address is correctly configured
+3.**Network Congestion**: Check if the source or destination network is congested
+4.**Bridge Status**: Verify the bridge contract is not paused
+
+#### SDK Initialization Issues
+
+If the SDK fails to initialize:
+
+1.**Provider Connection**: Check if the provider is connected
+2.**Network Support**: Verify the network is supported by OmniDragon
+3.**Wallet Permissions**: Ensure the wallet has granted necessary permissions
+
+### Debugging Tools
+
+#### Transaction Tracing
+
+Use transaction tracing to debug failed transactions:
+
+```javascript
+// Get transaction receipt
+const receipt = await provider.getTransactionReceipt(txHash);
+
+// Check status
+if (receipt.status === 0) {
+  console.error('Transaction failed');
+  
+  // Trace transaction
+  const trace = await provider.send('debug_traceTransaction', [txHash]);
+  console.log('Transaction trace:', trace);
+}
+```
+
+#### Contract Logs
+
+Analyze contract logs for debugging:
+
+```javascript
+// Get logs from a specific contract
+const filter = {
+  address: sdk.contracts.token.address,
+  fromBlock: blockNumber - 100,
+  toBlock: 'latest'
+};
+
+const logs = await provider.getLogs(filter);
+console.log('Contract logs:', logs);
+
+// Parse logs
+const parsedLogs = logs.map(log => {
+  try {
+    return sdk.contracts.token.interface.parseLog(log);
+  } catch (e) {
+    return null;
+  }
+}).filter(Boolean);
+
+console.log('Parsed logs:', parsedLogs);
+```
+
+## Support and Resources
+
+### Community Support
+
+- Join our [Discord server](https://discord.gg/OmniDragon) for developer support
+- Visit our [GitHub repository](https://github.com/OmniDragon/sdk) for SDK source code
+- Check our [Developer Forum](https://forum.OmniDragon.io/dev) for discussions
+
+### Official Documentation
+
+- [API Reference](https://docs.OmniDragon.io/api)
+- [Contract Documentation](https://docs.OmniDragon.io/contracts)
+- [SDK Documentation](https://docs.OmniDragon.io/sdk)
+
+### Example Projects
+
+- [Basic Integration Example](https://github.com/OmniDragon/examples/basic)
+- [Cross-Chain dApp Example](https://github.com/OmniDragon/examples/cross-chain)
+- [Jackpot Integration Example](https://github.com/OmniDragon/examples/jackpot)
+
+## Conclusion
+
+This guide covers the essential aspects of integrating with the OmniDragon protocol. For more detailed information, refer to the specific documentation sections:
+
+- [Token System](/concepts/token-system.md)
+- [Fee System](/concepts/fee-system.md)
+- [Jackpot System](/concepts/jackpot-system.md)
+- [Cross-Chain Infrastructure](/concepts/cross-chain.md)
+- [Randomness Infrastructure](/concepts/randomness.md)
+- [Security Model](/concepts/security-model.md)

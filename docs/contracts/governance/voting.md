@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Voting
+description: Detailed explanation of this concept
 ---
 
 # Voting

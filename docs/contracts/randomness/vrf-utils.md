@@ -1,5 +1,7 @@
 ---
 sidebar_position: 4
+title: Vrf Utils
+description: Detailed explanation of this concept
 ---
 
 # VRF Utility Library
@@ -12,21 +14,18 @@ This library offers a set of helper functions that simplify common operations wh
 
 ```mermaid
 flowchart TD
-    A[Random Seed] --> B[ChainlinkVRFImplementations]
-    B --> C[getRandomInRange]
-    B --> D[getMultipleRandomNumbers]
-    B --> E[getRandomIndices]
-    B --> F[shuffleArray]
-    
-    C --> G[Jackpot Winner Selection]
-    D --> H[NFT Trait Generation]
-    E --> I[Random Sampling]
-    F --> J[Fair Distribution]
+    A[Random Seed] -->|> B[ChainlinkVRFImplementations]
+    B| C[getRandomInRange]
+    B -->|> D[getMultipleRandomNumbers]
+    B| E[getRandomIndices]
+    B -->|> F[shuffleArray]
+    C| G[Jackpot Winner Selection]
+    D -->|>|> H[NFT Trait Generation]
+    E| I[Random Sampling]
+    F| J[Fair Distribution]
 ```
 
-## Library Details
-
-**Source:** [`ChainlinkVRFImplementations.sol`](https://github.com/wenakita/omnidragon/blob/main/contracts/chainlink/ChainlinkVRFImplementations.sol)
+## Library Details**Source:**[`ChainlinkVRFImplementations.sol`](https://github.com/wenakita/OmniDragon/blob/main/contracts/chainlink/ChainlinkVRFImplementations.sol)
 
 ### Data Structures
 
@@ -43,12 +42,11 @@ struct RequestStatus {
 ### Random Number in Range
 
 ```solidity
-/**
- * @dev Calculate a random number between min and max from a seed
+/***@dev Calculate a randomness between min and max from a seed
  * @param _seed The random seed to use
  * @param _min The minimum value (inclusive)
  * @param _max The maximum value (inclusive)
- * @return A random number between min and max
+ * @return A randomness between min and max
  */
 function getRandomInRange(
     uint256 _seed,
@@ -57,13 +55,12 @@ function getRandomInRange(
 ) internal pure returns (uint256)
 ```
 
-The `getRandomInRange` function generates a random number within a specific range [min, max] using a provided random seed.
+The `getRandomInRange` function generates a randomness within a specific range [min, max] using a provided random seed.
 
 ### Multiple Random Numbers
 
 ```solidity
-/**
- * @dev Generate multiple random numbers from a seed
+/***@dev Generate multiple random numbers from a seed
  * @param _seed The random seed to use
  * @param _count The number of random numbers to generate
  * @return An array of random numbers
@@ -79,8 +76,7 @@ The `getMultipleRandomNumbers` function generates an array of random numbers fro
 ### Random Indices Selection
 
 ```solidity
-/**
- * @dev Generate a random subset of indices from a range
+/***@dev Generate a random subset of indices from a range
  * @param _seed The random seed to use
  * @param _count The number of indices to select
  * @param _max The maximum index value (exclusive)
@@ -98,8 +94,7 @@ The `getRandomIndices` function selects a set of unique random indices from the 
 ### Array Shuffling
 
 ```solidity
-/**
- * @dev Shuffle an array using a random seed
+/***@dev Shuffle an array using a random seed
  * @param _seed The random seed to use
  * @param _array The array to shuffle
  */
@@ -115,7 +110,7 @@ The `shuffleArray` function performs a random shuffle of an array using the Fish
 
 ### Jackpot Winner Selection
 
-Use the library to select a lottery winner based on probabilities:
+Use the library to select a jackpot winner based on probabilities:
 
 ```solidity
 // Assuming we have a random seed from a VRF source
@@ -131,7 +126,7 @@ for (uint256 i = 0; i < weights.length; i++) {
     totalWeight += weights[i];
 }
 
-// Get a random number in the range [1, totalWeight]
+// Get a randomness in the range [1, totalWeight]
 uint256 randomNum = ChainlinkVRFImplementations.getRandomInRange(
     randomSeed, 
     1, 
@@ -209,17 +204,17 @@ function distributeRewards(uint256 _seed, address[] memory _recipients, uint256[
 
 When using this library, keep these security aspects in mind:
 
-1. **Seed Quality**: The quality of randomness depends on the seed source. Always use a verified random source like Chainlink VRF.
-2. **Modulo Bias**: For very large ranges, be aware of potential modulo bias and consider alternative approaches.
-3. **Gas Limitations**: Functions that create arrays (like `getMultipleRandomNumbers`) should be used with reasonable array sizes to avoid gas limitations.
-4. **Predictability**: Do not use block variables like `block.timestamp` or `block.difficulty` as seeds in production as they can be manipulated or predicted.
-5. **Overflow Prevention**: The library inherits Solidity 0.8.x's built-in overflow checks for safe arithmetic operations.
+1.**Seed Quality**: The quality of randomness depends on the seed source. Always use a verified random source like Chainlink VRF.
+2.**Modulo Bias**: For very large ranges, be aware of potential modulo bias and consider alternative approaches.
+3.**Gas Limitations**: Functions that create arrays (like `getMultipleRandomNumbers`) should be used with reasonable array sizes to avoid gas limitations.
+4.**Predictability**: Do not use block variables like `block.timestamp` or `block.difficulty` as seeds in production as they can be manipulated or predicted.
+5.**Overflow Prevention**: The library inherits Solidity 0.8.x's built-in overflow checks for safe arithmetic operations.
 
 ## Integration with OmniDragon
 
 Within the OmniDragon ecosystem, this library is used in multiple components:
 
-1. **Jackpot System**: For selecting winners based on ticket weights
-2. **Governance**: For random sampling in certain voting mechanisms
-3. **Partner Program**: For fair distribution of rewards
-4. **Cross-Chain Bridge**: For secure and unpredictable token distribution 
+1.**Jackpot System**: For selecting winners based on ticket weights
+2.**Governance**: For random sampling in certain voting mechanisms
+3.**Partner Program**: For fair distribution of rewards
+4.**Cross-Chain Bridge**: For secure and unpredictable token distribution 

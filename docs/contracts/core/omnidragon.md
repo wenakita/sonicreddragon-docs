@@ -1,33 +1,36 @@
+---
+title: Omnidragon
+sidebar_position: 1
+description: Detailed explanation of this concept
+---
 # OmniDragon Token Contract
 
-The **OmniDragon** contract is the core ERC20 token that powers the entire OmniDragon ecosystem. It's a specialized token with built-in fees, lottery entries, cross-chain functionality, and advanced governance features.
+The**OmniDragon**contract is the core ERC20 token that powers the entire OmniDragon ecosystem. It's a specialized token with built-in fees, jackpot entries, cross-chain functionality, and advanced governance features.
 
 ## Overview
 
 OmniDragon is deployed on Sonic blockchain and serves as the central hub for:
-- **Cross-chain transfers** via LayerZero
-- **Automated lottery system** with VRF-powered randomness
-- **Dynamic fee management** with multiple distribution channels
-- **Partner ecosystem** integration
-- **Governance mechanisms** with timelock protection
+-**Cross-chain transfers**via LayerZero
+-**Automated jackpot system**with VRF-powered randomness
+-**Dynamic fee management**with multiple distribution channels
+-**Partner ecosystem**integration
+-**Governance mechanisms**with timelock protection
 
 ## Key Features
 
-### 🎯 Dragon Project Rules
+###  DRAGON Project Rules
 On all DRAGON swaps:
-- **6.9%** goes to jackpot vault
-- **2.41%** goes to ve69LP fee distributor  
-- **0.69%** is burned
-- **Only buys qualify for lottery entries**
-
-### 🌐 Cross-Chain Architecture
+-**6.9%**goes to jackpot vault
+-**2.41%**goes to ve69LP fee distributor  
+-**0.69%**is burned
+-**Only buys qualify for jackpot entries**### 🌐 Cross-Chain Architecture
 - Native LayerZero integration for seamless cross-chain transfers
 - Sonic Chain ID: 332 (LayerZero)
 - Trusted remote configuration for secure bridging
 - Gas optimization for cross-chain operations
 
 ### 🎰 Integrated Lottery System
-- Automatic lottery entry creation on qualifying swaps
+- Automatic jackpot entry creation on qualifying swaps
 - VRF-powered randomness via OmniDragonRandomnessProvider
 - Cooldown periods and entry limits for fair play
 - MEV protection with commit-reveal schemes
@@ -55,10 +58,10 @@ contract OmniDragon is ERC20, Ownable, ReentrancyGuard, IOmniDragon {
 ```solidity
 // Core addresses
 address public lzEndpoint;           // LayerZero endpoint
-address public jackpotVault;         // Jackpot vault for lottery payouts
+address public jackpotVault;         // Jackpot vault for jackpot payouts
 address public revenueDistributor;   // Primary fee distributor
 address public wrappedNativeToken;   // WETH/Wrapped native token
-address public lotteryManager;       // Unified lottery manager
+address public lotteryManager;       // Unified jackpot manager
 
 // Partner ecosystem
 address public dragonPartnerRegistry;  // Partner registry
@@ -193,8 +196,7 @@ function removePartnerPool(address pool) external onlyOwner;
 
 ### Initial Setup
 
-1. **Deploy Contract**
-   ```solidity
+1.**Deploy Contract**```solidity
    constructor(
        string memory _name,
        string memory _symbol,
@@ -205,18 +207,15 @@ function removePartnerPool(address pool) external onlyOwner;
    )
    ```
 
-2. **Set Wrapped Native Token**
-   ```solidity
+2.**Set Wrapped Native Token**```solidity
    function setWrappedNativeToken(address _wrappedNativeToken) external onlyOwner;
    ```
 
-3. **Configure Router**
-   ```solidity
+3.**Configure Router**```solidity
    function setUniswapRouter(address _router) external onlyOwner;
    ```
 
-4. **Add Trading Pairs**
-   ```solidity
+4.**Add Trading Pairs**```solidity
    function addPairWithType(address _pair, DexType _dexType) external onlyOwner;
    ```
 
@@ -236,7 +235,7 @@ function setMinimumAmountForProcessing(uint256 _minAmount) external onlyOwner;
 ## Security Features
 
 ### MEV Protection
-- Commit-reveal scheme for lottery entries
+- Commit-reveal scheme for jackpot entries
 - Block-based commitment expiry
 - Multiple commitments per user support
 
@@ -286,34 +285,29 @@ event ProposalExecuted(bytes32 indexed proposalId, DragonTimelockLib.AdminOperat
 
 ### For Developers
 
-1. **Basic Integration**
-   ```solidity
+1.**Basic Integration**```solidity
    import "./interfaces/core/IOmniDragon.sol";
    
-   IOmniDragon dragon = IOmniDragon(OMNIDRAGON_ADDRESS);
+   IOmniDragon DRAGON = IOmniDragon(OMNIDRAGON_ADDRESS);
    ```
 
-2. **Fee Calculation**
-   ```solidity
+2.**Fee Calculation**```solidity
    function calculateFees(address from, address to, uint256 amount) 
        external view returns (uint256 totalFees);
    ```
 
-3. **Cross-Chain Transfer**
-   ```solidity
+3.**Cross-Chain Transfer**```solidity
    function estimateSendFee(uint16 _dstChainId, bytes calldata _toAddress, uint _amount, bool _useZro, bytes calldata _adapterParams) 
        external view returns (uint nativeFee, uint zroFee);
    ```
 
 ### For Partners
 
-1. **Register Partner Pool**
-   ```solidity
-   dragon.registerPartnerPool(poolAddress, partnerId);
+1.**Register Partner Pool**```solidity
+   DRAGON.registerPartnerPool(poolAddress, partnerId);
    ```
 
-2. **Handle Partner Fees**
-   ```solidity
+2.**Handle Partner Fees**```solidity
    function processPartnerFees(address partner, address token, uint256 amount) external;
    ```
 
@@ -353,6 +347,6 @@ error NotAuthorized();
 
 ## Links
 
-- **Social**: [Twitter](https://x.com/sonicreddragon) | [Telegram](https://t.me/sonicreddragon)
-- **Repository**: [GitHub](https://github.com/wenakita/omnidragon)
-- **Audit**: [Security Documentation](/audit/AUDIT_DOCUMENTATION_SUMMARY) 
+-**Social**: [Twitter](https://x.com/sonicreddragon) | [Telegram](https://t.me/sonicreddragon)
+-**Repository**: [GitHub](https://github.com/wenakita/OmniDragon)
+-**Audit**: [Security Documentation](/audit/AUDIT_DOCUMENTATION_SUMMARY) 

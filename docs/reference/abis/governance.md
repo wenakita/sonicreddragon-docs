@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Governance
+description: Technical reference information
 ---
 
 # Governance

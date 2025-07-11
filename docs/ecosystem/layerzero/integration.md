@@ -1,10 +1,12 @@
 ---
 sidebar_position: 2
+title: Integration
+description: Detailed explanation of this concept
 ---
 
 # LayerZero Integration Guide
 
-This guide explains how to integrate Sonic Red Dragon's LayerZero V2 functionality into your project.
+This guide explains how to integrate Sonic Red DRAGON's LayerZero V2 functionality into your project.
 
 ## Prerequisites
 
@@ -162,26 +164,22 @@ function sendTokensCrossChain(
 
 ## Best Practices
 
-1. **Security**
-   - Always verify message sources
+1.**Security**- Always verify message sources
    - Implement replay protection
    - Use appropriate access controls
    - Monitor cross-chain operations
 
-2. **Gas Optimization**
-   - Batch operations when possible
+2.**Gas Optimization**- Batch operations when possible
    - Use appropriate gas limits
    - Monitor gas costs
    - Implement fallback mechanisms
 
-3. **Error Handling**
-   - Implement proper error handling
+3.**Error Handling**- Implement proper error handling
    - Use try-catch blocks
    - Emit appropriate events
    - Monitor failed transactions
 
-4. **Testing**
-   - Test cross-chain scenarios
+4.**Testing**- Test cross-chain scenarios
    - Use testnets for development
    - Monitor message delivery
    - Verify state consistency
@@ -190,20 +188,17 @@ function sendTokensCrossChain(
 
 Common issues and solutions:
 
-1. **Message Not Delivered**
-   - Check gas limits
+1.**Message Not Delivered**- Check gas limits
    - Verify destination address
    - Ensure sufficient native token balance
    - Check network status
 
-2. **High Gas Costs**
-   - Optimize payload size
+2.**High Gas Costs**- Optimize payload size
    - Use appropriate gas limits
    - Consider batching operations
    - Monitor gas prices
 
-3. **State Inconsistency**
-   - Implement proper verification
+3.**State Inconsistency**- Implement proper verification
    - Use appropriate timeouts
    - Monitor cross-chain state
    - Implement recovery mechanisms
@@ -212,11 +207,11 @@ Common issues and solutions:
 
 For technical support or questions about LayerZero integration:
 - Join our [Discord](https://discord.gg/sonicreddragon)
-- Open an issue on [GitHub](https://github.com/wenakita/omnidragon)
+- Open an issue on [GitHub](https://github.com/wenakita/OmniDragon)
 - Contact us at support@sonicreddragon.io
 
 ## Next Steps
 
-1. Review the [LayerZero Overview](./overview.md)
-2. Check out our [Example Projects](https://github.com/wenakita/omnidragon-examples)
+1. Review the [LayerZero Overview](/ecosystem/layerzero/overview.md)
+2. Check out our [Example Projects](https://github.com/wenakita/OmniDragon-examples)
 3. Join our [Discord Community](https://discord.gg/sonicreddragon) 

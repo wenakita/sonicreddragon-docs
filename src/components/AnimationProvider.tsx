@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useLocation } from '@docusaurus/router';
 import useIsBrowser from '@docusaurus/useIsBrowser';
-import anime from 'animejs/lib/anime.es.js';
+import { anime } from '../utils/unifiedAnimationSystem';
 
 interface AnimationContextType {
   isPageLoading: boolean;

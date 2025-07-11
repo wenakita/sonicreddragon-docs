@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import anime from 'animejs/lib/anime.es.js';
+import { anime, useAnimationPerformance } from '../utils/animationUtils';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import styles from './styles.module.css';
 

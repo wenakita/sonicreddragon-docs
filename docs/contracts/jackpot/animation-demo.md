@@ -1,11 +1,11 @@
 ---
 sidebar_position: 5
 title: Animation Demo
+description: Detailed explanation of this concept
 ---
 
 import AnimatedTriggerFlow from '@site/src/components/AnimatedTriggerFlow';
 import AnimatedDiagram, { AnimatedNode } from '@site/src/components/AnimatedDiagram';
-import AnimeTester from '@site/src/components/AnimeTester';
 
 # Animated Diagrams with Anime.js
 
@@ -15,7 +15,6 @@ This page demonstrates how to combine Mermaid diagrams with anime.js animations 
 
 First, let's verify that anime.js is working correctly:
 
-<AnimeTester />
 
 ## Interactive Trigger System Visualization
 
@@ -29,27 +28,24 @@ Mermaid diagrams provide clear, static representations of your system architectu
 
 ```mermaid
 flowchart TB
-    %% Define main components of the trigger system
-    subgraph TriggerCore ["Trigger Contract"]
+%% Define main components of the trigger system
+    subgraph TriggerCore["Trigger Contract"]
         direction TB
         INTERFACE["IOmniDragonSwapTriggerOracle"]:::interface
         SWAP_ORACLE["OmniDragonSwapTriggerOracle"]:::impl
-    end
-    
-    subgraph OracleSources ["Price Oracles"]
+    subgraph OracleSources["Price Oracles"]
         CHAINLINK["Chainlink Feed"]:::oracle
         API3["API3 Feed"]:::oracle
         BAND["Band Protocol"]:::oracle
-    end
-    
-    %% Connect the systems
-    OracleSources -->|"Price Data"| SWAP_ORACLE
-    INTERFACE -->|"Implemented by"| SWAP_ORACLE
-    
-    %% Apply styling
-    classDef interface fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1
-    classDef impl fill:#e8f5e9,stroke:#43a047,color:#1b5e20
-    classDef oracle fill:#f3e5f5,stroke:#8e24aa,color:#4a148c
+        %% Connect the systems
+        OracleSources -->|"Price Data"| SWAP_ORACLE
+        INTERFACE -->|"Implemented by"| SWAP_ORACLE
+        %% Apply styling
+    classDef interface fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef impl fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef oracle fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+end
+end
 ```
 
 ## Interactive Components with Anime.js
@@ -58,7 +54,7 @@ Anime.js allows for custom interactive components that help explain complex proc
 
 <AnimatedDiagram 
   title="Probability Calculation Flow" 
-  description="How swap amounts affect lottery winning probability"
+  description="How swap amounts affect jackpot winning probability"
 >
   <div style={{display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '20px', padding: '20px'}}>
     <AnimatedNode 
@@ -87,9 +83,9 @@ Anime.js allows for custom interactive components that help explain complex proc
 
 Using both Mermaid for architecture diagrams and anime.js for interactive elements gives you the best of both worlds:
 
-1. **Mermaid diagrams** provide clear, static representations that are easy to maintain
-2. **Anime.js animations** add interactivity and help illustrate complex processes
-3. **Combined approach** creates more engaging documentation
+1.**Mermaid diagrams**provide clear, static representations that are easy to maintain
+2.**Anime.js animations**add interactivity and help illustrate complex processes
+3.**Combined approach**creates more engaging documentation
 
 ## Implementation Notes
 
@@ -97,16 +93,18 @@ Both the Mermaid diagrams and anime.js animations are implemented as React compo
 
 ```jsx
 // Import components
-import EnhancedMermaid from '@site/src/components/EnhancedMermaid';
+import UnifiedMermaid from '@site/src/components/UnifiedMermaid';
 import AnimatedDiagram from '@site/src/components/AnimatedDiagram';
 import anime from 'animejs/lib/anime.es.js';
 
 // Use in your MDX documentation
-<EnhancedMermaid 
+<UnifiedMermaid
   chart={`flowchart TB
     A --> B
-    B --> C`} 
-  title="Simple Flowchart" 
+    B --> C`}
+  title="Simple Flowchart"
+  animated={true}
+  interactive={true}
 />
 
 <AnimatedDiagram title="Interactive Animation">
@@ -125,4 +123,4 @@ If animations aren't displaying:
 1. Ensure the anime.js library is imported correctly
 2. Check console for any JavaScript errors
 3. Verify that DOM elements with the correct classes exist
-4. Try using a simple test animation like `AnimeTester` to verify configuration 
+4. Try using a simple animation component to verify configuration

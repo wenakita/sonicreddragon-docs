@@ -1,323 +1,351 @@
 ---
 title: Creating Animated Content
-description: Learn how to add beautiful animations to your documentation using anime.js
+description: >-
+  Learn how to create engaging animated content using anime.js in your
+  documentation
+sidebar_position: 3
 ---
+
+import AnimatedText from '@site/src/components/AnimatedText';
+import AnimatedButton from '@site/src/components/AnimatedButton';
 
 # Creating Animated Content
 
-This guide will show you how to add beautiful animations to your documentation using our anime.js integration.
+Our documentation system includes built-in support for creating animated content using [anime.js](https://animejs.com/), a lightweight JavaScript animation library. This guide will show you how to use our pre-built components and create custom animations to make your documentation more engaging and interactive.
 
-## Introduction
+<AnimatedText
+  text="Animations bring your documentation to life!"
+  color="gradient"
+  size="xl"
+  animation="fadeInUp"
+/>
 
-Animations can make your documentation more engaging and help illustrate complex concepts. Our anime.js integration provides:
+## Using Pre-built Animation Components
 
-- **Smooth animations** - Elegant, performant animations that enhance the user experience
-- **Scroll-triggered effects** - Elements that animate as they enter the viewport
-- **Interactive elements** - Hover effects and click animations
-- **Particle effects** - Beautiful background particles for immersive sections
-- **Accessibility** - All animations respect the user's motion preferences
-
-## Basic Animation Components
+We provide several pre-built components that you can use to add animations to your documentation:
 
 ### Animated Text
 
-You can animate text elements by adding the `data-animated-text` attribute:
+The `AnimatedText` component allows you to create text with various animation effects:
 
 ```jsx
-<h2 data-animated-text>This text will animate in</h2>
-<p data-animated-text data-animation-delay="200">This text will animate in with a delay</p>
-```
+import AnimatedText from '@site/src/components/AnimatedText';
 
-### Scroll Reveal
-
-Elements with the `data-scroll-reveal` attribute will animate as they enter the viewport:
-
-```jsx
-<div data-scroll-reveal>
-  <p>This content will fade in when scrolled into view</p>
-</div>
-
-<div data-scroll-reveal data-animation="slide-up">
-  <p>This content will slide up when scrolled into view</p>
-</div>
-```
-
-Available animation types:
-- `fade-in` (default)
-- `slide-up`
-- `slide-down`
-- `slide-left`
-- `slide-right`
-- `zoom-in`
-- `zoom-out`
-
-### Interactive Elements
-
-Add the `interactive-element` class to create elements that respond to hover:
-
-```jsx
-<div className="interactive-element">
-  <h3>Hover over me</h3>
-  <p>I'll respond with a subtle animation</p>
-</div>
-```
-
-### Animated Buttons
-
-Add the `data-animated-button` attribute to create buttons with hover effects:
-
-```jsx
-<button data-animated-button>
-  Click me
-</button>
-
-<a href="/some-page" data-animated-button>
-  Learn more
-</a>
-```
-
-## Advanced Animation Components
-
-### Animated Cards
-
-Use the `AnimatedCard` component to create cards that animate on hover:
-
-```jsx
-import AnimatedCard from '@site/src/components/AnimatedCard';
-
-<AnimatedCard
-  title="Feature Title"
-  description="Feature description goes here."
-  icon="rocket"
-  link="/feature"
+<AnimatedText
+  text="This text animates on page load"
+  color="primary"
+  size="lg"
+  animation="fadeIn"
 />
 ```
 
-### Particle Backgrounds
+This renders as:
 
-Add particle effects to any container using the `ParticleBackground` component:
+<AnimatedText
+  text="This text animates on page load"
+  color="primary"
+  size="lg"
+  animation="fadeIn"
+/>
 
-```jsx
-import ParticleBackground from '@site/src/components/ParticleBackground';
+#### Animation Options
 
-<div style={{ position: 'relative', minHeight: '300px' }}>
-  <ParticleBackground />
-  <div style={{ position: 'relative', zIndex: 1 }}>
-    <h2>Content with particles</h2>
-    <p>This content has a beautiful particle background</p>
-  </div>
-</div>
-```
+The `AnimatedText` component supports the following options:
 
-### Gradient Backgrounds
+-**text**: The text to display and animate
+-**color**: `primary`, `secondary`, `success`, `warning`, `danger`, or `gradient`
+-**size**: `sm`, `md`, `lg`, `xl`, or `2xl`
+-**animation**: `fadeIn`, `fadeInUp`, `fadeInDown`, `fadeInLeft`, `fadeInRight`, `typewriter`, `wave`, `bounce`, `pulse`, or `highlight`
+-**delay**: Delay in milliseconds before the animation starts
+-**duration**: Duration of the animation in milliseconds
+-**easing**: Easing function for the animation (e.g., `easeInOutQuad`, `easeOutElastic`)
 
-Add gradient backgrounds using the `GradientBackground` component:
+### Animated Button
 
-```jsx
-import GradientBackground from '@site/src/components/GradientBackground';
-
-<div style={{ position: 'relative', minHeight: '300px' }}>
-  <GradientBackground animated />
-  <div style={{ position: 'relative', zIndex: 1 }}>
-    <h2>Content with gradient</h2>
-    <p>This content has a beautiful gradient background</p>
-  </div>
-</div>
-```
-
-### Immersive Timeline
-
-Create an immersive timeline using the `ImmersiveTimeline` component:
+The `AnimatedButton` component creates an animated button with hover effects:
 
 ```jsx
-import ImmersiveTimeline from '@site/src/components/ImmersiveTimeline';
+import AnimatedButton from '@site/src/components/AnimatedButton';
 
-const timelineItems = [
-  {
-    title: 'Phase 1: Research',
-    date: 'Q1 2023',
-    description: 'Research and design phase',
-    icon: 'search',
-  },
-  {
-    title: 'Phase 2: Development',
-    date: 'Q2 2023',
-    description: 'Core development phase',
-    icon: 'code',
-  },
-  {
-    title: 'Phase 3: Testing',
-    date: 'Q3 2023',
-    description: 'Testing and auditing phase',
-    icon: 'check',
-  },
-  {
-    title: 'Phase 4: Launch',
-    date: 'Q4 2023',
-    description: 'Mainnet launch phase',
-    icon: 'rocket',
-  },
-];
-
-<ImmersiveTimeline items={timelineItems} />
+<AnimatedButton
+  text="Click Me"
+  color="primary"
+  size="md"
+  animation="pulse"
+  onClick={() => alert('Button clicked!')}
+/>
 ```
 
-## Animated Diagrams
+This renders as:
 
-### Animated Mermaid Diagrams
+<AnimatedButton
+  text="Click Me"
+  color="primary"
+  size="md"
+  animation="pulse"
+  onClick={() => alert('Button clicked!')}
+/>
 
-All Mermaid diagrams are automatically animated. See the [Elegant Diagrams](/guide/elegant-diagrams) guide for more information.
+#### Button Options
 
-### Custom Animated Diagrams
+The `AnimatedButton` component supports the following options:
 
-For more complex animations, you can use our specialized animation components:
+-**text**: The button text
+-**color**: `primary`, `secondary`, `success`, `warning`, `danger`, or `gradient`
+-**size**: `sm`, `md`, `lg`, or `xl`
+-**animation**: `pulse`, `bounce`, `shake`, `glow`, or `ripple`
+-**onClick**: Function to call when the button is clicked
+-**href**: URL to navigate to when the button is clicked (turns the button into a link)
+-**target**: Target for the link (e.g., `_blank` to open in a new tab)
 
-```jsx
-import CrossChainRandomnessAnimation from '@site/src/components/CrossChainRandomnessAnimation';
+## Adding Animations to Mermaid Diagrams
 
-<CrossChainRandomnessAnimation />
-```
+Our enhanced Mermaid diagrams include built-in animations. See the [Elegant Diagrams](/guide/elegant-diagrams) guide for more information.
 
-Available animation components:
-- `CrossChainRandomnessAnimation` - Illustrates cross-chain randomness flow
-- `TokenFeeAnimation` - Shows how token fees are distributed
-- `VotingDecayAnimation` - Demonstrates voting power decay over time
-- `PartnerBoostAnimation` - Shows partner boost mechanics
-- `CubeRootAnimation` - Visualizes the cube root function used in the protocol
+## Creating Custom Animations
 
-## Animation Utilities
-
-### Scroll Reveal Wrapper
-
-Wrap any content with `ScrollRevealWrapper` to animate it when scrolled into view:
-
-```jsx
-import ScrollRevealWrapper from '@site/src/components/ScrollRevealWrapper';
-
-<ScrollRevealWrapper animation="slide-up" delay={200}>
-  <div>
-    <h2>This content will animate</h2>
-    <p>When it scrolls into view</p>
-  </div>
-</ScrollRevealWrapper>
-```
-
-### Animation Provider
-
-Use the `AnimationProvider` to control animations for a section of content:
-
-```jsx
-import AnimationProvider from '@site/src/components/AnimationProvider';
-
-<AnimationProvider enabled={true} reducedMotion={false}>
-  <div>
-    <h2 data-animated-text>This text will animate</h2>
-    <p data-animated-text>Even if the user has reduced motion enabled</p>
-  </div>
-</AnimationProvider>
-```
-
-## Best Practices
-
-Here are some best practices for using animations effectively:
-
-1. **Use animations purposefully** - Animations should enhance the content, not distract from it
-2. **Keep it subtle** - Subtle animations are more effective than flashy ones
-3. **Consider performance** - Too many animations can impact performance
-4. **Respect user preferences** - Always respect the user's motion preferences
-5. **Test on different devices** - Make sure animations work well on all devices
-6. **Provide fallbacks** - Content should still be usable without animations
-
-## Accessibility
-
-All animations respect the user's motion preferences. If a user has enabled the "reduced motion" setting in their operating system, animations will be disabled or simplified.
-
-You can test this by enabling the "reduced motion" setting in your operating system:
-- **macOS**: System Preferences > Accessibility > Display > Reduce motion
-- **Windows**: Settings > Ease of Access > Display > Show animations in Windows
-- **iOS**: Settings > Accessibility > Motion > Reduce Motion
-- **Android**: Settings > Accessibility > Remove animations
-
-## Advanced Techniques
-
-### Custom Animations with anime.js
-
-You can create custom animations using the anime.js library directly:
+You can create custom animations using anime.js directly in your MDX files:
 
 ```jsx
 import React, { useEffect, useRef } from 'react';
-import anime from 'animejs';
+import anime from 'animejs/lib/anime.es.js';
 
 function CustomAnimation() {
-  const elementRef = useRef(null);
+  const animationRef = useRef(null);
   
   useEffect(() => {
-    if (elementRef.current) {
+    if (animationRef.current) {
       anime({
-        targets: elementRef.current,
-        translateY: [50, 0],
-        opacity: [0, 1],
-        duration: 1000,
-        easing: 'easeOutCubic',
+        targets: animationRef.current.querySelectorAll('.circle'),
+        translateX: function(el) {
+          return anime.random(-100, 100);
+        },
+        translateY: function(el) {
+          return anime.random(-100, 100);
+        },
+        scale: function(el) {
+          return anime.random(0.5, 2);
+        },
+        duration: 2000,
+        delay: function(el, i) { return i * 100; },
+        direction: 'alternate',
+        loop: true,
+        easing: 'easeInOutQuad'
       });
     }
   }, []);
   
   return (
-    <div ref={elementRef} style={{ opacity: 0 }}>
-      <p>This element has a custom animation</p>
+    <div ref={animationRef} style={{ height: '200px', position: 'relative' }}>
+      <div className="circle" style={{ width: '50px', height: '50px', borderRadius: '50%', backgroundColor: '#3b82f6', position: 'absolute', top: '50%', left: '20%', transform: 'translate(-50%, -50%)' }}></div>
+      <div className="circle" style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: '#60a5fa', position: 'absolute', top: '30%', left: '50%', transform: 'translate(-50%, -50%)' }}></div>
+      <div className="circle" style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#93c5fd', position: 'absolute', top: '70%', left: '70%', transform: 'translate(-50%, -50%)' }}></div>
     </div>
   );
 }
+
+export default CustomAnimation;
 ```
 
-### Sequenced Animations
-
-You can create sequenced animations by chaining anime.js animations:
+Then use your custom component in your MDX file:
 
 ```jsx
-import React, { useEffect } from 'react';
-import anime from 'animejs';
+import CustomAnimation from './CustomAnimation';
 
-function SequencedAnimation() {
-  useEffect(() => {
-    const timeline = anime.timeline({
-      easing: 'easeOutExpo',
+<CustomAnimation />
+```
+
+## Animation Best Practices
+
+When adding animations to your documentation, follow these best practices:
+
+1.**Use animations purposefully**: Animations should enhance understanding, not distract from content
+2.**Keep it subtle**: Subtle animations are more effective than flashy ones
+3.**Consider performance**: Too many animations can slow down page loading and rendering
+4.**Respect user preferences**: Always disable animations for users who prefer reduced motion
+5.**Ensure accessibility**: Animations should not interfere with screen readers or keyboard navigation
+
+## Respecting User Preferences
+
+Our animation system automatically respects the user's `prefers-reduced-motion` setting. If a user has indicated they prefer reduced motion in their operating system settings, animations will be disabled or simplified.
+
+You can check for this preference in your custom animations:
+
+```jsx
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// In your animation code
+if (!prefersReducedMotion()) {
+  // Apply animation
+} else {
+  // Skip animation or use a simplified version
+}
+```
+
+## Animation Utilities
+
+Our documentation system includes several animation utility functions in the `src/utils/animeUtils.js` file:
+
+```js
+// Import animation utilities
+import { fadeIn, fadeOut, slideIn, slideOut, pulse } from '@site/src/utils/animeUtils';
+
+// Use in your component
+useEffect(() => {
+  const element = document.querySelector('.my-element');
+  fadeIn(element, { duration: 1000, delay: 300 });
+}, []);
+```
+
+Available utility functions include:
+
+-**fadeIn/fadeOut**: Fade elements in or out
+-**slideIn/slideOut**: Slide elements in or out from different directions
+-**pulse/bounce/shake**: Apply attention-grabbing effects
+-**typewriter**: Create a typewriter text effect
+-**staggered**: Apply staggered animations to multiple elements
+-**path**: Animate SVG paths
+-**timeline**: Create complex animation sequences
+
+## Advanced Animation Techniques
+
+### Timeline Animations
+
+For more complex animations, you can use anime.js timelines:
+
+```jsx
+useEffect(() => {
+  const timeline = anime.timeline({
+    easing: 'easeOutExpo',
+    duration: 750
+  });
+  
+  timeline
+    .add({
+      targets: '.step-1',
+      translateX: 250,
+    })
+    .add({
+      targets: '.step-2',
+      translateX: 250,
+    })
+    .add({
+      targets: '.step-3',
+      translateX: 250,
     });
+}, []);
+```
+
+### Scroll-Triggered Animations
+
+You can trigger animations when elements scroll into view:
+
+```jsx
+import React, { useEffect, useRef } from 'react';
+import anime from 'animejs/lib/anime.es.js';
+
+function ScrollAnimation() {
+  const elementRef = useRef(null);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            anime({
+              targets: entry.target,
+              opacity: [0, 1],
+              translateY: [50, 0],
+              duration: 800,
+              easing: 'easeOutQuad'
+            });
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
     
-    timeline
-      .add({
-        targets: '.step-1',
-        translateY: [50, 0],
-        opacity: [0, 1],
-        duration: 500,
-      })
-      .add({
-        targets: '.step-2',
-        translateY: [50, 0],
-        opacity: [0, 1],
-        duration: 500,
-      })
-      .add({
-        targets: '.step-3',
-        translateY: [50, 0],
-        opacity: [0, 1],
-        duration: 500,
-      });
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
+    }
+    
+    return () => {
+      if (elementRef.current) {
+        observer.unobserve(elementRef.current);
+      }
+    };
   }, []);
   
   return (
-    <div>
-      <div className="step-1" style={{ opacity: 0 }}>Step 1</div>
-      <div className="step-2" style={{ opacity: 0 }}>Step 2</div>
-      <div className="step-3" style={{ opacity: 0 }}>Step 3</div>
+    <div ref={elementRef} style={{ opacity: 0 }}>
+      This content will animate when it scrolls into view!
+    </div>
+  );
+}
+
+export default ScrollAnimation;
+```
+
+### Interactive Animations
+
+You can create animations that respond to user interactions:
+
+```jsx
+function InteractiveAnimation() {
+  const handleMouseMove = (e) => {
+    const x = e.clientX;
+    const y = e.clientY;
+    
+    anime({
+      targets: '.follow-cursor',
+      left: x,
+      top: y,
+      duration: 500,
+      easing: 'easeOutQuad'
+    });
+  };
+  
+  return (
+    <div 
+      style={{ height: '300px', position: 'relative', overflow: 'hidden' }}
+      onMouseMove={handleMouseMove}
+    >
+      <div 
+        className="follow-cursor"
+        style={{
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(59,130,246,0.8) 0%, rgba(59,130,246,0) 70%)',
+          position: 'absolute',
+          transform: 'translate(-50%, -50%)',
+          pointerEvents: 'none'
+        }}
+      ></div>
+      <div style={{ padding: '20px' }}>
+        Move your mouse over this area to see the effect!
+      </div>
     </div>
   );
 }
 ```
 
-## Conclusion
+## Troubleshooting
 
-With our anime.js integration, you can create beautiful, engaging animations that enhance your documentation. Use these features to illustrate complex concepts, guide the user's attention, and create a more immersive experience.
+If your animations aren't working as expected:
 
-For more examples, see the [Enhanced Mermaid Diagrams](/mermaid-working) page.
+1.**Check Console Errors**: Look for JavaScript errors in the browser console
+2.**Verify Element Existence**: Make sure the elements you're targeting exist when the animation runs
+3.**Check CSS Conflicts**: CSS properties might be overriding your animations
+4.**Test in Different Browsers**: Some animations may behave differently across browsers
+5.**Simplify**: Start with a simple animation and build up complexity
+
+## Resources
+
+- [Anime.js Documentation](https://animejs.com/documentation/)
+- [Animation Examples](https://animejs.com/documentation/#examples)
+- [Easing Functions](https://animejs.com/documentation/#linearEasing)
+- [Timeline Documentation](https://animejs.com/documentation/#timeline)

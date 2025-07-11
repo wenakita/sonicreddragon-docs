@@ -1,33 +1,31 @@
 ---
 sidebar_position: 2
 title: DragonJackpotDistributor
-description: The jackpot distribution system that manages lottery prize winners and payouts
+description: The jackpot distribution system that manages jackpot prize winners and payouts
 ---
 
 # DragonJackpotDistributor
 
-The `DragonJackpotDistributor` contract is responsible for managing the distribution of jackpot prizes within the Sonic Red Dragon ecosystem. It handles winner selection rules, prize calculation, and the secure delivery of rewards.
+The `DragonJackpotDistributor` contract is responsible for managing the distribution of jackpot prizes within the Sonic Red DRAGON ecosystem. It handles winner selection rules, prize calculation, and the secure delivery of rewards.
 
 ## Overview
 
-```mermaid
-flowchart TD
+```mermaidflowchart TD
     OmniDragon["OmniDragon Token"] -->|"Funds"| Distributor["DragonJackpotDistributor"]
     SwapOracle["Swap Trigger Oracle"] -->|"Selects Winners"| Distributor
     Distributor -->|"Sends Prizes"| Winners["Lottery Winners"]
     Distributor -->|"Records History"| History["Jackpot History"]
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white;
-    class Distributor highlight
+    classDef highlight fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class Distributor primary
 ```
 
 The distributor manages the entire jackpot lifecycle:
 
-1. **Fund Accumulation**: Collects tokens from transactions and direct contributions
-2. **Prize Distribution**: Calculates appropriate prize amounts and delivers to winners
-3. **Rate Limiting**: Ensures fair distribution with limits on frequency and amount
-4. **History Tracking**: Maintains a complete record of all jackpot winners
-5. **Emergency Controls**: Includes safety features for unexpected situations
+1.**Fund Accumulation**: Collects tokens from transactions and direct contributions
+2.**Prize Distribution**: Calculates appropriate prize amounts and delivers to winners
+3.**Rate Limiting**: Ensures fair distribution with limits on frequency and amount
+4.**History Tracking**: Maintains a complete record of all jackpot winners
+5.**Emergency Controls**: Includes safety features for unexpected situations
 
 ## Contract Implementation
 
@@ -70,8 +68,7 @@ contract DragonJackpotDistributor is IDragonJackpotDistributor, Ownable, Reentra
 ### Jackpot Funding
 
 ```solidity
-/**
- * @dev Add funds to the jackpot
+/***@dev Add funds to the jackpot
  * @param amount Amount to add
  */
 function addToJackpot(uint256 amount) external override {
@@ -90,8 +87,7 @@ This function allows any authorized address to add funds to the jackpot pool. Th
 ### Prize Distribution
 
 ```solidity
-/**
- * @dev Distribute a jackpot to a winner
+/***@dev Distribute a jackpot to a winner
  * @param winner Address of the winner
  * @param amount Amount to distribute
  */
@@ -136,18 +132,17 @@ function distributeJackpot(address winner, uint256 amount) external override onl
 
 This is the core function that handles jackpot distribution. It includes several important controls:
 
-1. **Authorization Check**: Only authorized distributors can call this function
-2. **Jackpot Size Check**: Ensures the jackpot has reached minimum size
-3. **Rate Limiting**: Manages the number of winners per time period
-4. **Amount Calculation**: Ensures distribution follows percentage rules
-5. **History Tracking**: Records win details for transparency
-6. **Secure Transfer**: Safely transfers tokens to the winner
+1.**Authorization Check**: Only authorized distributors can call this function
+2.**Jackpot Size Check**: Ensures the jackpot has reached minimum size
+3.**Rate Limiting**: Manages the number of winners per time period
+4.**Amount Calculation**: Ensures distribution follows percentage rules
+5.**History Tracking**: Records win details for transparency
+6.**Secure Transfer**: Safely transfers tokens to the winner
 
 ### Multi-Recipient Distribution
 
 ```solidity
-/**
- * @dev Distribute rewards to multiple recipients by basis points
+/***@dev Distribute rewards to multiple recipients by basis points
  * @param amount Amount to distribute
  * @param recipients Array of recipient addresses
  * @param basisPoints Array of basis points for each recipient (totaling 10000)
@@ -172,13 +167,12 @@ function distributeRewards(
 }
 ```
 
-This function enables more complex prize distributions where multiple recipients receive proportional shares of a prize pool, useful for team-based competitions or tiered reward structures.
+This function enables more complex prize distributions where multiple recipients receive proportional shares of a jackpot, useful for team-based competitions or tiered reward structures.
 
 ### Emergency Controls
 
 ```solidity
-/**
- * @dev Emergency withdraw all funds to treasury
+/***@dev Emergency withdraw all funds to treasury
  */
 function emergencyWithdraw() external onlyOwner {
     uint256 balance = token.balanceOf(address(this));
@@ -204,30 +198,27 @@ The contract includes emergency functions that allow the owner to:
 ## Rate Limiting Mechanism
 
 To prevent jackpot depletion and maintain sustainable prizes, the distributor implements a time-based rate limiting system:
+```
 
-```mermaid
-sequenceDiagram
-    participant Time as Timeline
-    participant Period as Distribution Period
-    participant Winners as Winner Counter
-    participant Jackpot as Jackpot Balance
-    
+```mermaidsequenceDiagram
+participant Time as Timeline
+participant Period as Distribution Period
+participant Winners as Winner Counter
+participant Jackpot as Jackpot Balance
+
     Note over Period: New Period Starts
-    Period->>Winners: Reset Counter (0)
-    
+    Period ->> Winners: Reset Counter (0)
+
     loop Within Period Duration (1 day)
-        Time->>Period: New Winner Selected
+    Time ->> Period: New Winner Selected
         alt If Winners < Max (3)
-            Period->>Winners: Increment Counter
-            Winners->>Jackpot: Distribute Prize (69%)
+    Period ->> Winners: Increment Counter
+    Winners ->> Jackpot: Distribute Prize (69%)
         else If Winners >= Max
-            Period->>Time: Reject Winner
-        end
-    end
-    
+    Period ->> Time: Reject Winner
     Note over Period: Period Ends (After 1 day)
-    Time->>Period: New Period Starts
-    Period->>Winners: Reset Counter (0)
+    Time ->> Period: New Period Starts
+    Period ->> Winners: Reset Counter (0)
 ```
 
 This mechanism ensures:
@@ -257,16 +248,14 @@ These functions allow adaptation of the jackpot system to different market condi
 The contract provides several view functions for querying jackpot information:
 
 ```solidity
-/**
- * @dev Get the current jackpot balance
+/***@dev Get the current jackpot balance
  * @return Current jackpot balance
  */
 function getCurrentJackpot() external view override returns (uint256) {
     return jackpotBalance;
 }
 
-/**
- * @dev Get a jackpot win by index
+/***@dev Get a jackpot win by index
  * @param index Index of the win
  * @return Winner, amount, and timestamp
  */
@@ -280,8 +269,7 @@ function getJackpotHistory(uint256 index) external view returns (
     return (win.winner, win.amount, win.timestamp);
 }
 
-/**
- * @dev Get jackpot history count
+/***@dev Get jackpot history count
  * @return Number of jackpot history entries
  */
 function getJackpotHistoryCount() external view returns (uint256) {
@@ -298,49 +286,45 @@ These functions enable:
 
 The contract implements multiple security features:
 
-1. **ReentrancyGuard**: Prevents reentrant calls during token transfers
-2. **Pausable**: Allows emergency pausing of all distribution functions
-3. **Ownership Controls**: Restricts sensitive functions to the contract owner
-4. **SafeERC20**: Uses safe transfer methods to prevent token handling issues
-5. **DragonTokenUtils**: Leverages optimized token utilities for gas efficiency
+1.**ReentrancyGuard**: Prevents reentrant calls during token transfers
+2.**Pausable**: Allows emergency pausing of all distribution functions
+3.**Ownership Controls**: Restricts sensitive functions to the contract owner
+4.**SafeERC20**: Uses safe transfer methods to prevent token handling issues
+5.**DragonTokenUtils**: Leverages optimized token utilities for gas efficiency
 
 ## Integration Points
 
 The distributor integrates with several other system components:
 
-1. **Token Contract**: Receives funds from the token contract
-2. **Swap Trigger Oracle**: Receives winner selections from the oracle
-3. **Treasury**: Emergency fund recipient
-4. **Client Applications**: Provides data for jackpot displays and history
+1.**Token Contract**: Receives funds from the token contract
+2.**Swap Trigger Oracle**: Receives winner selections from the oracle
+3.**Treasury**: Emergency fund recipient
+4.**Client Applications**: Provides data for jackpot displays and history
 
 ## Jackpot Distribution Flow
 
 ```mermaid
 sequenceDiagram
-    participant User
-    participant Oracle as Swap Trigger Oracle
-    participant Distributor as Jackpot Distributor
-    participant Vault as Jackpot Vault
-    participant Winner
-    
-    User->>Oracle: Makes qualifying transaction
-    Oracle->>Oracle: Determines win using probability
-    
+participant User
+participant Oracle as Swap Trigger Oracle
+participant Distributor as Jackpot Distributor
+participant Vault as Jackpot Vault
+participant Winner
+    User ->> Oracle: Makes qualifying transaction
+    Oracle ->> Oracle: Determines win using probability
+
     alt User wins jackpot
-        Oracle->>Distributor: Select winner (user)
-        
-        Distributor->>Distributor: Check if jackpot is large enough
-        Distributor->>Distributor: Check period winner limits
-        
+    Oracle ->> Distributor: Select winner (user)
+    Distributor ->> Distributor: Check if jackpot is large enough
+    Distributor ->> Distributor: Check period winner limits
+
         alt Checks pass
-            Distributor->>Distributor: Calculate prize (69% of pool)
-            Distributor->>Distributor: Record win in history
-            Distributor->>Winner: Transfer prize tokens
-            Distributor->>Distributor: Update counters and balances
+    Distributor ->> Distributor: Calculate prize (69% of pool)
+    Distributor ->> Distributor: Record win in history
+    Distributor ->> Winner: Transfer prize tokens
+    Distributor ->> Distributor: Update counters and balances
         else Checks fail
-            Distributor-->>Oracle: Reject distribution
-        end
-    end
+            Distributor -->> Oracle: Reject distribution
 ```
 
 This flow ensures winners are selected fairly, prizes are distributed correctly, and the system maintains sustainability through rate limiting and percentage-based distributions.

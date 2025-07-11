@@ -1,45 +1,41 @@
 ---
 sidebar_position: 3
 title: Swap Trigger Oracle
-description: Lottery entry system based on token swap events with probability-based selection
+description: >-
+  Lottery entry system based on token swap events with probability-based
+  selection
 ---
 
 # OmniDragonSwapTriggerOracle
 
-The `OmniDragonSwapTriggerOracle` is a critical component of the OmniDragon lottery system. It processes swap events, assigns lottery entry probabilities, and interacts with oracle price feeds to ensure fair and transparent jackpot entry opportunities.
+The `OmniDragonSwapTriggerOracle` is a critical component of the OmniDragon jackpot system. It processes swap events, assigns jackpot entry probabilities, and interacts with oracle price feeds to ensure fair and transparent jackpot entry opportunities.
 
 ## Overview
 
-```mermaid
-flowchart TB
-    OmniDragon["OmniDragon Token"] -->|"Calls onSwap()"| SwapTrigger["OmniDragonSwapTriggerOracle"]
+```mermaidflowchart TB
+OmniDragon["OmniDragon Token"] -->|"Calls onSwap()"| SwapTrigger["OmniDragonSwapTriggerOracle"]
     SwapTrigger -->|"Entry Processing"| Lottery["Lottery System"]
-    PriceFeeds["Oracle Price Feeds"] -->|"Market Data"| SwapTrigger
-    
+    PriceFeeds["Oracle Price Feeds"] -->|>|"Market Data"| SwapTrigger
     subgraph "Price Oracles"
-        Chainlink["Chainlink"]
-        API3["API3"]
-        Band["Band Protocol"]
-        Pyth["Pyth Network"]
-        Stork["Stork Network"]
-    end
-    
-    Chainlink --> PriceFeeds
-    API3 --> PriceFeeds
-    Band --> PriceFeeds
-    Pyth --> PriceFeeds
-    Stork --> PriceFeeds
-    
-    class SwapTrigger highlight
+    Chainlink["Chainlink"]
+    API3["API3"]
+    Band["Band Protocol"]
+    Pyth["Pyth Network"]
+    Stork["Stork Network"]
+    Chainlink| PriceFeeds
+    API3 -->|> PriceFeeds
+    Band| PriceFeeds
+    Pyth -->|> PriceFeeds
+    Stork| PriceFeeds    endclass SwapTrigger primary    end
 ```
 
 The swap trigger oracle serves multiple key functions:
 
-1. **Lottery Entry Detection**: Processes swap events from the OmniDragon token
-2. **Probability Calculation**: Determines each entry's win probability based on swap amount
-3. **Oracle Integration**: Aggregates price data from multiple oracles for reliability
-4. **Anti-Abuse Protection**: Implements safeguards against system manipulation
-5. **Event Emission**: Emits events for off-chain lottery winner selection
+1.**Lottery Entry Detection**: Processes swap events from the OmniDragon token
+2.**Probability Calculation**: Determines each entry's win probability based on swap amount
+3.**Oracle Integration**: Aggregates price data from multiple oracles for reliability
+4.**Anti-Abuse Protection**: Implements safeguards against system manipulation
+5.**Event Emission**: Emits events for off-chain jackpot winner selection
 
 ## Contract Implementation
 
@@ -260,34 +256,29 @@ function updateOracleStatus(uint8 _oracleId, bool _isActive) external onlyOwner 
 
 Several mechanisms are implemented to prevent system abuse:
 
-1. **Minimum Swap Amount**
-   ```solidity
+1.**Minimum Swap Amount**```solidity
    require(amount >= minSwapAmount, "Swap too small");
    ```
    Prevents dust transactions from participating.
 
-2. **Cooldown Period**
-   ```solidity
+2.**Cooldown Period**```solidity
    require(block.timestamp >= lastEntry[user] + cooldownPeriod, "Cooldown active");
    ```
    Prevents rapid entry spamming by users.
 
-3. **Oracle Consensus**
-   ```solidity
+3.**Oracle Consensus**```solidity
    if (validPrices < minimumOracleResponses) {
        return (0, false);
    }
    ```
    Requires multiple oracle sources to agree.
 
-4. **Logarithmic Scaling**
-   ```solidity
+4.**Logarithmic Scaling**```solidity
    uint256 logFactor = 10000 * (1 + _log2(swapRatio / 10000));
    ```
    Prevents large swaps from having disproportionate advantages.
 
-5. **Maximum Cap**
-   ```solidity
+5.**Maximum Cap**```solidity
    return probability > maxWinProbability ? maxWinProbability : probability;
    ```
    Limits the maximum win probability to a fair value.
@@ -296,19 +287,19 @@ Several mechanisms are implemented to prevent system abuse:
 
 The implemented probability curve creates a fair distribution:
 
-- **Base Probability**: 1% (100 basis points)
-- **Average Swap**: ~1.5% (150 basis points)
-- **2x Average Swap**: ~1.69% (169 basis points) - logarithmic scaling starts
-- **5x Average Swap**: ~2.16% (216 basis points)
-- **10x Average Swap**: ~2.32% (232 basis points)
-- **Maximum Probability**: 10% (1000 basis points) - hard cap
+-**Base Probability**: 1% (100 basis points)
+-**Average Swap**: ~1.5% (150 basis points)
+-**2x Average Swap**: ~1.69% (169 basis points) - logarithmic scaling starts
+-**5x Average Swap**: ~2.16% (216 basis points)
+-**10x Average Swap**: ~2.32% (232 basis points)
+-**Maximum Probability**: 10% (1000 basis points) - hard cap
+```
 
-```mermaid
-xychart-beta
+```mermaidxychart-beta
     title "Win Probability vs. Swap Size"
     x-axis "Swap Size (multiple of average)" [0.1, 0.5, 1, 2, 5, 10, 20, 50, 100]
     y-axis "Win Probability (%)" 0 --> 10
-    line [0.5, 0.75, 1, 1.69, 2.16, 2.32, 2.6, 3.0, 3.3]
+    line[0.5, 0.75, 1, 1.69, 2.16, 2.32, 2.6, 3.0, 3.3]
 ```
 
 ## Configuration Parameters
@@ -344,27 +335,22 @@ The jackpot entry process follows this sequence:
 
 ```mermaid
 sequenceDiagram
-    participant User
-    participant OmniDragon as OmniDragon Token
-    participant SwapOracle as SwapTriggerOracle
-    participant PriceOracles as Price Oracles
-    participant OffChain as Off-Chain System
-    
+participant User
+participant OmniDragon as OmniDragon Token
+participant SwapOracle as SwapTriggerOracle
+participant PriceOracles as Price Oracles
+participant OffChain as Off-Chain System
     User->>+OmniDragon: Trade tokens
     OmniDragon->>+SwapOracle: onSwap(user, amount)
-    
-    SwapOracle->>SwapOracle: Check minimum amount
-    SwapOracle->>SwapOracle: Check cooldown period
-    
+    SwapOracle ->> SwapOracle: Check minimum amount
+    SwapOracle ->> SwapOracle: Check cooldown period
     SwapOracle->>+PriceOracles: getAggregatedPrice()
     PriceOracles-->>-SwapOracle: Return median price
-    
-    SwapOracle->>SwapOracle: Calculate win probability
-    SwapOracle->>SwapOracle: Update user statistics
-    
+    SwapOracle ->> SwapOracle: Calculate win probability
+    SwapOracle ->> SwapOracle: Update user statistics
+
     SwapOracle-->>-OmniDragon: Return
     OmniDragon-->>-User: Complete trade
-    
-    SwapOracle->>OffChain: Emit LotteryEntry event
+    SwapOracle ->> OffChain: Emit LotteryEntry event
     Note over OffChain: Monitor events & select winners
 ``` 

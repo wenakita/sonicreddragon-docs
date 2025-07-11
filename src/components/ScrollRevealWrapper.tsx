@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import anime from 'animejs/lib/anime.es.js';
+import { anime, useAnimationPerformance } from '../utils/animationUtils';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 
 interface ScrollRevealWrapperProps {
@@ -14,6 +14,12 @@ interface ScrollRevealWrapperProps {
   staggerDelay?: number;
 }
 
+/**
+ * ScrollRevealWrapper - A component that reveals its children when scrolled into view
+ * 
+ * This component uses IntersectionObserver to detect when it's in the viewport,
+ * then animates its children using the unified animation system.
+ */
 export default function ScrollRevealWrapper({
   children,
   animation = 'fadeInUp',
@@ -28,9 +34,20 @@ export default function ScrollRevealWrapper({
   const elementRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const isBrowser = useIsBrowser();
+  const { prefersReducedMotion, getOptimalDuration } = useAnimationPerformance();
 
   useEffect(() => {
     if (!isBrowser || !elementRef.current) return;
+    
+    // Skip animation if user prefers reduced motion
+    if (prefersReducedMotion) {
+      // Make content immediately visible without animation
+      if (elementRef.current) {
+        elementRef.current.style.opacity = '1';
+        elementRef.current.style.transform = 'none';
+      }
+      return;
+    }
 
     const element = elementRef.current;
     
@@ -53,7 +70,7 @@ export default function ScrollRevealWrapper({
               : [element];
 
             // Animate to visible state
-            const animationConfig = getAnimationConfig(animation, duration, delay, stagger, staggerDelay);
+            const animationConfig = getAnimationConfig(animation, getOptimalDuration(duration), delay, stagger, staggerDelay);
             
             anime({
               targets,
@@ -82,9 +99,14 @@ export default function ScrollRevealWrapper({
     return () => {
       observer.disconnect();
     };
-  }, [isBrowser, animation, duration, delay, triggerOnce, threshold, isVisible, stagger, staggerDelay]);
+  }, [isBrowser, animation, duration, delay, triggerOnce, threshold, isVisible, stagger, staggerDelay, prefersReducedMotion, getOptimalDuration]);
 
   const getInitialState = (animationType: string) => {
+    // If user prefers reduced motion, don't apply initial transforms
+    if (prefersReducedMotion) {
+      return { opacity: '1' };
+    }
+    
     const base = { 
       opacity: '0',
       willChange: 'transform, opacity',
@@ -144,4 +166,4 @@ export default function ScrollRevealWrapper({
       {children}
     </div>
   );
-} 
+}

@@ -1,0 +1,234 @@
+/**
+ * SonicRedDragon Brand Colors
+ * Based on the comprehensive brand color system from BRAND_KIT.md
+ */
+
+:root {
+  /* Primary Brand Colors */
+  --omni-catskill-white: #D3E5F2;
+  --omni-janna: #8E9AAA;
+  --omni-raw-sienna: #CD7D58;
+  --omni-half-baked: #E8E2C4;
+  --omni-cloud-burst: #152B43;
+  
+  /* Primary Color Variants */
+  --omni-primary: var(--omni-raw-sienna);
+  --omni-primary-light: #E09B7A;
+  --omni-primary-dark: #B86A47;
+  --omni-primary-contrast: #FFFFFF;
+  
+  /* Background Colors */
+  --omni-bg-primary: var(--omni-catskill-white);
+  --omni-bg-secondary: var(--omni-half-baked);
+  --omni-bg-dark: var(--omni-cloud-burst);
+  --omni-bg-accent: var(--omni-janna);
+  
+  /* Text Colors */
+  --omni-text-primary: var(--omni-cloud-burst);
+  --omni-text-secondary: var(--omni-janna);
+  --omni-text-light: var(--omni-catskill-white);
+  --omni-text-accent: var(--omni-raw-sienna);
+  
+  /* Interactive Elements */
+  --omni-link: var(--omni-raw-sienna);
+  --omni-link-hover: var(--omni-cloud-burst);
+  --omni-button-primary: var(--omni-raw-sienna);
+  --omni-button-secondary: var(--omni-janna);
+  
+  /* Borders and Shadows */
+  --omni-border-light: rgba(142, 154, 170, 0.2);
+  --omni-border-medium: rgba(142, 154, 170, 0.4);
+  --omni-border-dark: rgba(21, 43, 67, 0.3);
+  --omni-shadow-light: rgba(21, 43, 67, 0.1);
+  --omni-shadow-medium: rgba(21, 43, 67, 0.2);
+  --omni-shadow-dark: rgba(21, 43, 67, 0.3);
+  
+  /* Status Colors */
+  --omni-success: #22c55e;
+  --omni-warning: #f59e0b;
+  --omni-error: #ef4444;
+  --omni-info: var(--omni-janna);
+  
+  /* Gradients */
+  --omni-gradient-primary: linear-gradient(135deg, var(--omni-raw-sienna), var(--omni-cloud-burst));
+  --omni-gradient-secondary: linear-gradient(135deg, var(--omni-catskill-white), var(--omni-half-baked));
+  --omni-gradient-accent: linear-gradient(135deg, var(--omni-janna), var(--omni-catskill-white));
+}
+
+/* Dark Mode Adaptations */
+[data-theme='dark'] {
+  /* Invert the color relationships for dark mode */
+  --omni-bg-primary: var(--omni-cloud-burst);
+  --omni-bg-secondary: #1e293b;
+  --omni-bg-dark: #0f172a;
+  --omni-bg-accent: #334155;
+  
+  --omni-text-primary: var(--omni-catskill-white);
+  --omni-text-secondary: #94a3b8;
+  --omni-text-light: var(--omni-catskill-white);
+  --omni-text-accent: var(--omni-primary-light);
+  
+  --omni-primary: var(--omni-primary-light);
+  --omni-link: var(--omni-primary-light);
+  --omni-link-hover: var(--omni-catskill-white);
+  
+  --omni-border-light: rgba(255, 255, 255, 0.1);
+  --omni-border-medium: rgba(255, 255, 255, 0.2);
+  --omni-border-dark: rgba(255, 255, 255, 0.3);
+  --omni-shadow-light: rgba(0, 0, 0, 0.2);
+  --omni-shadow-medium: rgba(0, 0, 0, 0.4);
+  --omni-shadow-dark: rgba(0, 0, 0, 0.6);
+  
+  /* Dark mode gradients */
+  --omni-gradient-primary: linear-gradient(135deg, var(--omni-primary-light), var(--omni-cloud-burst));
+  --omni-gradient-secondary: linear-gradient(135deg, #1e293b, #334155);
+  --omni-gradient-accent: linear-gradient(135deg, #475569, #64748b);
+}
+
+/* Utility Classes */
+.bg-catskill-white { background-color: var(--omni-catskill-white); }
+.bg-janna { background-color: var(--omni-janna); }
+.bg-raw-sienna { background-color: var(--omni-raw-sienna); }
+.bg-half-baked { background-color: var(--omni-half-baked); }
+.bg-cloud-burst { background-color: var(--omni-cloud-burst); }
+
+.text-catskill-white { color: var(--omni-catskill-white); }
+.text-janna { color: var(--omni-janna); }
+.text-raw-sienna { color: var(--omni-raw-sienna); }
+.text-half-baked { color: var(--omni-half-baked); }
+.text-cloud-burst { color: var(--omni-cloud-burst); }
+
+.border-raw-sienna { border-color: var(--omni-raw-sienna); }
+.border-cloud-burst { border-color: var(--omni-cloud-burst); }
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --omni-border-light: rgba(0, 0, 0, 0.5);
+    --omni-border-medium: rgba(0, 0, 0, 0.7);
+    --omni-shadow-light: rgba(0, 0, 0, 0.3);
+    --omni-shadow-medium: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Print Styles */
+@media print {
+  :root {
+    --omni-primary: #000000;
+    --omni-bg-primary: #ffffff;
+    --omni-text-primary: #000000;
+    --omni-text-secondary: #666666;
+  }
+}
+
+/* === DARK MODE THEME === */
+[data-theme='dark'] {
+  /* Invert the color relationships for dark mode */
+  --omni-bg-primary: var(--omni-cloud-burst);
+  --omni-bg-secondary: #1A3A5C;
+  --omni-bg-dark: #0F1F2F;
+  --omni-bg-accent: rgba(142, 154, 170, 0.2);
+
+  --omni-text-primary: var(--omni-catskill-white);
+  --omni-text-secondary: rgba(211, 229, 242, 0.8);
+  --omni-text-light: var(--omni-catskill-white);
+
+  /* Docusaurus dark mode overrides */
+  --ifm-background-color: var(--omni-cloud-burst);
+  --ifm-background-surface-color: #1A3A5C;
+  --ifm-font-color-base: var(--omni-catskill-white);
+  --ifm-font-color-secondary: rgba(211, 229, 242, 0.8);
+  
+  --ifm-navbar-background-color: #0F1F2F;
+  --ifm-sidebar-background-color: #1A3A5C;
+  
+  --ifm-code-background: rgba(211, 229, 242, 0.1);
+  --ifm-border-color: rgba(142, 154, 170, 0.2);
+  
+  /* Maintain brand color visibility in dark mode */
+  --omni-primary: #E09B7A; /* Lighter version for better contrast */
+}
+
+/* === UTILITY CLASSES === */
+
+/* Background utilities */
+.bg-catskill-white { background-color: var(--omni-catskill-white); }
+.bg-janna { background-color: var(--omni-janna); }
+.bg-raw-sienna { background-color: var(--omni-raw-sienna); }
+.bg-half-baked { background-color: var(--omni-half-baked); }
+.bg-cloud-burst { background-color: var(--omni-cloud-burst); }
+
+/* Text utilities */
+.text-catskill-white { color: var(--omni-catskill-white); }
+.text-janna { color: var(--omni-janna); }
+.text-raw-sienna { color: var(--omni-raw-sienna); }
+.text-half-baked { color: var(--omni-half-baked); }
+.text-cloud-burst { color: var(--omni-cloud-burst); }
+
+/* Border utilities */
+.border-catskill-white { border-color: var(--omni-catskill-white); }
+.border-janna { border-color: var(--omni-janna); }
+.border-raw-sienna { border-color: var(--omni-raw-sienna); }
+.border-half-baked { border-color: var(--omni-half-baked); }
+.border-cloud-burst { border-color: var(--omni-cloud-burst); }
+
+/* Gradient utilities */
+.gradient-primary { background: var(--omni-gradient-primary); }
+.gradient-secondary { background: var(--omni-gradient-secondary); }
+.gradient-accent { background: var(--omni-gradient-accent); }
+
+/* === COMPONENT-SPECIFIC STYLES === */
+
+/* Hero sections */
+.hero-omni {
+  background: var(--omni-gradient-primary);
+  color: var(--omni-text-light);
+}
+
+/* Cards */
+.card-omni {
+  background: #FFFFFF;
+  border: 1px solid var(--omni-border-light);
+  box-shadow: 0 4px 12px var(--omni-shadow-light);
+}
+
+.card-omni:hover {
+  border-color: var(--omni-primary);
+  box-shadow: 0 8px 24px var(--omni-shadow-medium);
+}
+
+/* Buttons */
+.btn-omni-primary {
+  background: var(--omni-primary);
+  color: var(--omni-primary-contrast);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-omni-primary:hover {
+  background: var(--omni-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--omni-shadow-medium);
+}
+
+.btn-omni-secondary {
+  background: transparent;
+  color: var(--omni-primary);
+  border: 2px solid var(--omni-primary);
+}
+
+.btn-omni-secondary:hover {
+  background: var(--omni-primary);
+  color: var(--omni-primary-contrast);
+}
+
+/* Navigation accents */
+.nav-accent {
+  border-top: 3px solid var(--omni-primary);
+}
+
+/* Status indicators */
+.status-success { color: var(--omni-success); }
+.status-warning { color: var(--omni-warning); }
+.status-error { color: var(--omni-error); }
+.status-info { color: var(--omni-info); } 

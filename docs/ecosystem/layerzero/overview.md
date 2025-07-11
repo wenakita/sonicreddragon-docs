@@ -1,14 +1,16 @@
 ---
 sidebar_position: 1
+title: Overview
+description: Detailed explanation of this concept
 ---
 
 # LayerZero Integration
 
-Sonic Red Dragon leverages LayerZero V2 for secure and efficient cross-chain operations. This page provides an overview of our LayerZero integration and its key features.
+Sonic Red DRAGON leverages LayerZero V2 for secure and efficient cross-chain operations. This page provides an overview of our LayerZero integration and its key features.
 
 ## Overview
 
-LayerZero V2 is a cross-chain messaging protocol that enables secure and efficient communication between different blockchains. Sonic Red Dragon uses LayerZero V2 for:
+LayerZero V2 is a cross-chain messaging protocol that enables secure and efficient communication between different blockchains. Sonic Red DRAGON uses LayerZero V2 for:
 
 - Cross-chain token transfers
 - Cross-chain state synchronization
@@ -19,12 +21,12 @@ LayerZero V2 is a cross-chain messaging protocol that enables secure and efficie
 
 ```mermaid
 flowchart TD
-    A[Sonic Red Dragon] --> B[LayerZero V2]
-    B --> C[Ethereum]
-    B --> D[Arbitrum]
-    B --> E[Optimism]
-    B --> F[Other Chains]
-    G[Applications] --> A
+    A[Sonic Red DRAGON] -->|> B[LayerZero V2]
+    B| C[Ethereum]
+    B -->|> D[Arbitrum]
+    B| E[Optimism]
+    B -->|> F[Other Chains]
+    G[Applications]| A
 ```
 
 ## Key Features
@@ -58,7 +60,7 @@ Security features include:
 
 ## Supported Chains
 
-Sonic Red Dragon currently supports the following chains:
+Sonic Red DRAGON currently supports the following chains:
 
 - Ethereum Mainnet
 - Arbitrum One
@@ -68,6 +70,6 @@ Sonic Red Dragon currently supports the following chains:
 
 ## Next Steps
 
-1. Read the [LayerZero Integration Guide](./integration.md)
-2. Review the [Smart Contracts Overview](../../smart-contracts/token.md)
-3. Check out our [Example Projects](https://github.com/wenakita/omnidragon-examples) 
+1. Read the [LayerZero Integration Guide](/integrations/index)
+2. Review the [Smart Contracts Overview](/smart-contracts/token.md)
+3. Check out our [Example Projects](https://github.com/wenakita/OmniDragon-examples) 

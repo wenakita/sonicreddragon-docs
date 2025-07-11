@@ -1,6 +1,7 @@
 ---
 sidebar_position: 5
 title: Secure Randomness System
+description: Detailed explanation of this concept
 ---
 
 # Secure Randomness System
@@ -13,46 +14,41 @@ The protocol implements a layered architecture for randomness generation:
 
 ```mermaid
 flowchart TB
-    %% Define main components
-    subgraph CoreRNG ["Core Randomness Components"]
+%% Define main components
+    subgraph CoreRNG["Core Randomness Components"]
         direction TB
         INTERFACE["IRandomnessConsumer"]:::interface
         AGGREGATOR["RandomnessAggregator"]:::core
         FALLBACK["FallbackSystem"]:::core
-    end
-    
-    subgraph Sources ["Randomness Sources"]
+    subgraph Sources["Randomness Sources"]
         direction LR
         CHAINLINK["Chainlink VRF"]:::source
         DRAND["Drand Network"]:::source
         ARB_VRF["Arbitrum VRF"]:::source
         INTERNAL["Internal PRNG"]:::source
-    end
-    
-    subgraph Consumers ["Randomness Consumers"]
+    subgraph Consumers["Randomness Consumers"]
         direction LR
         JACKPOT["Jackpot System"]:::consumer
         TRIGGER["Trigger System"]:::consumer
         SELECTION["Winner Selection"]:::consumer
         LOTTERY["Lottery System"]:::consumer
-    end
-    
-    %% Connect the systems
-    Sources -->|"Provide seeds"| AGGREGATOR
-    INTERFACE -.->|"Implemented by"| Consumers
-    AGGREGATOR -->|"Provides randomness"| Consumers
-    FALLBACK -->|"Backup mechanism"| AGGREGATOR
-    
-    %% Apply styling
-    classDef interface fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1
-    classDef core fill:#e8f5e9,stroke:#43a047,color:#1b5e20
-    classDef source fill:#f3e5f5,stroke:#8e24aa,color:#4a148c
-    classDef consumer fill:#fff8e1,stroke:#ffb300,color:#ff6f00
-    
-    %% Style subgraphs
-    style CoreRNG fill:#e3f2fd,stroke:#bbdefb,color:#1565c0
-    style Sources fill:#f3e5f5,stroke:#e1bee7,color:#6a1b9a
-    style Consumers fill:#fff8e1,stroke:#ffecb3,color:#ff8f00
+        %% Connect the systems
+        Sources -->|"Provide seeds"| AGGREGATOR
+        INTERFACE -.->|"Implemented by"| Consumers
+        AGGREGATOR -->|"Provides randomness"| Consumers
+        FALLBACK -->|"Backup mechanism"| AGGREGATOR
+        %% Apply styling
+    classDef interface fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef core fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef source fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef consumer fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+        %% Style subgraphs
+        style CoreRNG fill:#e3f2fd,stroke:#bbdefb,color:#1565c0
+        style Sources fill:#f3e5f5,stroke:#e1bee7,color:#6a1b9a
+        style Consumers fill:#fff8e1,stroke:#ffecb3,color:#ff8f00
+endend
+endend
+end
 ```
 
 ## Randomness Sources
@@ -130,7 +126,7 @@ function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
 
 ### Internal PRNG
 
-As a fallback mechanism, an internal pseudo-random number generator combines on-chain data:
+As a fallback mechanism, an internal pseudo-randomness generator combines on-chain data:
 
 ```solidity
 function generateFallbackRandomness() internal view returns (uint256) {
@@ -147,59 +143,49 @@ function generateFallbackRandomness() internal view returns (uint256) {
 ## Randomness Flow
 
 The process of requesting and receiving randomness follows this sequence:
+```
 
-```mermaid
-sequenceDiagram
-    participant Consumer as Randomness Consumer
-    participant Aggregator as Randomness Aggregator
-    participant Chainlink as Chainlink VRF
-    participant Drand as Drand Network
-    participant Arbitrum as Arbitrum VRF
-    
+```mermaidsequenceDiagram
+participant Consumer as Randomness Consumer
+participant Aggregator as Randomness Aggregator
+participant Chainlink as Chainlink VRF
+participant Drand as Drand Network
+participant Arbitrum as Arbitrum VRF
+
     %% Style regions
     rect rgb(233, 245, 255)
     note over Consumer,Aggregator: Request Phase
-    end
-    
     Consumer->>+Aggregator: requestRandomness()
-    Aggregator->>Aggregator: Generate requestId
-    
+    Aggregator ->> Aggregator: Generate requestId
+
     alt Primary Source (Chainlink)
-        Aggregator->>+Chainlink: requestRandomWords()
+    Aggregator->>+Chainlink: requestRandomWords()
         Chainlink-->>-Aggregator: Chainlink requestId
-        Aggregator->>Aggregator: Map requestIds
+    Aggregator ->> Aggregator: Map requestIds
     else Secondary Source (Drand)
-        Aggregator->>+Drand: Request via oracle
+    Aggregator->>+Drand: Request via oracle
         Drand-->>-Aggregator: Pending (off-chain)
     else Tertiary Source (Arbitrum VRF)
-        Aggregator->>+Arbitrum: requestRandomWords()
+    Aggregator->>+Arbitrum: requestRandomWords()
         Arbitrum-->>-Aggregator: Arbitrum requestId
-    end
-    
     Aggregator-->>-Consumer: OmniDragon requestId
-    
+
     rect rgb(245, 235, 255)
     note over Aggregator: Fulfillment Phase
-    end
-    
     alt Chainlink Fulfillment
-        Chainlink->>+Aggregator: fulfillRandomWords(requestId, randomWords)
-        Aggregator->>Aggregator: Store Chainlink randomness
+    Chainlink->>+Aggregator: fulfillRandomWords(requestId, randomWords)
+    Aggregator ->> Aggregator: Store Chainlink randomness
     else Drand Fulfillment
-        Drand->>+Aggregator: fulfillDrandRandomness(roundNumber, signature)
-        Aggregator->>Aggregator: Verify and store Drand randomness
+    Drand->>+Aggregator: fulfillDrandRandomness(roundNumber, signature)
+    Aggregator ->> Aggregator: Verify and store Drand randomness
     else Arbitrum Fulfillment
-        Arbitrum->>+Aggregator: fulfillRandomWords(requestId, randomWords)
-        Aggregator->>Aggregator: Store Arbitrum randomness
-    end
-    
+    Arbitrum->>+Aggregator: fulfillRandomWords(requestId, randomWords)
+    Aggregator ->> Aggregator: Store Arbitrum randomness
     rect rgb(242, 255, 235)
     note over Consumer,Aggregator: Consumption Phase
-    end
-    
-    Aggregator->>Aggregator: Combine randomness from sources
+    Aggregator ->> Aggregator: Combine randomness from sources
     Aggregator->>+Consumer: fulfillRandomness(requestId, randomValue)
-    Consumer->>Consumer: Process randomness
+    Consumer ->> Consumer: Process randomness
     Consumer-->>-Aggregator: Randomness consumed
 ```
 
@@ -229,9 +215,9 @@ function aggregateRandomness(
 
 Each randomness source is verified for authenticity:
 
-1. **Chainlink VRF**: Uses cryptographic verification built into the VRF
-2. **Drand**: Verifies threshold signatures against the Drand public key
-3. **Arbitrum VRF**: Verifies the randomness comes from the Arbitrum VRF system
+1.**Chainlink VRF**: Uses cryptographic verification built into the VRF
+2.**Drand**: Verifies threshold signatures against the Drand public key
+3.**Arbitrum VRF**: Verifies the randomness comes from the Arbitrum VRF system
 
 ### Fallback Mechanisms
 
@@ -267,23 +253,20 @@ function getRandomness(uint256 requestId) external view returns (uint256) {
 
 ## Implementation Details
 
-```mermaid
-classDiagram
-    %% Define interfaces
+```mermaidclassDiagram
+%% Define interfaces
     class IRandomnessConsumer {
-        <<interface>>
+<<interface>>
         +fulfillRandomness(uint256 requestId, uint256 randomness)
     }
-    
     class IRandomnessProvider {
-        <<interface>>
+<<interface>>
         +requestRandomness() uint256
         +getRandomness(uint256 requestId) uint256
     }
-    
     %% Define core components
     class RandomnessAggregator {
-        -mapping(uint256 => RandomnessRequest) requests
+-mapping(uint256 => RandomnessRequest) requests
         -uint256 requestCounter
         -address chainlinkCoordinator
         -address drandVerifier
@@ -295,59 +278,54 @@ classDiagram
         +getRandomness(uint256) uint256
         -aggregateRandomness(uint256, bytes32, uint256) uint256
     }
-    
     class ChainlinkConsumer {
-        -address vrfCoordinator
+-address vrfCoordinator
         -bytes32 keyHash
         -uint64 subscriptionId
         +requestRandomWords() uint256
         +fulfillRandomWords(uint256, uint256[])
     }
-    
     class DrandConsumer {
-        -address drandVerifier
+-address drandVerifier
         -address drandOracle
         +verifyAndUseDrandRandomness(uint256, bytes, bytes) bytes32
     }
-    
     class ArbitrumVRFConsumer {
-        -address arbVRFCoordinator
+-address arbVRFCoordinator
         +requestRandomWords() uint256
         +fulfillRandomWords(uint256, uint256[])
     }
-    
     %% Define relationships
     IRandomnessProvider <|.. RandomnessAggregator : implements
     RandomnessAggregator *-- ChainlinkConsumer : uses
     RandomnessAggregator *-- DrandConsumer : uses
     RandomnessAggregator *-- ArbitrumVRFConsumer : uses
-    
+
     %% Application consumers
     class JackpotSystem {
-        -IRandomnessProvider randomnessProvider
+-IRandomnessProvider randomnessProvider
         +triggerJackpot() uint256
         +fulfillRandomness(uint256, uint256)
     }
-    
     class WinnerSelection {
-        -IRandomnessProvider randomnessProvider
+-IRandomnessProvider randomnessProvider
         +selectWinners(uint256 count) uint256
         +fulfillRandomness(uint256, uint256)
     }
-    
     IRandomnessConsumer <|.. JackpotSystem : implements
     IRandomnessConsumer <|.. WinnerSelection : implements
-    
+
     %% Apply styling
-    classDef interface fill:#e3f2fd,stroke:#1e88e5,color:#0d47a1
-    classDef core fill:#e8f5e9,stroke:#43a047,color:#1b5e20
-    classDef source fill:#f3e5f5,stroke:#8e24aa,color:#4a148c
-    classDef consumer fill:#fff8e1,stroke:#ffb300,color:#ff6f00
-    
-    class IRandomnessConsumer,IRandomnessProvider interface
+    classDef interface fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef core fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef source fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef consumer fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class IRandomnessConsumer interface
+    class IRandomnessProvider interface
     class RandomnessAggregator core
-    class ChainlinkConsumer,DrandConsumer,ArbitrumVRFConsumer source
-    class JackpotSystem,WinnerSelection consumer
+    class ChainlinkConsumer source
+    class DrandConsumerArbitrumVRFConsumer source
+    class JackpotSystem WinnerSelectionconsumer
 ```
 
 ## Randomness Consumers
@@ -418,7 +396,7 @@ function selectWinnersUsingRandomness(uint256 randomness, uint256 count) interna
     uint256 seed = randomness;
     
     for (uint256 i = 0; i < count && i < participantCount; i++) {
-        // Generate new random number for each selection
+        // Generate new randomness for each selection
         seed = uint256(keccak256(abi.encodePacked(seed, i)));
         
         // Select random index
@@ -438,18 +416,17 @@ function selectWinnersUsingRandomness(uint256 randomness, uint256 count) interna
 ## Cross-Chain Randomness
 
 The OmniDragon protocol ensures consistent randomness across multiple chains:
+```
 
-```mermaid
-sequenceDiagram
-    participant Origin as Origin Chain
-    participant Bridge as LayerZero Bridge
-    participant Dest as Destination Chain
-    
+```mermaidsequenceDiagram
+participant Origin as Origin Chain
+participant Bridge as LayerZero Bridge
+participant Dest as Destination Chain
     Origin->>+Origin: Request randomness
-    Origin->>Origin: Receive randomness
+    Origin ->> Origin: Receive randomness
     Origin->>+Bridge: Send randomness to other chains
     Bridge->>+Dest: Deliver randomness
-    Dest->>Dest: Verify and use randomness
+    Dest ->> Dest: Verify and use randomness
     Dest-->>-Bridge: Acknowledge receipt
     Bridge-->>-Origin: Confirm delivery
     Origin-->>-Origin: Update cross-chain state
@@ -459,12 +436,12 @@ sequenceDiagram
 
 The OmniDragon randomness system provides several important features:
 
-1. **Unpredictability**: Multiple sources ensure truly unpredictable outcomes
-2. **Reliability**: Fallback mechanisms prevent system failure
-3. **Verifiability**: All randomness can be cryptographically verified
-4. **Cross-Chain Consistency**: Same randomness used across all chains
-5. **Modularity**: Easy to add new randomness sources or consumers
-6. **Security**: Designed to resist manipulation attempts
+1.**Unpredictability**: Multiple sources ensure truly unpredictable outcomes
+2.**Reliability**: Fallback mechanisms prevent system failure
+3.**Verifiability**: All randomness can be cryptographically verified
+4.**Cross-Chain Consistency**: Same randomness used across all chains
+5.**Modularity**: Easy to add new randomness sources or consumers
+6.**Security**: Designed to resist manipulation attempts
 
 ## Integration Examples
 
@@ -474,8 +451,8 @@ Example of integrating with the randomness system:
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "@omnidragon/interfaces/IRandomnessConsumer.sol";
-import "@omnidragon/interfaces/IRandomnessProvider.sol";
+import "@OmniDragon/interfaces/IRandomnessConsumer.sol";
+import "@OmniDragon/interfaces/IRandomnessProvider.sol";
 
 contract RandomnessExample is IRandomnessConsumer {
     IRandomnessProvider public randomnessProvider;

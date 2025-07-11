@@ -1,0 +1,572 @@
+---
+sidebar_position: 4
+title: Jackpot System
+description: Comprehensive explanation of OmniDragon's jackpot mechanics
+---
+
+# Jackpot System
+
+The OmniDragon Jackpot System is a core feature that distributes rewards to token holders based on verifiable randomness. This document provides a comprehensive overview of the jackpot system.
+
+## System Overview
+
+The jackpot system uses a combination of fee collection, randomness, and distribution mechanisms to create an engaging token economy:
+
+```mermaid
+flowchart TB
+    %% Define main components with clear labels
+    subgraph Collection ["Fee Collection"]
+        direction LR
+        TXFEE["Transaction Fees"]:::fee
+        BRIDGE["Bridge Fees"]:::fee
+        FEE_ADAPT["Adaptive Fee Logic"]:::fee
+    end
+    
+    subgraph Pool ["Jackpot Pool"]
+        direction TB
+        VAULT["Jackpot Vault"]:::vault
+        TRACKER["Growth Tracker"]:::vault
+    end
+    
+    subgraph Trigger ["Trigger Mechanism"]
+        direction LR
+        TIME["Time-Based"]:::trigger
+        RANDOM["Randomness Oracle"]:::trigger
+        THRESHOLD["Threshold Events"]:::trigger
+    end
+    
+    subgraph Distribution ["Reward Distribution"]
+        direction LR
+        WINNERS["Winner Selection"]:::dist
+        REWARDS["Reward Calculation"]:::dist
+        PAYOUT["Payout Process"]:::dist
+    end
+    
+    %% Connect the components
+    TXFEE --> FEE_ADAPT
+    BRIDGE --> FEE_ADAPT
+    FEE_ADAPT --> VAULT
+    
+    VAULT --> TRACKER
+    TRACKER --> THRESHOLD
+    
+    TIME --> RANDOM
+    RANDOM --> WINNERS
+    THRESHOLD --> WINNERS
+    
+    VAULT --> REWARDS
+    WINNERS --> REWARDS
+    REWARDS --> PAYOUT
+    
+    %% Apply styling
+    classDef fee fill:#4a80d1
+    classDef vault fill:#4a80d1
+    classDef trigger fill:#4a80d1
+    classDef dist fill:#4a80d1
+    
+    %% Style subgraphs
+    style Collection fill:#e3f2fd,stroke:#bbdefb,color:#0d47a1
+    style Pool fill:#e8f5e9,stroke:#c8e6c9,color:#1b5e20
+    style Trigger fill:#fff8e1,stroke:#ffecb3,color:#ff6f00
+    style Distribution fill:#f3e5f5,stroke:#e1bee7,color:#4a148c
+```
+
+## Lottery Entry Process
+
+The following sequence diagram illustrates how a user's transaction leads to a jackpot entry and potential jackpot win:
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant OmniDragon
+  participant LotteryManager
+  participant RandomnessProvider
+  participant JackpotVault
+
+  User->>OmniDragon: Buy DRAGON tokens
+  OmniDragon->>LotteryManager: Create jackpot entry
+  LotteryManager->>RandomnessProvider: Request randomness
+  RandomnessProvider-->>LotteryManager: Return secure randomness
+
+  alt User wins jackpot
+    LotteryManager->>JackpotVault: Trigger jackpot payout
+    JackpotVault->>User: Transfer jackpot reward
+  else User doesn't win
+    LotteryManager->>LotteryManager: Record entry in history
+  end
+```
+
+## Jackpot Cycle
+
+The jackpot system follows a regular cycle of accumulation, triggering, and distribution:
+
+```mermaid
+flowchart LR
+    %% Define cycle stages
+    COLLECT([Fee Collection]):::collect
+    ACCUMULATE([Pool Growth]):::accumulate
+    TRIGGER([Trigger Event]):::trigger
+    SELECT([Winner Selection]):::select
+    DISTRIBUTE([Distribution]):::distribute
+    RESET([Pool Reset]):::reset
+    
+    %% Connect in cycle
+    COLLECT --> ACCUMULATE
+    ACCUMULATE --> TRIGGER
+    TRIGGER --> SELECT
+    SELECT --> DISTRIBUTE
+    DISTRIBUTE --> RESET
+    RESET --> COLLECT
+    
+    %% Apply styling
+    classDef collect fill:#4a80d1
+    classDef accumulate fill:#4a80d1
+    classDef trigger fill:#4a80d1
+    classDef select fill:#4a80d1
+    classDef distribute fill:#4a80d1
+    classDef reset fill:#4a80d1
+```
+
+## Funding Mechanism
+
+The jackpot is funded through transaction fees:
+
+1. **Buy/Sell Transactions**: 6.9% of the 10% fee goes to the jackpot vault
+2. **Cross-Chain Transfers**: A portion of cross-chain fees goes to the jackpot
+3. **Partner Integrations**: Partner protocols can contribute to the jackpot
+
+This creates a sustainable funding mechanism that grows with transaction volume.
+
+## Trigger Mechanism
+
+The jackpot is triggered through a combination of time-based and randomness-based mechanisms:
+
+```mermaid
+sequenceDiagram
+    participant Timer as Time Oracle
+    participant VRF as Randomness Oracle
+    participant Trigger as Jackpot Trigger
+    participant Vault as Jackpot Vault
+    participant Distributor as Reward Distributor
+    
+    %% Add style regions
+    rect rgb(238, 242, 255)
+    note over Timer,VRF: Conditions check
+    end
+    
+    Timer->>+Trigger: Time threshold reached
+    Trigger->>Trigger: Check eligibility
+    Trigger->>+VRF: Request trigger randomness
+    
+    rect rgb(255, 248, 225)
+    note over VRF,Trigger: Random determination
+    end
+    
+    VRF-->>-Trigger: Provide randomness
+    Trigger->>Trigger: Determine if triggered
+    
+    alt Jackpot triggered
+        rect rgb(243, 229, 245)
+        note over Trigger,Distributor: Distribution process
+        end
+        
+        Trigger->>+Vault: Request current pool
+        Vault-->>-Trigger: Return pool amount
+        Trigger->>+Distributor: Initiate distribution
+        Distributor->>+VRF: Request winner selection
+        VRF-->>-Distributor: Provide selection randomness
+        Distributor->>Distributor: Select winners
+        Distributor->>Distributor: Calculate rewards
+        Distributor->>Vault: Transfer rewards
+        Distributor-->>-Trigger: Distribution complete
+    else Not triggered
+        Trigger->>Trigger: Update next check time
+    end
+    
+    Trigger-->>-Timer: Process complete
+```
+
+### Trigger Conditions
+
+The jackpot can be triggered by several conditions:
+
+1. **Time-Based**: A minimum time period must pass between jackpot triggers
+2. **Pool Size**: The jackpot pool must reach a minimum size
+3. **Transaction Volume**: A minimum transaction volume must be reached
+4. **Randomness**: A random factor determines if the jackpot is triggered
+
+These conditions ensure that the jackpot is triggered regularly but unpredictably.
+
+## Winner Selection
+
+Winners are selected using a secure randomness source:
+
+### Selection Process
+
+1. **Entry Creation**: Buy transactions create jackpot entries
+2. **Randomness Request**: When a trigger occurs, randomness is requested
+3. **Winner Determination**: Randomness is used to select winners
+4. **Reward Calculation**: Rewards are calculated based on multiple factors
+5. **Reward Distribution**: Rewards are distributed to winners
+
+### Probability Factors
+
+The probability of winning is influenced by several factors:
+
+1. **Purchase Size**: Larger purchases have a higher chance of winning
+2. **Holding Duration**: Longer holding periods increase winning chances
+3. **Previous Participation**: Regular participants have slightly higher chances
+4. **Jackpot Size**: Larger jackpots have higher chances of being won
+
+## Implementation Architecture
+
+The core contracts that implement the jackpot system are structured as follows:
+
+```mermaid
+classDiagram
+    %% Define core contracts
+    class JackpotVault {
+        -uint256 poolAmount
+        -address trigger
+        -address distributor
+        +deposit(uint256 amount)
+        +withdraw(address recipient, uint256 amount)
+        +getPoolSize() uint256
+    }
+    
+    class JackpotTrigger {
+        -address vault
+        -address randomness
+        -uint256 minTime
+        -uint256 lastCheck
+        +checkTrigger() bool
+        +executeTrigger()
+        +setParameters(uint256 minTime)
+    }
+    
+    class RewardDistributor {
+        -address vault
+        -address randomness
+        -uint256 winnersCount
+        +distributeRewards()
+        +selectWinners() address[]
+        +calculateRewards(address[] winners) uint256[]
+    }
+    
+    class RandomnessConsumer {
+        -address vrfCoordinator
+        +requestRandomness() bytes32
+        +fulfillRandomness(bytes32 requestId, uint256 randomness)
+    }
+    
+    class FeeCollector {
+        -address vault
+        -uint256 feeRate
+        +collectFee(uint256 amount) uint256
+        +setFeeRate(uint256 rate)
+    }
+    
+    %% Define relationships
+    FeeCollector --> JackpotVault: deposits fees
+    JackpotTrigger --> JackpotVault: requests pool
+    JackpotTrigger --> RandomnessConsumer: requests randomness
+    JackpotTrigger --> RewardDistributor: initiates distribution
+    RewardDistributor --> JackpotVault: withdraws rewards
+    RewardDistributor --> RandomnessConsumer: requests randomness
+    
+    %% Apply styling
+    classDef vault fill:#4a80d1
+    classDef trigger fill:#4a80d1
+    classDef distributor fill:#4a80d1
+    classDef randomness fill:#4a80d1
+    classDef fee fill:#4a80d1
+    
+    class JackpotVault vault
+    class JackpotTrigger trigger
+    class RewardDistributor distributor
+    class RandomnessConsumer randomness
+    class FeeCollector fee
+```
+
+## Contract Implementation
+
+### Jackpot Vault
+
+The jackpot vault stores and manages the jackpot funds:
+
+```solidity
+contract DragonJackpotVault {
+    address public omniDragon;
+    address public distributor;
+    uint256 public availableJackpotAmount;
+    
+    event JackpotFunded(uint256 amount, uint256 newTotal);
+    event JackpotDistributed(address winner, uint256 amount, uint256 timestamp);
+    
+    constructor(address _omniDragon) {
+        omniDragon = _omniDragon;
+    }
+    
+    function addToJackpot(uint256 amount) external {
+        require(
+            msg.sender == omniDragon,
+            "Only OmniDragon can add to jackpot"
+        );
+        
+        availableJackpotAmount += amount;
+        
+        emit JackpotFunded(amount, availableJackpotAmount);
+    }
+    
+    function distributeJackpot(address winner, uint256 randomness) external {
+        require(
+            msg.sender == distributor,
+            "Only distributor can distribute jackpot"
+        );
+        
+        // Calculate reward amount
+        uint256 rewardPercentage = 10 + (randomness % 91);
+        uint256 rewardAmount = (availableJackpotAmount * rewardPercentage) / 100;
+        
+        // Update available jackpot
+        availableJackpotAmount -= rewardAmount;
+        
+        // Transfer reward to winner
+        IERC20(wrappedNativeToken).transfer(winner, rewardAmount);
+        
+        emit JackpotDistributed(winner, rewardAmount, block.timestamp);
+    }
+    
+    function getAvailableJackpot() external view returns (uint256) {
+        return availableJackpotAmount;
+    }
+    
+    function setDistributor(address _distributor) external {
+        require(msg.sender == owner, "Only owner can set distributor");
+        distributor = _distributor;
+    }
+}
+```
+
+### Jackpot Distributor
+
+The jackpot distributor handles the distribution of rewards:
+
+```solidity
+contract DragonJackpotDistributor {
+    address public jackpotVault;
+    address public randomnessProvider;
+    
+    mapping(uint256 => address) public pendingWinners;
+    
+    event JackpotTriggered(address winner, uint256 requestId);
+    event JackpotDistributed(address winner, uint256 amount);
+    
+    constructor(address _jackpotVault, address _randomnessProvider) {
+        jackpotVault = _jackpotVault;
+        randomnessProvider = _randomnessProvider;
+    }
+    
+    function triggerJackpot(address winner) external {
+        require(
+            msg.sender == swapTrigger,
+            "Only swap trigger can trigger jackpot"
+        );
+        
+        // Request randomness for reward calculation
+        uint256 requestId = IRandomnessProvider(randomnessProvider).requestRandomness();
+        
+        // Store pending winner
+        pendingWinners[requestId] = winner;
+        
+        emit JackpotTriggered(winner, requestId);
+    }
+    
+    function fulfillRandomness(uint256 requestId, uint256 randomness) external {
+        require(
+            msg.sender == randomnessProvider,
+            "Only randomness provider can fulfill"
+        );
+        
+        // Get winner
+        address winner = pendingWinners[requestId];
+        require(winner != address(0), "Invalid request ID");
+        
+        // Distribute jackpot
+        IJackpotVault(jackpotVault).distributeJackpot(winner, randomness);
+        
+        // Clean up
+        delete pendingWinners[requestId];
+        
+        emit JackpotDistributed(winner, randomness);
+    }
+}
+```
+
+### Swap Trigger Oracle
+
+The swap trigger oracle detects buy transactions and creates jackpot entries:
+
+```solidity
+contract OmniDragonSwapTriggerOracle {
+    address public omniDragon;
+    address public jackpotDistributor;
+    
+    uint256 public lastWinTimestamp;
+    uint256 public baseProbability = 1_000_000; // 1 in 1,000,000
+    
+    event LotteryEntryCreated(address buyer, uint256 amount, uint256 probability);
+    event JackpotWon(address winner, uint256 amount);
+    
+    constructor(address _omniDragon, address _jackpotDistributor) {
+        omniDragon = _omniDragon;
+        jackpotDistributor = _jackpotDistributor;
+        lastWinTimestamp = block.timestamp;
+    }
+    
+    function onSwap(address buyer, uint256 amount) external {
+        require(
+            msg.sender == omniDragon,
+            "Only OmniDragon can call onSwap"
+        );
+        
+        // Calculate win probability
+        uint256 probability = calculateWinProbability(buyer, amount);
+        
+        // Create jackpot entry
+        emit LotteryEntryCreated(buyer, amount, probability);
+        
+        // Generate randomness (in production, use secure randomness)
+        uint256 randomNumber = uint256(
+            keccak256(
+                abi.encodePacked(
+                    buyer,
+                    amount,
+                    block.timestamp,
+                    block.difficulty
+                )
+            )
+        );
+        
+        // Check if won
+        if (randomNumber % probability == 0) {
+            // Trigger jackpot
+            IJackpotDistributor(jackpotDistributor).triggerJackpot(buyer);
+            
+            // Update last win timestamp
+            lastWinTimestamp = block.timestamp;
+            
+            emit JackpotWon(buyer, amount);
+        }
+    }
+    
+    function calculateWinProbability(
+        address buyer,
+        uint256 amount
+    ) public view returns (uint256) {
+        // Base probability (e.g., 1 in 1,000,000)
+        uint256 probability = baseProbability;
+        
+        // Adjust based on purchase size (larger purchases = higher chance)
+        uint256 amountFactor = amount / 1e18; // Normalize to whole tokens
+        probability = probability / (1 + amountFactor);
+        
+        // Adjust based on jackpot size (larger jackpot = higher chance)
+        uint256 jackpotSize = IJackpotVault(jackpotVault).getAvailableJackpot();
+        uint256 jackpotFactor = jackpotSize / 1e20; // Normalize to 100 tokens
+        probability = probability / (1 + jackpotFactor);
+        
+        // Adjust based on time since last win
+        uint256 timeSinceLastWin = block.timestamp - lastWinTimestamp;
+        uint256 timeFactor = timeSinceLastWin / 1 days;
+        probability = probability / (1 + timeFactor);
+        
+        // Ensure minimum probability
+        if (probability > baseProbability) {
+            probability = baseProbability;
+        }
+        
+        return probability;
+    }
+    
+    function setBaseProbability(uint256 _baseProbability) external {
+        require(msg.sender == owner, "Only owner can set base probability");
+        baseProbability = _baseProbability;
+    }
+}
+```
+
+## Jackpot Distribution Formula
+
+The jackpot distribution uses a weighted formula that rewards both loyalty and token holdings:
+
+- **Base Allocation**: 60% of the pool distributed to randomly selected winners
+- **Staking Boost**: 30% additional weight for staked tokens
+- **Loyalty Multiplier**: Up to 2x multiplier based on holding duration
+- **Cross-Chain Participants**: Special allocation for cross-chain token holders
+
+This creates an engaging and fair distribution system that incentivizes long-term holding and active participation in the OmniDragon ecosystem.
+
+## Cross-Chain Jackpot
+
+The jackpot system works across multiple chains:
+
+### Cross-Chain Entry
+
+Users can participate in the jackpot from any supported chain:
+
+1. **Local Entry**: Buy transactions on the local chain create local entries
+2. **Cross-Chain Entry**: Cross-chain transfers create entries on the destination chain
+3. **Global Pool**: All chains contribute to a global jackpot pool
+4. **Chain-Specific Pools**: Each chain also has a local jackpot pool
+
+### Cross-Chain Distribution
+
+When a jackpot is won, rewards can be distributed across chains:
+
+1. **Local Distribution**: Winners on the local chain receive rewards directly
+2. **Cross-Chain Distribution**: Winners on other chains receive rewards via the bridge
+3. **Multi-Chain Winners**: Multiple winners can be selected across different chains
+
+## Security Measures
+
+The jackpot system implements several security measures:
+
+### Randomness Security
+
+The randomness used for winner selection is secured through multiple mechanisms:
+
+1. **Multiple Sources**: Randomness is sourced from multiple providers
+2. **Verification Layer**: All randomness is cryptographically verified
+3. **Time Delay**: A time delay is enforced between randomness request and usage
+4. **Commit-Reveal Scheme**: A commit-reveal scheme prevents manipulation
+
+### Access Control
+
+The jackpot system implements strict access control:
+
+1. **Role-Based Access**: Only authorized roles can trigger jackpots
+2. **Time Locks**: Critical parameter changes are subject to time locks
+3. **Multi-Signature**: Critical functions require multiple signatures
+4. **Emergency Pause**: The system can be paused in case of emergency
+
+## User Experience
+
+From a user perspective, the jackpot system is designed to be seamless:
+
+1. **Automatic Entry**: Users are automatically entered when they buy tokens
+2. **Transparent Odds**: The odds of winning are transparent and verifiable
+3. **Instant Notification**: Winners are notified immediately
+4. **Automatic Distribution**: Rewards are distributed automatically
+5. **Cross-Chain Support**: Users can participate from any supported chain
+
+## Conclusion
+
+The OmniDragon jackpot system provides an engaging and rewarding experience for token holders. By combining automatic entry, secure randomness, and fair distribution, the system creates a sustainable jackpot mechanism that incentivizes token purchases and long-term holding.
+
+## Further Reading
+
+- [Token System](./token-system.md): Detailed information about the token mechanics
+- [Fee System](./fee-system.md): In-depth explanation of the fee mechanism
+- [Randomness System](./randomness.md): Comprehensive documentation of the randomness infrastructure
+- [Cross-Chain Architecture](./cross-chain.md): Detailed explanation of cross-chain functionality

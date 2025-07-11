@@ -1,311 +1,409 @@
 ---
-sidebar_position: 3
 title: Immersive Diagrams
-description: Create stunning, interactive diagrams with advanced animations and visual effects
+description: >-
+  Create beautiful, animated, and interactive diagrams with our immersive
+  mermaid components
+sidebar_position: 3
 ---
 
-# Immersive Diagrams
+import AnimatedText from '@site/src/components/AnimatedText';
 
-Take your diagrams to the next level with immersive effects, particle animations, and advanced interactivity using our ImmersiveMermaid component.
+# <AnimatedText text="Immersive Diagrams" color="gradient" size="xl" animation="fadeInUp" />
 
-## Introduction
+Our documentation system features immersive mermaid diagrams with advanced animations, interactivity, and beautiful styling. This guide will show you how to create stunning diagrams that make your documentation more engaging and easier to understand.
 
-The `ImmersiveMermaid` component provides a premium, visually stunning way to display Mermaid diagrams in your documentation. It includes:
+## What are Immersive Diagrams?
 
-- Advanced animations with multiple animation styles
-- Particle effects that respond to user interaction
-- Glowing highlights and gradient borders
-- Interactive node connections that highlight relationships
-- Fullscreen immersive viewing experience
-- High-quality visual effects optimized for performance
+Immersive diagrams are enhanced mermaid diagrams with:
 
-## Basic Usage
+-**Elegant styling**with gradient borders and glow effects
+-**Smooth animations**for nodes, edges, and labels
+-**Interactive controls**for replay, fullscreen, and download
+-**Particle effects**for a more dynamic visual experience
+-**Hover interactions**that highlight connected elements
+-**Responsive design**that works on all devices
 
-To use the ImmersiveMermaid component, import it and pass your Mermaid diagram code as the `chart` prop:
+## Creating Immersive Diagrams
 
-```jsx
-import ImmersiveMermaid from '@site/src/components/ImmersiveMermaid';
+To create an immersive diagram, wrap your mermaid code block in a `<div data-immersive>` tag:
 
-<ImmersiveMermaid 
-  chart={`
-    graph TD
-      A[Start] --> B{Is it working?}
-      B -->|Yes| C[Great!]
-      B -->|No| D[Debug]
-      D --> B
-  `}
-  title="Interactive Flowchart"
-  caption="An immersive flowchart with particle effects and animations"
-  particles={true}
-  glowEffect={true}
-  gradientBorder={true}
-/>
+````md
+<div data-immersive>
+
+```mermaidflowchart LR
+    A[Start] -->|> B[Process]
+    B| C[End]
 ```
 
-## Example
+</div>
+````
 
-Here's an example of a flowchart rendered with ImmersiveMermaid:
+This will render as:
 
-import ImmersiveMermaid from '@site/src/components/ImmersiveMermaid';
-
-<ImmersiveMermaid 
-  chart={`
-    graph TD
-      A[Start] --> B{Is it working?}
-      B -->|Yes| C[Great!]
-      B -->|No| D[Debug]
-      D --> B
-  `}
-  title="Interactive Flowchart"
-  caption="An immersive flowchart with particle effects and animations"
-/>
-
-## Sequence Diagram Example
-
-Sequence diagrams look amazing with the immersive effects:
-
-<ImmersiveMermaid 
-  chart={`
-    sequenceDiagram
-      participant User
-      participant API
-      participant Database
-      participant Notification
-      
-      User->>API: Request data
-      API->>Database: Query data
-      Database-->>API: Return results
-      API-->>User: Display results
-      
-      User->>API: Update record
-      API->>Database: Save changes
-      Database-->>API: Confirm update
-      API->>Notification: Trigger notification
-      Notification-->>User: Show success message
-  `}
-  title="System Interaction Flow"
-  caption="A sequence diagram with immersive visual effects"
-  glowIntensity="medium"
-/>
-
-## Class Diagram Example
-
-Class diagrams benefit from the enhanced visual hierarchy:
-
-<ImmersiveMermaid 
-  chart={`
-    classDiagram
-      class Controller {
-        +handleRequest()
-        +validateInput()
-        +formatResponse()
-      }
-      
-      class Service {
-        +processData()
-        +calculateResults()
-        +generateReport()
-      }
-      
-      class Repository {
-        +findAll()
-        +findById()
-        +save()
-        +delete()
-      }
-      
-      class Model {
-        +attributes
-        +validate()
-        +toJSON()
-      }
-      
-      Controller --> Service
-      Service --> Repository
-      Repository --> Model
-  `}
-  title="Application Architecture"
-  caption="A class diagram showing component relationships"
-  particleDirection="radial"
-/>
-
-## Component Props
-
-The ImmersiveMermaid component accepts the following props:
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `chart` | string | (required) | The Mermaid diagram code |
-| `title` | string | undefined | Optional title to display above the diagram |
-| `caption` | string | undefined | Optional caption to display below the diagram |
-| `className` | string | '' | Additional CSS class to apply to the container |
-| `theme` | 'default' \| 'dark' \| 'neutral' \| 'forest' | 'default' | The Mermaid theme to use |
-| `animated` | boolean | true | Whether to animate the diagram |
-| `interactive` | boolean | true | Whether to make the diagram interactive |
-| `showControls` | boolean | true | Whether to show the control buttons |
-| `particles` | boolean | true | Whether to show particle effects |
-| `glowEffect` | boolean | true | Whether to apply glow effects to nodes |
-| `gradientBorder` | boolean | true | Whether to show a gradient border |
-| `particleColor` | string | undefined | Custom color for particles (defaults to theme color) |
-| `particleCount` | number | 30 | Number of particles to display |
-| `particleDirection` | 'random' \| 'sequential' \| 'radial' \| 'parallel' | 'radial' | Direction pattern for particles |
-| `glowIntensity` | 'subtle' \| 'medium' \| 'strong' | 'medium' | Intensity of the glow effect |
-
-## Visual Effects
-
-### Particle Effects
-
-The ImmersiveMermaid component includes dynamic particle effects that float around the diagram. You can customize these particles with the following props:
-
-- `particles`: Enable or disable particles
-- `particleColor`: Set a custom color for particles
-- `particleCount`: Control the number of particles
-- `particleDirection`: Set the movement pattern of particles
-
-```jsx
-<ImmersiveMermaid 
-  chart={`...`}
-  particles={true}
-  particleColor="#8b5cf6"
-  particleCount={50}
-  particleDirection="radial"
-/>
+<div data-immersive>
 ```
 
-### Glow Effects
-
-Nodes in the diagram can have a subtle glow effect that enhances their visibility and adds depth:
-
-- `glowEffect`: Enable or disable the glow
-- `glowIntensity`: Control the intensity of the glow
-
-```jsx
-<ImmersiveMermaid 
-  chart={`...`}
-  glowEffect={true}
-  glowIntensity="strong"
-/>
+```mermaidflowchart LR
+    A[Start] -->|> B[Process]
+    B| C[End]
 ```
 
-### Gradient Border
+</div>
 
-A beautiful gradient border can be added to the diagram container:
+## Adding Titles and Captions
 
-```jsx
-<ImmersiveMermaid 
-  chart={`...`}
-  gradientBorder={true}
-/>
+You can add titles and captions to your diagrams by adding heading and paragraph elements before and after the diagram:
+
+````md
+### Token Flow Diagram
+
+<div data-immersive>
+
+```mermaidflowchart LR
+    A[Token] -->|> B[Bridge]
+    B| C[Chains]
 ```
 
-## Advanced Animations
+</div>
 
-The ImmersiveMermaid component automatically selects the best animation type based on the diagram structure:
+*This diagram illustrates the flow of tokens through the cross-chain bridge.*
+````
 
-- **Sequential**: Elements animate one after another
-- **Staggered**: Elements animate with staggered timing
-- **Parallel**: All elements animate simultaneously
-- **Cascade**: Elements animate in a cascading pattern from top-left to bottom-right
-- **Radial**: Elements animate from the center outward
+Our components will automatically detect these elements and incorporate them into the diagram container:
 
-The animation system analyzes your diagram and chooses the most appropriate animation style, but you can override this by modifying the component if needed.
+### Token Flow Diagram
+
+<div data-immersive>
+```
+
+```mermaidflowchart LR
+    A[Token] -->|> B[Bridge]
+    B| C[Chains]
+```
+
+</div>
+
+*This diagram illustrates the flow of tokens through the cross-chain bridge.*
+
+## Styling Your Diagrams
+
+You can add custom styling to your mermaid diagrams using the `style` attribute:
+
+````md
+<div data-immersive>
+
+```mermaidflowchart LR
+    A[OmniDragon Token] --> B[Cross-Chain Bridge]
+    B -->|> C[Ethereum]
+    B| D[BNB Chain]
+    
+    style A fill:#6942ff,color:#fff,stroke:#fff
+    style B fill:#4b30b3,color:#fff,stroke:#fff
+    style C fill:#3b82f6,color:#fff,stroke:#fff
+    style D fill:#3b82f6,color:#fff,stroke:#fff
+```
+
+</div>
+````
+
+This will render as:
+
+<div data-immersive>
+```
+
+```mermaidflowchart LR
+    A[OmniDragon Token] --> B[Cross-Chain Bridge]
+    B -->|> C[Ethereum]
+    B| D[BNB Chain]
+    
+    style A fill:#6942ff,color:#fff,stroke:#fff
+    style B fill:#4b30b3,color:#fff,stroke:#fff
+    style C fill:#3b82f6,color:#fff,stroke:#fff
+    style D fill:#3b82f6,color:#fff,stroke:#fff
+```
+
+</div>
 
 ## Interactive Features
 
-### Node Highlighting
+All immersive diagrams include interactive features:
 
-Click on any node to highlight it and its connections. This makes it easy to visualize relationships in complex diagrams.
+1.**Hover Effects**: Hover over nodes and edges to see highlight effects
+2.**Click Interactions**: Click on nodes to highlight connected paths
+3.**Control Buttons**: 
+   - Replay animations
+   - Toggle fullscreen view
+   - Download SVG
 
-### Connection Tracing
+Try interacting with the diagram below:
 
-When you hover over a node, all connected nodes and edges are highlighted, making it easy to trace relationships.
+<div data-immersive>
 
-### Fullscreen Mode
-
-Click the fullscreen button to expand the diagram to fill the entire screen for a more immersive experience.
-
-## Accessibility
-
-The ImmersiveMermaid component is designed with accessibility in mind:
-
-- All animations respect the user's `prefers-reduced-motion` setting
-- Interactive elements have appropriate ARIA labels
-- Color contrast ratios meet WCAG standards
-- Visual effects degrade gracefully in assistive technologies
-
-## Performance Considerations
-
-The immersive effects are optimized for performance, but for very complex diagrams or on lower-powered devices, you might want to disable some effects:
-
-```jsx
-<ImmersiveMermaid 
-  chart={`...`}
-  particles={false}
-  glowEffect={false}
-/>
+```mermaidflowchart TD
+    A[User] --> B{Has Tokens?}
+B -->|Yes| C[Enter Lottery]
+    B -->|>|No| D[Buy Tokens]
+    C| E[Wait for Draw]
+    D -->|> C
+    E| F{Winner?}
+F -->|Yes| G[Claim Prize]
+    F -->|>|>|No| H[Try Again]
+    G| I[Bridge to Chain]
+    H| C
 ```
+
+</div>
+
+## Supported Diagram Types
+
+Our immersive mermaid components support all standard Mermaid diagram types:
+
+### Sequence Diagrams
+
+<div data-immersive>
+```
+
+```mermaidsequenceDiagram
+participant User
+participant Contract
+participant Oracle
+User ->> Contract: Place Bet
+    Contract ->> Oracle: Request Random Number
+    Oracle ->> Contract: Return Random Number
+    Contract ->> User: Distribute Prize
+```
+
+</div>
+
+### State Diagrams
+
+<div data-immersive>
+
+```mermaidstateDiagram-v2
+    [*] -->|> Idle
+    Idle| WaitingForRandom: User places bet
+    WaitingForRandom -->|> Processing: Random number received
+    Processing| Winner: User wins
+    Processing -->|>|> Loser: User loses
+    Winner| Idle
+    Loser| Idle
+```
+
+</div>
+
+### Class Diagrams
+
+<div data-immersive>
+```
+
+```mermaidclassDiagram
+class Token {
++string name
+        +string symbol
+        +uint256 totalSupply
+        +transfer(address, uint256)
+    }
+class Lottery {
++uint256 ticketPrice
+        +uint256 jackpot
+        +buyTicket()
+        +drawWinner()
+    }
+Token <|-- Lottery : uses
+```
+
+</div>
+
+### Entity Relationship Diagrams
+
+<div data-immersive>
+
+```mermaiderDiagram
+    USER ||--o{ TICKET : purchases
+    TICKET }
+o--|| LOTTERY : belongs_to
+    LOTTERY ||--o{ PRIZE : contains
+    PRIZE }
+o--o{ USER : won_by
+```
+
+</div>
+
+### Pie Charts
+
+<div data-immersive>
+```
+
+```mermaidpie title Token Distribution
+    "Team" : 15
+    "Ecosystem" : 25
+    "Community" : 30
+    "Liquidity" : 20
+    "Marketing" : 10
+```
+
+</div>
+
+### Mindmaps
+
+<div data-immersive>
+
+```mermaidmindmap
+  root((OmniDragon))
+    Token
+      ERC-20
+      Cross-Chain
+    Lottery
+      Daily Draws
+      Weekly Jackpots
+    Randomness
+      dRand Network
+      VRF
+```
+
+</div>
 
 ## Best Practices
 
-For the best results with ImmersiveMermaid:
+For the most effective immersive diagrams:
 
-1. Use it for important diagrams that deserve emphasis
-2. Consider reducing particle count for complex diagrams
-3. Test on different devices to ensure performance
-4. Choose appropriate glow intensity based on diagram complexity
-5. Use the gradient border for standalone diagrams, but consider disabling it when multiple diagrams are placed close together
+1.**Keep it Simple**: Focus on the key concepts and relationships
+2.**Use Consistent Styling**: Maintain consistent node shapes and colors
+3.**Add Context**: Include titles and captions to explain the diagram
+4.**Choose the Right Type**: Select the diagram type that best represents your data
+5.**Test Interactivity**: Ensure your diagram works well with interactive features
 
-## Combining with Other Components
+## Accessibility Considerations
 
-The ImmersiveMermaid component works well with other interactive components:
+Our immersive diagrams include several accessibility features:
 
-```jsx
-import ImmersiveMermaid from '@site/src/components/ImmersiveMermaid';
-import AnimatedText from '@site/src/components/AnimatedText';
-import ScrollReveal from '@site/src/components/ScrollReveal';
+-**Keyboard Navigation**: All interactive elements are keyboard accessible
+-**Screen Reader Support**: Diagrams include appropriate ARIA attributes
+-**Reduced Motion**: Animations are disabled for users who prefer reduced motion
+-**High Contrast**: Diagram elements use sufficient color contrast
+-**Responsive Design**: Diagrams adapt to different screen sizes
 
-<ScrollReveal>
-  <AnimatedText 
-    text="System Architecture" 
-    tag="h2" 
-    animation="fadeIn"
-  />
+## Advanced Customization
+
+For advanced users, you can customize the appearance and behavior of immersive diagrams by modifying the following files:
+
+- `src/components/ImmersiveMermaid.tsx`: Immersive diagram component
+- `src/components/ImmersiveMermaid.module.css`: Styling for immersive diagrams
+- `src/utils/enhancedMermaidAnimations.ts`: Animation utilities
+- `src/clientModules/enhancedMermaidInit.js`: Initialization module
+
+## Troubleshooting
+
+If your diagrams aren't rendering correctly:
+
+1.**Check Syntax**: Ensure your Mermaid syntax is correct
+2.**Inspect Console**: Check for errors in the browser console
+3.**Try Basic Mode**: Remove the `data-immersive` attribute to use basic rendering
+4.**Update Dependencies**: Ensure you have the latest version of Mermaid
+5.**Clear Cache**: Try clearing your browser cache and reloading
+
+For more help, see the [Mermaid documentation](https://mermaid.js.org/intro/).
+
+## Examples
+
+Here are some examples of immersive diagrams in action:
+
+### Protocol Overview
+
+<div data-immersive>
+```
+
+```mermaid
+graph TB
+subgraph "Core Protocol"
+    OD[OmniDragon Token] --> |Fees| FD[Fee Distribution]
+    OD --> |Lottery Entries| LM[Lottery Manager]
+    OD --> |Cross-Chain| CC[Cross-Chain Bridge]
+  subgraph "Fee Distribution"
+    FD --> |6.9%| JV[Jackpot Vault]
+    FD --> |2.41%| VE[ve69LP Fee Distributor]
+    FD --> |0.69%| BN[Token Burn]
+  subgraph "Lottery System"
+    LM --> |Requests Randomness| RP[Randomness Provider]
+    RP --> |VRF Sources| VRF[Chainlink VRF / Drand]
+    LM --> |Triggers Payout| JV
+  subgraph "Cross-Chain"
+    CC --> |LayerZero| OC[Other Chains]
+  style OD fill:#6942ff,color:#fff,stroke:#fff
+  style FD fill:#4b30b3,color:#fff,stroke:#fff
+  style LM fill:#4b30b3,color:#fff,stroke:#fff
+  style CC fill:#4b30b3,color:#fff,stroke:#fff
+  style JV fill:#ff6900,color:#fff,stroke:#fff
+  style VE fill:#ff6900,color:#fff,stroke:#fff
+  style BN fill:#ff6900,color:#fff,stroke:#fff
+  style RP fill:#00bfff,color:#fff,stroke:#fff
+  style VRF fill:#00bfff,color:#fff,stroke:#fff
+  style OC fill:#00bfff,color:#fff,stroke:#fff
+endendendend
+endendend
+endend
+end
+```
+
+</div>
+
+### Lottery Flow
+
+<div data-immersive>
+
+```mermaidsequenceDiagram
+participant User
+participant OmniDragon
+participant LotteryManager
+participant RandomnessProvider
+participant JackpotVault
+User ->> OmniDragon: Buy DRAGON tokens
+  OmniDragon ->> LotteryManager: Create jackpot entry
+  LotteryManager ->> RandomnessProvider: Request randomness
+  RandomnessProvider -->> LotteryManager: Return secure randomness
   
-  <ImmersiveMermaid 
-    chart={`...`}
-    title="Component Interaction"
-  />
-</ScrollReveal>
+  alt User wins jackpot
+    LotteryManager ->> JackpotVault: Trigger jackpot payout
+    JackpotVault ->> User: Transfer jackpot reward
+  else User doesn't win
+    LotteryManager ->> LotteryManager: Record entry in history
 ```
 
-## Customization
+</div>
 
-While the ImmersiveMermaid component provides many customization options through props, you can also extend it for more specific needs:
+### Cross-Chain Architecture
 
-```jsx
-import ImmersiveMermaid from '@site/src/components/ImmersiveMermaid';
-
-// Custom wrapper with specific settings
-function CustomDiagram(props) {
-  return (
-    <ImmersiveMermaid
-      particles={true}
-      particleCount={40}
-      particleColor="#60a5fa"
-      glowEffect={true}
-      glowIntensity="medium"
-      gradientBorder={true}
-      {...props}
-    />
-  );
-}
-
-<CustomDiagram 
-  chart={`...`}
-  title="Custom Styled Diagram"
-/>
+<div data-immersive>
 ```
 
-## Conclusion
+```mermaid
+graph LR
+subgraph "Sonic Chain"
+    OD1[OmniDragon]
+    LZ1[LayerZero Endpoint]
+  subgraph "Ethereum"
+    OD2[OmniDragon]
+    LZ2[LayerZero Endpoint]
+  subgraph "Arbitrum"
+    OD3[OmniDragon]
+    LZ3[LayerZero Endpoint]
+  OD1 <--> LZ1
+  OD2 <--> LZ2
+  OD3 <--> LZ3
+  
+  LZ1 <--> LZ2
+  LZ1 <--> LZ3
+  LZ2 <--> LZ3
+  
+  style OD1 fill:#6942ff,color:#fff,stroke:#fff
+  style OD2 fill:#6942ff,color:#fff,stroke:#fff
+  style OD3 fill:#6942ff,color:#fff,stroke:#fff
+  style LZ1 fill:#00bfff,color:#fff,stroke:#fff
+  style LZ2 fill:#00bfff,color:#fff,stroke:#fff
+  style LZ3 fill:#00bfff,color:#fff,stroke:#fff
+endendend
+endend
+end
+```
 
-The ImmersiveMermaid component provides a premium way to display diagrams in your documentation. Use it for important diagrams that deserve special emphasis, or when you want to create a more engaging and interactive experience for your users.
+</div>

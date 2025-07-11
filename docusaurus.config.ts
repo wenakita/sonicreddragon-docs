@@ -5,22 +5,22 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'OmniDragon Docs',
-  tagline: 'Cross-Chain Token Ecosystem',
-  favicon: '/img/favicon-32x32.png',
+  title: 'OmniDragon Protocol',
+  tagline: 'Cross-Chain Token Protocol with Automatic Jackpots',
+  favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
   url: 'https://docs.sonicreddragon.io',
-  // For custom domain with GitHub Pages, use baseUrl: '/'
+  // Set the /<baseUrl>/ pathname under which your site is served
+  // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
-  // Remove trailing slash for GitHub Pages
-  trailingSlash: false,
 
-  // GitHub pages deployment config
-  organizationName: 'wenakita',
-  projectName: 'sonicreddragon-docs',
+  // GitHub pages deployment config.
+  // If you aren't using GitHub pages, you don't need these.
+  organizationName: 'sonicreddragon', // Usually your GitHub org/user name.
+  projectName: 'sonicreddragon-docs', // Usually your repo name.
 
-  onBrokenLinks: 'warn',
+  onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
@@ -31,164 +31,104 @@ const config: Config = {
     locales: ['en'],
   },
 
-  // Enable mermaid diagrams
-  markdown: {
-    mermaid: true,
-  },
-
-  // Add the theme for mermaid
-  themes: ['@docusaurus/theme-mermaid'],
-
-  // Configure client modules for browser execution
-  clientModules: [
-    require.resolve('./src/clientModules/animeModule.js'),
-    require.resolve('./src/clientModules/mermaidFixModule.js'),
-    // Removed contextual sidebar to show all sections
-    // require.resolve('./src/clientModules/contextualSidebarModule.js'),
-  ],
-
-  // Custom sidebar - no scripts needed
-  scripts: [],
-
   presets: [
     [
       'classic',
       {
         docs: {
-          sidebarPath: './sidebars.ts',
+          path: 'docs-new', // Updated to use new structure
+          sidebarPath: './sidebars-new.ts', // Updated to use new sidebars
+          routeBasePath: '/', // Docs-only mode
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/wenakita/sonicreddragon-docs/edit/main/',
-          routeBasePath: '/',
-          // Disable table of contents
-          showLastUpdateTime: false,
-          showLastUpdateAuthor: false,
-          // Add custom remark plugins for mermaid processing
-          // remarkPlugins: [
-          //   require('./src/plugins/mermaid-plugin'),
-          // ],
+            'https://github.com/sonicreddragon/sonicreddragon-docs/tree/main/',
+          showLastUpdateAuthor: true,
+          showLastUpdateTime: true,
+          breadcrumbs: true,
         },
-        blog: false,
+        blog: false, // Disable blog
         theme: {
-          customCss: [
-            './src/css/custom.css',
-          ],
+          customCss: './src/css/custom.css',
         },
       } satisfies Preset.Options,
     ],
   ],
 
   themeConfig: {
-    // Enable dark mode by default
+    // Replace with your project's social card
+    image: 'img/sonicreddragon-social-card.jpg',
     colorMode: {
       defaultMode: 'dark',
       disableSwitch: false,
-      respectPrefersColorScheme: true,
+      respectPrefersColorScheme: false,
     },
-    
-    // Modern navbar configuration
     navbar: {
-      title: 'OmniDragon Docs',
+      title: 'SonicRedDragon',
       logo: {
-        alt: 'OmniDragon Logo',
-        src: '/img/logo.svg',
+        alt: 'SonicRedDragon Logo',
+        src: 'img/logo.svg',
       },
       items: [
         {
           type: 'docSidebar',
+          sidebarId: 'docs',
           position: 'left',
-          sidebarId: 'docsSidebar',
-          label: 'Overview',
-          className: 'navbar__item--modern',
+          label: 'Concepts',
+          to: '/concepts/overview',
         },
         {
           type: 'docSidebar',
+          sidebarId: 'docs',
           position: 'left',
-          sidebarId: 'security',
-          label: 'Security',
-          className: 'navbar__item--modern',
+          label: 'Guides',
+          to: '/guides/getting-started/quick-start',
         },
         {
           type: 'docSidebar',
+          sidebarId: 'docs',
           position: 'left',
-          sidebarId: 'contracts',
-          label: 'Smart Contracts',
-          className: 'navbar__item--modern',
-        },
-        {
-          type: 'docSidebar',
-          position: 'left',
-          sidebarId: 'integrations',
           label: 'Build',
-          className: 'navbar__item--modern',
+          to: '/build/smart-contracts/core/token',
         },
         {
           type: 'docSidebar',
+          sidebarId: 'docs',
           position: 'left',
-          sidebarId: 'reference',
-          label: 'API Reference',
-          className: 'navbar__item--modern',
+          label: 'Reference',
+          to: '/reference/contracts/addresses',
         },
         {
-          type: 'dropdown',
+          type: 'docSidebar',
+          sidebarId: 'docs',
+          position: 'left',
+          label: 'Partner',
+          to: '/partner/onboarding/overview',
+        },
+        {
+          href: 'https://github.com/omnidragon/omnidragon-protocol',
+          label: 'GitHub',
           position: 'right',
-          label: 'Community',
-          className: 'navbar__item--modern',
-          items: [
-            {
-              label: 'GitHub',
-              href: 'https://github.com/wenakita/sonicreddragon',
-              className: 'navbar__item--github',
-            },
-            {
-              label: 'Discord',
-              href: 'https://discord.gg/w75vaxDXuE',
-            },
-            {
-              label: 'Twitter',
-              href: 'https://twitter.com/sonicreddragon',
-            },
-            {
-              label: 'Telegram',
-              href: 'https://t.me/SonicRedDragon',
-            },
-            {
-              label: 'Blog',
-              href: 'https://blog.sonicreddragon.io',
-            },
-          ],
         },
       ],
-      style: 'dark',
     },
-
-    // Modern footer configuration
     footer: {
       style: 'dark',
-      logo: {
-        alt: 'Sonic Red Dragon Logo',
-        src: 'img/logo-dark.svg',
-        href: 'https://sonicreddragon.io',
-      },
       links: [
         {
           title: 'Documentation',
           items: [
             {
-              label: 'Getting Started',
-              to: '/intro',
-              className: 'footer__link--modern',
+              label: 'Get Started',
+              to: '/concepts/overview',
             },
             {
-              label: 'Smart Contracts',
-              to: '/smart-contracts/token',
-              className: 'footer__link--modern',
+              label: 'Developer Guides',
+              to: '/guides/developer-guides/integration-guide',
             },
             {
-              label: 'Randomness',
-              to: '/ecosystem/drand-network',
-              className: 'footer__link--modern',
+              label: 'API Reference',
+              to: '/reference/api/rest-api',
             },
           ],
         },
@@ -197,113 +137,139 @@ const config: Config = {
           items: [
             {
               label: 'Discord',
-              href: 'https://discord.gg/w75vaxDXuE',
-              className: 'footer__link--modern footer__link--discord',
+              href: 'https://discord.gg/omnidragon',
             },
             {
               label: 'Twitter',
-              href: 'https://twitter.com/sonicreddragon',
-              className: 'footer__link--modern footer__link--twitter',
+              href: 'https://twitter.com/omnidragonio',
             },
             {
               label: 'Telegram',
-              href: 'https://t.me/SonicRedDragon',
-              className: 'footer__link--modern footer__link--telegram',
+              href: 'https://t.me/omnidragon',
             },
           ],
         },
         {
-          title: 'Resources',
+          title: 'More',
           items: [
             {
-              label: 'Elegant Diagrams',
-              to: '/guide/elegant-diagrams',
-              className: 'footer__link--modern',
+              label: 'GitHub',
+              href: 'https://github.com/sonicreddragon/sonicreddragon-protocol',
             },
             {
-              label: 'Animated Content',
-              to: '/guide/animated-content',
-              className: 'footer__link--modern',
+              label: 'Security Audits',
+              to: '/resources/security/audits',
             },
             {
-              label: 'Enhanced Mermaid',
-              to: '/mermaid-working',
-              className: 'footer__link--modern',
+              label: 'Bug Bounty',
+              to: '/resources/security/bug-bounty',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Sonic Red Dragon. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} OmniDragon Protocol. Built with Docusaurus.`,
     },
-
-    // Enhanced code block styling
     prism: {
-      theme: prismThemes.oneDark,
-      darkTheme: prismThemes.oneDark,
-      additionalLanguages: ['solidity'],
+      theme: prismThemes.github,
+      darkTheme: prismThemes.dracula,
+      additionalLanguages: ['solidity', 'json', 'bash'],
     },
-
-      // Mermaid diagram configuration
-  mermaid: {
-    theme: {light: 'neutral', dark: 'dark'},
-    options: {
-      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-      fontSize: 14,
-      securityLevel: 'loose',
-      themeVariables: {
-        darkMode: true,
-        // Dark theme variables with blue-orange accent
-        primaryColor: '#2A2A2A',
-        primaryTextColor: '#FFFFFF',
-        primaryBorderColor: '#3b82f6',
-        lineColor: '#3b82f6',
-        secondaryColor: '#1A1A1A',
-        tertiaryColor: '#0A0A0A',
-        background: '#0A0A0A',
-        mainBkg: '#2A2A2A',
-        secondBkg: '#1A1A1A',
-        textColor: '#FFFFFF',
-        labelColor: '#FFFFFF',
-        errorBkgColor: '#7f1d1d',
-        errorTextColor: '#fca5a5',
-        nodeTextColor: '#FFFFFF',
-        edgeLabelBackground: '#1A1A1A',
-        clusterBkg: 'rgba(59, 130, 246, 0.1)',
-        clusterBorder: '#3b82f6',
-        defaultLinkColor: '#3b82f6',
-        // Light theme overrides
-        primaryColorLight: '#f8fafc',
-        primaryTextColorLight: '#1e293b',
-        primaryBorderColorLight: '#2563eb',
-        lineColorLight: '#94a3b8',
-        secondaryColorLight: '#e2e8f0',
-        tertiaryColorLight: '#f8fafc',
+    // Temporarily disabled until proper Algolia credentials are configured
+    // algolia: {
+    //   // The application ID provided by Algolia
+    //   appId: 'YOUR_APP_ID',
+    //   // Public API key: it is safe to commit it
+    //   apiKey: 'YOUR_SEARCH_API_KEY',
+    //   indexName: 'omnidragon-docs',
+    //   // Optional: see doc section below
+    //   contextualSearch: true,
+    //   // Optional: Specify domains where the navigation should occur through window.location instead on history.push
+    //   externalUrlRegex: 'external\\.com|domain\\.com',
+    //   // Optional: Replace parts of the item URLs from Algolia. Useful when using the same search index for multiple deployments using a different baseUrl.
+    //   replaceSearchResultPathname: {
+    //     from: '/docs/', // or as RegExp: /\/docs\//
+    //     to: '/',
+    //   },
+    //   // Optional: Algolia search parameters
+    //   searchParameters: {},
+    //   // Optional: path for search page that enabled by default (`false` to disable it)
+    //   searchPagePath: 'search',
+    // },
+    mermaid: {
+      theme: {
+        light: 'neutral',
+        dark: 'dark'
       },
-    },
-  },
-
-    // Modern metadata
-    metadata: [
-      {name: 'theme-color', content: '#1a1a1a'},
-      {name: 'mobile-web-app-capable', content: 'yes'},
-      {name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent'},
-    ],
-
-    // Enable table of contents
-    tableOfContents: {
-      minHeadingLevel: 2,
-      maxHeadingLevel: 3,
-    },
-
-    // Modern announcement bar
-    announcementBar: {
-      id: 'support_us',
-      content: 'Next-Gen DeFi on Sonic • Revolutionary cross-chain lottery mechanics • Join the dragon revolution <a href="https://t.me/SonicRedDragon">Telegram</a>',
-      backgroundColor: '#3b82f6',
-      textColor: '#fff',
-      isCloseable: true,
+      options: {
+        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+        fontSize: 14,
+        primaryColor: '#CD7D58',        // Raw Sienna from brand kit
+        primaryTextColor: '#152B43',    // Cloud Burst from brand kit
+        primaryBorderColor: '#B86A47',  // Primary dark from brand kit
+        lineColor: '#8E9AAA',          // Janna from brand kit
+        secondaryColor: '#E8E2C4',     // Half Baked from brand kit
+        tertiaryColor: '#D3E5F2',      // Catskill White from brand kit
+        background: 'transparent',
+        mainBkg: '#D3E5F2',           // Catskill White
+        secondBkg: '#E8E2C4',         // Half Baked
+        tertiaryBkg: '#f8fafc'
+      }
     },
   } satisfies Preset.ThemeConfig,
-};
+
+  plugins: [
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          // Redirect old paths to new structure
+          {
+            to: '/concepts/overview',
+            from: ['/intro', '/getting-started/overview'],
+          },
+          {
+            to: '/guides/getting-started/quick-start',
+            from: '/getting-started/quick-start',
+          },
+          {
+            to: '/build/smart-contracts/core/token',
+            from: '/contracts/core/token',
+          },
+          {
+            to: '/partner/case-studies/layerzero',
+            from: '/integrations/layerzero/overview',
+          },
+          {
+            to: '/resources/security/audits',
+            from: '/audit',
+          },
+        ],
+      },
+    ],
+  ],
+
+  clientModules: [
+    require.resolve('./src/clientModules/mermaidInit.js'),
+    require.resolve('./src/clientModules/consolidatedMermaidAnimations.js'),
+    require.resolve('./src/clientModules/smoothNavigation.js'),
+    require.resolve('./src/clientModules/spaNavigationFix.js'),
+    require.resolve('./src/clientModules/mermaidInteractiveModule.js')
+  ,
+    require.resolve('./src/clientModules/optimizedMermaidInit.js'),
+    require.resolve('./src/clientModules/mermaidAnimations.js'),
+    require.resolve('./src/clientModules/mermaidAnimeIntegration.js')
+  
+  
+  
+  
+  
+  
+  ],
+
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
+} satisfies Config;
 
 export default config;

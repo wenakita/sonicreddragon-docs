@@ -1,6 +1,7 @@
 ---
 title: VRF Consumer
 sidebar_position: 1
+description: Detailed explanation of this concept
 ---
 
 # OmniDragon VRF Consumer
@@ -11,10 +12,10 @@ The OmniDragon VRF Consumer (`OmniDragonVRFConsumer.sol`) is responsible for agg
 
 The VRF Consumer serves as the randomness hub for the OmniDragon protocol, with features including:
 
-- **Multi-source randomness**: Ability to aggregate randomness from multiple source networks
-- **Weighted aggregation**: Combines randomness using configurable weights
-- **Consumer authorization**: Controls which contracts can request randomness
-- **Failover support**: Continues operating if some randomness sources fail
+-**Multi-source randomness**: Ability to aggregate randomness from multiple source networks
+-**Weighted aggregation**: Combines randomness using configurable weights
+-**Consumer authorization**: Controls which contracts can request randomness
+-**Failover support**: Continues operating if some randomness sources fail
 
 ## Actual Implementation
 
@@ -88,21 +89,21 @@ The VRF Consumer aggregates randomness using the following approach:
 
 ```mermaid
 flowchart TB
-    classDef primary fill:#4a80d1,stroke:#355899,color:#ffffff,font-weight:bold
-    classDef secondary fill:#43a047,stroke:#2e7d32,color:#ffffff
-    
+classDef primary fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef secondary fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+
     VRFConsumer["OmniDragon VRF Consumer"]:::primary
-    
+
     Network1["Network 1<br>Integrator"]:::secondary
     Network2["Network 2<br>Integrator"]:::secondary
     NetworkN["Network N<br>Integrator"]:::secondary
-    
+
     Applications["Consumer<br>Applications"]:::secondary
-    
+
     Network1 -->|"Randomness"| VRFConsumer
     Network2 -->|"Randomness"| VRFConsumer
     NetworkN -->|"Randomness"| VRFConsumer
-    
+
     VRFConsumer -->|"Aggregated<br>Randomness"| Applications
     Applications -->|"Request<br>Randomness"| VRFConsumer
 ```
@@ -137,10 +138,10 @@ interface IDragonVRFConsumer {
 
 The VRF Consumer includes several security features:
 
-1. **Authorization Controls**: Only authorized contracts can request randomness
-2. **Reentrancy Protection**: Prevents reentrancy attacks during randomness fulfillment
-3. **Owner-Only Administration**: Only the owner can add or modify randomness networks
-4. **Fault Tolerance**: Continues operating even if some randomness sources fail
+1.**Authorization Controls**: Only authorized contracts can request randomness
+2.**Reentrancy Protection**: Prevents reentrancy attacks during randomness fulfillment
+3.**Owner-Only Administration**: Only the owner can add or modify randomness networks
+4.**Fault Tolerance**: Continues operating even if some randomness sources fail
 
 ## Example Integration
 

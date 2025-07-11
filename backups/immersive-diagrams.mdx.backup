@@ -1,0 +1,421 @@
+---
+title: Immersive Diagrams
+description: >-
+  Create beautiful, animated, and interactive diagrams with our immersive
+  mermaid components
+sidebar_position: 3
+---
+
+import AnimatedText from '@site/src/components/AnimatedText';
+
+# <AnimatedText text="Immersive Diagrams" color="gradient" size="xl" animation="fadeInUp" />
+
+Our documentation system features immersive mermaid diagrams with advanced animations, interactivity, and beautiful styling. This guide will show you how to create stunning diagrams that make your documentation more engaging and easier to understand.
+
+## What are Immersive Diagrams?
+
+Immersive diagrams are enhanced mermaid diagrams with:
+
+-**Elegant styling**with gradient borders and glow effects
+-**Smooth animations**for nodes, edges, and labels
+-**Interactive controls**for replay, fullscreen, and download
+-**Particle effects**for a more dynamic visual experience
+-**Hover interactions**that highlight connected elements
+-**Responsive design**that works on all devices
+
+## Creating Immersive Diagrams
+
+To create an immersive diagram, wrap your mermaid code block in a `<div data-immersive>` tag:
+
+````md
+<div data-immersive>
+
+```mermaid
+flowchart LR
+    A[Start] -->|> B[Process]
+    B| C[End]
+```
+
+</div>
+````
+
+This will render as:
+
+<div data-immersive>
+```
+
+```mermaid
+flowchart LR
+    A[Start] -->|> B[Process]
+    B| C[End]
+```
+
+</div>
+
+## Adding Titles and Captions
+
+You can add titles and captions to your diagrams by adding heading and paragraph elements before and after the diagram:
+
+````md
+### Token Flow Diagram
+
+<div data-immersive>
+
+```mermaid
+flowchart LR
+    A[Token] -->|> B[Bridge]
+    B| C[Chains]
+```
+
+</div>
+
+*This diagram illustrates the flow of tokens through the cross-chain bridge.*
+````
+
+Our components will automatically detect these elements and incorporate them into the diagram container:
+
+### Token Flow Diagram
+
+<div data-immersive>
+```
+
+```mermaid
+flowchart LR
+    A[Token] -->|> B[Bridge]
+    B| C[Chains]
+```
+
+</div>
+
+*This diagram illustrates the flow of tokens through the cross-chain bridge.*
+
+## Styling Your Diagrams
+
+You can add custom styling to your mermaid diagrams using the `style` attribute:
+
+````md
+<div data-immersive>
+
+```mermaid
+flowchart LR
+    A[OmniDragon Token] --> B[Cross-Chain Bridge]
+    B -->|> C[Ethereum]
+    B| D[BNB Chain]
+    
+    style A fill:#6942ff,color:#fff,stroke:#fff
+    style B fill:#4b30b3,color:#fff,stroke:#fff
+    style C fill:#3b82f6,color:#fff,stroke:#fff
+    style D fill:#3b82f6,color:#fff,stroke:#fff
+```
+
+</div>
+````
+
+This will render as:
+
+<div data-immersive>
+```
+
+```mermaid
+flowchart LR
+    A[OmniDragon Token] --> B[Cross-Chain Bridge]
+    B -->|> C[Ethereum]
+    B| D[BNB Chain]
+    
+    style A fill:#6942ff,color:#fff,stroke:#fff
+    style B fill:#4b30b3,color:#fff,stroke:#fff
+    style C fill:#3b82f6,color:#fff,stroke:#fff
+    style D fill:#3b82f6,color:#fff,stroke:#fff
+```
+
+</div>
+
+## Interactive Features
+
+All immersive diagrams include interactive features:
+
+1.**Hover Effects**: Hover over nodes and edges to see highlight effects
+2.**Click Interactions**: Click on nodes to highlight connected paths
+3.**Control Buttons**: 
+   - Replay animations
+   - Toggle fullscreen view
+   - Download SVG
+
+Try interacting with the diagram below:
+
+<div data-immersive>
+
+```mermaid
+flowchart TD
+    A[User] --> B{Has Tokens?}
+B -->|Yes| C[Enter Lottery]
+    B -->|>|No| D[Buy Tokens]
+    C| E[Wait for Draw]
+    D -->|> C
+    E| F{Winner?}
+F -->|Yes| G[Claim Prize]
+    F -->|>|>|No| H[Try Again]
+    G| I[Bridge to Chain]
+    H| C
+```
+
+</div>
+
+## Supported Diagram Types
+
+Our immersive mermaid components support all standard Mermaid diagram types:
+
+### Sequence Diagrams
+
+<div data-immersive>
+```
+
+```mermaid
+sequenceDiagram
+participant User
+participant Contract
+participant Oracle
+User ->> Contract: Place Bet
+    Contract ->> Oracle: Request Random Number
+    Oracle ->> Contract: Return Random Number
+    Contract ->> User: Distribute Prize
+```
+
+</div>
+
+### State Diagrams
+
+<div data-immersive>
+
+```mermaid
+stateDiagram-v2
+    [*] -->|> Idle
+    Idle| WaitingForRandom: User places bet
+    WaitingForRandom -->|> Processing: Random number received
+    Processing| Winner: User wins
+    Processing -->|>|> Loser: User loses
+    Winner| Idle
+    Loser| Idle
+```
+
+</div>
+
+### Class Diagrams
+
+<div data-immersive>
+```
+
+```mermaid
+classDiagram
+class Token {
++string name
+        +string symbol
+        +uint256 totalSupply
+        +transfer(address, uint256)
+    }
+class Lottery {
++uint256 ticketPrice
+        +uint256 jackpot
+        +buyTicket()
+        +drawWinner()
+    }
+Token <|-- Lottery : uses
+```
+
+</div>
+
+### Entity Relationship Diagrams
+
+<div data-immersive>
+
+```mermaid
+erDiagram
+    USER ||--o{ TICKET : purchases
+    TICKET }
+o--|| LOTTERY : belongs_to
+    LOTTERY ||--o{ PRIZE : contains
+    PRIZE }
+o--o{ USER : won_by
+```
+
+</div>
+
+### Pie Charts
+
+<div data-immersive>
+```
+
+```mermaid
+pie title Token Distribution
+    "Team" : 15
+    "Ecosystem" : 25
+    "Community" : 30
+    "Liquidity" : 20
+    "Marketing" : 10
+```
+
+</div>
+
+### Mindmaps
+
+<div data-immersive>
+
+```mermaid
+mindmap
+  root((OmniDragon))
+    Token
+      ERC-20
+      Cross-Chain
+    Lottery
+      Daily Draws
+      Weekly Jackpots
+    Randomness
+      dRand Network
+      VRF
+```
+
+</div>
+
+## Best Practices
+
+For the most effective immersive diagrams:
+
+1.**Keep it Simple**: Focus on the key concepts and relationships
+2.**Use Consistent Styling**: Maintain consistent node shapes and colors
+3.**Add Context**: Include titles and captions to explain the diagram
+4.**Choose the Right Type**: Select the diagram type that best represents your data
+5.**Test Interactivity**: Ensure your diagram works well with interactive features
+
+## Accessibility Considerations
+
+Our immersive diagrams include several accessibility features:
+
+-**Keyboard Navigation**: All interactive elements are keyboard accessible
+-**Screen Reader Support**: Diagrams include appropriate ARIA attributes
+-**Reduced Motion**: Animations are disabled for users who prefer reduced motion
+-**High Contrast**: Diagram elements use sufficient color contrast
+-**Responsive Design**: Diagrams adapt to different screen sizes
+
+## Advanced Customization
+
+For advanced users, you can customize the appearance and behavior of immersive diagrams by modifying the following files:
+
+- `src/components/ImmersiveMermaid.tsx`: Immersive diagram component
+- `src/components/ImmersiveMermaid.module.css`: Styling for immersive diagrams
+- `src/utils/enhancedMermaidAnimations.ts`: Animation utilities
+- `src/clientModules/enhancedMermaidInit.js`: Initialization module
+
+## Troubleshooting
+
+If your diagrams aren't rendering correctly:
+
+1.**Check Syntax**: Ensure your Mermaid syntax is correct
+2.**Inspect Console**: Check for errors in the browser console
+3.**Try Basic Mode**: Remove the `data-immersive` attribute to use basic rendering
+4.**Update Dependencies**: Ensure you have the latest version of Mermaid
+5.**Clear Cache**: Try clearing your browser cache and reloading
+
+For more help, see the [Mermaid documentation](https://mermaid.js.org/intro/).
+
+## Examples
+
+Here are some examples of immersive diagrams in action:
+
+### Protocol Overview
+
+<div data-immersive>
+```
+
+```mermaid
+graph TB
+subgraph "Core Protocol"
+    OD[OmniDragon Token] --> |Fees| FD[Fee Distribution]
+    OD --> |Lottery Entries| LM[Lottery Manager]
+    OD --> |Cross-Chain| CC[Cross-Chain Bridge]
+  subgraph "Fee Distribution"
+    FD --> |6.9%| JV[Jackpot Vault]
+    FD --> |2.41%| VE[ve69LP Fee Distributor]
+    FD --> |0.69%| BN[Token Burn]
+  subgraph "Lottery System"
+    LM --> |Requests Randomness| RP[Randomness Provider]
+    RP --> |VRF Sources| VRF[Chainlink VRF / Drand]
+    LM --> |Triggers Payout| JV
+  subgraph "Cross-Chain"
+    CC --> |LayerZero| OC[Other Chains]
+  style OD fill:#6942ff,color:#fff,stroke:#fff
+  style FD fill:#4b30b3,color:#fff,stroke:#fff
+  style LM fill:#4b30b3,color:#fff,stroke:#fff
+  style CC fill:#4b30b3,color:#fff,stroke:#fff
+  style JV fill:#ff6900,color:#fff,stroke:#fff
+  style VE fill:#ff6900,color:#fff,stroke:#fff
+  style BN fill:#ff6900,color:#fff,stroke:#fff
+  style RP fill:#00bfff,color:#fff,stroke:#fff
+  style VRF fill:#00bfff,color:#fff,stroke:#fff
+  style OC fill:#00bfff,color:#fff,stroke:#fff
+endendendend
+endendend
+endend
+```
+
+</div>
+
+### Lottery Flow
+
+<div data-immersive>
+
+```mermaid
+sequenceDiagram
+participant User
+participant OmniDragon
+participant LotteryManager
+participant RandomnessProvider
+participant JackpotVault
+User ->> OmniDragon: Buy DRAGON tokens
+  OmniDragon ->> LotteryManager: Create jackpot entry
+  LotteryManager ->> RandomnessProvider: Request randomness
+  RandomnessProvider -->> LotteryManager: Return secure randomness
+  
+  alt User wins jackpot
+    LotteryManager ->> JackpotVault: Trigger jackpot payout
+    JackpotVault ->> User: Transfer jackpot reward
+  else User doesn't win
+    LotteryManager ->> LotteryManager: Record entry in history
+```
+
+</div>
+
+### Cross-Chain Architecture
+
+<div data-immersive>
+```
+
+```mermaid
+graph LR
+subgraph "Sonic Chain"
+    OD1[OmniDragon]
+    LZ1[LayerZero Endpoint]
+  subgraph "Ethereum"
+    OD2[OmniDragon]
+    LZ2[LayerZero Endpoint]
+  subgraph "Arbitrum"
+    OD3[OmniDragon]
+    LZ3[LayerZero Endpoint]
+  OD1 <--> LZ1
+  OD2 <--> LZ2
+  OD3 <--> LZ3
+  
+  LZ1 <--> LZ2
+  LZ1 <--> LZ3
+  LZ2 <--> LZ3
+  
+  style OD1 fill:#6942ff,color:#fff,stroke:#fff
+  style OD2 fill:#6942ff,color:#fff,stroke:#fff
+  style OD3 fill:#6942ff,color:#fff,stroke:#fff
+  style LZ1 fill:#00bfff,color:#fff,stroke:#fff
+  style LZ2 fill:#00bfff,color:#fff,stroke:#fff
+  style LZ3 fill:#00bfff,color:#fff,stroke:#fff
+endendend
+endend
+```
+
+</div>

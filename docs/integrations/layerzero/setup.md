@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Setup
+description: Detailed explanation of this concept
 ---
 
 # Setup

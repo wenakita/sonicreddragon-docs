@@ -1,0 +1,171 @@
+---
+title: Randomness System Explained
+sidebar_position: 3
+description: >-
+  Interactive explanation of OmniDragon's multi-source cross-chain randomness
+  system
+---
+
+import CrossChainRandomnessAnimation from '@site/src/components/CrossChainRandomnessAnimation';
+import UnifiedMermaid from '@site/src/components/UnifiedMermaid';
+
+# OmniDragon Randomness System Explained
+
+This page provides an interactive explanation of OmniDragon's multi-source cross-chain randomness system, which is central to the protocol's security and fairness mechanisms.
+
+## Interactive Visualization
+
+The following animation illustrates how randomness is requested, generated, verified, and transmitted across different chains in the OmniDragon ecosystem:
+
+<CrossChainRandomnessAnimation />
+
+## System Architecture
+
+OmniDragon uses a multi-provider approach to randomness, combining different sources for maximum security and reliability.
+
+```mermaid
+flowchart TB
+A[Application Contract] -->|> B[OmniDragonVRFConsumer]
+    B| C[ChainlinkVRFIntegrator]
+    B -->|> D[DrandIntegrator]
+    C| E[LayerZero]
+    E -->|> F[ArbitrumVRFRequester]
+    F| G[Chainlink VRF]
+    G -->|> F
+    F| E
+    E -->|> C
+    D| H[Drand Network]
+    H -->|> D
+    C| B
+    D -->|> B
+    B| A
+```
+
+## Key Components
+
+### 1. OmniDragonVRFConsumer
+
+This is the main entry point for randomness requests in the system. It:
+
+- Accepts randomness requests from applications
+- Distributes requests to multiple providers
+- Aggregates and verifies responses
+- Delivers secured, reliable randomness to the application
+```
+
+```mermaid
+classDiagram
+class OmniDragonVRFConsumer {
++requestRandomness(uint256 requestId)
+    +fulfillRandomness(uint256 requestId, uint256 randomness)
+    +registerProvider(address provider)
+    +verifyRandomness(uint256 requestId, uint256 randomness)
+    -aggregateResponses(uint256[] responses)
+    }
+    class IVRFProvider {
+<<interface>>
+    +requestRandomness(uint256 requestId)
+    +fulfillRandomness(uint256 requestId, uint256 randomness)
+    }
+    OmniDragonVRFConsumer --> IVRFProvider
+```
+
+### 2. ChainlinkVRFIntegrator
+
+This component:
+
+- Connects to Chainlink VRF on Arbitrum via LayerZero
+- Manages the cross-chain request/response cycle
+- Handles security verification of responses
+
+### 3. DrandIntegrator
+
+This component:
+
+- Connects to the League of Entropy's drand network
+- Verifies the threshold BLS signatures
+- Provides an additional source of randomness
+
+## Multi-Chain Flow
+
+<UnifiedMermaid 
+  title="Cross-Chain Randomness Flow"
+  chart={`
+    sequenceDiagram
+      participant App as Application
+      participant Consumer as OmniDragonVRFConsumer
+      participant LZ as LayerZero
+      participant Arb as ArbitrumVRFRequester
+      participant CL as Chainlink VRF
+      participant Drand as drand Network
+      
+      App->>Consumer: requestRandomness()
+      activate Consumer
+      Consumer->>LZ: sendMessage(requestRandomness)
+      Consumer->>Drand: requestRandomnessFromDrand()
+      LZ->>Arb: receiveMessage(requestRandomness)
+      activate Arb
+      Arb->>CL: requestRandomness()
+      CL-->>Arb: fulfillRandomness()
+      Arb->>LZ: sendMessage(randomnessResult)
+      deactivate Arb
+      LZ-->>Consumer: receiveMessage(randomnessResult)
+      Drand-->>Consumer: fulfillRandomnessFromDrand()
+      Consumer->>Consumer: aggregate & verify responses
+      Consumer-->>App: fulfillRandomness()
+      deactivate Consumer
+  `}
+  caption="Sequence diagram showing the full randomness request/response flow"
+  animated={true}
+  interactive={true}
+/>
+
+## Security Benefits of Multi-Provider Approach
+
+Using multiple sources of randomness provides several key security benefits:
+
+1.**Redundancy**: If one provider fails, the system continues to function
+2.**Compromise Resistance**: An attacker would need to compromise multiple independent systems
+3.**Verifiability**: Each source can be independently verified
+4.**Latency Optimization**: Can use the fastest available source when speed is critical
+
+```mermaid
+pie title Randomness Source Distribution
+    "Chainlink VRF" : 50
+    "drand Network" : 35
+    "Local VDF" : 15
+```
+
+## How To Integrate
+
+Application contracts can request verifiable randomness with a few simple steps:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "./interfaces/IOmniDragonVRFConsumer.sol";
+
+contract RandomnessConsumer {
+    IOmniDragonVRFConsumer private vrfConsumer;
+    mapping(uint256 => uint256) private randomResults;
+    
+    constructor(address _vrfConsumer) {
+        vrfConsumer = IOmniDragonVRFConsumer(_vrfConsumer);
+    }
+    
+    function requestRandomNumber() external returns (uint256 requestId) {
+        requestId = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender)));
+        vrfConsumer.requestRandomness(requestId);
+        return requestId;
+    }
+    
+    function fulfillRandomness(uint256 requestId, uint256 randomness) external {
+        require(msg.sender == address(vrfConsumer), "Only VRF consumer can fulfill");
+        randomResults[requestId] = randomness;
+        // Use the randomness here
+    }
+}
+```
+
+With this interactive explanation, you should have a better understanding of how OmniDragon's randomness system operates across multiple chains and providers to deliver secure and verifiable randomness for various applications.

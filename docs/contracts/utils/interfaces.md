@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Interfaces
+description: Detailed explanation of this concept
 ---
 
 # Interfaces

@@ -1,35 +1,40 @@
+---
+title: Lottery Manager
+sidebar_position: 1
+description: Detailed explanation of this concept
+---
 # OmniDragon Lottery Manager
 
-The **OmniDragonLotteryManager** is the single source of truth for all lottery operations in the OmniDragon ecosystem. It handles lottery entry creation, probability calculations, randomness integration, and payout processing with sophisticated mathematical models.
+The**OmniDragonLotteryManager**is the single source of truth for all jackpot operations in the OmniDragon ecosystem. It handles jackpot entry creation, probability calculations, randomness integration, and payout processing with sophisticated mathematical models.
 
 ## Overview
 
 The Lottery Manager serves as the central hub for:
-- **Lottery Entry Creation**: Automatic entries from OmniDragon swaps
-- **Probability Calculations**: Advanced mathematical models for win chances
-- **Randomness Integration**: Seamless integration with RandomnessProvider
-- **Payout Processing**: Automated jackpot distribution and winner rewards
-- **User Management**: Cooldowns, limits, and statistics tracking
+-**Lottery Entry Creation**: Automatic entries from OmniDragon swaps
+-**Probability Calculations**: Advanced mathematical models for win chances
+-**Randomness Integration**: Seamless integration with RandomnessProvider
+-**Payout Processing**: Automated jackpot distribution and winner rewards
+-**User Management**: Cooldowns, limits, and statistics tracking
 
 ## Key Features
 
 ### 🎰 Automated Lottery System
-- **Swap-Based Entries**: Automatic lottery entries on qualifying token swaps
-- **Dynamic Probabilities**: Win chances based on swap amount and voting power
-- **Cooldown Protection**: 60-second cooldown between entries
-- **Entry Limits**: Maximum 100 pending entries per user
+-**Swap-Based Entries**: Automatic jackpot entries on qualifying token swaps
+-**Dynamic Probabilities**: Win chances based on swap amount and voting power
+-**Cooldown Protection**: 60-second cooldown between entries
+-**Entry Limits**: Maximum 100 pending entries per user
 
 ### 🧮 Advanced Mathematics
-- **Probability Scaling**: Linear scaling from $1 to $10,000 swap amounts
-- **Voting Power Boost**: Enhanced win chances for ve69LP holders
-- **Jackpot Calculations**: Dynamic payout percentages based on jackpot size
-- **Market Conditions**: Payout adjustments based on market factors
+-**Probability Scaling**: Linear scaling from $1 to $10,000 swap amounts
+-**Voting Power Boost**: Enhanced win chances for ve69LP holders
+-**Jackpot Calculations**: Dynamic payout percentages based on jackpot size
+-**Market Conditions**: Payout adjustments based on market factors
 
 ### 🔒 Security & Fairness
-- **VRF Integration**: Cryptographically secure randomness
-- **MEV Protection**: Commit-reveal schemes for sensitive operations
-- **Access Control**: Only OmniDragon token can create entries
-- **Comprehensive Validation**: Input validation and state checks
+-**VRF Integration**: Cryptographically secure randomness
+-**MEV Protection**: Commit-reveal schemes for sensitive operations
+-**Access Control**: Only OmniDragon token can create entries
+-**Comprehensive Validation**: Input validation and state checks
 
 ## Contract Architecture
 
@@ -98,7 +103,7 @@ struct LotteryEntry {
     uint256 timestamp;              // Entry timestamp
     uint256 randomnessRequestId;    // Request ID for randomness
     bool processed;                 // Whether entry has been processed
-    bool won;                       // Whether user won the lottery
+    bool won;                       // Whether user won the jackpot
     uint256 payoutAmount;           // Payout amount if won
     bool usedPoolRandomness;        // Whether pool randomness was used
     bool paymentFailed;             // Whether payout failed
@@ -136,19 +141,13 @@ function createLotteryEntry(
     uint256 swapAmountUSD,
     uint256 userVotingPower
 ) external nonReentrant returns (uint256 entryId);
-```
-
-**Access**: Only OmniDragon token contract
-
-**Process**:
+```**Access**: Only OmniDragon token contract**Process**:
 1. Validates user and swap amount
 2. Checks cooldown period and entry limits
 3. Calculates win probability
 4. Attempts to use randomness pool for instant processing
 5. Falls back to VRF request if pool unavailable
-6. Processes win/loss and handles payouts
-
-**Requirements**:
+6. Processes win/loss and handles payouts**Requirements**:
 - Caller must be OmniDragon token contract
 - Swap amount must be ≥ $10 USD
 - User must not be in cooldown period
@@ -159,11 +158,7 @@ function createLotteryEntry(
 #### Fulfill Randomness
 ```solidity
 function fulfillRandomness(uint256 randomnessRequestId, uint256 randomValue) external nonReentrant;
-```
-
-**Access**: Only randomness provider
-
-**Process**:
+```**Access**: Only randomness provider**Process**:
 1. Validates randomness request
 2. Determines win/loss using secure random value
 3. Processes payout if winner
@@ -178,14 +173,10 @@ function _calculateLotteryProbability(
     uint256 swapAmountUSD,
     uint256 userVotingPower
 ) internal pure returns (LotteryResult memory result);
-```
-
-**Algorithm**:
-1. **Base Probability**: Linear scaling from 0.04% to 4% based on swap amount
-2. **Voting Power Boost**: Additional boost for ve69LP holders
-3. **Final Probability**: Capped at 10% maximum
-
-**Formula**:
+```**Algorithm**:
+1.**Base Probability**: Linear scaling from 0.04% to 4% based on swap amount
+2.**Voting Power Boost**: Additional boost for ve69LP holders
+3.**Final Probability**: Capped at 10% maximum**Formula**:
 ```solidity
 // Base probability calculation
 if (swapAmountUSD <= MIN_AMOUNT_USD) {
@@ -214,9 +205,7 @@ function _determineLotteryWin(
     uint256 probabilityBps,
     uint256 secureRandomValue
 ) internal pure returns (bool isWinner);
-```
-
-**Algorithm**:
+```**Algorithm**:
 ```solidity
 // Calculate threshold for win determination
 uint256 threshold = probabilityBps * type(uint256).max / BPS_DENOMINATOR;
@@ -232,14 +221,10 @@ function _calculateJackpotPayout(
     uint256 winnerVotingPower,
     uint256 marketConditionFactor
 ) internal pure returns (JackpotPayout memory result);
-```
-
-**Algorithm**:
-1. **Base Payout**: 69% with reductions for large jackpots
-2. **Market Adjustment**: ±10% based on market conditions
-3. **Voting Power Bonus**: Up to 10% additional for ve69LP holders
-
-**Formula**:
+```**Algorithm**:
+1.**Base Payout**: 69% with reductions for large jackpots
+2.**Market Adjustment**: ±10% based on market conditions
+3.**Voting Power Bonus**: Up to 10% additional for ve69LP holders**Formula**:
 ```solidity
 // Base payout with jackpot size adjustment
 basePayout = BASE_PAYOUT_BPS; // 69%
@@ -345,7 +330,7 @@ event ComponentUpdated(
 
 ### For OmniDragon Token
 
-The lottery manager is designed to be called exclusively by the OmniDragon token contract:
+The jackpot manager is designed to be called exclusively by the OmniDragon token contract:
 
 ```solidity
 // In OmniDragon._transfer()
@@ -372,7 +357,7 @@ lotteryManager.fulfillRandomness(requestId, randomValue);
 
 ### For Jackpot Vault
 
-The lottery manager requests payouts from the vault:
+The jackpot manager requests payouts from the vault:
 
 ```solidity
 // In LotteryManager._processLotteryWin()
@@ -430,17 +415,17 @@ All external functions use `nonReentrant` modifier to prevent reentrancy attacks
 
 ### For Developers
 
-1. **Monitor Entry Limits**: Track user entry counts to avoid rejections
-2. **Handle Cooldowns**: Implement proper timing for entry creation
-3. **Validate Amounts**: Ensure swap amounts meet minimum requirements
-4. **Error Handling**: Implement proper error handling for failed entries
+1.**Monitor Entry Limits**: Track user entry counts to avoid rejections
+2.**Handle Cooldowns**: Implement proper timing for entry creation
+3.**Validate Amounts**: Ensure swap amounts meet minimum requirements
+4.**Error Handling**: Implement proper error handling for failed entries
 
 ### For Protocol Operators
 
-1. **Monitor Failed Payments**: Regularly check for and retry failed payments
-2. **Cleanup Entries**: Periodically cleanup old failed entries
-3. **Component Updates**: Keep randomness provider and vault addresses updated
-4. **Statistics Tracking**: Monitor win rates and payout amounts
+1.**Monitor Failed Payments**: Regularly check for and retry failed payments
+2.**Cleanup Entries**: Periodically cleanup old failed entries
+3.**Component Updates**: Keep randomness provider and vault addresses updated
+4.**Statistics Tracking**: Monitor win rates and payout amounts
 
 ## Error Handling
 
@@ -458,10 +443,10 @@ error PaymentFailed();
 
 ### Troubleshooting
 
-- **Cooldown Active**: Wait for cooldown period to expire
-- **Too Many Entries**: Wait for existing entries to be processed
-- **Payment Failed**: Check jackpot vault balance and configuration
-- **Invalid Randomness**: Verify randomness provider configuration
+-**Cooldown Active**: Wait for cooldown period to expire
+-**Too Many Entries**: Wait for existing entries to be processed
+-**Payment Failed**: Check jackpot vault balance and configuration
+-**Invalid Randomness**: Verify randomness provider configuration
 
 ## Statistics and Monitoring
 
@@ -493,25 +478,25 @@ mapping(address => uint256) public userEntryCount;   // Pending entries per user
 
 ### Probability Distribution
 
-The lottery uses a sophisticated probability model:
+The jackpot uses a sophisticated probability model:
 
-1. **Base Probability**: Linear scaling ensures fair distribution
-2. **Voting Power Boost**: Rewards long-term token holders
-3. **Maximum Caps**: Prevents excessive win rates
-4. **Market Integration**: Considers external market conditions
+1.**Base Probability**: Linear scaling ensures fair distribution
+2.**Voting Power Boost**: Rewards long-term token holders
+3.**Maximum Caps**: Prevents excessive win rates
+4.**Market Integration**: Considers external market conditions
 
 ### Payout Optimization
 
 The payout system balances multiple factors:
 
-1. **Jackpot Size**: Larger jackpots have slightly reduced payouts
-2. **Market Conditions**: Dynamic adjustments based on market health
-3. **Voting Power**: Bonus rewards for governance participants
-4. **Sustainability**: Ensures long-term protocol viability
+1.**Jackpot Size**: Larger jackpots have slightly reduced payouts
+2.**Market Conditions**: Dynamic adjustments based on market health
+3.**Voting Power**: Bonus rewards for governance participants
+4.**Sustainability**: Ensures long-term protocol viability
 
 ## Links
 
-- **Social**: [Twitter](https://x.com/sonicreddragon) | [Telegram](https://t.me/sonicreddragon)
-- **Repository**: [GitHub](https://github.com/wenakita/omnidragon)
-- **Math Library**: [DragonMath](/contracts/math/dragon-math)
-- **Randomness Provider**: [Randomness Provider](/contracts/core/randomness-provider) 
+-**Social**: [Twitter](https://x.com/sonicreddragon) | [Telegram](https://t.me/sonicreddragon)
+-**Repository**: [GitHub](https://github.com/wenakita/OmniDragon)
+-**Math Library**: [DragonMath](/contracts/math/DRAGON-math)
+-**Randomness Provider**: [Randomness Provider](/contracts/core/randomness-provider) 

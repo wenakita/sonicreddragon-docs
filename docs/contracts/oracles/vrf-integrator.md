@@ -1,5 +1,7 @@
 ---
 sidebar_position: 2
+title: Vrf Integrator
+description: Detailed explanation of this concept
 ---
 
 # DragonVRFIntegrator
@@ -12,30 +14,26 @@ This contract is responsible for integrating with a specific randomness source, 
 
 ```mermaid
 flowchart TB
-    ExternalSource["External Randomness Source<br>(drand/Chainlink/etc)"] -->|"Random Values"| Relay["Relay Service"]
+ExternalSource["External Randomness Source<br>(drand/Chainlink/etc)"] -->|"Random Values"| Relay["Relay Service"]
     Relay -->|"Verified Randomness"| DragonVRFIntegrator
-    
     DragonVRFIntegrator -->|"Latest Randomness"| OmniConsumer["OmniDragonVRFConsumer"]
     DragonVRFIntegrator -->|"Direct Fulfillment"| SingleConsumer["Single Source Consumer"]
-    
     subgraph "DragonVRFIntegrator"
-        Storage["Randomness Storage"]
-        Auth["Access Control"]
-        Interface["Consumer Interface"]
-        Update["Update Logic"]
-    end
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white;
-    class DragonVRFIntegrator,Storage highlight
+    Storage["Randomness Storage"]
+    Auth["Access Control"]
+    Interface["Consumer Interface"]
+    Update["Update Logic"]
+    classDef highlight fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class DragonVRFIntegrator primary    endclass Storage primary    end
 ```
 
 ## Key Features
 
-- **Source Integration**: Connects to a specific randomness source (e.g., drand, Chainlink)
-- **Verified Storage**: Stores the latest verified randomness value
-- **Access Control**: Restricts randomness updates to authorized entities
-- **Consumer Management**: Manages authorized consumer contracts
-- **Direct Fulfillment**: Can directly fulfill randomness for simple consumers
+-**Source Integration**: Connects to a specific randomness source (e.g., drand, Chainlink)
+-**Verified Storage**: Stores the latest verified randomness value
+-**Access Control**: Restricts randomness updates to authorized entities
+-**Consumer Management**: Manages authorized consumer contracts
+-**Direct Fulfillment**: Can directly fulfill randomness for simple consumers
 
 ## Contract Implementation
 
@@ -50,9 +48,8 @@ import {ReentrancyGuard} from "../lib/security/ReentrancyGuard.sol";
 import "./interfaces/IDragonVRFIntegrator.sol";
 import "./interfaces/IDragonVRFConsumer.sol";
 
-/**
- * @title DragonVRFIntegrator
- * @dev Integrates drand randomness network with Dragon ecosystem
+/***@title DragonVRFIntegrator
+ * @dev Integrates drand randomness network with DRAGON ecosystem
  */
 contract DragonVRFIntegrator is Ownable, ReentrancyGuard, IDragonVRFIntegrator {
     // drand network information
@@ -74,8 +71,7 @@ contract DragonVRFIntegrator is Ownable, ReentrancyGuard, IDragonVRFIntegrator {
 The contract provides functions to update and retrieve randomness:
 
 ```solidity
-/**
- * @dev Updates the randomness value (only callable by owner)
+/***@dev Updates the randomness value (only callable by owner)
  * @param _round The drand round number
  * @param _value The randomness value
  */
@@ -89,8 +85,7 @@ function updateRandomness(uint256 _round, uint256 _value) external onlyOwner {
     emit RandomnessUpdated(_round, _value);
 }
 
-/**
- * @dev Returns the latest randomness value
+/***@dev Returns the latest randomness value
  */
 function getLatestRandomness() external view override returns (uint256, uint256) {
     return (latestDrandValue, latestDrandRound);
@@ -102,8 +97,7 @@ function getLatestRandomness() external view override returns (uint256, uint256)
 The contract manages authorized consumers through these functions:
 
 ```solidity
-/**
- * @dev Authorizes a consumer to request randomness
+/***@dev Authorizes a consumer to request randomness
  * @param _consumer The consumer address
  * @param _authorized Whether to authorize or deauthorize
  */
@@ -118,8 +112,7 @@ function setAuthorizedConsumer(address _consumer, bool _authorized) external onl
 For direct consumers, the contract provides a fulfillment function:
 
 ```solidity
-/**
- * @dev Allows a consumer to request randomness (only callable by authorized consumers)
+/***@dev Allows a consumer to request randomness (only callable by authorized consumers)
  * @param _requestId The requestId to fulfill 
  */
 function fulfillRandomness(uint256 _requestId) external override nonReentrant {
@@ -134,7 +127,7 @@ function fulfillRandomness(uint256 _requestId) external override nonReentrant {
 
 The DragonVRFIntegrator implements several security measures:
 
-1. **Access Control**: Only authorized entities can update randomness
+1.**Access Control**: Only authorized entities can update randomness
    ```solidity
    function updateRandomness(uint256 _round, uint256 _value) external onlyOwner {
        require(_round > latestDrandRound, "Round must be newer");
@@ -142,7 +135,7 @@ The DragonVRFIntegrator implements several security measures:
    }
    ```
 
-2. **Consumer Authorization**: Only authorized consumers can request randomness
+2.**Consumer Authorization**: Only authorized consumers can request randomness
    ```solidity
    function fulfillRandomness(uint256 _requestId) external override nonReentrant {
        require(authorizedConsumers[msg.sender], "Not authorized");
@@ -150,14 +143,14 @@ The DragonVRFIntegrator implements several security measures:
    }
    ```
 
-3. **Reentrancy Protection**: Uses ReentrancyGuard to prevent reentrancy attacks
+3.**Reentrancy Protection**: Uses ReentrancyGuard to prevent reentrancy attacks
    ```solidity
    function fulfillRandomness(uint256 _requestId) external override nonReentrant {
        // ...
    }
    ```
 
-4. **Round Validation**: Ensures only newer rounds can update randomness
+4.**Round Validation**: Ensures only newer rounds can update randomness
    ```solidity
    require(_round > latestDrandRound, "Round must be newer");
    ```

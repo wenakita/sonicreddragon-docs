@@ -1,6 +1,7 @@
 ---
 sidebar_position: 1
 title: dRand Integration
+description: Detailed explanation of this concept
 ---
 
 # dRand Network Integration
@@ -11,45 +12,40 @@ OmniDragon integrates with the [dRand Network](https://drand.love/) to provide c
 
 dRand is a distributed randomness beacon protocol that generates verifiable, unpredictable, and unbiasable random values. Key features include:
 
-- **Decentralized**: Operated by a distributed set of nodes across different organizations
-- **Verifiable**: Anyone can verify the correctness of generated random values
-- **Unpredictable**: Random values cannot be predicted in advance
-- **Unbiasable**: No single party can bias the randomness generation process
-- **Efficient**: Uses threshold cryptography for efficient randomness generation
+-**Decentralized**: Operated by a distributed set of nodes across different organizations
+-**Verifiable**: Anyone can verify the correctness of generated random values
+-**Unpredictable**: Random values cannot be predicted in advance
+-**Unbiasable**: No single party can bias the randomness generation process
+-**Efficient**: Uses threshold cryptography for efficient randomness generation
 
 ## OmniDragon's dRand Implementation
 
 ```mermaid
 flowchart TB
-    classDef primary fill:#4a80d1,stroke:#355899,color:#ffffff,font-weight:bold
-    classDef secondary fill:#43a047,stroke:#2e7d32,color:#ffffff
-    classDef tertiary fill:#ff9800,stroke:#f57c00,color:#ffffff
-    classDef quaternary fill:#9c27b0,stroke:#7b1fa2,color:#ffffff
-    
+classDef primary fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef secondary fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef tertiary fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef quaternary fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
     dRand["dRand Network"]:::primary
-    
-    subgraph OmniDragon ["OmniDragon Protocol"]
+    subgraph OmniDragon["OmniDragon Protocol"]
         direction TB
         VRFConsumer["VRF Consumer<br>Contract"]:::secondary
         Integrator["dRand Integrator"]:::secondary
         Verifier["Beacon Verifier"]:::secondary
-        
-        subgraph Applications ["Applications"]
-            direction TB
-            Jackpot["Jackpot<br>System"]:::tertiary
-            Games["Game<br>Mechanics"]:::tertiary
-            Raffle["Raffles &<br>Giveaways"]:::tertiary
-        end
-    end
-    
-    dRand -->|"Emits Random<br>Beacons"| Integrator
-    Integrator -->|"Fetch<br>Beacons"| VRFConsumer
-    VRFConsumer -->|"Verify<br>Randomness"| Verifier
-    VRFConsumer -->|"Provide<br>Verified<br>Randomness"| Applications
-    
-    Jackpot -->|"Request<br>Randomness"| VRFConsumer
-    Games -->|"Request<br>Randomness"| VRFConsumer
-    Raffle -->|"Request<br>Randomness"| VRFConsumer
+    subgraph Applications["Applications"]
+        direction TB
+        Jackpot["Jackpot<br>System"]:::tertiary
+        Games["Game<br>Mechanics"]:::tertiary
+        Raffle["Raffles &<br>Giveaways"]:::tertiary
+        dRand -->|"Emits Random<br>Beacons"| Integrator
+        Integrator -->|"Fetch<br>Beacons"| VRFConsumer
+        VRFConsumer -->|"Verify<br>Randomness"| Verifier
+        VRFConsumer -->|"Provide<br>Verified<br>Randomness"| Applications
+        Jackpot -->|"Request<br>Randomness"| VRFConsumer
+        Games -->|"Request<br>Randomness"| VRFConsumer
+        Raffle -->|"Request<br>Randomness"| VRFConsumer
+end
+end
 ```
 
 ## Core Features
@@ -141,35 +137,31 @@ contract OmniDragonVRFConsumer {
 ## dRand Beacon Verification
 
 OmniDragon verifies dRand beacons using the following process:
+```
 
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant VRF as OmniDragonVRFConsumer
-    participant Integrator as DragonVRFIntegrator
-    participant dRand as dRand Network
-    
-    App->>VRF: requestRandomness()
-    VRF->>VRF: Generate requestId
-    VRF->>Integrator: requestRandomness(requestId)
-    
-    Integrator->>dRand: Fetch latest beacon
-    dRand-->>Integrator: Return beacon (round, signature)
-    
-    Integrator->>Integrator: Verify signature with BLS
-    Integrator->>Integrator: Derive randomness from signature
-    
-    Integrator->>VRF: fulfillRandomness(requestId, randomness)
-    VRF->>App: Deliver randomness
+```mermaidsequenceDiagram
+participant App as Application
+participant VRF as OmniDragonVRFConsumer
+participant Integrator as DragonVRFIntegrator
+participant dRand as dRand Network
+    App ->> VRF: requestRandomness()
+    VRF ->> VRF: Generate requestId
+    VRF ->> Integrator: requestRandomness(requestId)
+    Integrator ->> dRand: Fetch latest beacon
+    dRand -->> Integrator: Return beacon (round, signature)
+    Integrator ->> Integrator: Verify signature with BLS
+    Integrator ->> Integrator: Derive randomness from signature
+    Integrator ->> VRF: fulfillRandomness(requestId, randomness)
+    VRF ->> App: Deliver randomness
 ```
 
 ## Backup Randomness Sources
 
 To ensure high availability, OmniDragon implements backup randomness sources:
 
-1. **Primary**: dRand Network
-2. **Secondary**: Chainlink VRF
-3. **Fallback**: Block hash-based randomness (only in emergency)
+1.**Primary**: dRand Network
+2.**Secondary**: Chainlink VRF
+3.**Fallback**: Block hash-based randomness (only in emergency)
 
 The system automatically switches to secondary sources if the primary source fails to deliver randomness within a specified timeframe.
 
@@ -181,8 +173,8 @@ Here's an example of how to request randomness from the OmniDragon VRF system:
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@omnidragon/contracts/interfaces/IOmniDragonVRFConsumer.sol";
-import "@omnidragon/contracts/interfaces/IDragonVRFConsumer.sol";
+import "@OmniDragon/contracts/interfaces/IOmniDragonVRFConsumer.sol";
+import "@OmniDragon/contracts/interfaces/IDragonVRFConsumer.sol";
 
 contract RandomnessExample is IDragonVRFConsumer {
     IOmniDragonVRFConsumer public vrfConsumer;
@@ -225,14 +217,14 @@ contract RandomnessExample is IDragonVRFConsumer {
 
 When using OmniDragon's dRand integration:
 
-1. **Verification**: Always verify that randomness comes from the authorized VRF consumer
-2. **Freshness**: Check that the randomness is from a recent dRand round
-3. **Public Inputs**: Never rely on user-provided inputs for randomness generation
-4. **Multiple Sources**: For critical applications, consider using multiple sources of randomness
+1.**Verification**: Always verify that randomness comes from the authorized VRF consumer
+2.**Freshness**: Check that the randomness is from a recent dRand round
+3.**Public Inputs**: Never rely on user-provided inputs for randomness generation
+4.**Multiple Sources**: For critical applications, consider using multiple sources of randomness
 
 ## Additional Resources
 
 - [dRand Network Documentation](https://drand.love/docs/)
 - [League of Entropy](https://leagueofentropy.com/) (dRand operators)
-- [OmniDragon dRand Setup Guide](/integrations/drand/setup)
-- [OmniDragon dRand Usage Examples](/integrations/drand/usage)
+- [OmniDragon dRand Setup Guide](/partner/integrations/drand/setup)
+- [OmniDragon dRand Usage Examples](/partner/integrations/drand/usage)

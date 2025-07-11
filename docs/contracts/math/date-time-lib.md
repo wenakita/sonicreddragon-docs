@@ -7,11 +7,7 @@ description: Advanced date and time manipulation library for blockchain applicat
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# DragonDateTimeLib
-
-**Advanced date and time manipulation library for blockchain applications**
-
-<div className="contract-badges">
+# DragonDateTimeLib**Advanced date and time manipulation library for blockchain applications**<div className="contract-badges">
   <span className="contract-badge utility">Utility Library</span>
   <span className="contract-badge time">Time Management</span>
   <span className="contract-badge optimized">Gas Optimized</span>
@@ -23,28 +19,24 @@ The `DragonDateTimeLib` provides sophisticated date and time functionality for b
 
 ```mermaid
 flowchart TB
-    subgraph "Core Functionality"
-        TimestampConversion["Timestamp to DateTime"]
-        DurationCalculation["Duration Calculations"]
-        TimeScheduling["Scheduling Functions"]
-    end
-    
+subgraph "Core Functionality"
+    TimestampConversion["Timestamp to DateTime"]
+    DurationCalculation["Duration Calculations"]
+    TimeScheduling["Scheduling Functions"]
     subgraph "Protocol Applications"
-        JackpotScheduling["Jackpot Scheduling"]
-        GovernanceVoting["Governance Voting Periods"]
-        TokenLocking["Token Lock Periods"]
-        MarketAnalysis["Market Data Analysis"]
-    end
-    
-    TimestampConversion --> JackpotScheduling
-    TimestampConversion --> GovernanceVoting
-    DurationCalculation --> TokenLocking
-    DurationCalculation --> GovernanceVoting
-    TimeScheduling --> JackpotScheduling
-    TimeScheduling --> MarketAnalysis
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white;
-    class TimestampConversion,DurationCalculation highlight
+    JackpotScheduling["Jackpot Scheduling"]
+    GovernanceVoting["Governance Voting Periods"]
+    TokenLocking["Token Lock Periods"]
+    MarketAnalysis["Market Data Analysis"]
+    TimestampConversion -->|> JackpotScheduling
+    TimestampConversion| GovernanceVoting
+    DurationCalculation -->|> TokenLocking
+    DurationCalculation| GovernanceVoting
+    TimeScheduling -->|> JackpotScheduling
+    TimeScheduling| MarketAnalysis
+    classDef highlight fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    end    class TimestampConversion primary    endclass DurationCalculation primary    end
+end
 ```
 
 ## Key Functions

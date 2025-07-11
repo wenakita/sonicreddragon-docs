@@ -1,12 +1,15 @@
-# Sonic Red Dragon Bridge
+---
+title: Bridge
+sidebar_position: 1
+description: Detailed explanation of this concept
+---
+# Sonic Red DRAGON Bridge
 
-This document provides technical details about the Sonic Red Dragon bridge contract implementation, which handles cross-chain token transfers and message passing.
+This document provides technical details about the Sonic Red DRAGON bridge contract implementation, which handles cross-chain token transfers and message passing.
 
 ## Contract Overview
 
-The Sonic Red Dragon bridge contract is built on LayerZero V2, providing secure and efficient cross-chain token transfers with enhanced security features and gas optimization.
-
-**Contract Address (Ethereum)**: Coming Soon
+The Sonic Red DRAGON bridge contract is built on LayerZero V2, providing secure and efficient cross-chain token transfers with enhanced security features and gas optimization.**Contract Address (Ethereum)**: Coming Soon
 
 ## Key Features
 
@@ -74,7 +77,7 @@ constructor(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| _token | address | Sonic Red Dragon token address |
+| _token | address | Sonic Red DRAGON token address |
 | _lzEndpoint | address | LayerZero V2 endpoint |
 | _securityManager | address | Security manager contract |
 
@@ -196,11 +199,11 @@ This enables:
 
 The contract implements robust error handling:
 
-- **Validation Errors**: Invalid parameters or states
-- **Security Errors**: Unauthorized access attempts
-- **Rate Limit Errors**: Exceeded volume or transaction limits
-- **Cross-Chain Errors**: Failed message delivery or validation
-- **Recovery Mechanisms**: Administrative recovery options
+-**Validation Errors**: Invalid parameters or states
+-**Security Errors**: Unauthorized access attempts
+-**Rate Limit Errors**: Exceeded volume or transaction limits
+-**Cross-Chain Errors**: Failed message delivery or validation
+-**Recovery Mechanisms**: Administrative recovery options
 
 ## Development
 

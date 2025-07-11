@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import { prefersReducedMotion } from '../utils/enhancedMermaidAnimations';
+import { prefersReducedMotion } from '../utils/accessibilityUtils';
 import anime from 'animejs';
 import styles from './AnimatedButton.module.css';
 

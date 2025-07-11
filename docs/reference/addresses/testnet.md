@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Testnet
+description: Technical reference information
 ---
 
 # Testnet

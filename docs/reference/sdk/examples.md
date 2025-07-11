@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Examples
+description: Technical reference information
 ---
 
 # Examples

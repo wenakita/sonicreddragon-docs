@@ -1,0 +1,239 @@
+.container {
+  position: relative;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  background: var(--ifm-card-background-color);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  box-shadow: var(--ifm-global-shadow-lw);
+}
+
+/* Dark theme adjustments */
+[data-theme='dark'] .container {
+  background: rgba(26, 26, 26, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Light theme adjustments */
+[data-theme='light'] .container {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Hover effects */
+.container:hover {
+  transform: translateY(-2px);
+}
+
+[data-theme='dark'] .container:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(59, 130, 246, 0.2), 0 0 20px rgba(249, 115, 22, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+[data-theme='light'] .container:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1), 0 0 20px rgba(59, 130, 246, 0.1), 0 0 20px rgba(249, 115, 22, 0.1);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.title {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--ifm-heading-color);
+}
+
+.diagramContainer {
+  position: relative;
+  z-index: 1;
+}
+
+.mermaidWrapper {
+  position: relative;
+  z-index: 2;
+}
+
+.caption {
+  margin-top: 1rem;
+  margin-bottom: 0;
+  font-style: italic;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.error {
+  color: var(--ifm-color-danger);
+  padding: 1rem;
+  border: 1px solid var(--ifm-color-danger);
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  margin: 0 !important;
+  padding: 2rem !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: var(--ifm-background-color) !important;
+  overflow: auto !important;
+}
+
+.fullscreen .mermaidWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fullscreen .mermaidWrapper :global(svg) {
+  max-height: 90vh !important;
+  max-width: 90vw !important;
+  margin: auto !important;
+}
+
+/* Particles background */
+.particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Generate particles with CSS */
+.particles::before,
+.particles::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  opacity: 0.2;
+  animation: float 6s infinite ease-in-out;
+}
+
+.particles::before {
+  background: var(--ifm-color-primary);
+  top: 20%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.particles::after {
+  background: var(--ifm-color-secondary);
+  bottom: 20%;
+  right: 20%;
+  animation-delay: 3s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.2;
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(0) translateX(20px);
+    opacity: 0.2;
+  }
+  75% {
+    transform: translateY(20px) translateX(10px);
+    opacity: 0.3;
+  }
+}
+
+/* Mermaid diagram styling */
+.mermaidWrapper :global(.node rect),
+.mermaidWrapper :global(.node circle),
+.mermaidWrapper :global(.node ellipse),
+.mermaidWrapper :global(.node polygon),
+.mermaidWrapper :global(.node path) {
+  rx: 6px;
+  ry: 6px;
+}
+
+[data-theme='dark'] .mermaidWrapper :global(.node rect),
+[data-theme='dark'] .mermaidWrapper :global(.node circle),
+[data-theme='dark'] .mermaidWrapper :global(.node ellipse),
+[data-theme='dark'] .mermaidWrapper :global(.node polygon),
+[data-theme='dark'] .mermaidWrapper :global(.node path) {
+  fill: #2A2A2A !important;
+  stroke: #3b82f6 !important;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+[data-theme='light'] .mermaidWrapper :global(.node rect),
+[data-theme='light'] .mermaidWrapper :global(.node circle),
+[data-theme='light'] .mermaidWrapper :global(.node ellipse),
+[data-theme='light'] .mermaidWrapper :global(.node polygon),
+[data-theme='light'] .mermaidWrapper :global(.node path) {
+  fill: #F8FAFC !important;
+  stroke: #3b82f6 !important;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+}
+
+[data-theme='dark'] .mermaidWrapper :global(.edgePath .path) {
+  stroke: #3b82f6 !important;
+  stroke-width: 2px !important;
+}
+
+[data-theme='light'] .mermaidWrapper :global(.edgePath .path) {
+  stroke: #64748B !important;
+  stroke-width: 2px !important;
+}
+
+[data-theme='dark'] .mermaidWrapper :global(.arrowheadPath) {
+  fill: #3b82f6 !important;
+  stroke: #3b82f6 !important;
+}
+
+[data-theme='light'] .mermaidWrapper :global(.arrowheadPath) {
+  fill: #64748B !important;
+  stroke: #64748B !important;
+}
+
+[data-theme='dark'] .mermaidWrapper :global(.cluster rect) {
+  fill: rgba(59, 130, 246, 0.1) !important;
+  stroke: #3b82f6 !important;
+  rx: 8px;
+  ry: 8px;
+}
+
+[data-theme='light'] .mermaidWrapper :global(.cluster rect) {
+  fill: rgba(59, 130, 246, 0.05) !important;
+  stroke: #3b82f6 !important;
+  rx: 8px;
+  ry: 8px;
+}
+
+[data-theme='dark'] .mermaidWrapper :global(text),
+[data-theme='dark'] .mermaidWrapper :global(.label) {
+  fill: #E2E8F0 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme='light'] .mermaidWrapper :global(text),
+[data-theme='light'] .mermaidWrapper :global(.label) {
+  fill: #1E293B !important;
+  color: #1E293B !important;
+}

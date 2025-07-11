@@ -1,5 +1,7 @@
 ---
 sidebar_position: 3
+title: Arbitrum Vrf
+description: Detailed explanation of this concept
 ---
 
 # Arbitrum VRF Requester
@@ -10,34 +12,28 @@ The ArbitrumVRFRequester contract serves as the OmniDragon ecosystem's bridge to
 
 This contract is deployed on the Arbitrum network and acts as an intermediary between OmniDragon's randomness system on Sonic and Chainlink's VRF service on Arbitrum, enabling secure cross-chain randomness verification.
 
-```mermaid
-flowchart LR
+```mermaidflowchart LR
     A[Sonic Chain] -->|LayerZero| B[ArbitrumVRFRequester]
     B -->|Chainlink VRF| C[VRF Coordinator]
     C -->|Random Number| B
     B -->|LayerZero| A
-    
     subgraph "Arbitrum"
-        B
-        C
-        D[Chainlink Subscription]
-        E[Key Hash]
-        C --- D
-        C --- E
-    end
+    B
+    C
+    D[Chainlink Subscription]
+    E[Key Hash]
+    C --- D    endC --- E    end
 ```
 
 ## Key Features
 
-- **Chainlink VRF v2.5 Integration**: Direct connection to Chainlink's latest VRF service
-- **Subscription Management**: Uses Chainlink's subscription model for VRF requests
-- **LayerZero Cross-Chain Messaging**: Secure communication with Sonic chain
-- **Request Tracking**: Maintains records of all cross-chain randomness requests
-- **Configurable Parameters**: Adjustable gas limits and confirmation settings
+-**Chainlink VRF v2.5 Integration**: Direct connection to Chainlink's latest VRF service
+-**Subscription Management**: Uses Chainlink's subscription model for VRF requests
+-**LayerZero Cross-Chain Messaging**: Secure communication with Sonic chain
+-**Request Tracking**: Maintains records of all cross-chain randomness requests
+-**Configurable Parameters**: Adjustable gas limits and confirmation settings
 
-## Contract Details
-
-**Source:** [`ArbitrumVRFRequester.sol`](https://github.com/wenakita/omnidragon/blob/main/contracts/chainlink/ArbitrumVRFRequester.sol)
+## Contract Details**Source:**[`ArbitrumVRFRequester.sol`](https://github.com/wenakita/OmniDragon/blob/main/contracts/chainlink/ArbitrumVRFRequester.sol)
 
 ### Key Storage Variables
 
@@ -118,30 +114,26 @@ function estimateFees(
 ## Cross-Chain Request Flow
 
 The detailed randomness request process between Sonic and Arbitrum:
+```
 
-```mermaid
-sequenceDiagram
-    participant Sonic as Sonic Chain (OmniDragon)
-    participant LZ1 as LayerZero Network
-    participant Arbitrum as ArbitrumVRFRequester
-    participant Chainlink as Chainlink VRF Coordinator
-    participant LZ2 as LayerZero Network
-    
-    Sonic->>LZ1: Send randomness request with requestId
-    LZ1->>Arbitrum: lzReceive(srcChainId, srcAddress, payload)
-    
+```mermaidsequenceDiagram
+participant Sonic as Sonic Chain (OmniDragon)
+participant LZ1 as LayerZero Network
+participant Arbitrum as ArbitrumVRFRequester
+participant Chainlink as Chainlink VRF Coordinator
+participant LZ2 as LayerZero Network
+    Sonic ->> LZ1: Send randomness request with requestId
+    LZ1 ->> Arbitrum: lzReceive(srcChainId, srcAddress, payload)
+
     Note over Arbitrum: Store request mapping
-    
-    Arbitrum->>Chainlink: requestRandomWords()
-    
+    Arbitrum ->> Chainlink: requestRandomWords()
+
     Note over Chainlink: Generate verifiable randomness
-    
-    Chainlink->>Arbitrum: fulfillRandomWords(requestId, randomWords)
-    
+    Chainlink ->> Arbitrum: fulfillRandomWords(requestId, randomWords)
+
     Note over Arbitrum: Process VRF response
-    
-    Arbitrum->>LZ2: send(sonicChainId, sonicAddress, payload)
-    LZ2->>Sonic: Deliver randomness result
+    Arbitrum ->> LZ2: send(sonicChainId, sonicAddress, payload)
+    LZ2 ->> Sonic: Deliver randomness result
 ```
 
 ## Chainlink VRF Configuration
@@ -160,36 +152,36 @@ The ArbitrumVRFRequester is configured with specific Chainlink VRF parameters:
 
 The contract includes several security measures:
 
-- **Source Chain Validation**: Only accepts messages from the authorized Sonic chain address
-- **Request Tracking**: Prevents duplicate processing of the same randomness request
-- **Immutable Core Configuration**: Critical parameters like subscription ID and key hash are immutable
-- **Access Control**: Only owner can update configuration settings
-- **Gas Management**: Configurable gas limits for cost optimization
+-**Source Chain Validation**: Only accepts messages from the authorized Sonic chain address
+-**Request Tracking**: Prevents duplicate processing of the same randomness request
+-**Immutable Core Configuration**: Critical parameters like subscription ID and key hash are immutable
+-**Access Control**: Only owner can update configuration settings
+-**Gas Management**: Configurable gas limits for cost optimization
 
 ## LayerZero Integration
 
 The contract uses LayerZero's cross-chain messaging protocol for secure communication:
 
-1. **Receiving Requests**: Implements the `lzReceive` function to accept messages from Sonic
-2. **Sending Results**: Uses LayerZero's `send` function to transmit randomness back to Sonic
-3. **Path Verification**: Validates that messages come from the trusted Sonic contract
-4. **Fee Handling**: Includes methods to estimate and handle cross-chain message fees
+1.**Receiving Requests**: Implements the `lzReceive` function to accept messages from Sonic
+2.**Sending Results**: Uses LayerZero's `send` function to transmit randomness back to Sonic
+3.**Path Verification**: Validates that messages come from the trusted Sonic contract
+4.**Fee Handling**: Includes methods to estimate and handle cross-chain message fees
 
 ## Subscription Management
 
 To maintain the Chainlink VRF subscription:
 
-1. **Subscription Creation**: Create a Chainlink VRF subscription on Arbitrum
-2. **Fund Subscription**: Ensure the subscription has sufficient LINK tokens
-3. **Add Consumer**: Add the ArbitrumVRFRequester contract as an authorized consumer
-4. **Monitor Usage**: Regularly check subscription balance and top up as needed
+1.**Subscription Creation**: Create a Chainlink VRF subscription on Arbitrum
+2.**Fund Subscription**: Ensure the subscription has sufficient LINK tokens
+3.**Add Consumer**: Add the ArbitrumVRFRequester contract as an authorized consumer
+4.**Monitor Usage**: Regularly check subscription balance and top up as needed
 
 ## Deployment Considerations
 
 When deploying this contract:
 
-1. **Chainlink Subscription**: A pre-existing Chainlink VRF subscription is required
-2. **Gas Optimization**: Adjust the `callbackGasLimit` based on expected gas costs
-3. **LayerZero Configuration**: Configure correct endpoint addresses and chain IDs
-4. **ETH Balance**: Maintain sufficient ETH for LayerZero message fees
-5. **LINK Balance**: Ensure the Chainlink subscription has sufficient LINK tokens
+1.**Chainlink Subscription**: A pre-existing Chainlink VRF subscription is required
+2.**Gas Optimization**: Adjust the `callbackGasLimit` based on expected gas costs
+3.**LayerZero Configuration**: Configure correct endpoint addresses and chain IDs
+4.**ETH Balance**: Maintain sufficient ETH for LayerZero message fees
+5.**LINK Balance**: Ensure the Chainlink subscription has sufficient LINK tokens

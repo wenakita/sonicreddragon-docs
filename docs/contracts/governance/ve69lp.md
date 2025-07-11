@@ -1,34 +1,34 @@
 ---
 sidebar_position: 1
 title: ve69LP
-description: Voting escrow contract for LP tokens with time-weighted voting power and non-linear boost
+description: >-
+  Voting escrow contract for LP tokens with time-weighted voting power and
+  non-linear boost
 ---
 
 # ve69LP Contract
 
-The `ve69LP` contract implements a vote-escrowed token system that allows users to lock their 69/31 LP tokens for a period of time in exchange for voting power in the Sonic Red Dragon ecosystem. This contract follows the veCRV model from Curve Finance, with improved math using cube root scaling for vote weighting.
+The `ve69LP` contract implements a vote-escrowed token system that allows users to lock their 69/31 LP tokens for a period of time in exchange for voting power in the Sonic Red DRAGON ecosystem. This contract follows the veCRV model from Curve Finance, with improved math using cube root scaling for vote weighting.
 
 ## Overview
 
-```mermaid
-flowchart TD
+```mermaidflowchart TD
     LPToken["69/31 LP Token"] -->|"Lock tokens"| ve69LP["ve69LP Contract"]
     ve69LP -->|"Grants"| VotingPower["Voting Power"]
     ve69LP -->|"Allows"| Governance["Governance Voting"]
     ve69LP -->|"Earns"| Rewards["Fee Revenue"]
     TimeLength["Lock Duration"] -->|"Impacts"| VotingMultiplier["Voting Multiplier"]
     VotingMultiplier -->|"Increases"| VotingPower
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white;
-    class ve69LP highlight
+    classDef highlight fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class ve69LP primary
 ```
 
 The ve69LP system is designed to:
 
-1. **Incentivize Long-Term Holders**: Rewards users who commit to locking tokens for extended periods
-2. **Enable Governance Participation**: Provides voting power proportional to locked amount and time
-3. **Apply Non-Linear Boost**: Uses cube root scaling to balance short and long-term positions
-4. **Distribute Protocol Fees**: Serves as the mechanism for fee distribution to protocol supporters
+1.**Incentivize Long-Term Holders**: Rewards users who commit to locking tokens for extended periods
+2.**Enable Governance Participation**: Provides voting power proportional to locked amount and time
+3.**Apply Non-Linear Boost**: Uses cube root scaling to balance short and long-term positions
+4.**Distribute Protocol Fees**: Serves as the mechanism for fee distribution to protocol supporters
 
 ## Contract Implementation
 
@@ -333,13 +333,13 @@ This calculation:
 ## Voting Power Boost Curve
 
 The non-linear boost creates a curve that incentivizes longer lock durations while still providing meaningful voting power for shorter locks:
+```
 
-```mermaid
-xychart-beta
+```mermaidxychart-beta
     title "Voting Power Multiplier by Lock Duration"
     x-axis "Lock Duration (Years)" [0, 1, 2, 3, 4]
     y-axis "Multiplier" 1 --> 2.5
-    line [1, 1.42, 1.78, 2.13, 2.5]
+    line[1, 1.42, 1.78, 2.13, 2.5]
 ```
 
 The cube root scaling provides these benefits:
@@ -377,69 +377,64 @@ These functions enable:
 
 ```mermaid
 sequenceDiagram
-    participant User
-    participant LPToken as LP Token
-    participant ve69LP as ve69LP Contract
-    participant Governance as Governance System
-    
-    User->>LPToken: Approve(ve69LP, amount)
-    User->>ve69LP: createLock(amount, duration)
-    ve69LP->>LPToken: transferFrom(user, ve69LP, amount)
-    ve69LP->>ve69LP: Calculate voting power
-    ve69LP->>ve69LP: Update user point history
-    ve69LP->>ve69LP: Update global point history
-    
+participant User
+participant LPToken as LP Token
+participant ve69LP as ve69LP Contract
+participant Governance as Governance System
+    User ->> LPToken: Approve(ve69LP, amount)
+    User ->> ve69LP: createLock(amount, duration)
+    ve69LP ->> LPToken: transferFrom(user, ve69LP, amount)
+    ve69LP ->> ve69LP: Calculate voting power
+    ve69LP ->> ve69LP: Update user point history
+    ve69LP ->> ve69LP: Update global point history
+
     Note over User, ve69LP: Lock Active Period
-    
-    Governance->>ve69LP: getVotingPower(user)
-    ve69LP-->>Governance: Return voting power
-    Governance->>User: Allow voting with power
-    
+    Governance ->> ve69LP: getVotingPower(user)
+    ve69LP -->> Governance: Return voting power
+    Governance ->> User: Allow voting with power
+
     Note over User, ve69LP: Time Passes...
-    
+
     alt Extend Lock
-        User->>ve69LP: extendLock(newDuration)
-        ve69LP->>ve69LP: Recalculate voting power
-        ve69LP->>ve69LP: Update histories
+    User ->> ve69LP: extendLock(newDuration)
+        ve69LP ->> ve69LP: Recalculate voting power
+        ve69LP ->> ve69LP: Update histories
     else Increase Amount
-        User->>LPToken: Approve(ve69LP, additionalAmount)
-        User->>ve69LP: increaseLockAmount(additionalAmount)
-        ve69LP->>LPToken: transferFrom(user, ve69LP, additionalAmount)
-        ve69LP->>ve69LP: Recalculate voting power
-        ve69LP->>ve69LP: Update histories
-    end
-    
+    User ->> LPToken: Approve(ve69LP, additionalAmount)
+    User ->> ve69LP: increaseLockAmount(additionalAmount)
+        ve69LP ->> LPToken: transferFrom(user, ve69LP, additionalAmount)
+        ve69LP ->> ve69LP: Recalculate voting power
+        ve69LP ->> ve69LP: Update histories
     Note over User, ve69LP: Lock Expires
-    
-    User->>ve69LP: withdraw()
-    ve69LP->>ve69LP: Set voting power to 0
-    ve69LP->>LPToken: transfer(user, amount)
+    User ->> ve69LP: withdraw()
+    ve69LP ->> ve69LP: Set voting power to 0
+    ve69LP ->> LPToken: transfer(user, amount)
 ```
 
 ## Security Features
 
 The contract implements multiple security features:
 
-1. **ReentrancyGuard**: Prevents reentrant calls during token transfers
-2. **Ownership Controls**: Restricts sensitive functions to the contract owner
-3. **Clear State Management**: Updates state before external calls to prevent reentrancy issues
-4. **Weekly Alignment**: Aligns all locks to weekly boundaries for predictable behavior
-5. **Checkpoint System**: Records state changes to enable accurate historical queries
+1.**ReentrancyGuard**: Prevents reentrant calls during token transfers
+2.**Ownership Controls**: Restricts sensitive functions to the contract owner
+3.**Clear State Management**: Updates state before external calls to prevent reentrancy issues
+4.**Weekly Alignment**: Aligns all locks to weekly boundaries for predictable behavior
+5.**Checkpoint System**: Records state changes to enable accurate historical queries
 
 ## Integration with Governance
 
 The ve69LP contract serves as the foundation for the governance system, enabling:
 
-1. **Proposal Voting**: Users with voting power can vote on governance proposals
-2. **Fee Distribution**: Protocol fees can be distributed proportional to voting power
-3. **Parameter Tuning**: Governance can adjust protocol parameters through voting
-4. **Treasury Management**: Governance can direct treasury funds through voting
+1.**Proposal Voting**: Users with voting power can vote on governance proposals
+2.**Fee Distribution**: Protocol fees can be distributed proportional to voting power
+3.**Parameter Tuning**: Governance can adjust protocol parameters through voting
+4.**Treasury Management**: Governance can direct treasury funds through voting
 
 ## Mathematical Considerations
 
 The ve69LP implementation includes several mathematical optimizations:
 
-1. **Cube Root Scaling**: Provides a balanced non-linear boost that rewards longer locks without overly penalizing shorter ones
-2. **Pre-Calculated Maximum Boost**: Optimizes gas usage by pre-computing the maximum possible boost
-3. **Precision Management**: Uses appropriate scaling factors to maintain precision in calculations
-4. **Slope-Based Decay**: Tracks how voting power decreases over time using slopes for efficient calculation
+1.**Cube Root Scaling**: Provides a balanced non-linear boost that rewards longer locks without overly penalizing shorter ones
+2.**Pre-Calculated Maximum Boost**: Optimizes gas usage by pre-computing the maximum possible boost
+3.**Precision Management**: Uses appropriate scaling factors to maintain precision in calculations
+4.**Slope-Based Decay**: Tracks how voting power decreases over time using slopes for efficient calculation

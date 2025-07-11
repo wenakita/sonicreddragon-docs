@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import anime from 'animejs/lib/anime.es.js';
+import { anime, useAnimationPerformance } from '../utils/animationUtils';
 import useIsBrowser from '@docusaurus/useIsBrowser';
 import clsx from 'clsx';
 import styles from './InteractiveCard.module.css';

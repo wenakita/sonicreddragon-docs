@@ -1,233 +1,782 @@
 ---
-sidebar_position: 2
+sidebar_position: 1
+title: Protocol Architecture
+description: Comprehensive explanation of OmniDragon's system architecture
 ---
 
-# Architecture
+# Protocol Architecture
 
-The Sonic Red Dragon ecosystem is built on a modular, extensible architecture designed for cross-chain compatibility, security, and scalability.
+The OmniDragon protocol implements a sophisticated multi-chain architecture that integrates several key components to create a secure, scalable, and feature-rich ecosystem. This document explains the system architecture, from high-level concepts to technical implementation details.
 
 ## System Overview
 
-At a high level, the Sonic Red Dragon architecture consists of several interconnected components:
+OmniDragon's architecture consists of several interconnected components:
 
 ```mermaid
-flowchart TD
-    Token["OmniDragon Token"] --> LZ["LayerZero V2"]
-    Token --> Governance["ve69LP Governance"]
-    Token --> JackpotSystem["Jackpot System"]
-    
-    subgraph "Cross-Chain Infrastructure"
-        LZ
-        MessageLib["Message Library"]
-        DVN["Data Verification Network"]
-        Executor["Executor"]
-    end
-    
-    subgraph "Governance System"
-        Governance
-        Treasury["Treasury"]
-        VotingPower["Voting Power"]
-        Rewards["Rewards Distribution"]
-    end
-    
-    subgraph "Jackpot Infrastructure"
-        JackpotSystem
-        JackpotVault["Jackpot Vault"]
-        SwapTrigger["Swap Trigger Oracle"]
-        Distributor["Jackpot Distributor"]
-    end
-    
-    LZ --> MessageLib
-    LZ --> DVN
-    LZ --> Executor
-    
-    Governance --> Treasury
-    Governance --> VotingPower
-    Governance --> Rewards
-    
-    JackpotSystem --> JackpotVault
-    JackpotSystem --> SwapTrigger
-    JackpotSystem --> Distributor
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white;
-    class Token,LZ,Governance,JackpotSystem highlight
-
-    style Core fill:#ebf5ff,stroke:#3c71c3,color:#333
-    style Users fill:#fff8e1,stroke:#ffc107,color:#333
-    style Governance fill:#e0f7fa,stroke:#00acc1,color:#333
+flowchart TB
+subgraph "Core Protocol"
+    TOKEN["OmniDragon Token"]
+    JACKPOT["Jackpot System"]
+    RANDOM["Randomness Infrastructure"]
+    CROSS["Cross-Chain Bridge"]
+    GOV["ve69LP Governance"]
+    subgraph "External Integrations"
+    LZ["LayerZero"]
+    DRAND["Drand Network"]
+    CHAIN["Chainlink VRF"]
+    DEX["Decentralized Exchanges"]
+    subgraph "User Interfaces"
+    WEB["Web Interface"]
+    SDK["Developer SDK"]
+    API["API Layer"]
+    TOKEN -->|> JACKPOT
+    TOKEN| CROSS
+    TOKEN -->|> GOV
+    JACKPOT| RANDOM
+    RANDOM -->|> DRAND
+    RANDOM| CHAIN
+    CROSS -->|> LZ
+    TOKEN| DEX
+    WEB -->|>|> TOKEN
+    SDK| TOKEN
+    API| TOKEN
+    classDef core fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef external fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef interface fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class TOKEN core
+    class JACKPOTRANDO core
+    class M core
+    class CROSS core
+    class GOV core
+    class LZ external
+    class DRANDCHAIN external
+    class DEX external
+    class WEB interface_style_style_style_style_style_style_style_style_style_style_style_style
+    class SDKAPI interface_style_style_style_style_style_style_style_style_style_style_style_style
+endend
+endend
+end
 ```
 
 ## Core Components
 
-### OmniDragon Token
+### 1. OmniDragon Token
 
-The OmniDragon token serves as the foundation of the ecosystem. It implements:
+The OmniDragon token is the central component of the protocol:
 
-- ERC-20 standard functionality
-- Cross-chain compatibility via LayerZero V2
-- Fee collection and distribution
-- Jackpot entry triggering for buy transactions
-- Governance integration
+-**ERC-20 Compatible**: Standard token interface for broad compatibility
+-**Fee Mechanism**: 10% fee on transactions distributed to various components
+-**Cross-Chain Capability**: Ability to move between supported blockchains
+-**Deflationary Model**: Automatic burn mechanism reduces supply over time
 
-### Cross-Chain Infrastructure
+### 2. Jackpot System
 
-The cross-chain functionality is powered by LayerZero V2:
+The jackpot system provides an automatic jackpot for token holders:
 
-```mermaid
-sequenceDiagram
-    participant UserA as "User (Chain A)"
-    participant TokenA as "DRAGON (Chain A)"
-    participant LZA as "LayerZero Endpoint (Chain A)"
-    participant Relayer as "LayerZero Relayer"
-    participant DVN as "Data Verification Network"
-    participant LZB as "LayerZero Endpoint (Chain B)"
-    participant TokenB as "DRAGON (Chain B)"
-    participant UserB as "User (Chain B)"
-    
-    UserA->>TokenA: sendTokensToChain(ChainB, recipient, amount)
-    TokenA->>TokenA: Burn tokens
-    TokenA->>LZA: Send cross-chain message
-    LZA->>Relayer: Relay message
-    LZA->>DVN: Request data verification
-    DVN-->>LZB: Verify message data
-    Relayer-->>LZB: Deliver message
-    LZB->>TokenB: Receive verified message
-    TokenB->>TokenB: Mint tokens
-    TokenB->>UserB: Token received
+-**Entry Mechanism**: Buy transactions automatically qualify for jackpot entries
+-**Probability Engine**: Calculates win probability based on multiple factors
+-**Reward Distribution**: Automatically distributes rewards to winners
+-**Funding Source**: 6.9% of all fees fund the jackpot vault
+
+### 3. Randomness Infrastructure
+
+The randomness infrastructure provides secure, verifiable random numbers:
+
+-**Multiple Sources**: Combines Drand, Chainlink VRF, and custom oracles
+-**Verification Layer**: Cryptographically verifies all randomness sources
+-**Aggregation Logic**: Combines multiple sources for enhanced security
+-**Distribution System**: Delivers randomness to consuming applications
+
+### 4. Cross-Chain Bridge
+
+The cross-chain bridge enables seamless operation across multiple blockchains:
+
+-**LayerZero Integration**: Uses LayerZero for secure cross-chain messaging
+-**Token Bridging**: Allows tokens to move between supported chains
+-**Message Passing**: Enables cross-chain communication for protocol components
+-**Security Measures**: Implements multiple security layers for cross-chain operations
+
+### 5. ve69LP Governance
+
+The governance system enables community-driven decision making:
+
+-**Vote-Escrowed Model**: Longer lock periods grant higher voting power
+-**Fee Distribution**: Governance participants earn a share of protocol fees
+-**Proposal System**: Allows community members to propose and vote on changes
+-**Parameter Control**: Governs key protocol parameters and upgrades
+
+## System Architecture
+
+### Contract Architecture
+
+The protocol's smart contract architecture follows a modular design:
 ```
 
-### Governance System
-
-The governance system is based on the ve69LP (vote-escrowed) model:
-
-```mermaid
-flowchart TD
-    LP["LP Tokens"] -->|"Lock"| ve69LP["ve69LP Tokens"]
-    ve69LP -->|"Grant"| Voting["Voting Power"]
-    ve69LP -->|"Receive"| FeeRewards["Fee Rewards"]
-    ve69LP -->|"Boost"| StakingRewards["Staking Rewards"]
-    
-    Voting -->|"Vote on"| Proposals["Governance Proposals"]
-    Proposals -->|"Execute"| Treasury["Treasury Actions"]
-    Proposals -->|"Control"| Parameters["Protocol Parameters"]
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white;
-    class ve69LP highlight
-```
-
-### Jackpot System
-
-The jackpot system provides on-chain lottery functionality:
-
-```mermaid
-flowchart TD
-    Buy["Token Purchase"] -->|"Detected by"| OmniDragon["OmniDragon Token"]
-    OmniDragon -->|"Collect Fees"| FeeProcessor["Fee Processor"]
-    FeeProcessor -->|"6.9% to Jackpot"| JackpotVault["Jackpot Vault"]
-    OmniDragon -->|"Trigger"| SwapOracle["Swap Trigger Oracle"]
-    SwapOracle -->|"Calculate Probability"| Entry["Lottery Entry"]
-    Entry -->|"If Winning Entry"| Distributor["Jackpot Distributor"]
-    JackpotVault -->|"Provide Funds"| Distributor
-    Distributor -->|"Send Reward"| Winner["Winner"]
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white;
-    class SwapOracle,JackpotVault,Distributor highlight
-```
-
-## Technical Relationships
-
-The relationship between the contracts can be visualized as follows:
-
-```mermaid
-classDiagram
-    class OmniDragon {
-        +address swapTrigger
+```mermaidclassDiagram
+class OmniDragon {
++address swapTrigger
         +address jackpotVault
         +address ve69LP
         +transfer()
         +_tryProcessLotteryEntry()
         +processPartnerJackpotEntry()
-        +swapTokensForWrappedNative()
-        +_distributeFees()
-        +sendTokensToChain()
     }
-    
     class OmniDragonSwapTriggerOracle {
-        +address omniDragon
++address omniDragon
         +address jackpotDistributor
         +onSwap()
         +calculateWinProbability()
         +getAggregatedPrice()
     }
-    
     class DragonJackpotVault {
-        +address omniDragon
++address omniDragon
         +address distributor
         +uint256 availableJackpotAmount
         +addToJackpot()
         +distributeJackpot()
         +getAvailableJackpot()
     }
-    
     class DragonJackpotDistributor {
-        +address jackpotVault
++address jackpotVault
         +triggerJackpot()
         +distributeJackpot()
     }
-    
-    class ve69LP {
-        +createLock()
-        +increaseLockAmount()
-        +extendLockTime()
-        +withdraw()
+    class RandomnessProvider {
++requestRandomness()
+        +fulfillRandomness()
+        +getVerifiedRandom()
+    }
+    class Ve69LP {
++address omniDragon
+        +lock()
+        +unlock()
+        +vote()
         +getVotingPower()
     }
-    
-    OmniDragon --> OmniDragonSwapTriggerOracle : triggers
-    OmniDragon --> DragonJackpotVault : sends fees
-    OmniDragon --> ve69LP : sends fees
-    OmniDragonSwapTriggerOracle --> DragonJackpotDistributor : notifies
-    DragonJackpotDistributor --> DragonJackpotVault : requests funds
+    class CrossChainBridge {
++address omniDragon
+        +address lzEndpoint
+        +sendTokens()
+        +receiveTokens()
+        +lzReceive()
+    }
+    OmniDragon -->|> OmniDragonSwapTriggerOracle : triggers
+    OmniDragon| DragonJackpotVault : sends fees
+    OmniDragon -->|> Ve69LP : sends fees
+    OmniDragon| CrossChainBridge : enables cross-chain
+    OmniDragonSwapTriggerOracle -->|>|> DragonJackpotDistributor : notifies
+    DragonJackpotDistributor| DragonJackpotVault : requests funds
+    DragonJackpotDistributor| RandomnessProvider : requests randomness
 ```
 
-## Multi-Chain Deployment
+### Data Flow
 
-The Sonic Red Dragon ecosystem is deployed on multiple blockchains with identical functionality on each chain:
+The protocol's data flow illustrates how information and value move through the system:
 
-| Chain | Layer Type | Chain ID | LZ Chain ID | Primary Use Cases |
-|-------|------------|----------|------------|------------------|
-| Ethereum | L1 | 1 | 101 | Governance, Security, Prime Liquidity |
-| Sonic | L1 | 146 | 332 | High Throughput, Lower Fees |
-| Arbitrum | L2 | 42161 | 110 | Scaling, Lower Fees |
-| Avalanche | L1 | 43114 | 106 | Fast Finality, EVM Compatible |
-| Base | L2 | 8453 | 184 | Scaling, Lower Fees |
+```mermaidflowchart TB
+A[User Transaction] -->|> B[Token Contract]
+    B| C[Fee Collection]
+    C -->|> D[Fee Distribution]
+    D| E[Jackpot Vault]
+    D -->|> F[ve69LP Governance]
+    D| G[Token Burn]
+    B -->|> H[Swap Trigger Oracle]
+    H| I[Lottery Entry Processing]
+    I -->|> J[Randomness Provider]
+    J| K[Winner Selection]
+    K -->|> L[Reward Distribution]
+    B| M[Cross-Chain Bridge]
+    M -->|> N[LayerZero Endpoint]
+    N| O[Destination Chain]
+    classDef user fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef token fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef fee fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef jackpot fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef bridge fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class A user
+    class B token
+    class CD token
+    class E fee
+    class FG fee
+    class H jackpot
+    class I jackpot
+    class J jackpot
+    class K jackpot
+    class L jackpot
+    class M bridge
+    class NO bridge
+```
 
-## Security Model
+## Cross-Chain Architecture
 
-The security architecture is built on several principles:
-
-1. **Multi-Layered Access Controls**: Role-based permissions with strict validation
-2. **Economic Security**: Fee mechanism and incentive alignment
-3. **Oracle Diversity**: Multiple price feeds for reliable market data
-4. **Governance Time-Locks**: Delay periods for critical changes
-5. **External Verification**: LayerZero DVN provides additional security layer
-
-## Fee Flow
-
-The token implements a fee model that distributes transaction fees as follows:
+The protocol's cross-chain architecture enables operation across multiple blockchains:
+```
 
 ```mermaid
-pie title Fee Distribution
-    "Jackpot (6.9%)" : 6.9
-    "Governance (2.41%)" : 2.41
-    "Burn (0.69%)" : 0.69
+flowchart TB
+subgraph "Ethereum"
+    ETH_TOKEN["OmniDragon Token"]
+    ETH_BRIDGE["Cross-Chain Bridge"]
+    ETH_LZ["LayerZero Endpoint"]
+    subgraph "BNB Chain"
+    BSC_TOKEN["OmniDragon Token"]
+    BSC_BRIDGE["Cross-Chain Bridge"]
+    BSC_LZ["LayerZero Endpoint"]
+    subgraph "Arbitrum"
+    ARB_TOKEN["OmniDragon Token"]
+    ARB_BRIDGE["Cross-Chain Bridge"]
+    ARB_LZ["LayerZero Endpoint"]
+    subgraph "Avalanche"
+    AVAX_TOKEN["OmniDragon Token"]
+    AVAX_BRIDGE["Cross-Chain Bridge"]
+    AVAX_LZ["LayerZero Endpoint"]
+    ETH_TOKEN -->|> ETH_BRIDGE
+    ETH_BRIDGE| ETH_LZ
+    BSC_TOKEN -->|> BSC_BRIDGE
+    BSC_BRIDGE| BSC_LZ
+    ARB_TOKEN -->|> ARB_BRIDGE
+    ARB_BRIDGE| ARB_LZ
+    AVAX_TOKEN -->|>|>|>|>|>|>|> AVAX_BRIDGE
+    AVAX_BRIDGE| AVAX_LZ
+    ETH_LZ <| BSC_LZ
+    ETH_LZ <| ARB_LZ
+    ETH_LZ <| AVAX_LZ
+    BSC_LZ <| ARB_LZ
+    BSC_LZ <| AVAX_LZ
+    ARB_LZ <| AVAX_LZ
+    classDef eth fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef bsc fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef arb fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef avax fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class ETH_TOKEN eth
+    class ETH_BRIDGE_LZ eth
+    class BSC_TOKEN bsc
+    class BSC_BRIDGE_LZ bsc
+    class ARB_TOKEN arb
+    class ARB_BRIDGE_LZ arb
+    class AVAX_TOKEN avax
+    class AVAX_BRIDGE_LZ avax
+endend
+endend
+endend
+end
 ```
 
-## Integration Points
+## Security Architecture
 
-The system exposes several integration points for partners and extensions:
+The protocol implements a multi-layered security architecture:
 
-1. **Partner Jackpot Program**: Special jackpot entries for integrated pools
-2. **Cross-Chain Messaging**: LayerZero integration for cross-chain communication
-3. **Governance Hooks**: Extensible governance for protocol evolution
-4. **Oracle Aggregation**: Multiple price feed sources for reliability
+```mermaid
+flowchart TB
+subgraph "Protocol Security Layers"
+    CRYPTO["Cryptographic Security"]
+    CONTRACT["Smart Contract Security"]
+    ECONOMIC["Economic Security"]
+    GOVERNANCE["Governance Security"]
+    OPERATIONAL["Operational Security"]
+    subgraph "External Security"
+    AUDIT["External Audits"]
+    BOUNTY["Bug Bounty Program"]
+    MONITORING["24/7 Monitoring"]
+    CRYPTO -->|> CONTRACT
+    CONTRACT| ECONOMIC
+    ECONOMIC -->|> GOVERNANCE
+    GOVERNANCE| OPERATIONAL
+    AUDIT -->|>|> CONTRACT
+    BOUNTY| CONTRACT
+    MONITORING| OPERATIONAL
+    classDef protocol fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    classDef external fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    class CRYPTO protocol
+    class CONTRACTECONOMI protocol
+    class C protocol
+    class GOVERNANCE protocol
+    class OPERATIONAL protocol
+    class AUDIT external
+    class BOUNTYMONITORING external
+end
+end
+```
+
+## Implementation Details
+
+### Token Implementation
+
+The OmniDragon token is implemented as an ERC-20 compatible token with additional functionality:
+
+```solidity
+contract OmniDragon is ERC20, Ownable, ILayerZeroReceiver {
+    // Fee structure
+    struct FeeStructure {
+        uint256 jackpot;
+        uint256 ve69LP;
+        uint256 burn;
+        uint256 total;
+    }
+    
+    // Fee configurations
+    FeeStructure public buyFees;
+    FeeStructure public sellFees;
+    FeeStructure public transferFees;
+    
+    // Contract addresses
+    address public jackpotVault;
+    address public ve69LP;
+    address public swapTrigger;
+    address public lzEndpoint;
+    
+    // Cross-chain configuration
+    mapping(uint16 => bytes) public trustedRemoteLookup;
+    
+    // Constructor
+    constructor(
+        string memory name,
+        string memory symbol,
+        uint256 initialSupply,
+        address _jackpotVault,
+        address _ve69LP,
+        address _swapTrigger,
+        address _lzEndpoint
+    ) ERC20(name, symbol) {
+        _mint(msg.sender, initialSupply);
+        
+        jackpotVault = _jackpotVault;
+        ve69LP = _ve69LP;
+        swapTrigger = _swapTrigger;
+        lzEndpoint = _lzEndpoint;
+        
+        // Set default fee structure
+        buyFees = FeeStructure({
+            jackpot: 690,
+            ve69LP: 241,
+            burn: 69,
+            total: 1000
+        });
+        
+        sellFees = FeeStructure({
+            jackpot: 690,
+            ve69LP: 241,
+            burn: 69,
+            total: 1000
+        });
+        
+        transferFees = FeeStructure({
+            jackpot: 0,
+            ve69LP: 0,
+            burn: 69,
+            total: 69
+        });
+    }
+    
+    // Transfer function with fee processing
+    function _transfer(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) internal override {
+        // Fee processing logic
+        // ...
+        
+        // Try to process jackpot entry
+        _tryProcessLotteryEntry(sender, recipient, amount);
+    }
+    
+    // Cross-chain functions
+    function sendTokensToChain(
+        uint16 _dstChainId,
+        bytes memory _toAddress,
+        uint256 _amount
+    ) external payable {
+        // Cross-chain transfer logic
+        // ...
+    }
+    
+    function lzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload
+    ) external override {
+        // Cross-chain receive logic
+        // ...
+    }
+}
+```
+
+### Jackpot Implementation
+
+The jackpot system is implemented through several interconnected contracts:
+
+```solidity
+contract DragonJackpotVault {
+    address public omniDragon;
+    address public distributor;
+    uint256 public availableJackpotAmount;
+    
+    function addToJackpot(uint256 amount) external {
+        require(
+            msg.sender == omniDragon,
+            "Only OmniDragon can add to jackpot"
+        );
+        
+        availableJackpotAmount += amount;
+        
+        emit JackpotFunded(amount, availableJackpotAmount);
+    }
+    
+    function distributeJackpot(address winner, uint256 randomness) external {
+        require(
+            msg.sender == distributor,
+            "Only distributor can distribute jackpot"
+        );
+        
+        // Calculate reward amount
+        uint256 rewardPercentage = 10 + (randomness % 91);
+        uint256 rewardAmount = (availableJackpotAmount * rewardPercentage) / 100;
+        
+        // Update available jackpot
+        availableJackpotAmount -= rewardAmount;
+        
+        // Transfer reward to winner
+        IERC20(wrappedNativeToken).transfer(winner, rewardAmount);
+        
+        emit JackpotDistributed(winner, rewardAmount, block.timestamp);
+    }
+}
+```
+
+### Randomness Implementation
+
+The randomness infrastructure is implemented through a provider contract:
+
+```solidity
+contract RandomnessProvider {
+    // Randomness sources
+    IDrandBeacon public drandBeacon;
+    IChainlinkVRF public chainlinkVRF;
+    ICustomOracle public customOracle;
+    
+    // Request tracking
+    struct Request {
+        address requester;
+        RequestStatus status;
+        uint256 timestamp;
+        uint256 randomness;
+    }
+    
+    mapping(uint256 => Request) public requests;
+    
+    function requestRandomness() external payable returns (uint256 requestId) {
+        // Generate request ID
+        requestId = _generateRequestId(msg.sender);
+        
+        // Store request details
+        requests[requestId] = Request({
+            requester: msg.sender,
+            status: RequestStatus.Pending,
+            timestamp: block.timestamp,
+            randomness: 0
+        });
+        
+        // Process request
+        _processRequest(requestId);
+        
+        return requestId;
+    }
+    
+    function _processRequest(uint256 requestId) internal {
+        // Select appropriate randomness source
+        // ...
+    }
+    
+    function _fulfillRandomness(uint256 requestId, uint256 randomness) internal {
+        // Update request
+        Request storage request = requests[requestId];
+        request.randomness = randomness;
+        request.status = RequestStatus.Fulfilled;
+        
+        // Call requester's callback
+        IRandomnessConsumer(request.requester).fulfillRandomness(requestId, randomness);
+        
+        emit RandomnessFulfilled(requestId, randomness);
+    }
+}
+```
+
+### Cross-Chain Implementation
+
+The cross-chain functionality is implemented through a bridge contract:
+
+```solidity
+contract CrossChainBridge is ILayerZeroReceiver {
+    address public omniDragon;
+    address public lzEndpoint;
+    
+    // Trusted remote addresses
+    mapping(uint16 => bytes) public trustedRemoteLookup;
+    
+    function sendTokens(
+        uint16 _dstChainId,
+        bytes memory _toAddress,
+        uint256 _amount
+    ) external payable {
+        // Burn tokens on source chain
+        IOmniDragon(omniDragon).burnFrom(msg.sender, _amount);
+        
+        // Prepare payload
+        bytes memory payload = abi.encode(msg.sender, _toAddress, _amount);
+        
+        // Send cross-chain message
+        ILayerZeroEndpoint(lzEndpoint).send{value: msg.value}(
+            _dstChainId,
+            trustedRemoteLookup[_dstChainId],
+            payload,
+            payable(msg.sender),
+            address(0),
+            bytes("")
+        );
+        
+        emit TokensSent(_dstChainId, msg.sender, _amount);
+    }
+    
+    function lzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload
+    ) external override {
+        // Verify sender
+        require(msg.sender == lzEndpoint, "Invalid endpoint");
+        require(
+            _srcAddress.length == trustedRemoteLookup[_srcChainId].length &&
+            keccak256(_srcAddress) == keccak256(trustedRemoteLookup[_srcChainId]),
+            "Invalid source address"
+        );
+        
+        // Decode payload
+        (address from, bytes memory toAddressBytes, uint256 amount) = abi.decode(
+            _payload,
+            (address, bytes, uint256)
+        );
+        
+        // Convert bytes to address
+        address toAddress = _bytesToAddress(toAddressBytes);
+        
+        // Mint tokens on destination chain
+        IOmniDragon(omniDragon).mint(toAddress, amount);
+        
+        emit TokensReceived(_srcChainId, toAddress, amount);
+    }
+}
+```
+
+### Governance Implementation
+
+The governance system is implemented through a ve69LP contract:
+
+```solidity
+contract Ve69LP {
+    address public omniDragon;
+    
+    // Lock data
+    struct Lock {
+        uint256 amount;
+        uint256 unlockTime;
+    }
+    
+    mapping(address => Lock) public locks;
+    
+    // Proposal data
+    struct Proposal {
+        address proposer;
+        string description;
+        bytes callData;
+        address target;
+        uint256 startTime;
+        uint256 endTime;
+        uint256 forVotes;
+        uint256 againstVotes;
+        bool executed;
+    }
+    
+    Proposal[] public proposals;
+    
+    function lock(uint256 amount, uint256 lockDuration) external {
+        // Transfer LP tokens from user
+        IERC20(lpToken).transferFrom(msg.sender, address(this), amount);
+        
+        // Create lock
+        locks[msg.sender] = Lock({
+            amount: amount,
+            unlockTime: block.timestamp + lockDuration
+        });
+        
+        emit TokensLocked(msg.sender, amount, locks[msg.sender].unlockTime);
+    }
+    
+    function getVotingPower(address user) public view returns (uint256) {
+        Lock memory userLock = locks[user];
+        
+        // No lock, no voting power
+        if (userLock.amount == 0) return 0;
+        
+        // Calculate voting power based on lock amount and remaining lock time
+        uint256 remainingLockTime = 0;
+        if (userLock.unlockTime > block.timestamp) {
+            remainingLockTime = userLock.unlockTime - block.timestamp;
+        }
+        
+        // Voting power = amount * (1 + remainingLockTime / maxLockTime)
+        uint256 maxLockTime = 4 * 365 days; // 4 years
+        uint256 timeBonus = (remainingLockTime * 1e18) / maxLockTime;
+        
+        return userLock.amount * (1e18 + timeBonus) / 1e18;
+    }
+    
+    function createProposal(
+        string memory description,
+        bytes memory callData,
+        address target
+    ) external returns (uint256) {
+        // Require minimum voting power to create proposal
+        require(
+            getVotingPower(msg.sender) >= proposalThreshold,
+            "Insufficient voting power"
+        );
+        
+        // Create proposal
+        uint256 proposalId = proposals.length;
+        proposals.push(Proposal({
+            proposer: msg.sender,
+            description: description,
+            callData: callData,
+            target: target,
+            startTime: block.timestamp + votingDelay,
+            endTime: block.timestamp + votingDelay + votingPeriod,
+            forVotes: 0,
+            againstVotes: 0,
+            executed: false
+        }));
+        
+        emit ProposalCreated(proposalId, msg.sender, description);
+        
+        return proposalId;
+    }
+    
+    function vote(uint256 proposalId, bool support) external {
+        // Get proposal
+        Proposal storage proposal = proposals[proposalId];
+        
+        // Check voting period
+        require(
+            block.timestamp >= proposal.startTime &&
+            block.timestamp <= proposal.endTime,
+            "Voting period not active"
+        );
+        
+        // Get voting power
+        uint256 votingPower = getVotingPower(msg.sender);
+        require(votingPower > 0, "No voting power");
+        
+        // Record vote
+        if (support) {
+            proposal.forVotes += votingPower;
+        } else {
+            proposal.againstVotes += votingPower;
+        }
+        
+        emit VoteCast(msg.sender, proposalId, support, votingPower);
+    }
+    
+    function executeProposal(uint256 proposalId) external {
+        // Get proposal
+        Proposal storage proposal = proposals[proposalId];
+        
+        // Check execution conditions
+        require(!proposal.executed, "Already executed");
+        require(block.timestamp > proposal.endTime, "Voting period not ended");
+        require(
+            proposal.forVotes > proposal.againstVotes,
+            "Proposal not approved"
+        );
+        
+        // Mark as executed
+        proposal.executed = true;
+        
+        // Execute proposal
+        (bool success, ) = proposal.target.call(proposal.callData);
+        require(success, "Execution failed");
+        
+        emit ProposalExecuted(proposalId);
+    }
+}
+```
+
+## System Interactions
+
+### Token Purchase Flow
+
+When a user purchases tokens, several system interactions occur:
+```
+
+```mermaidsequenceDiagram
+participant User
+participant DEX
+participant Token
+participant SwapTrigger
+participant JackpotVault
+participant Ve69LP
+    User ->> DEX: Buy DRAGON tokens
+    DEX ->> Token: Transfer tokens to user
+    Token ->> Token: Apply 10% fee
+    Token ->> JackpotVault: Send 6.9% to jackpot
+    Token ->> Ve69LP: Send 2.41% to governance
+    Token ->> Token: Burn 0.69%
+    Token ->> SwapTrigger: Notify of purchase
+    SwapTrigger ->> SwapTrigger: Process jackpot entry
+```
+
+### Jackpot Winner Flow
+
+When a user wins the jackpot, the following interactions occur:
+
+```mermaidsequenceDiagram
+participant User
+participant SwapTrigger
+participant RandomnessProvider
+participant JackpotDistributor
+participant JackpotVault
+    User ->> SwapTrigger: Buy triggers jackpot entry
+    SwapTrigger ->> RandomnessProvider: Request randomness
+    RandomnessProvider ->> RandomnessProvider: Generate randomness
+    RandomnessProvider ->> JackpotDistributor: Provide randomness
+    JackpotDistributor ->> JackpotDistributor: Determine winner
+    JackpotDistributor ->> JackpotVault: Request reward distribution
+    JackpotVault ->> User: Transfer reward
+```
+
+### Cross-Chain Transfer Flow
+
+When a user transfers tokens between chains, the following interactions occur:
+```
+
+```mermaidsequenceDiagram
+participant User
+participant SourceToken
+participant SourceBridge
+participant LayerZero
+participant DestBridge
+participant DestToken
+    User ->> SourceToken: Approve bridge
+    User ->> SourceBridge: Request cross-chain transfer
+    SourceBridge ->> SourceToken: Burn tokens
+    SourceBridge ->> LayerZero: Send cross-chain message
+    LayerZero ->> DestBridge: Deliver message
+    DestBridge ->> DestBridge: Verify message
+    DestBridge ->> DestToken: Mint tokens
+    DestToken ->> User: Receive tokens on destination chain
+```
+
+## Conclusion
+
+The OmniDragon protocol architecture provides a comprehensive framework for a cross-chain token ecosystem with integrated jackpot, randomness, and governance systems. By combining these components in a modular and secure design, the protocol creates a robust foundation for a wide range of applications and use cases.

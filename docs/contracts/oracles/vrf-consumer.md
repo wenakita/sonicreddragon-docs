@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Vrf Consumer
+description: Detailed explanation of this concept
 ---
 
 # OmniDragonVRFConsumer
@@ -12,66 +14,56 @@ This contract serves as the central hub of the OmniDragon randomness system, con
 
 ```mermaid
 flowchart TB
-    subgraph "External Sources"
-        s1["dRAND Network"]
-        s2["Chainlink VRF"]
-        s3["Arbitrum VRF"]
-        s4["EVMnet"]
-        s5["Quicknet"]
-    end
-    
+subgraph "External Sources"
+    s1["dRAND Network"]
+    s2["Chainlink VRF"]
+    s3["Arbitrum VRF"]
+    s4["EVMnet"]
+    s5["Quicknet"]
     subgraph "Integrators"
-        i1["dRAND Integrator"]
-        i2["Chainlink Integrator"]
-        i3["Arbitrum Integrator"]
-        i4["EVMnet Integrator"]
-        i5["Quicknet Integrator"]
-    end
-    
+    i1["dRAND Integrator"]
+    i2["Chainlink Integrator"]
+    i3["Arbitrum Integrator"]
+    i4["EVMnet Integrator"]
+    i5["Quicknet Integrator"]
     subgraph "OmniDragonVRFConsumer"
-        Buffer["Randomness Buffers"]
-        Aggregator["Aggregation Logic"]
-        Security["Security Controls"]
-        Interface["Consumer Interface"]
-    end
-    
+    Buffer["Randomness Buffers"]
+    Aggregator["Aggregation Logic"]
+    Security["Security Controls"]
+    Interface["Consumer Interface"]
     subgraph "Consumer Applications"
-        c1["Jackpot System"]
-        c2["Games"]
-        c3["Governance"]
-    end
-    
-    s1 --> i1
-    s2 --> i2
-    s3 --> i3
-    s4 --> i4
-    s5 --> i5
-    
-    i1 --> Buffer
-    i2 --> Buffer
-    i3 --> Buffer
-    i4 --> Buffer
-    i5 --> Buffer
-    
-    Buffer --> Aggregator
-    Aggregator --> Interface
-    Security --> Interface
-    
-    Interface --> c1
-    Interface --> c2
-    Interface --> c3
-    
-    class Aggregator highlight
+    c1["Jackpot System"]
+    c2["Games"]
+    c3["Governance"]
+    s1 -->|> i1
+    s2| i2
+    s3 -->|> i3
+    s4| i4
+    s5 -->|> i5
+    i1| Buffer
+    i2 -->|> Buffer
+    i3| Buffer
+    i4 -->|> Buffer
+    i5| Buffer
+    Buffer -->|> Aggregator
+    Aggregator| Interface
+    Security -->|> Interface
+    Interface| c1
+    Interface -->|> c2
+    end    Interface| c3    endclass Aggregator primary    end
+endend
+endend
+end
 ```
 
 ## Key Features
 
-- **Multi-Source Aggregation**: Combines randomness from multiple independent sources
-- **Weighted Combination**: Assigns configurable weights to each source
-- **Randomness Buffering**: Maintains buffers of recent values for enhanced unpredictability
-- **Fault Tolerance**: Continues functioning even if some sources are unavailable
-- **Access Controls**: Restricts randomness requests to authorized consumers
-- **Request/Response Pattern**: Uses an asynchronous request/response pattern
+-**Multi-Source Aggregation**: Combines randomness from multiple independent sources
+-**Weighted Combination**: Assigns configurable weights to each source
+-**Randomness Buffering**: Maintains buffers of recent values for enhanced unpredictability
+-**Fault Tolerance**: Continues functioning even if some sources are unavailable
+-**Access Controls**: Restricts randomness requests to authorized consumers
+-**Request/Response Pattern**: Uses an asynchronous request/response pattern
 
 ## Contract Implementation
 
@@ -106,8 +98,7 @@ mapping(address => bool) public authorizedConsumers;
 The contract allows adding, updating, and removing randomness sources:
 
 ```solidity
-/**
- * @dev Add a new drand network
+/***@dev Add a new drand network
  * @param _networkId The unique identifier for this network
  * @param _integrator The integrator contract address
  * @param _weight The weight to give this network in aggregation
@@ -136,8 +127,7 @@ function addNetwork(bytes32 _networkId, address _integrator, uint256 _weight) ex
 The core aggregation logic combines values from multiple sources:
 
 ```solidity
-/**
- * @dev Aggregate randomness from all active networks
+/***@dev Aggregate randomness from all active networks
  */
 function aggregateRandomness() public {
     require(networkIds.length > 0, "No networks configured");
@@ -201,8 +191,7 @@ function aggregateRandomness() public {
 Consumer contracts interact with the OmniDragonVRFConsumer using this interface:
 
 ```solidity
-/**
- * @dev Request randomness (helper function for consumers)
+/***@dev Request randomness (helper function for consumers)
  * @param _consumer The consumer address
  */
 function requestRandomness(address _consumer) external override returns (uint256) {
@@ -233,8 +222,7 @@ function requestRandomness(address _consumer) external override returns (uint256
 The contract fulfills randomness requests using this function:
 
 ```solidity
-/**
- * @dev Fulfill a randomness request for a consumer
+/***@dev Fulfill a randomness request for a consumer
  * @param _consumer The consumer address
  * @param _requestId The ID of the request
  */
@@ -267,7 +255,7 @@ function fulfillRandomness(address _consumer, uint256 _requestId) external overr
 
 The OmniDragonVRFConsumer implements several security measures:
 
-1. **Access Control**: Only authorized consumers can request randomness
+1.**Access Control**: Only authorized consumers can request randomness
    ```solidity
    function setAuthorizedConsumer(address _consumer, bool _authorized) external onlyOwner {
        authorizedConsumers[_consumer] = _authorized;
@@ -275,14 +263,14 @@ The OmniDragonVRFConsumer implements several security measures:
    }
    ```
 
-2. **Reentrancy Protection**: Uses ReentrancyGuard to prevent reentrant calls
+2.**Reentrancy Protection**: Uses ReentrancyGuard to prevent reentrant calls
    ```solidity
    function fulfillRandomness(address _consumer, uint256 _requestId) external override nonReentrant {
        // Implementation
    }
    ```
 
-3. **Error Handling**: Gracefully handles failures from external contracts
+3.**Error Handling**: Gracefully handles failures from external contracts
    ```solidity
    try IDragonVRFIntegrator(network.integrator).getLatestRandomness() returns (uint256 randomness, uint256 round) {
        // Success handling
@@ -291,7 +279,7 @@ The OmniDragonVRFConsumer implements several security measures:
    }
    ```
 
-4. **Uniqueness Guarantee**: Uses a monotonically increasing counter to ensure uniqueness
+4.**Uniqueness Guarantee**: Uses a monotonically increasing counter to ensure uniqueness
    ```solidity
    aggregationCounter++;
    aggregatedRandomness = uint256(keccak256(abi.encodePacked(

@@ -1,5 +1,7 @@
 ---
 sidebar_position: 1
+title: Authentication
+description: Technical reference information
 ---
 
 # Authentication

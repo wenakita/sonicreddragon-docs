@@ -1,0 +1,5 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="#D3E5F2"/>
+  <polygon points="50,150 100,50 150,150" fill="#CD7D58"/>
+  <text x="100" y="180" text-anchor="middle" fill="#152B43" font-family="Inter, sans-serif" font-size="14">OmniDragon</text>
+</svg>

@@ -7,11 +7,7 @@ description: Proprietary jackpot distribution mathematics implementing the Herm�
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# HermesMath
-
-**Proprietary jackpot distribution mathematics implementing the Hermès formula**
-
-<div className="contract-badges">
+# HermesMath**Proprietary jackpot distribution mathematics implementing the Hermès formula**<div className="contract-badges">
   <span className="contract-badge distribution">Distribution System</span>
   <span className="contract-badge jackpot">Jackpot Mathematics</span>
   <span className="contract-badge proprietary">Proprietary Algorithm</span>
@@ -23,39 +19,32 @@ The Hermès formula provides a mathematically balanced approach to jackpot distr
 
 ```mermaid
 flowchart TB
-    subgraph "Mathematical Components"
-        formula["Hermès Formula"]
-        comp1["Component 1<br>Approximation"]
-        comp2["Component 2<br>Approximation"]
-        cubeRoot["Cube Root<br>Approximation"]
-    end
-    
+subgraph "Mathematical Components"
+    formula["Herms Formula"]
+    comp1["Component 1<br>Approximation"]
+    comp2["Component 2<br>Approximation"]
+    cubeRoot["Cube Root<br>Approximation"]
     subgraph "Distribution Parameters"
-        jackpotBps["Jackpot Percentage"]
-        lpBps["LP Rewards"]
-        burnBps["Burn Allocation"]
-        winProb["Win Probability"]
-    end
-    
+    jackpotBps["Jackpot Percentage"]
+    lpBps["LP Rewards"]
+    burnBps["Burn Allocation"]
+    winProb["Win Probability"]
     subgraph "Applications"
-        jackpotSize["Jackpot Size<br>Calculation"]
-        distribution["Reward<br>Distribution"]
-        probCalculation["Probability<br>Calculations"]
-    end
-    
-    formula --> comp1
-    formula --> comp2
-    comp1 --> cubeRoot
-    cubeRoot --> formula
-    
-    formula --> jackpotSize
-    jackpotBps --> distribution
-    lpBps --> distribution
-    burnBps --> distribution
-    winProb --> probCalculation
-    
-    classDef highlight fill:#4a80d1,stroke:#333,color:white
-    class formula highlight
+    jackpotSize["Jackpot Size<br>Calculation"]
+    distribution["Reward<br>Distribution"]
+    probCalculation["Probability<br>Calculations"]
+    formula -->|> comp1
+    formula| comp2
+    comp1 -->|> cubeRoot
+    cubeRoot| formula
+    formula -->|> jackpotSize
+    jackpotBps| distribution
+    lpBps -->|>|> distribution
+    burnBps| distribution
+    winProb| probCalculation
+    end    classDef highlight fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff    endclass formula primary    end
+endend
+end
 ```
 
 ## The Hermès Formula
@@ -81,8 +70,7 @@ Due to the complexity of this formula, the implementation uses approximations op
   <TabItem value="main" label="Main Function" default>
 
 ```solidity
-/**
- * @notice Calculate jackpot distribution using the Hermès formula
+/***@notice Calculate jackpot distribution using the Hermès formula
  * @param x Current jackpot size (scaled by 1e18)
  * @param d Protocol constant D (governance parameter)
  * @param n Protocol constant N (governance parameter)
@@ -111,8 +99,7 @@ function calculateHermesValue(uint256 x, uint256 d, uint256 n) internal pure ret
   <TabItem value="component1" label="Component 1">
 
 ```solidity
-/**
- * @notice Approximate the first component of the Hermès formula
+/***@notice Approximate the first component of the Hermès formula
  * @param x Current jackpot size
  * @param d Protocol constant D
  * @param n Protocol constant N
@@ -152,8 +139,7 @@ function approximateComponent1(uint256 x, uint256 d, uint256 n) private pure ret
   <TabItem value="cuberoot" label="Cube Root">
 
 ```solidity
-/**
- * @notice Approximate the cube root of a number
+/***@notice Approximate the cube root of a number
  * @param x Value to calculate cube root of
  * @return Approximated cube root
  */
@@ -183,8 +169,7 @@ function approximateCubeRoot(uint256 x) private pure returns (uint256) {
   <TabItem value="component2" label="Component 2">
 
 ```solidity
-/**
- * @notice Approximate the second component of the Hermès formula
+/***@notice Approximate the second component of the Hermès formula
  * @param x Current jackpot size
  * @param cubeRoot Cube root from the first component
  * @return Approximate value of the second component
@@ -265,10 +250,9 @@ uint256 constant private MIN_LP_FOR_MAX_BOOST = 1000 ether; // 1000 LP tokens fo
 The library provides functions to calculate jackpot distributions:
 
 ```solidity title="Jackpot Distribution Calculator"
-/**
- * @notice Calculate jackpot distribution percentages
+/***@notice Calculate jackpot distribution percentages
  * @param jackpotSize Current jackpot size
- * @param totalParticipants Number of lottery participants
+ * @param totalParticipants Number of jackpot participants
  * @param params Additional parameters [0]=d, [1]=n, [2]=basePercentage, [3]=adjustmentFactor
  * @return mainPrize Percentage for main winner
  * @return secondaryPrize Percentage for secondary winners
@@ -332,8 +316,7 @@ function calculateJackpotDistribution(
 The library also provides functions to calculate win probabilities:
 
 ```solidity title="Win Probability Calculator"
-/**
- * @notice Calculate win probability based on swap size
+/***@notice Calculate win probability based on swap size
  * @param swapAmount Amount being swapped (in base units)
  * @param tokenPrice Current token price
  * @param userBoost User's boost multiplier (in BPS)
@@ -465,12 +448,12 @@ contract FeeDistributor {
 
 ### The Hermès Distribution Model
 
-The Hermès formula was designed specifically for the Sonic Red Dragon jackpot system with these properties:
+The Hermès formula was designed specifically for the Sonic Red DRAGON jackpot system with these properties:
 
-1. **Balance**: Finds the optimal balance between jackpot growth and payout frequency
-2. **Scale Sensitivity**: Distribution changes based on jackpot size
-3. **Governance Control**: Parameters d and n allow governance to tune the system
-4. **Stability**: Ensures stable growth even with volatile participation rates
+1.**Balance**: Finds the optimal balance between jackpot growth and payout frequency
+2.**Scale Sensitivity**: Distribution changes based on jackpot size
+3.**Governance Control**: Parameters d and n allow governance to tune the system
+4.**Stability**: Ensures stable growth even with volatile participation rates
 
 ### Numerical Properties
 

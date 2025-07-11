@@ -1,6 +1,7 @@
 ---
 title: Chain Registry
 sidebar_position: 2
+description: Detailed explanation of this concept
 ---
 
 # Chain Registry Contract
@@ -85,15 +86,15 @@ The Chain Registry is used throughout the OmniDragon ecosystem to retrieve chain
 
 ```mermaid
 flowchart TB
-    classDef main fill:#4a80d1;stroke:#355899;color:#ffffff;font-weight:bold
-    classDef component fill:#42a5f5;stroke:#1e88e5;color:#ffffff
-    
+classDef main fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffffstroke:#355899color:#fffffffont-weight:bold
+    classDef component fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffffstroke:#1e88e5color:#ffffff
+
     ChainRegistry["Chain Registry"]:::main
-    
+
     OmniDragon["OmniDragon Token"]:::component
     SwapTrigger["Swap Trigger"]:::component
     VRFConsumer["VRF Consumer"]:::component
-    
+
     ChainRegistry -->|"Provides configuration"| OmniDragon
     ChainRegistry -->|"Provides configuration"| SwapTrigger
     ChainRegistry -->|"Provides configuration"| VRFConsumer
@@ -103,10 +104,10 @@ flowchart TB
 
 The Chain Registry tracks the following for each supported chain:
 
-1. **Wrapped Native Token**: The chain's wrapped native token (WETH, WAVAX, WBNB, etc.)
-2. **Swap Trigger**: The address of the swap trigger contract for that chain
-3. **VRF Consumer**: The address of the VRF consumer for that chain
-4. **Dragon Token**: The OmniDragon token address on that chain
+1.**Wrapped Native Token**: The chain's wrapped native token (WETH, WAVAX, WBNB, etc.)
+2.**Swap Trigger**: The address of the swap trigger contract for that chain
+3.**VRF Consumer**: The address of the VRF consumer for that chain
+4.**DRAGON Token**: The OmniDragon token address on that chain
 
 ## Implementation Details
 
@@ -122,7 +123,7 @@ function getSwapTrigger(uint16 _chainId) external view override returns (address
 // Get VRF consumer address
 function getVRFConsumer(uint16 _chainId) external view override returns (address);
 
-// Get Dragon token address
+// Get DRAGON token address
 function getDragonToken(uint16 _chainId) external view override returns (address);
 
 // Get all supported chain IDs
@@ -136,6 +137,6 @@ function isChainSupported(uint16 _chainId) external view override returns (bool)
 
 The Chain Registry implements several security features:
 
-- **Owner-Only Configuration**: Only the contract owner can register or update chains
-- **Validation Checks**: Validates addresses and parameters before updating the registry
-- **Error Handling**: Uses custom errors for clear error reporting
+-**Owner-Only Configuration**: Only the contract owner can register or update chains
+-**Validation Checks**: Validates addresses and parameters before updating the registry
+-**Error Handling**: Uses custom errors for clear error reporting

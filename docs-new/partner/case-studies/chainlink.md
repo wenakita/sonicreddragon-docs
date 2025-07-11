@@ -1,0 +1,136 @@
+---
+sidebar_position: 1
+title: Chainlink Integration
+description: Detailed explanation of this concept
+---
+
+# Chainlink Integration
+
+OmniDragon integrates with [Chainlink](https://chain.link/) services to enhance security and reliability across the protocol. Our primary Chainlink integration is the Verifiable Random Function (VRF), which serves as a secondary randomness source alongside dRand.
+
+## What is Chainlink?
+
+Chainlink is a decentralized oracle network that enables smart contracts to securely access off-chain data feeds, web APIs, and traditional bank payments. For OmniDragon, we leverage:
+
+-**Chainlink VRF**: Verifiable Random Function for secure on-chain randomness
+-**Chainlink Price Feeds**: For accurate token pricing in certain operations
+-**Chainlink Automation**: For triggering time-based system operations
+
+## OmniDragon's Chainlink VRF Implementation
+
+```mermaid
+graph LR
+    A[Input] -->|> B[Process]| C[Output]
+    
+    style A fill:#3b82f6,stroke:#2563eb,color:#fff
+    style B fill:#f59e0b,stroke:#d97706,color:#fff
+    style C fill:#059669,stroke:#047857,color:#fff
+```
+
+## Chainlink Price Feeds
+
+In addition to VRF, OmniDragon uses Chainlink Price Feeds for:
+
+- Accurate token price information for USD conversion
+- Dynamic fee adjustments based on market conditions
+- Cross-chain value consistency
+
+Example integration:
+
+```solidity
+// Using Chainlink Price Feed
+contract TokenPriceConsumer {
+    AggregatorV3Interface internal priceFeed;
+    
+    constructor(address _priceFeed) {
+        priceFeed = AggregatorV3Interface(_priceFeed);
+    }
+    
+    // Get the latest token price
+    function getLatestPrice() public view returns (int) {
+        (
+            /* uint80 roundID */,
+            int price,
+            /* uint startedAt */,
+            /* uint timeStamp */,
+            /* uint80 answeredInRound */
+        ) = priceFeed.latestRoundData();
+        return price;
+    }
+}
+```
+
+## Chainlink Automation
+
+OmniDragon uses Chainlink Automation (formerly Keepers) for:
+
+- Periodic jackpot triggers
+- Fee distribution automation
+- Maintenance operations
+
+## Integration Example
+
+Here's an example of how to use OmniDragon's Chainlink VRF integration:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@OmniDragon/contracts/interfaces/IOmniDragonVRFConsumer.sol";
+import "@OmniDragon/contracts/interfaces/IDragonVRFConsumer.sol";
+
+contract ChainlinkRandomnessExample is IDragonVRFConsumer {
+    IOmniDragonVRFConsumer public vrfConsumer;
+    uint256 public randomResult;
+    
+    constructor(address _vrfConsumerAddress) {
+        vrfConsumer = IOmniDragonVRFConsumer(_vrfConsumerAddress);
+    }
+    
+    // Request randomness from Chainlink as fallback
+    function requestRandomNumberWithChainlink() external {
+        // Set Chainlink as preferred source
+        vrfConsumer.setPreferredSource(1); // 1 = Chainlink
+        
+        // Request randomness
+        vrfConsumer.requestRandomness(address(this));
+    }
+    
+    // Receive randomness callback
+    function consumeRandomness(uint256 requestId, uint256 randomness) 
+        external override {
+        require(msg.sender == address(vrfConsumer), "Unauthorized");
+        
+        randomResult = randomness;
+        
+        // Use the randomness
+        // ...
+    }
+}
+```
+
+## Supported Networks
+
+OmniDragon's Chainlink VRF integration is available on the following networks:
+
+| Network | Chainlink VRF Subscription ID | Status |
+|---------|------------------------------|--------|
+| Ethereum | TBD | Planned |
+| Arbitrum | TBD | Planned |
+| Base | TBD | Planned |
+| Sonic | TBD | Planned |
+
+## Security Considerations
+
+When using OmniDragon's Chainlink integration:
+
+1.**Fulfillment Gas**: Ensure sufficient gas is allocated for Chainlink VRF callbacks
+2.**Request Rate**: Be mindful of request rate limits on the Chainlink subscription
+3.**Price Feed Staleness**: Check the timestamp of price feeds to ensure data freshness
+4.**Multiple Verifications**: For critical applications, verify randomness from multiple sources
+
+## Additional Resources
+
+- [Chainlink Documentation](https://docs.chain.link/)
+- [Chainlink VRF Documentation](https://docs.chain.link/vrf/)
+- [OmniDragon VRF Integration Guide](/partner/case-studies/chainlink)

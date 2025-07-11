@@ -1,0 +1,292 @@
+/**
+ * Mermaid Animations CSS
+ * 
+ * This file provides CSS animations and styling for Mermaid diagrams
+ * to make them more interactive and visually appealing.
+ */
+
+/* Base container styling */
+.docusaurus-mermaid-container {
+  position: relative;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+/* Animation container */
+.mermaid-animation-container {
+  position: relative;
+}
+
+/* Progressive reveal animations */
+.mermaid-step {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.5s ease-out;
+}
+
+.mermaid-step.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Flow animation for paths */
+.mermaid .edgePath path {
+  stroke-dasharray: 5, 5;
+  animation: flowAnimation 3s linear infinite;
+}
+
+@keyframes flowAnimation {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 20; }
+}
+
+/* Pulse animation for nodes */
+.mermaid .node.pulse rect,
+.mermaid .node.pulse circle,
+.mermaid .node.pulse polygon,
+.mermaid .node.pulse ellipse {
+  animation: pulseAnimation 2s ease-in-out infinite;
+}
+
+@keyframes pulseAnimation {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Fade-in animation for diagrams */
+.mermaid {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in-out forwards;
+  animation-delay: 0.2s;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Interactive tooltip */
+.diagram-tooltip {
+  position: absolute;
+  background: rgba(15, 23, 42, 0.95);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 200px;
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.diagram-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Zoom controls */
+.mermaid-zoom-controls {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.docusaurus-mermaid-container:hover .mermaid-zoom-controls {
+  opacity: 1;
+}
+
+.mermaid-zoom-button {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.mermaid-zoom-button:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+/* Node interactions */
+.mermaid .node {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mermaid .node:hover {
+  filter: brightness(1.1);
+}
+
+.mermaid .node.highlight,
+.mermaid .edgePath.highlight {
+  filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.5));
+}
+
+/* Fullscreen mode */
+.mermaid-fullscreen {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999;
+  background: white;
+  padding: 40px;
+  margin: 0;
+  overflow: auto;
+}
+
+/* Sequence diagram specific animations */
+.mermaid .actor {
+  animation: bounceIn 0.5s ease-out;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.mermaid .messageText {
+  animation: slideRight 0.5s ease-out;
+}
+
+@keyframes slideRight {
+  0% { transform: translateX(-20px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+/* Flowchart specific animations */
+.mermaid .flowchart-link {
+  animation-delay: 0.5s;
+  animation: drawLine 1s ease-out forwards;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+}
+
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Class diagram specific animations */
+.mermaid .classGroup {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Dark mode support */
+[data-theme='dark'] .docusaurus-mermaid-container {
+  background: rgba(30, 41, 59, 0.2);
+}
+
+[data-theme='dark'] .diagram-tooltip {
+  background: rgba(15, 23, 42, 0.95);
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .mermaid-zoom-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .mermaid-zoom-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme='dark'] .mermaid-fullscreen {
+  background: #1e293b;
+}
+
+/* Animation controls */
+.mermaid-animation-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  gap: 8px;
+}
+
+.mermaid-animation-button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mermaid-animation-button:hover {
+  background: #2563eb;
+}
+
+[data-theme='dark'] .mermaid-animation-button {
+  background: #4f46e5;
+}
+
+[data-theme='dark'] .mermaid-animation-button:hover {
+  background: #4338ca;
+}
+
+/* Animation speed control */
+.mermaid-animation-speed {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.mermaid-animation-speed-label {
+  font-size: 12px;
+  color: #64748b;
+}
+
+[data-theme='dark'] .mermaid-animation-speed-label {
+  color: #94a3b8;
+}
+
+.mermaid-animation-speed-input {
+  width: 60px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .docusaurus-mermaid-container {
+    padding: 10px;
+    margin: 10px 0;
+  }
+  
+  .mermaid-zoom-controls {
+    bottom: 5px;
+    right: 5px;
+  }
+  
+  .mermaid-animation-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+}

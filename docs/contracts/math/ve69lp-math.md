@@ -1,7 +1,9 @@
 ---
 sidebar_position: 5
 title: ve69LPMath
-description: Vote-escrowed token mathematical library for time-weighted staking and governance
+description: >-
+  Vote-escrowed token mathematical library for time-weighted staking and
+  governance
 ---
 
 import Tabs from '@theme/Tabs';
@@ -10,11 +12,7 @@ import VotingDecayAnimation from '@site/src/components/VotingDecayAnimation';
 import PartnerBoostAnimation from '@site/src/components/PartnerBoostAnimation';
 import CubeRootAnimation from '@site/src/components/CubeRootAnimation';
 
-# ve69LPMath
-
-**Vote-escrowed token mathematical library for time-weighted staking and governance**
-
-<div className="contract-badges">
+# ve69LPMath**Vote-escrowed token mathematical library for time-weighted staking and governance**<div className="contract-badges">
   <span className="contract-badge governance">Governance</span>
   <span className="contract-badge staking">Staking</span>
   <span className="contract-badge liquidity">Liquidity</span>
@@ -26,28 +24,24 @@ The `ve69LPMath` library provides the mathematical foundation for the vote-escro
 
 ```mermaid
 flowchart TB
-    subgraph "Token Locking System"
-        Lock["Lock LP Tokens"]
-        Decay["Time Decay"]
-        Boost["Boost Calculation"]
-        Power["Voting Power"]
-    end
-    
+subgraph "Token Locking System"
+    Lock["Lock LP Tokens"]
+    Decay["Time Decay"]
+    Boost["Boost Calculation"]
+    Power["Voting Power"]
     subgraph "Applications"
-        Governance["Governance Voting"]
-        FeesBoost["Trading Fee Boost"]
-        JackpotBoost["Jackpot Win Boost"]
-    end
-    
-    Lock --> Decay
-    Decay --> Power
-    Lock --> Boost
-    Boost --> FeesBoost
-    Boost --> JackpotBoost
-    Power --> Governance
-    
-    classDef highlight fill:#f96,stroke:#333,;
-    class Lock,Power highlight;
+    Governance["Governance Voting"]
+    FeesBoost["Trading Fee Boost"]
+    JackpotBoost["Jackpot Win Boost"]
+    Lock -->|> Decay
+    Decay| Power
+    Lock -->|> Boost
+    Boost| FeesBoost
+    Boost -->|> JackpotBoost
+    Power| Governance
+    classDef highlight fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff
+    end    class Lock primary    endclass Power primary    end
+end
 ```
 
 ## Key Functions
@@ -174,44 +168,40 @@ contract RewardDistributor {
 
 The ve69LP system implements a time-weighted staking model that incentivizes long-term alignment:
 
-1. **Lock Duration**: Users lock LP tokens for up to 4 years
-2. **Voting Power**: Proportional to amount locked and remaining lock time
-3. **Linear Decay**: Voting power decreases linearly as lock expiration approaches
-4. **Boost Mechanism**: Provides increased benefits proportional to lock commitment
-5. **Governance Rights**: Weighted voting based on lock duration and amount
+1.**Lock Duration**: Users lock LP tokens for up to 4 years
+2.**Voting Power**: Proportional to amount locked and remaining lock time
+3.**Linear Decay**: Voting power decreases linearly as lock expiration approaches
+4.**Boost Mechanism**: Provides increased benefits proportional to lock commitment
+5.**Governance Rights**: Weighted voting based on lock duration and amount
 
 ## Partner Probability Boost
 
 The ve69LP system includes a partner voting mechanism that allocates a 6.9% (690 basis points) probability boost among ecosystem partners:
 
-1. **Total Allocation**: A fixed 6.9% probability boost shared among all partners
-2. **Voting Power**: ve69LP holders vote for partners using their voting power
-3. **Proportional Distribution**: The 6.9% is distributed proportionally based on votes received
-4. **Weekly Periods**: Voting occurs in 7-day periods with recalculation at period end
-5. **Partner Registry**: Only registered and active partners can receive votes
+1.**Total Allocation**: A fixed 6.9% probability boost shared among all partners
+2.**Voting Power**: ve69LP holders vote for partners using their voting power
+3.**Proportional Distribution**: The 6.9% is distributed proportionally based on votes received
+4.**Weekly Periods**: Voting occurs in 7-day periods with recalculation at period end
+5.**Partner Registry**: Only registered and active partners can receive votes
 
 <PartnerBoostAnimation />
+```
 
 ```mermaid
 flowchart TB
-    subgraph "Partner Boost System"
-        Votes["ve69LP Holder Votes"]
-        Calculation["Weekly Calculation"]
-        Distribution["Boost Distribution"]
-        Partners["Partner Registry"]
-    end
-    
+subgraph "Partner Boost System"
+    Votes["ve69LP Holder Votes"]
+    Calculation["Weekly Calculation"]
+    Distribution["Boost Distribution"]
+    Partners["Partner Registry"]
     subgraph "Applications"
-        ProbBoost["Probability Boost"]
-    end
-    
-    Votes --> Calculation
-    Partners --> Calculation
-    Calculation --> Distribution
-    Distribution --> ProbBoost
-    
-    classDef highlight fill:#f96,stroke:#333,;
-    class Distribution highlight;
+    ProbBoost["Probability Boost"]
+    Votes -->|> Calculation
+    Partners| Calculation
+    Calculation -->|> Distribution
+    Distribution| ProbBoost
+    end    classDef highlight fill:#4a80d1,stroke:#4a80d1,stroke-width:2px,color:#ffffff    endclass Distribution primary    end
+end
 ```
 
 <div className="security-consideration">
